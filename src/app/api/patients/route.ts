@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query, queryOne } from "@/lib/supabase";
+import { mapPatientFromDb, mapPatientToDb } from "@/lib/case";
 
 // Helper: Calculate Age of Gestation from LMP
-function calculateAOG(lmp: Date): string {
+function calculateAOG(lmp: string | Date): string {
   const now = new Date();
   const diffMs = now.getTime() - new Date(lmp).getTime();
   const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -16,19 +17,18 @@ async function generatePatientId(): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `MOM-${year}-`;
 
-  // Find the highest sequential number for this year
-  const lastPatient = await db.patient.findFirst({
-    where: {
-      patientId: { startsWith: prefix },
-    },
-    orderBy: { patientId: "desc" },
-    select: { patientId: true },
-  });
+  const rows = await query(
+    `SELECT patient_id FROM patient
+     WHERE patient_id LIKE $1
+     ORDER BY patient_id DESC
+     LIMIT 1`,
+    [`${prefix}%`]
+  );
 
   let nextNum = 1;
-  if (lastPatient) {
-    const lastNumStr = lastPatient.patientId.replace(prefix, "");
-    const lastNum = parseInt(lastNumStr, 10);
+  if (rows.rows.length > 0) {
+    const lastNumStr = (rows.rows[0] as Record<string, unknown>).patient_id as string;
+    const lastNum = parseInt(lastNumStr.replace(prefix, ""), 10);
     if (!isNaN(lastNum)) {
       nextNum = lastNum + 1;
     }
@@ -45,66 +45,54 @@ export async function GET(request: NextRequest) {
     const riskLevel = searchParams.get("riskLevel") || "";
     const barangay = searchParams.get("barangay") || "";
 
-    // Build where clause
-    const where: Record<string, unknown> = {};
+    // Build WHERE clause dynamically
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+    let paramIndex = 1;
 
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { patientId: { contains: search } },
-      ];
+      conditions.push(`(name ILIKE $${paramIndex} OR patient_id ILIKE $${paramIndex})`);
+      params.push(`%${search}%`);
+      paramIndex++;
     }
 
     if (riskLevel) {
-      where.riskLevel = riskLevel;
+      conditions.push(`risk_level = $${paramIndex}`);
+      params.push(riskLevel);
+      paramIndex++;
     }
 
     if (barangay) {
-      where.barangay = { contains: barangay };
+      conditions.push(`barangay ILIKE $${paramIndex}`);
+      params.push(`%${barangay}%`);
+      paramIndex++;
     }
 
-    const patients = await db.patient.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        _count: {
-          select: { consultations: true },
-        },
-        consultations: {
-          select: { consultationDate: true },
-          orderBy: { consultationDate: "desc" },
-          take: 1,
-        },
-      },
-    });
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    // Flatten response with consultationCount and latestConsultationDate
-    const formatted = patients.map((p) => ({
-      id: p.id,
-      patientId: p.patientId,
-      name: p.name,
-      dateOfBirth: p.dateOfBirth,
-      address: p.address,
-      contactNumber: p.contactNumber,
-      emergencyContact: p.emergencyContact,
-      emergencyRelation: p.emergencyRelation,
-      gravidity: p.gravidity,
-      parity: p.parity,
-      lmp: p.lmp,
-      aog: p.aog,
-      bloodType: p.bloodType,
-      allergies: p.allergies,
-      medicalHistory: p.medicalHistory,
-      barangay: p.barangay,
-      riskLevel: p.riskLevel,
-      createdAt: p.createdAt,
-      updatedAt: p.updatedAt,
-      consultationCount: p._count.consultations,
-      latestConsultationDate:
-        p.consultations.length > 0
-          ? p.consultations[0].consultationDate
-          : null,
-    }));
+    // Fetch patients with consultation count and latest consultation date
+    const patients = await query(
+      `SELECT p.*,
+              (SELECT COUNT(*) FROM consultation c WHERE c.patient_id = p.id)::int AS consultation_count,
+              (SELECT c2.consultation_date FROM consultation c2
+               WHERE c2.patient_id = p.id
+               ORDER BY c2.consultation_date DESC
+               LIMIT 1) AS latest_consultation_date
+       FROM patient p
+       ${whereClause}
+       ORDER BY p.created_at DESC`,
+      params
+    );
+
+    // Format response to match original API output (camelCase)
+    const formatted = patients.rows.map((p) => {
+      const mapped = mapPatientFromDb(p as Record<string, unknown>);
+      return {
+        ...mapped,
+        consultationCount: (p as Record<string, unknown>).consultation_count,
+        latestConsultationDate: (p as Record<string, unknown>).latest_consultation_date,
+      };
+    });
 
     return NextResponse.json({ success: true, data: formatted });
   } catch (error) {
@@ -154,7 +142,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify nurse exists
-    const nurse = await db.nurse.findUnique({ where: { id: nurseId } });
+    const nurse = await queryOne('SELECT id FROM nurse WHERE id = $1', [nurseId]);
     if (!nurse) {
       return NextResponse.json(
         { success: false, error: "Nurse not found" },
@@ -172,38 +160,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Create patient
-    const patient = await db.patient.create({
-      data: {
+    const patientRow = await queryOne(
+      `INSERT INTO patient (patient_id, name, date_of_birth, address, contact_number,
+        emergency_contact, emergency_relation, gravidity, parity, lmp, aog, blood_type,
+        allergies, medical_history, barangay, risk_level)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       RETURNING *`,
+      [
         patientId,
         name,
-        dateOfBirth: new Date(dateOfBirth),
+        dateOfBirth,
         address,
-        contactNumber: contactNumber || null,
-        emergencyContact: emergencyContact || null,
-        emergencyRelation: emergencyRelation || null,
-        gravidity: gravidity || 0,
-        parity: parity || 0,
-        lmp: lmp ? new Date(lmp) : null,
+        contactNumber || null,
+        emergencyContact || null,
+        emergencyRelation || null,
+        gravidity || 0,
+        parity || 0,
+        lmp ? new Date(lmp) : null,
         aog,
-        bloodType: bloodType || null,
-        allergies: allergies || null,
-        medicalHistory: medicalHistory || null,
-        barangay: barangay || null,
-        riskLevel: riskLevel || "low",
-      },
-    });
+        bloodType || null,
+        allergies || null,
+        medicalHistory || null,
+        barangay || null,
+        riskLevel || "low",
+      ]
+    );
 
-    // Create audit log
-    await db.auditLog.create({
-      data: {
-        nurseId,
-        action: "create",
-        entity: "patient",
-        entityId: patient.id,
-        details: JSON.stringify({ patientId: patient.patientId, name: patient.name }),
-      },
-    });
+    // Create audit log (fire-and-forget)
+    if (patientRow) {
+      query(
+        `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [nurseId, "create", "patient", patientRow.id, JSON.stringify({ patientId: patientRow.patient_id, name: patientRow.name })]
+      ).catch(() => {});
+    }
 
+    const patient = mapPatientFromDb(patientRow!);
     return NextResponse.json({ success: true, data: patient }, { status: 201 });
   } catch (error) {
     console.error("Error creating patient:", error);

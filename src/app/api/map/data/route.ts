@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query } from "@/lib/supabase";
 
 /**
  * GET /api/map/data
@@ -42,33 +42,23 @@ const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 
 export async function GET() {
   try {
-    // Fetch all patients with their barangay and current riskLevel
-    const patients = await db.patient.findMany({
-      select: {
-        patientId: true,
-        barangay: true,
-        riskLevel: true,
-        consultations: {
-          select: {
-            riskLevel: true,
-            consultationDate: true,
-          },
-          orderBy: { consultationDate: "desc" },
-          take: 1, // latest consultation only
-        },
-      },
-    });
+    // Fetch all patients with their latest consultation risk level
+    const patients = await query(
+      `SELECT p.patient_id, p.barangay, p.risk_level AS patient_risk_level,
+              (SELECT c.risk_level FROM consultation c
+               WHERE c.patient_id = p.id
+               ORDER BY c.consultation_date DESC
+               LIMIT 1) AS latest_consultation_risk
+       FROM patient p`
+    );
 
     // For each patient, determine their "latest" risk level
-    const patientRiskData = patients.map((p) => {
-      const latestConsultationRisk =
-        p.consultations.length > 0
-          ? p.consultations[0].riskLevel
-          : p.riskLevel;
+    const patientRiskData = patients.rows.map((p: Record<string, unknown>) => {
+      const latestRisk = p.latest_consultation_risk || p.patient_risk_level || 'low';
       return {
-        patientId: p.patientId,
+        patientId: p.patient_id,
         barangay: p.barangay || "Unknown",
-        riskLevel: latestConsultationRisk,
+        riskLevel: latestRisk,
       };
     });
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query, queryOne } from "@/lib/supabase";
+import { mapPatientFromDb, mapConsultationFromDb } from "@/lib/case";
 
 // Helper: Calculate Age of Gestation from LMP
-function calculateAOG(lmp: Date): string {
+function calculateAOG(lmp: string | Date): string {
   const now = new Date();
   const diffMs = now.getTime() - new Date(lmp).getTime();
   const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -19,23 +20,32 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const patient = await db.patient.findUnique({
-      where: { id },
-      include: {
-        consultations: {
-          orderBy: { consultationDate: "desc" },
-        },
-      },
-    });
+    const patientRow = await queryOne(
+      'SELECT * FROM patient WHERE id = $1',
+      [id]
+    );
 
-    if (!patient) {
+    if (!patientRow) {
       return NextResponse.json(
         { success: false, error: "Patient not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: patient });
+    // Fetch consultations for this patient
+    const consultations = await query(
+      `SELECT * FROM consultation WHERE patient_id = $1 ORDER BY consultation_date DESC`,
+      [id]
+    );
+
+    const patient = mapPatientFromDb(patientRow);
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...patient,
+        consultations: consultations.rows.map((c) => mapConsultationFromDb(c as Record<string, unknown>)),
+      },
+    });
   } catch (error) {
     console.error("Error fetching patient:", error);
     return NextResponse.json(
@@ -63,7 +73,7 @@ export async function PUT(
     }
 
     // Verify patient exists
-    const existing = await db.patient.findUnique({ where: { id } });
+    const existing = await queryOne('SELECT * FROM patient WHERE id = $1', [id]);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Patient not found" },
@@ -71,39 +81,59 @@ export async function PUT(
       );
     }
 
+    // Map camelCase to snake_case and build update
+    const mapped = mapPatientToDb(updateData);
+
     // Recalculate AOG if LMP is being updated
-    if (updateData.lmp !== undefined) {
-      if (updateData.lmp) {
-        updateData.aog = calculateAOG(new Date(updateData.lmp));
+    if (mapped.lmp !== undefined) {
+      if (mapped.lmp) {
+        mapped.aog = calculateAOG(mapped.lmp as string);
+        mapped.lmp = new Date(mapped.lmp as string);
       } else {
-        updateData.aog = null;
+        mapped.aog = null;
       }
     }
 
     // Parse date fields
-    if (updateData.dateOfBirth) {
-      updateData.dateOfBirth = new Date(updateData.dateOfBirth);
+    if (mapped.date_of_birth) {
+      mapped.date_of_birth = new Date(mapped.date_of_birth as string);
     }
-    if (updateData.lmp) {
-      updateData.lmp = new Date(updateData.lmp);
+    if (mapped.lmp && !(mapped.lmp instanceof Date)) {
+      mapped.lmp = new Date(mapped.lmp as string);
     }
 
-    const patient = await db.patient.update({
-      where: { id },
-      data: updateData,
-    });
+    // Build dynamic UPDATE query
+    const setClauses: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
 
-    // Create audit log
-    await db.auditLog.create({
-      data: {
-        nurseId,
-        action: "update",
-        entity: "patient",
-        entityId: patient.id,
-        details: JSON.stringify(updateData),
-      },
-    });
+    for (const [key, value] of Object.entries(mapped)) {
+      setClauses.push(`"${key}" = $${paramIndex}`);
+      values.push(value);
+      paramIndex++;
+    }
 
+    // Always update updated_at
+    setClauses.push(`"updated_at" = now()`);
+
+    if (setClauses.length === 1) {
+      // No actual fields to update
+      return NextResponse.json({ success: true, data: mapPatientFromDb(existing) });
+    }
+
+    const patientRow = await queryOne(
+      `UPDATE patient SET ${setClauses.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
+      [...values, id]
+    );
+
+    // Create audit log (fire-and-forget)
+    query(
+      `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [nurseId, "update", "patient", id, JSON.stringify(updateData)]
+    ).catch(() => {});
+
+    const patient = mapPatientFromDb(patientRow!);
     return NextResponse.json({ success: true, data: patient });
   } catch (error) {
     console.error("Error updating patient:", error);
@@ -131,13 +161,14 @@ export async function DELETE(
       );
     }
 
-    // Verify patient exists
-    const patient = await db.patient.findUnique({
-      where: { id },
-      include: { _count: { select: { consultations: true } } },
-    });
+    // Verify patient exists and check for consultations
+    const patientRow = await queryOne(
+      `SELECT p.*, (SELECT COUNT(*) FROM consultation c WHERE c.patient_id = p.id)::int AS consultation_count
+       FROM patient p WHERE p.id = $1`,
+      [id]
+    );
 
-    if (!patient) {
+    if (!patientRow) {
       return NextResponse.json(
         { success: false, error: "Patient not found" },
         { status: 404 }
@@ -145,7 +176,7 @@ export async function DELETE(
     }
 
     // Check if patient has consultations
-    if (patient._count.consultations > 0) {
+    if ((patientRow as Record<string, unknown>).consultation_count > 0) {
       return NextResponse.json(
         {
           success: false,
@@ -156,18 +187,14 @@ export async function DELETE(
     }
 
     // Delete patient
-    await db.patient.delete({ where: { id } });
+    await query('DELETE FROM patient WHERE id = $1', [id]);
 
-    // Create audit log
-    await db.auditLog.create({
-      data: {
-        nurseId,
-        action: "delete",
-        entity: "patient",
-        entityId: id,
-        details: JSON.stringify({ patientId: patient.patientId, name: patient.name }),
-      },
-    });
+    // Create audit log (fire-and-forget)
+    query(
+      `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [nurseId, "delete", "patient", id, JSON.stringify({ patientId: patientRow.patient_id, name: patientRow.name })]
+    ).catch(() => {});
 
     return NextResponse.json({
       success: true,

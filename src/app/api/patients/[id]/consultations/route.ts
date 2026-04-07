@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query, queryOne } from "@/lib/supabase";
+import { mapConsultationFromDb } from "@/lib/case";
 
 // Helper: Generate next consultation number
 async function generateConsultationNo(): Promise<string> {
   const prefix = "CONSULT-";
 
-  // Find the highest sequential number
-  const lastConsultation = await db.consultation.findFirst({
-    orderBy: { consultationNo: "desc" },
-    select: { consultationNo: true },
-  });
+  const rows = await query(
+    `SELECT consultation_no FROM consultation
+     ORDER BY consultation_no DESC
+     LIMIT 1`
+  );
 
   let nextNum = 1;
-  if (lastConsultation) {
-    const lastNumStr = lastConsultation.consultationNo.replace(prefix, "");
-    const lastNum = parseInt(lastNumStr, 10);
+  if (rows.rows.length > 0) {
+    const lastNumStr = (rows.rows[0] as Record<string, unknown>).consultation_no as string;
+    const lastNum = parseInt(lastNumStr.replace(prefix, ""), 10);
     if (!isNaN(lastNum)) {
       nextNum = lastNum + 1;
     }
@@ -42,7 +43,7 @@ export async function POST(
     }
 
     // Verify patient exists
-    const patient = await db.patient.findUnique({ where: { id: patientId } });
+    const patient = await queryOne('SELECT * FROM patient WHERE id = $1', [patientId]);
     if (!patient) {
       return NextResponse.json(
         { success: false, error: "Patient not found" },
@@ -51,7 +52,7 @@ export async function POST(
     }
 
     // Verify nurse exists
-    const nurse = await db.nurse.findUnique({ where: { id: nurseId } });
+    const nurse = await queryOne('SELECT * FROM nurse WHERE id = $1', [nurseId]);
     if (!nurse) {
       return NextResponse.json(
         { success: false, error: "Nurse not found" },
@@ -62,43 +63,102 @@ export async function POST(
     // Generate consultation number
     const consultationNo = await generateConsultationNo();
 
+    // Map optional fields from camelCase to snake_case
+    const fieldMapping: Record<string, string> = {
+      subjectiveSymptoms: "subjective_symptoms",
+      objectiveVitals: "objective_vitals",
+      fetalHeartRate: "fetal_heart_rate",
+      fundalHeight: "fundal_height",
+      allergies: "allergies",
+      medications: "medications",
+      physicalExam: "physical_exam",
+      labResults: "lab_results",
+      notes: "notes",
+      icd10Diagnosis: "icd10_diagnosis",
+      nandaDiagnosis: "nanda_diagnosis",
+      riskLevel: "risk_level",
+      aiSuggestions: "ai_suggestions",
+      selectedInterventions: "selected_interventions",
+      evaluationStatus: "evaluation_status",
+      evaluationNotes: "evaluation_notes",
+      referralSummary: "referral_summary",
+      referralStatus: "referral_status",
+    };
+
     // Create consultation with initial status
-    const consultation = await db.consultation.create({
-      data: {
+    const consultationRow = await queryOne(
+      `INSERT INTO consultation (consultation_no, patient_id, nurse_id, consultation_date, step_completed, status)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
         consultationNo,
         patientId,
         nurseId,
-        consultationDate: consultationDate ? new Date(consultationDate) : new Date(),
-        stepCompleted: 0,
-        status: "in_progress",
-        ...optionalFields,
-      },
-      include: {
-        patient: {
-          select: { id: true, patientId: true, name: true },
-        },
-        nurse: {
-          select: { id: true, name: true },
-        },
-      },
-    });
+        consultationDate ? new Date(consultationDate) : new Date(),
+        0,
+        "in_progress",
+      ]
+    );
 
-    // Create audit log
-    await db.auditLog.create({
-      data: {
-        nurseId,
-        action: "create",
-        entity: "consultation",
-        entityId: consultation.id,
-        details: JSON.stringify({
-          consultationNo: consultation.consultationNo,
-          patientId: patient.patientId,
-          patientName: patient.name,
-        }),
-      },
-    });
+    // Update any optional fields if provided
+    if (Object.keys(optionalFields).length > 0) {
+      const setClauses: string[] = [];
+      const values: unknown[] = [];
+      let paramIdx = 1;
 
-    return NextResponse.json({ success: true, data: consultation }, { status: 201 });
+      for (const [camelKey, value] of Object.entries(optionalFields)) {
+        const snakeKey = fieldMapping[camelKey] || camelKey;
+        setClauses.push(`"${snakeKey}" = $${paramIdx}`);
+        values.push(value);
+        paramIdx++;
+      }
+
+      if (setClauses.length > 0) {
+        await queryOne(
+          `UPDATE consultation SET ${setClauses.join(", ")} WHERE id = $${paramIdx} RETURNING *`,
+          [...values, consultationRow!.id]
+        );
+      }
+    }
+
+    // Fetch the complete consultation with relations
+    const fullConsultation = await queryOne(
+      `SELECT c.*,
+              p.id AS patient_obj_id, p.patient_id AS patient_patient_id, p.name AS patient_name,
+              n.id AS nurse_obj_id, n.name AS nurse_name
+       FROM consultation c
+       JOIN patient p ON c.patient_id = p.id
+       JOIN nurse n ON c.nurse_id = n.id
+       WHERE c.id = $1`,
+      [consultationRow!.id]
+    );
+
+    // Create audit log (fire-and-forget)
+    query(
+      `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [nurseId, "create", "consultation", consultationRow!.id, JSON.stringify({
+        consultationNo,
+        patientId: patient.patient_id,
+        patientName: patient.name,
+      })]
+    ).catch(() => {});
+
+    // Build response matching original format with nested patient/nurse
+    const result = {
+      ...mapConsultationFromDb(fullConsultation!),
+      patient: {
+        id: fullConsultation!.patient_obj_id,
+        patientId: fullConsultation!.patient_patient_id,
+        name: fullConsultation!.patient_name,
+      },
+      nurse: {
+        id: fullConsultation!.nurse_obj_id,
+        name: fullConsultation!.nurse_name,
+      },
+    };
+
+    return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
     console.error("Error creating consultation:", error);
     return NextResponse.json(

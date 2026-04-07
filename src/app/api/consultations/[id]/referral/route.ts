@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query, queryOne } from "@/lib/supabase";
 
 /**
  * POST /api/consultations/[id]/referral
  * Generates a structured referral summary from consultation data,
- * stores it in referralSummary, and returns the generated text.
+ * stores it in referral_summary, and returns the generated text.
  */
 export async function POST(
   _request: NextRequest,
@@ -13,24 +13,17 @@ export async function POST(
   try {
     const { id } = await params;
 
-    const consultation = await db.consultation.findUnique({
-      where: { id },
-      include: {
-        patient: {
-          select: {
-            name: true,
-            patientId: true,
-            dateOfBirth: true,
-            gravidity: true,
-            parity: true,
-            aog: true,
-            bloodType: true,
-            riskLevel: true,
-            barangay: true,
-          },
-        },
-      },
-    });
+    const consultation = await queryOne(
+      `SELECT c.*,
+              p.name AS patient_name, p.patient_id AS patient_patient_id,
+              p.date_of_birth AS patient_date_of_birth, p.gravidity AS patient_gravidity,
+              p.parity AS patient_parity, p.aog AS patient_aog, p.blood_type AS patient_blood_type,
+              p.risk_level AS patient_risk_level, p.barangay AS patient_barangay
+       FROM consultation c
+       JOIN patient p ON c.patient_id = p.id
+       WHERE c.id = $1`,
+      [id]
+    );
 
     if (!consultation) {
       return NextResponse.json(
@@ -39,13 +32,13 @@ export async function POST(
       );
     }
 
-    const patient = consultation.patient;
+    const p = consultation;
 
     // Parse selected interventions if available
     let selectedInterventionsText = "None selected";
-    if (consultation.selectedInterventions) {
+    if (consultation.selected_interventions) {
       try {
-        const interventions = JSON.parse(consultation.selectedInterventions);
+        const interventions = JSON.parse(consultation.selected_interventions);
         if (Array.isArray(interventions)) {
           selectedInterventionsText = interventions
             .map((intv: { name?: string; description?: string }, i: number) =>
@@ -54,15 +47,15 @@ export async function POST(
             .join("\n   ");
         }
       } catch {
-        selectedInterventionsText = consultation.selectedInterventions;
+        selectedInterventionsText = consultation.selected_interventions;
       }
     }
 
     // Parse AI suggestions for rationale
     let aiRationale = "";
-    if (consultation.aiSuggestions) {
+    if (consultation.ai_suggestions) {
       try {
-        const parsed = JSON.parse(consultation.aiSuggestions);
+        const parsed = JSON.parse(consultation.ai_suggestions);
         if (parsed.rationale) {
           aiRationale = parsed.rationale;
         }
@@ -76,9 +69,9 @@ export async function POST(
 
     // Determine risk label
     const riskLabel =
-      consultation.riskLevel === "high"
+      consultation.risk_level === "high"
         ? "HIGH RISK"
-        : consultation.riskLevel === "moderate"
+        : consultation.risk_level === "moderate"
           ? "MODERATE RISK"
           : "LOW RISK";
 
@@ -90,38 +83,38 @@ export async function POST(
       "",
       "PATIENT INFORMATION",
       "-".repeat(40),
-      `Patient ID: ${patient.patientId}`,
-      `Name: ${patient.name}`,
-      `Date of Birth: ${patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : "N/A"}`,
-      `Barangay: ${patient.barangay || "N/A"}`,
+      `Patient ID: ${p.patient_patient_id}`,
+      `Name: ${p.patient_name}`,
+      `Date of Birth: ${p.patient_date_of_birth ? new Date(p.patient_date_of_birth).toLocaleDateString() : "N/A"}`,
+      `Barangay: ${p.patient_barangay || "N/A"}`,
       "",
       "OBSTETRICAL HISTORY",
       "-".repeat(40),
-      `Gravidity: ${patient.gravidity}`,
-      `Parity: ${patient.parity}`,
-      `Age of Gestation: ${patient.aog || "Not calculated"}`,
-      `Blood Type: ${patient.bloodType || "Unknown"}`,
+      `Gravidity: ${p.patient_gravidity}`,
+      `Parity: ${p.patient_parity}`,
+      `Age of Gestation: ${p.patient_aog || "Not calculated"}`,
+      `Blood Type: ${p.patient_blood_type || "Unknown"}`,
       `Risk Level: ${riskLabel}`,
       "",
       "CLINICAL ASSESSMENT",
       "-".repeat(40),
-      `Subjective Symptoms: ${consultation.subjectiveSymptoms || "None reported"}`,
-      `Objective Vitals: ${consultation.objectiveVitals || "Not recorded"}`,
-      `Fetal Heart Rate: ${consultation.fetalHeartRate || "Not measured"}`,
-      `Fundal Height: ${consultation.fundalHeight || "Not measured"}`,
+      `Subjective Symptoms: ${consultation.subjective_symptoms || "None reported"}`,
+      `Objective Vitals: ${consultation.objective_vitals || "Not recorded"}`,
+      `Fetal Heart Rate: ${consultation.fetal_heart_rate || "Not measured"}`,
+      `Fundal Height: ${consultation.fundal_height || "Not measured"}`,
       `Allergies: ${consultation.allergies || "None reported"}`,
       `Current Medications: ${consultation.medications || "None"}`,
       "",
       "FINDINGS",
       "-".repeat(40),
-      `Physical Exam: ${consultation.physicalExam || "Not documented"}`,
-      `Lab Results: ${consultation.labResults || "No results available"}`,
+      `Physical Exam: ${consultation.physical_exam || "Not documented"}`,
+      `Lab Results: ${consultation.lab_results || "No results available"}`,
       `Notes: ${consultation.notes || "None"}`,
       "",
       "DIAGNOSIS",
       "-".repeat(40),
-      `ICD-10 Diagnosis: ${consultation.icd10Diagnosis || "None assigned"}`,
-      `NANDA Diagnosis: ${consultation.nandaDiagnosis || "None assigned"}`,
+      `ICD-10 Diagnosis: ${consultation.icd10_diagnosis || "None assigned"}`,
+      `NANDA Diagnosis: ${consultation.nanda_diagnosis || "None assigned"}`,
       "",
       "AI-ASSISTED INTERVENTIONS",
       "-".repeat(40),
@@ -131,12 +124,12 @@ export async function POST(
       "",
       "EVALUATION",
       "-".repeat(40),
-      `Evaluation Status: ${consultation.evaluationStatus || "Not yet evaluated"}`,
-      `Evaluation Notes: ${consultation.evaluationNotes || "None"}`,
+      `Evaluation Status: ${consultation.evaluation_status || "Not yet evaluated"}`,
+      `Evaluation Notes: ${consultation.evaluation_notes || "None"}`,
       "",
       "=".repeat(60),
-      `Consultation No: ${consultation.consultationNo}`,
-      `Consultation Date: ${new Date(consultation.consultationDate).toLocaleString()}`,
+      `Consultation No: ${consultation.consultation_no}`,
+      `Consultation Date: ${new Date(consultation.consultation_date).toLocaleString()}`,
       `Referral Generated: ${new Date().toLocaleString()}`,
       "=".repeat(60),
     ]
@@ -144,21 +137,18 @@ export async function POST(
       .join("\n");
 
     // Store the referral summary
-    const updated = await db.consultation.update({
-      where: { id },
-      data: {
-        referralSummary,
-        referralStatus: "pending",
-      },
-    });
+    const updated = await queryOne(
+      `UPDATE consultation SET referral_summary = $1, referral_status = $2, updated_at = now() WHERE id = $3 RETURNING id, consultation_no, referral_status`,
+      [referralSummary, "pending", id]
+    );
 
     return NextResponse.json({
       success: true,
       referralSummary,
       consultation: {
-        id: updated.id,
-        consultationNo: updated.consultationNo,
-        referralStatus: updated.referralStatus,
+        id: updated!.id,
+        consultationNo: updated!.consultation_no,
+        referralStatus: updated!.referral_status,
       },
     });
   } catch (error) {

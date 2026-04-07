@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { queryOne } from "@/lib/supabase";
+import { mapNurseFromDb } from "@/lib/case";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
@@ -15,11 +16,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Find nurse by email
-    const nurse = await db.nurse.findUnique({
-      where: { email },
-    });
+    const row = await queryOne(
+      'SELECT * FROM nurse WHERE email = $1',
+      [email]
+    );
 
-    if (!nurse) {
+    if (!row) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
         { status: 401 }
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Compare password using bcryptjs
-    const isPasswordValid = await bcrypt.compare(password, nurse.password);
+    const isPasswordValid = await bcrypt.compare(password, row.password as string);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -37,6 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Return success with nurse data (excluding password)
+    const nurse = mapNurseFromDb(row);
     return NextResponse.json({
       success: true,
       nurse: {

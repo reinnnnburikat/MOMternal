@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { query, queryOne } from "@/lib/supabase";
 import ZAI from "z-ai-web-dev-sdk";
 
 /**
@@ -14,21 +14,17 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Fetch consultation with patient (need clinical data, not identity)
-    const consultation = await db.consultation.findUnique({
-      where: { id },
-      include: {
-        patient: {
-          select: {
-            gravidity: true,
-            parity: true,
-            aog: true,
-            bloodType: true,
-            riskLevel: true,
-          },
-        },
-      },
-    });
+    // Fetch consultation with patient clinical data (not identity)
+    const consultation = await queryOne(
+      `SELECT c.*,
+              p.gravidity AS patient_gravidity, p.parity AS patient_parity,
+              p.aog AS patient_aog, p.blood_type AS patient_blood_type,
+              p.risk_level AS patient_risk_level
+       FROM consultation c
+       JOIN patient p ON c.patient_id = p.id
+       WHERE c.id = $1`,
+      [id]
+    );
 
     if (!consultation) {
       return NextResponse.json(
@@ -39,27 +35,23 @@ export async function POST(
 
     // Build clinical assessment payload (NO patient-identifiable data)
     const assessmentData = {
-      // SOAP
-      subjectiveSymptoms: consultation.subjectiveSymptoms,
-      objectiveVitals: consultation.objectiveVitals,
-      fetalHeartRate: consultation.fetalHeartRate,
-      fundalHeight: consultation.fundalHeight,
+      subjectiveSymptoms: consultation.subjective_symptoms,
+      objectiveVitals: consultation.objective_vitals,
+      fetalHeartRate: consultation.fetal_heart_rate,
+      fundalHeight: consultation.fundal_height,
       allergies: consultation.allergies,
       medications: consultation.medications,
-      // Findings
-      physicalExam: consultation.physicalExam,
-      labResults: consultation.labResults,
+      physicalExam: consultation.physical_exam,
+      labResults: consultation.lab_results,
       notes: consultation.notes,
-      // Diagnosis
-      icd10Diagnosis: consultation.icd10Diagnosis,
-      nandaDiagnosis: consultation.nandaDiagnosis,
-      // Clinical context (no names, IDs, contact info)
+      icd10Diagnosis: consultation.icd10_diagnosis,
+      nandaDiagnosis: consultation.nanda_diagnosis,
       clinicalContext: {
-        gravidity: consultation.patient.gravidity,
-        parity: consultation.patient.parity,
-        aog: consultation.patient.aog,
-        bloodType: consultation.patient.bloodType,
-        riskLevel: consultation.patient.riskLevel,
+        gravidity: consultation.patient_gravidity,
+        parity: consultation.patient_parity,
+        aog: consultation.patient_aog,
+        bloodType: consultation.patient_blood_type,
+        riskLevel: consultation.patient_risk_level,
       },
     };
 
@@ -142,7 +134,6 @@ Respond with valid JSON ONLY (no markdown, no explanation outside JSON) in this 
     try {
       aiSuggestions = JSON.parse(cleaned);
     } catch {
-      // If parsing fails, store the raw content wrapped in a fallback structure
       aiSuggestions = {
         interventions: [],
         priorityIntervention: "",
@@ -155,19 +146,17 @@ Respond with valid JSON ONLY (no markdown, no explanation outside JSON) in this 
     // Store as JSON string in the consultation
     const aiSuggestionsJson = JSON.stringify(aiSuggestions);
 
-    const updated = await db.consultation.update({
-      where: { id },
-      data: {
-        aiSuggestions: aiSuggestionsJson,
-      },
-    });
+    const updated = await queryOne(
+      `UPDATE consultation SET ai_suggestions = $1, updated_at = now() WHERE id = $2 RETURNING id, step_completed`,
+      [aiSuggestionsJson, id]
+    );
 
     return NextResponse.json({
       success: true,
       aiSuggestions,
       consultation: {
-        id: updated.id,
-        stepCompleted: updated.stepCompleted,
+        id: updated!.id,
+        stepCompleted: updated!.step_completed,
       },
     });
   } catch (error) {

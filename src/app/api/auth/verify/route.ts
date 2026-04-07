@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { queryOne } from "@/lib/supabase";
+import { mapNurseFromDb } from "@/lib/case";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,14 +15,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify nurse exists in the database
-    const nurse = await db.nurse.findUnique({
-      where: { id: nurseId },
-    });
+    const row = await queryOne(
+      'SELECT * FROM nurse WHERE id = $1',
+      [nurseId]
+    );
 
-    if (!nurse) {
+    if (!row) {
       return NextResponse.json({ success: false });
     }
 
+    const nurse = mapNurseFromDb(row);
     return NextResponse.json({
       success: true,
       nurse: {
