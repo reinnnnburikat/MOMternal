@@ -84,3 +84,30 @@ Stage Summary:
 - Risk map now renders correctly with OSM tiles, barangay boundaries visible even with zero patients
 - Map API returns empty data gracefully (no patients seeded)
 - Repository is up-to-date at https://github.com/reinnnnburikat/MOMternal.git
+
+---
+Task ID: 5
+Agent: GeoJSON Fetch Agent
+Task: Fetch accurate Makati City barangay GeoJSON from OpenStreetMap
+
+Work Log:
+- Identified 33 OSM relation IDs for all Makati barangays using Overpass API
+- Fetched all 33 relations with full geometry in a single Overpass query
+- Discovered that Rizal (OSM rel/131669) is NOT within Makati City bounds (it's in Taguig at 121.057-121.067 lon)
+- Confirmed that Barangay Rizal of Makati has NO admin_level=10 boundary relation in OSM
+- Verified via bbox search, area search, and Nominatim that Rizal Makati is unmapped in OSM
+- Built conversion script (scripts/convert-osm-to-geojson.mjs) that:
+  - Merges OSM way segment geometries into connected polygon rings
+  - Handles way direction matching and closing of rings
+  - Removes duplicate consecutive points
+  - Computes centroids as mean of all polygon coordinates
+- Saved 32 barangay boundary polygons to public/makati-barangays.geojson
+- Updated centroids in map-view.tsx from OSM polygon means (32 computed + Rizal approx)
+- Kept Rizal centroid at [14.5570, 121.0120] (approximate, from previous data)
+
+Stage Summary:
+- 32/33 barangays have accurate OSM-sourced boundary polygons (avg 84 points/polygon)
+- Barangay Rizal: no OSM boundary exists; centroid only, no polygon
+- File: public/makati-barangays.geojson (70.0 KB, FeatureCollection with 32 features)
+- Scripts: scripts/fetch-geojson.mjs (fetcher), scripts/convert-osm-to-geojson.mjs (converter)
+- Centroids: all 33 updated in map-view.tsx

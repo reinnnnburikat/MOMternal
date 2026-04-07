@@ -1,0 +1,14 @@
+/*
+Overpass Turbo query: Barangay boundaries in OpenStreetMap. 
+Run: https://overpass-turbo.eu/s/17ed
+
+For admin_level details, see osm.org/wiki/Tag:boundary%3Dadministrative#11_admin_level_values_for_specific_countries
+*/
+
+[out:json][timeout:50];
+{{geocodeArea:Philippines}}->.searchArea;
+(
+  relation["admin_level"="10"](area.searchArea);
+);
+
+out geom;

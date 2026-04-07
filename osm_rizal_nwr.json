@@ -1,0 +1,3389 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.61.8 b1080abd",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T18:21:14Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 4364952390,
+  "lat": 14.5477972,
+  "lon": 121.0016597,
+  "tags": {
+    "addr:street": "Cementina Street",
+    "name": "Rizal Funeral Homes Inc",
+    "shop": "funeral_directors"
+  }
+},
+{
+  "type": "node",
+  "id": 6557057761,
+  "lat": 14.5749985,
+  "lon": 121.0122466,
+  "tags": {
+    "historic": "boundary_stone",
+    "mapillary": "403523737808780",
+    "name": "J.P. Rizal Manila-Makati Highway Boundary"
+  }
+},
+{
+  "type": "node",
+  "id": 7107931188,
+  "lat": 14.5562013,
+  "lon": 121.0037573,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Senator Gil J. Puyat Avenue",
+    "alt_name": "Red Cross",
+    "name": "PRC Rizal - Makati Branch",
+    "office": "ngo",
+    "official_name": "Philippine Red Cross Rizal-Makati Branch"
+  }
+},
+{
+  "type": "node",
+  "id": 7542440248,
+  "lat": 14.5715335,
+  "lon": 121.0154336,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Chino Roces-J.P. Rizal",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13013765354,
+  "lat": 14.5694229,
+  "lon": 121.0260143,
+  "tags": {
+    "access": "yes",
+    "historic": "monument",
+    "name": "Dr. Jose P. Rizal Monument"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503184,
+  "lat": 14.5682096,
+  "lon": 121.0443290,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "J.P. Rizal Street/Guadalupe Cloverleaf",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503185,
+  "lat": 14.5673970,
+  "lon": 121.0388799,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "J.P Rizal Street/Camia Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503186,
+  "lat": 14.5673973,
+  "lon": 121.0393588,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal Street/Camia Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503187,
+  "lat": 14.5668531,
+  "lon": 121.0371490,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal Street/Waterfront Drive",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503188,
+  "lat": 14.5667024,
+  "lon": 121.0369398,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "J.P Rizal Street/Waterfront Drive",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503189,
+  "lat": 14.5669408,
+  "lon": 121.0346874,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal - Villena",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503190,
+  "lat": 14.5668510,
+  "lon": 121.0347793,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal - Villena",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503191,
+  "lat": 14.5676287,
+  "lon": 121.0326322,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal Street/A. Mabini Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503192,
+  "lat": 14.5675143,
+  "lon": 121.0328572,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal Avenue/Hulo Tawiran",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503193,
+  "lat": 14.5676430,
+  "lon": 121.0310587,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal-Makati Ave",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503194,
+  "lat": 14.5679015,
+  "lon": 121.0303297,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Makati Ave",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503195,
+  "lat": 14.5691095,
+  "lon": 121.0264145,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal - City Hall",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503197,
+  "lat": 14.5697504,
+  "lon": 121.0243729,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Antipolo Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503198,
+  "lat": 14.5701805,
+  "lon": 121.0229480,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Pililia Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503199,
+  "lat": 14.5707113,
+  "lon": 121.0212676,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-J.B Roxas",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028503200,
+  "lat": 14.5708838,
+  "lon": 121.0204784,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Constancia",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506201,
+  "lat": 14.5710176,
+  "lon": 121.0198653,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Trabajo",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506202,
+  "lat": 14.5712387,
+  "lon": 121.0187993,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Circuit Makati",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506203,
+  "lat": 14.5715196,
+  "lon": 121.0172748,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Zapote",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506204,
+  "lat": 14.5717624,
+  "lon": 121.0160650,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-PRC",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506206,
+  "lat": 14.5718786,
+  "lon": 121.0154234,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Chino Roces",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506207,
+  "lat": 14.5727603,
+  "lon": 121.0136699,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Pasong Tirad",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506208,
+  "lat": 14.5743988,
+  "lon": 121.0127449,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal-H. Santos",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506209,
+  "lat": 14.5738855,
+  "lon": 121.0129778,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal-H. Santos",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506210,
+  "lat": 14.5752799,
+  "lon": 121.0120321,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "J.P Rizal-Del Pan",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13028506211,
+  "lat": 14.5746993,
+  "lon": 121.0123508,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal-Zobel Roxas",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028509576,
+  "lat": 14.5722786,
+  "lon": 121.0137382,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pasong Tirad-J.P. Rizal",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028509588,
+  "lat": 14.5693287,
+  "lon": 121.0245553,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "N. Garcia-J.P. Rizal",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028509592,
+  "lat": 14.5683166,
+  "lon": 121.0279482,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "E. Zobel-J.P. Rizal",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13028509597,
+  "lat": 14.5675426,
+  "lon": 121.0310472,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal-Makati Ave",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13175872634,
+  "lat": 14.5693814,
+  "lon": 121.0244666,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "N. Garcia-J.P. Rizal",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13175872635,
+  "lat": 14.5684845,
+  "lon": 121.0284162,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P Rizal-Pertierra",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 13256996528,
+  "lat": 14.5677510,
+  "lon": 121.0472995,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal Avenue/Guadalupe Cloverleaf",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13256996529,
+  "lat": 14.5680153,
+  "lon": 121.0496796,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "P. Burgos Street",
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal Avenue/Guadalupe Condominiums Gate 1",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13256996533,
+  "lat": 14.5673595,
+  "lon": 121.0417784,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "J. P. Rizal Street",
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal Street/Carballo Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no",
+    "source": "Schadow1 Expeditions"
+  }
+},
+{
+  "type": "node",
+  "id": 13256996538,
+  "lat": 14.5674455,
+  "lon": 121.0417122,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "J. P. Rizal Street",
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "J.P. Rizal Street/Carballo Street",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport": "platform",
+    "shelter": "no",
+    "source": "Schadow1 Expeditions"
+  }
+},
+{
+  "type": "way",
+  "id": 4483983,
+  "bounds": {
+    "minlat": 14.5734441,
+    "minlon": 121.0265747,
+    "maxlat": 14.5744134,
+    "maxlon": 121.0278568
+  },
+  "tags": {
+    "alt_name": "Coronado Street",
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "sidewalk:left": "yes",
+    "sidewalk:right": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 23240436,
+  "bounds": {
+    "minlat": 14.5474121,
+    "minlon": 121.0456374,
+    "maxlat": 14.5481397,
+    "maxlon": 121.0462076
+  },
+  "tags": {
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "through|through",
+    "turn:lanes:forward": "left;through|through;right"
+  }
+},
+{
+  "type": "way",
+  "id": 24547895,
+  "bounds": {
+    "minlat": 14.5641322,
+    "minlon": 121.0349221,
+    "maxlat": 14.5645705,
+    "maxlon": 121.0353053
+  },
+  "tags": {
+    "building": "apartments",
+    "building:levels": "47",
+    "height": "161",
+    "name": "Rizal Tower",
+    "wikidata": "Q30591953",
+    "wikimedia_commons": "Category:Rizal Tower (Rockwell Center)",
+    "wikipedia": "en:Rizal Tower"
+  }
+},
+{
+  "type": "way",
+  "id": 27767859,
+  "bounds": {
+    "minlat": 14.5668843,
+    "minlon": 121.0329345,
+    "maxlat": 14.5675397,
+    "maxlon": 121.0341140
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 27767860,
+  "bounds": {
+    "minlat": 14.5675876,
+    "minlon": 121.0399234,
+    "maxlat": 14.5676038,
+    "maxlon": 121.0403513
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "bridge": "yes",
+    "bridge:name": "New Viejo Bridge",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 28539942,
+  "bounds": {
+    "minlat": 14.5570206,
+    "minlon": 121.0490222,
+    "maxlat": 14.5585028,
+    "maxlon": 121.0512249
+  },
+  "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "name": "José Protasio Rizal Street",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 29224421,
+  "bounds": {
+    "minlat": 14.5693535,
+    "minlon": 121.0221823,
+    "maxlat": 14.5737146,
+    "maxlon": 121.0273440
+  },
+  "tags": {
+    "landuse": "residential",
+    "name": "Rizal Village"
+  }
+},
+{
+  "type": "way",
+  "id": 29234959,
+  "bounds": {
+    "minlat": 14.5651915,
+    "minlon": 121.0471543,
+    "maxlat": 14.5680636,
+    "maxlon": 121.0540527
+  },
+  "tags": {
+    "alt_name": "Guadalupe - Pateros Road",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Extension",
+    "name:es": "Avenida Extensión José P. Rizal",
+    "name:fil": "Karugtong ng Abenida Jose P. Rizal",
+    "name:tl": "Karugtong ng Abenida Jose P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 29234960,
+  "bounds": {
+    "minlat": 14.5674062,
+    "minlon": 121.0408784,
+    "maxlat": 14.5680923,
+    "maxlon": 121.0439742
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "solid_line",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lanes:backward": "2",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 29373833,
+  "bounds": {
+    "minlat": 14.5757024,
+    "minlon": 121.0238254,
+    "maxlat": 14.5765704,
+    "maxlon": 121.0251182
+  },
+  "tags": {
+    "alt_name": "Coronado Street",
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 32487759,
+  "bounds": {
+    "minlat": 14.5552068,
+    "minlon": 121.0473983,
+    "maxlat": 14.5559575,
+    "maxlon": 121.0491224
+  },
+  "tags": {
+    "cycleway:lane": "exclusive",
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "sidewalk:left": "separate",
+    "sidewalk:right": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 32775520,
+  "bounds": {
+    "minlat": 14.5731890,
+    "minlon": 121.0407763,
+    "maxlat": 14.5750993,
+    "maxlon": 121.0428218
+  },
+  "tags": {
+    "addr:city": "Mandaluyong",
+    "addr:province": "Metro Manila",
+    "addr:street": "Boni Avenue",
+    "amenity": "university",
+    "name": "Rizal Technological University",
+    "name:abbr": "RTU",
+    "wikidata": "Q3547651",
+    "wikimedia_commons": "Category:Rizal Technological University",
+    "wikipedia": "en:Rizal Technological University",
+    "wikipedia:en": "Rizal Technological University"
+  }
+},
+{
+  "type": "way",
+  "id": 35062147,
+  "bounds": {
+    "minlat": 14.5457219,
+    "minlon": 121.0475486,
+    "maxlat": 14.5462348,
+    "maxlon": 121.0486563
+  },
+  "tags": {
+    "highway": "residential",
+    "lanes": "4",
+    "lanes:backward": "2",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt",
+    "turn:lanes:backward": "left|right"
+  }
+},
+{
+  "type": "way",
+  "id": 35062148,
+  "bounds": {
+    "minlat": 14.5456639,
+    "minlon": 121.0486563,
+    "maxlat": 14.5457219,
+    "maxlon": 121.0488233
+  },
+  "tags": {
+    "foot": "no",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 35062151,
+  "bounds": {
+    "minlat": 14.5462348,
+    "minlon": 121.0474538,
+    "maxlat": 14.5462914,
+    "maxlon": 121.0475486
+  },
+  "tags": {
+    "highway": "unclassified",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 35062152,
+  "bounds": {
+    "minlat": 14.5462914,
+    "minlon": 121.0467522,
+    "maxlat": 14.5468199,
+    "maxlon": 121.0474538
+  },
+  "tags": {
+    "highway": "unclassified",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt",
+    "turn:lanes": "left|left;through|through;right|right"
+  }
+},
+{
+  "type": "way",
+  "id": 57009579,
+  "bounds": {
+    "minlat": 14.5725202,
+    "minlon": 121.0131646,
+    "maxlat": 14.5735753,
+    "maxlon": 121.0138365
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lanes:backward": "1",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 79318928,
+  "bounds": {
+    "minlat": 14.5430770,
+    "minlon": 120.9971656,
+    "maxlat": 14.5443145,
+    "maxlon": 120.9982555
+  },
+  "tags": {
+    "addr:city": "Pasay",
+    "addr:postcode": "1302",
+    "addr:province": "Southern Manila District",
+    "addr:street": "Park Avenue",
+    "addr:street:corner": "Galvez Avenue",
+    "amenity": "school",
+    "isced:level": "0-1",
+    "name": "Jose Rizal Elementary School",
+    "name:en": "Jose Rizal Elementary School",
+    "name:tl": "Paaralang Elementarya Jose Rizal",
+    "operator": "West District",
+    "operator:type": "government",
+    "operator:wikidata": "Q130421584",
+    "population:pupils:2012": "2528",
+    "population:pupils:2015": "2386",
+    "ref": "136604",
+    "source": "Department of Education, Philippines",
+    "source:date": "2012",
+    "start_date": "1920"
+  }
+},
+{
+  "type": "way",
+  "id": 96515841,
+  "bounds": {
+    "minlat": 14.5688316,
+    "minlon": 121.0245890,
+    "maxlat": 14.5696158,
+    "maxlon": 121.0271620
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 106735820,
+  "bounds": {
+    "minlat": 14.5704444,
+    "minlon": 121.0193557,
+    "maxlat": 14.5710914,
+    "maxlon": 121.0219549
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 106735821,
+  "bounds": {
+    "minlat": 14.5704006,
+    "minlon": 121.0219549,
+    "maxlat": 14.5704444,
+    "maxlon": 121.0221245
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 110280206,
+  "bounds": {
+    "minlat": 14.5543575,
+    "minlon": 121.0463744,
+    "maxlat": 14.5547775,
+    "maxlon": 121.0468116
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:lane": "exclusive",
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk:right": "separate",
+    "surface": "asphalt",
+    "turn:lanes": "through|through|through|right"
+  }
+},
+{
+  "type": "way",
+  "id": 211851735,
+  "bounds": {
+    "minlat": 14.5719508,
+    "minlon": 121.0139038,
+    "maxlat": 14.5724686,
+    "maxlon": 121.0148138
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 222609227,
+  "bounds": {
+    "minlat": 14.5675061,
+    "minlon": 121.0397322,
+    "maxlat": 14.5675181,
+    "maxlon": 121.0399765
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 222609228,
+  "bounds": {
+    "minlat": 14.5675560,
+    "minlon": 121.0397286,
+    "maxlat": 14.5675989,
+    "maxlon": 121.0399234
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 222609229,
+  "bounds": {
+    "minlat": 14.5674698,
+    "minlon": 121.0406146,
+    "maxlat": 14.5675447,
+    "maxlon": 121.0408784
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 222609230,
+  "bounds": {
+    "minlat": 14.5674674,
+    "minlon": 121.0399765,
+    "maxlat": 14.5675171,
+    "maxlon": 121.0404864
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "bridge": "yes",
+    "bridge:name": "New Viejo Bridge",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 222609231,
+  "bounds": {
+    "minlat": 14.5674515,
+    "minlon": 121.0404864,
+    "maxlat": 14.5674698,
+    "maxlon": 121.0408784
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 226829289,
+  "bounds": {
+    "minlat": 14.5716644,
+    "minlon": 121.0159207,
+    "maxlat": 14.5717219,
+    "maxlon": 121.0162340
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes": "slight_right|slight_right|right|right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 313318798,
+  "bounds": {
+    "minlat": 14.5472350,
+    "minlon": 121.0462677,
+    "maxlat": 14.5473620,
+    "maxlon": 121.0463280
+  },
+  "tags": {
+    "foot": "no",
+    "highway": "unclassified",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "oneway": "yes",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 459476437,
+  "bounds": {
+    "minlat": 14.5520254,
+    "minlon": 121.0450828,
+    "maxlat": 14.5532142,
+    "maxlon": 121.0455476
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "share_busway",
+    "highway": "residential",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 459476438,
+  "bounds": {
+    "minlat": 14.5495537,
+    "minlon": 121.0449329,
+    "maxlat": 14.5511119,
+    "maxlon": 121.0451369
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "share_busway",
+    "highway": "residential",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 612314867,
+  "bounds": {
+    "minlat": 14.5765704,
+    "minlon": 121.0207015,
+    "maxlat": 14.5807133,
+    "maxlon": 121.0238254
+  },
+  "tags": {
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 645172762,
+  "bounds": {
+    "minlat": 14.5677035,
+    "minlon": 121.0306375,
+    "maxlat": 14.5677344,
+    "maxlon": 121.0307287
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "designation": "national_tertiary_road",
+    "foot": "no",
+    "highway": "secondary",
+    "lanes": "4",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 654885091,
+  "bounds": {
+    "minlat": 14.5712500,
+    "minlon": 121.0177770,
+    "maxlat": 14.5713908,
+    "maxlon": 121.0185440
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "shared_lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 700772359,
+  "bounds": {
+    "minlat": 14.5673929,
+    "minlon": 121.0314645,
+    "maxlat": 14.5675392,
+    "maxlon": 121.0325660
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 704811021,
+  "bounds": {
+    "minlat": 14.5717699,
+    "minlon": 121.0151726,
+    "maxlat": 14.5718571,
+    "maxlon": 121.0156568
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "destination": "Manila",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes": "through|through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 705011574,
+  "bounds": {
+    "minlat": 14.5696158,
+    "minlon": 121.0221245,
+    "maxlat": 14.5704006,
+    "maxlon": 121.0245890
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 709881028,
+  "bounds": {
+    "minlat": 14.5677929,
+    "minlon": 121.0470515,
+    "maxlat": 14.5678012,
+    "maxlon": 121.0471543
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "bridge": "cantilever",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "maxweight": "10",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "note": "Bridge-specific tags are in the bridge polygon. Ref: osm.org/wiki/Key:bridge#Bridge_properties",
+    "overtaking": "no",
+    "sidewalk": "both",
+    "source:nat_name": "DPWH-RBI",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 709881029,
+  "bounds": {
+    "minlat": 14.5677776,
+    "minlon": 121.0465131,
+    "maxlat": 14.5678253,
+    "maxlon": 121.0467439
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "2",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "left|through",
+    "turn:lanes:forward": "through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 714621281,
+  "bounds": {
+    "minlat": 14.5548528,
+    "minlon": 121.0468999,
+    "maxlat": 14.5552068,
+    "maxlon": 121.0473983
+  },
+  "tags": {
+    "cycleway:lane": "exclusive",
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "sidewalk": "separate",
+    "surface": "asphalt",
+    "turn:lanes": "left|left;through|through|right"
+  }
+},
+{
+  "type": "way",
+  "id": 714621282,
+  "bounds": {
+    "minlat": 14.5547775,
+    "minlon": 121.0468116,
+    "maxlat": 14.5548528,
+    "maxlon": 121.0468999
+  },
+  "tags": {
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 744375117,
+  "bounds": {
+    "minlat": 14.5468199,
+    "minlon": 121.0464197,
+    "maxlat": 14.5471386,
+    "maxlon": 121.0467522
+  },
+  "tags": {
+    "highway": "unclassified",
+    "lanes": "4",
+    "lit": "yes",
+    "mapillary": "880442869469495",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 745542371,
+  "bounds": {
+    "minlat": 14.5532876,
+    "minlon": 121.0455873,
+    "maxlat": 14.5540343,
+    "maxlon": 121.0460855
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "lane",
+    "cycleway:right:lane": "exclusive",
+    "cycleway:separation:left": "flex_post",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt",
+    "tree_lined": "right",
+    "turn:lanes": "through|through|through|through;right"
+  }
+},
+{
+  "type": "way",
+  "id": 747167897,
+  "bounds": {
+    "minlat": 14.5511119,
+    "minlon": 121.0449451,
+    "maxlat": 14.5515679,
+    "maxlon": 121.0449837
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "share_busway",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 755481402,
+  "bounds": {
+    "minlat": 14.5713908,
+    "minlon": 121.0173422,
+    "maxlat": 14.5714711,
+    "maxlon": 121.0177770
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "shared_lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes": "||through|through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 755481404,
+  "bounds": {
+    "minlat": 14.5714711,
+    "minlon": 121.0162340,
+    "maxlat": 14.5716644,
+    "maxlon": 121.0173422
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 755564975,
+  "bounds": {
+    "minlat": 14.5681672,
+    "minlon": 121.0443822,
+    "maxlat": 14.5681750,
+    "maxlon": 121.0447040
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "dashed_line",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "2",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "placement:forward": "left_of:1",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:forward": "through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 755564976,
+  "bounds": {
+    "minlat": 14.5681294,
+    "minlon": 121.0447040,
+    "maxlat": 14.5681750,
+    "maxlon": 121.0453365
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "2",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "placement:forward": "left_of:1",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "left|through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 756449541,
+  "bounds": {
+    "minlat": 14.5710914,
+    "minlon": 121.0189712,
+    "maxlat": 14.5711748,
+    "maxlon": 121.0193557
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "shared_lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes": "||through|through;right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 756449542,
+  "bounds": {
+    "minlat": 14.5711748,
+    "minlon": 121.0185440,
+    "maxlat": 14.5712500,
+    "maxlon": 121.0189712
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "shared_lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 756636664,
+  "bounds": {
+    "minlat": 14.5718571,
+    "minlon": 121.0148138,
+    "maxlat": 14.5719508,
+    "maxlon": 121.0151726
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "destination": "Manila",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 756636670,
+  "bounds": {
+    "minlat": 14.5717219,
+    "minlon": 121.0157828,
+    "maxlat": 14.5718553,
+    "maxlon": 121.0159207
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes": "slight_right|slight_right|right|right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 758317303,
+  "bounds": {
+    "minlat": 14.5680923,
+    "minlon": 121.0439742,
+    "maxlat": 14.5681672,
+    "maxlon": 121.0443822
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lanes:backward": "2",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:forward": "through|right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 758317304,
+  "bounds": {
+    "minlat": 14.5677754,
+    "minlon": 121.0468437,
+    "maxlat": 14.5677929,
+    "maxlon": 121.0470515
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lanes:backward": "2",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "left|through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 758317305,
+  "bounds": {
+    "minlat": 14.5677754,
+    "minlon": 121.0467439,
+    "maxlat": 14.5677776,
+    "maxlon": 121.0468437
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lanes:backward": "2",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "left|through",
+    "turn:lanes:forward": "through|through;right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 758317306,
+  "bounds": {
+    "minlat": 14.5678253,
+    "minlon": 121.0460990,
+    "maxlat": 14.5679384,
+    "maxlon": 121.0465131
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "2",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:forward": "through",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 758317307,
+  "bounds": {
+    "minlat": 14.5679384,
+    "minlon": 121.0453365,
+    "maxlat": 14.5681294,
+    "maxlon": 121.0460990
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:forward": "through|right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 771306220,
+  "bounds": {
+    "minlat": 14.5744134,
+    "minlon": 121.0261765,
+    "maxlat": 14.5747286,
+    "maxlon": 121.0265747
+  },
+  "tags": {
+    "alt_name": "Coronado Street",
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "sidewalk:left": "yes",
+    "sidewalk:right": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 806562810,
+  "bounds": {
+    "minlat": 14.5673938,
+    "minlon": 121.0391025,
+    "maxlat": 14.5675070,
+    "maxlon": 121.0395621
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 814837420,
+  "bounds": {
+    "minlat": 14.5540343,
+    "minlon": 121.0460855,
+    "maxlat": 14.5543575,
+    "maxlon": 121.0463744
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "lane",
+    "cycleway:right:lane": "exclusive",
+    "cycleway:separation:left": "flex_post",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt",
+    "tree_lined": "right",
+    "turn:lanes": "through|through|through|right"
+  }
+},
+{
+  "type": "way",
+  "id": 824674201,
+  "bounds": {
+    "minlat": 14.5669144,
+    "minlon": 121.0375172,
+    "maxlat": 14.5669769,
+    "maxlon": 121.0377245
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 940894327,
+  "bounds": {
+    "minlat": 14.5532142,
+    "minlon": 121.0455476,
+    "maxlat": 14.5532876,
+    "maxlon": 121.0455873
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "share_busway",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 942818187,
+  "bounds": {
+    "minlat": 14.5675061,
+    "minlon": 121.0395621,
+    "maxlat": 14.5675070,
+    "maxlon": 121.0397322
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 942818188,
+  "bounds": {
+    "minlat": 14.5675070,
+    "minlon": 121.0395621,
+    "maxlat": 14.5675560,
+    "maxlon": 121.0397286
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "right",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 942819648,
+  "bounds": {
+    "minlat": 14.5668972,
+    "minlon": 121.0341140,
+    "maxlat": 14.5669137,
+    "maxlon": 121.0343385
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "bus_bay": "right",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 942819649,
+  "bounds": {
+    "minlat": 14.5666829,
+    "minlon": 121.0343385,
+    "maxlat": 14.5669137,
+    "maxlon": 121.0365674
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 942821541,
+  "bounds": {
+    "minlat": 14.5675392,
+    "minlon": 121.0325660,
+    "maxlat": 14.5676194,
+    "maxlon": 121.0329345
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 942821542,
+  "bounds": {
+    "minlat": 14.5675392,
+    "minlon": 121.0325660,
+    "maxlat": 14.5675591,
+    "maxlon": 121.0329345
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 952550808,
+  "bounds": {
+    "minlat": 14.5724686,
+    "minlon": 121.0138365,
+    "maxlat": 14.5725202,
+    "maxlon": 121.0139038
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lanes:backward": "1",
+    "lanes:forward": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 954749911,
+  "bounds": {
+    "minlat": 14.5669769,
+    "minlon": 121.0377245,
+    "maxlat": 14.5673938,
+    "maxlon": 121.0391025
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "sidewalk:left": "yes",
+    "sidewalk:right": "separate",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 987577436,
+  "bounds": {
+    "minlat": 14.5666829,
+    "minlon": 121.0365674,
+    "maxlat": 14.5666853,
+    "maxlon": 121.0366924
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 987577437,
+  "bounds": {
+    "minlat": 14.5666853,
+    "minlon": 121.0366924,
+    "maxlat": 14.5667067,
+    "maxlon": 121.0368018
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 987577438,
+  "bounds": {
+    "minlat": 14.5667067,
+    "minlon": 121.0368018,
+    "maxlat": 14.5669144,
+    "maxlon": 121.0375172
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1057756285,
+  "bounds": {
+    "minlat": 14.5515679,
+    "minlon": 121.0449837,
+    "maxlat": 14.5520254,
+    "maxlon": 121.0450828
+  },
+  "tags": {
+    "access:lanes": "yes|yes|yes|no",
+    "bicycle:lanes": "|||designated",
+    "bus:lanes": "|||designated",
+    "cycleway:right": "share_busway",
+    "highway": "residential",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt",
+    "turn:lanes": "left|||"
+  }
+},
+{
+  "type": "way",
+  "id": 1065716711,
+  "bounds": {
+    "minlat": 14.5735753,
+    "minlon": 121.0124731,
+    "maxlat": 14.5746360,
+    "maxlon": 121.0131646
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1067660201,
+  "bounds": {
+    "minlat": 14.5746360,
+    "minlon": 121.0122658,
+    "maxlat": 14.5748786,
+    "maxlon": 121.0124731
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "1",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1091143251,
+  "bounds": {
+    "minlat": 14.5674370,
+    "minlon": 121.0307287,
+    "maxlat": 14.5677035,
+    "maxlon": 121.0314645
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1174442830,
+  "bounds": {
+    "minlat": 14.5675447,
+    "minlon": 121.0405159,
+    "maxlat": 14.5675623,
+    "maxlon": 121.0406146
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "check_date": "2023-04-29",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "no",
+    "source": "survey;maxar",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1174442832,
+  "bounds": {
+    "minlat": 14.5675623,
+    "minlon": 121.0403513,
+    "maxlat": 14.5675876,
+    "maxlon": 121.0405159
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "bridge": "yes",
+    "bridge:name": "New Viejo Bridge",
+    "check_date": "2023-04-29",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "sidewalk": "no",
+    "source": "survey;maxar",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1210561442,
+  "bounds": {
+    "minlat": 14.5747286,
+    "minlon": 121.0255880,
+    "maxlat": 14.5752223,
+    "maxlon": 121.0261765
+  },
+  "tags": {
+    "alt_name": "Coronado Street",
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "sidewalk:left": "yes",
+    "sidewalk:right": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1261416212,
+  "bounds": {
+    "minlat": 14.5643407,
+    "minlon": 121.0350560,
+    "maxlat": 14.5644555,
+    "maxlon": 121.0351827
+  },
+  "tags": {
+    "access": "private",
+    "addr:street": "Lopez Drive",
+    "aeroway": "helipad",
+    "location": "roof",
+    "name": "Rizal Tower Helipad"
+  }
+},
+{
+  "type": "way",
+  "id": 1263653342,
+  "bounds": {
+    "minlat": 14.5752223,
+    "minlon": 121.0251182,
+    "maxlat": 14.5757024,
+    "maxlon": 121.0255880
+  },
+  "tags": {
+    "alt_name": "Coronado Street",
+    "designation": "city_road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "J. P. Rizal Street",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "sidewalk": "both",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1278083839,
+  "bounds": {
+    "minlat": 14.5471386,
+    "minlon": 121.0463280,
+    "maxlat": 14.5472350,
+    "maxlon": 121.0464197
+  },
+  "tags": {
+    "foot": "no",
+    "highway": "unclassified",
+    "lanes": "4",
+    "lit": "yes",
+    "mapillary": "880442869469495",
+    "maxspeed": "40",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "oneway": "yes",
+    "source:maxspeed": "PH:urban",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1279681439,
+  "bounds": {
+    "minlat": 14.5559288,
+    "minlon": 121.0491224,
+    "maxlat": 14.5559575,
+    "maxlon": 121.0492180
+  },
+  "tags": {
+    "cycleway:lane": "exclusive",
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "oneway": "yes",
+    "parking:both": "no",
+    "parking:both:restriction": "no_parking",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1291093651,
+  "bounds": {
+    "minlat": 14.5686918,
+    "minlon": 121.0271620,
+    "maxlat": 14.5688316,
+    "maxlon": 121.0275981
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1291093652,
+  "bounds": {
+    "minlat": 14.5685438,
+    "minlon": 121.0275981,
+    "maxlat": 14.5686918,
+    "maxlon": 121.0280719
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1291093653,
+  "bounds": {
+    "minlat": 14.5677344,
+    "minlon": 121.0280719,
+    "maxlat": 14.5685438,
+    "maxlon": 121.0306375
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway:lane": "advisory",
+    "cycleway:right": "lane",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lane_markings": "yes",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "name:es": "Calle J.P. Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:etymology:wikipedia": "en:José Rizal",
+    "name:fil": "Kalye J.P. Rizal",
+    "name:tl": "Kalye J.P. Rizal",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "oneway:conditional": "no @ (00:00-05:00; 21:00-24:00)",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1319819810,
+  "bounds": {
+    "minlat": 14.5748786,
+    "minlon": 121.0121544,
+    "maxlat": 14.5750240,
+    "maxlon": 121.0122658
+  },
+  "tags": {
+    "alt_name": "Jose P. Rizal Avenue",
+    "cycleway": "lane",
+    "cycleway:lane": "advisory",
+    "cycleway:separation:left": "paint",
+    "designation": "national_tertiary_road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "1",
+    "lanes:forward": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "maxspeed:type": "PH:urban",
+    "name": "J. P. Rizal Street",
+    "short_name": "J.P. Rizal Avenue",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q16163000"
+  }
+},
+{
+  "type": "way",
+  "id": 1341806865,
+  "bounds": {
+    "minlat": 14.5473620,
+    "minlon": 121.0462076,
+    "maxlat": 14.5474121,
+    "maxlon": 121.0462677
+  },
+  "tags": {
+    "foot": "no",
+    "highway": "residential",
+    "lanes": "4",
+    "lit": "yes",
+    "name": "Rizal Drive",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "turn:lanes:backward": "through|through",
+    "turn:lanes:forward": "left;through|through;right"
+  }
+},
+{
+  "type": "way",
+  "id": 1355223931,
+  "bounds": {
+    "minlat": 14.5585028,
+    "minlon": 121.0486922,
+    "maxlat": 14.5588120,
+    "maxlon": 121.0490222
+  },
+  "tags": {
+    "highway": "residential",
+    "lanes": "1",
+    "name": "José Protasio Rizal Street",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1477326217,
+  "bounds": {
+    "minlat": 14.5743417,
+    "minlon": 121.0414887,
+    "maxlat": 14.5745622,
+    "maxlon": 121.0416838
+  },
+  "tags": {
+    "garden:type": "school",
+    "leisure": "garden",
+    "name": "Pandayang Rizalia Brain Forest"
+  }
+},
+{
+  "type": "relation",
+  "id": 11122214,
+  "bounds": {
+    "minlat": 14.5450929,
+    "minlon": 121.0225624,
+    "maxlat": 14.5681750,
+    "maxlon": 121.0664570
+  },
+  "tags": {
+    "colour": "gray",
+    "from": "Ayala",
+    "name": "Ayala-Pateros via JP Rizal",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T213",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Pateros",
+    "type": "route",
+    "via": "J.P. Rizal Street",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15021411,
+  "bounds": {
+    "minlat": 14.5450929,
+    "minlon": 121.0222569,
+    "maxlat": 14.5681750,
+    "maxlon": 121.0668223
+  },
+  "tags": {
+    "colour": "gray",
+    "from": "Pateros",
+    "name": "Ayala-Pateros via JP Rizal",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T213",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Ayala",
+    "type": "route",
+    "via": "J.P. Rizal Street",
+    "wheelchair": "limited"
+  }
+}
+
+  ]
+}

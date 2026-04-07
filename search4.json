@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://www.namria.gov.ph/downloads.aspx",
+    "name": "national mapping and resource information authority",
+    "snippet": "All downloadable files are either in .pdf, .jpg, or in .zip format and you may need specific file viewers for these. Some of the map downloads are low ...",
+    "host_name": "www.namria.gov.ph",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.namria.gov.ph",
+    "name": "NAMRIA | National Mapping and Resource Information Authority",
+    "snippet": "... PHILIPPINES. NATIONAL MAPPING AND RESOURCE INFORMATION AUTHORITY. Department of Environment and Natural Resources. Visit Geoportal Philippines. Download ... GIS ...",
+    "host_name": "www.namria.gov.ph",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ppdo.bohol.gov.ph/maps/shapefiles/base-map-shapefiles",
+    "name": "Base Map Shapefiles - PPDO BOHOL",
+    "snippet": "The following available shapefiles may be necessary to compose base maps: Boundaries – derived from files downloaded from the GADM Website.",
+    "host_name": "ppdo.bohol.gov.ph",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ppdo.bohol.gov.ph/maps/basic-maps/bohol-districts-map",
+    "name": "Bohol Districts Map - PPDO BOHOL",
+    "snippet": "The features included in this map is digitized from the National Mapping and Resource Information Authority ( NAMRIA ) Topographic Map sheets scaled at 1:50,000 ...",
+    "host_name": "ppdo.bohol.gov.ph",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www2.naga.gov.ph/wp-content/uploads/2022/07/CLUP-2016-30-Naga-City.pdf",
+    "name": "Comprehensive Land Use Plan (CLUP) for the City of Naga",
+    "snippet": "Vision. 78. Major development goals and objectives. 80. Development thrusts and spatial strategy. 81. Development drivers. 161 pages",
+    "host_name": "www2.naga.gov.ph",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://rbmes-api.ndrrmc.gov.ph/download/RBMES_NDRRMP_2020-2030.pdf",
+    "name": "WIP NDRRMP 2020-2030 RBMES 10 May",
+    "snippet": "May 10, 2568 BE — Allows user to download various data sheets that are available on the system. Use Case. Users can download various data sheets. Components. 1. 95 pages",
+    "host_name": "rbmes-api.ndrrmc.gov.ph",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://cms-cdn.e.gov.ph/DICT/pdf/FOI-INVENTORY-2021.pdf",
+    "name": "agency_abbrv",
+    "snippet": "Dec 12, 2559 BE — DICT. Department of Information and Communications. Technology. ShapeFile / GeoJSON GIS Data of all the Barangays in the. Philippines . I would ...",
+    "host_name": "cms-cdn.e.gov.ph",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://cms-cdn.e.gov.ph/DICT/pdf/FOI-Inventory-2022.pdf",
+    "name": "agency_abbrv",
+    "snippet": "Dec 12, 2559 BE — ShapeFile / GeoJSON GIS Data of all the Barangays in the. Philippines . I would like to request the latest borders of Barangays in the ... 48 pages",
+    "host_name": "cms-cdn.e.gov.ph",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://simplemaps.com/gis/country/ph",
+    "name": "Free Philippines GIS Map Files | Resources",
+    "snippet": "Free Shapefile (.shp) and GeoJSON (.json) maps of Philippines at both the admin and entire-country level. Commercial use allowed.",
+    "host_name": "simplemaps.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://data.humdata.org/dataset/cod-ab-phl",
+    "name": "Philippines - Subnational Administrative Boundaries",
+    "snippet": "This COD-AB is suitable for database or GIS linkage to the Philippines COD-PS. ... National Mapping and Resource Information Authority ( NAMRIA ), Philippines ...",
+    "host_name": "data.humdata.org",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

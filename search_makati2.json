@@ -1,0 +1,83 @@
+[
+  {
+    "url": "https://github.com/faeldon/philippines-json-maps",
+    "name": "Philippines Administrative Boundaries JSON Maps - GitHub",
+    "snippet": "Philippine administrative boundaries in geojson and topojson format at various resolution. Demo. This repository contains Philippines vector maps suitable ... Missing: makati admin_level\nPhilippine administrative boundaries in geojson and topojson format at various resolution. - faeldon/philippines-json-maps",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/macoymejia/geojsonph",
+    "name": "macoymejia/geojsonph: GeoJSON Repository of Philippine Maps",
+    "snippet": "GeoJSON Repository of Philippine Maps. Contribute to macoymejia/geojsonph development by creating an account on GitHub. Missing: makati admin_level 10",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/altcoder/philippines-psgc-shapefiles",
+    "name": "Philippines PSGC Administrative Boundaries Shapefiles - GitHub",
+    "snippet": "This project contains Philippine Standard Geographic Code (PSGC) vector maps (shapefiles) sourced from public data and updated with changes published by the ... Missing: makati admin_level",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://simplemaps.com/gis/country/ph",
+    "name": "Free GIS Maps of Philippines - Resources | Simplemaps.com",
+    "snippet": "Free Shapefile (.shp) and GeoJSON (.json) maps of Philippines at both the admin and entire-country level. Commercial use allowed.",
+    "host_name": "simplemaps.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mindsphilippines.github.io/Makati-City-Admin-Boundary-Map-2024",
+    "name": "Makati City Administrative Boundary Map",
+    "snippet": "+ − Makati City Administrative Boundary Map City of Makati Barangays City of Makati Admin Boundary Google Labels Google Satellite",
+    "host_name": "mindsphilippines.github.io",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://james.faeldon.com/json-maps-of-philippine-administrative-boundaries",
+    "name": "JSON Maps of Philippine Administrative Boundaries",
+    "snippet": "Philippine administrative boundaries in geojson and topojson format at various resolution. Github Project The github repository contains Philippines vector maps suitable for use on web applications either as an overlay to interactive map services using Leaflet or rendered on natively using d3js. Background",
+    "host_name": "james.faeldon.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.igismap.com/download-philippines-barangay-shapefile-free-country-boundary-polygon-shapefile",
+    "name": "Download Philippines Administrative Boundary Shapefiles",
+    "snippet": "Download Free Shapefile Data of Philippines Philippines officially the Republic of the Philippines is an archipelagic country in Southeast Asia. It is situated in the western Pacific Ocean and consists of around 7,641 islands that are broadly categorized under three main geographical divisions from north to south: Luzon, Visayas, and Mindanao.",
+    "host_name": "www.igismap.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://data.bettergov.ph/datasets/7",
+    "name": "Open Data Portal",
+    "snippet": "Philippines GeoJSON Data Open source GeoJSON data formats for the Philippines, providing accurate province and regional boundaries for mapping.",
+    "host_name": "data.bettergov.ph",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://data.humdata.org/dataset/cod-ab-phl",
+    "name": "Philippines - Subnational Administrative Boundaries",
+    "snippet": "Philippines administrative level 0-4 boundaries (COD-AB) dataset. The date that these administrative boundaries were established is unknown. NOTE: See COD-PS caveat about treatment of National Capital (Manila) data. OCHA acknowledges PSA and the National Mapping and Resource Information Authority (NAMRIA) as the sources.",
+    "host_name": "data.humdata.org",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T18:14:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 131669,
+  "bounds": {
+    "minlat": 14.5309148,
+    "minlon": 121.0571079,
+    "maxlat": 14.5414245,
+    "maxlon": 121.0672084
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "1380300033",
+    "population": "44536",
+    "population:date": "2020-05-01",
+    "postal_code": "1649",
+    "ref": "1381500036",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q114229344"
+  }
+},
+{
+  "type": "relation",
+  "id": 2776941,
+  "bounds": {
+    "minlat": 16.6741204,
+    "minlon": 121.9504515,
+    "maxlat": 16.6818080,
+    "maxlon": 121.9642584
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "place": "village",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 7720338,
+  "bounds": {
+    "minlat": 11.2798418,
+    "minlon": 124.7141229,
+    "maxlat": 11.2936063,
+    "maxlon": 124.7240231
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "083715048",
+    "population": "363",
+    "population:date": "2020-05-01",
+    "ref": "0803715048",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q119238327"
+  }
+},
+{
+  "type": "relation",
+  "id": 11510862,
+  "bounds": {
+    "minlat": 10.7885615,
+    "minlon": 122.9777085,
+    "maxlat": 10.8325611,
+    "maxlon": 123.0032491
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "is_in:city": "City of Talisay",
+    "is_in:state": "Negros Occidental",
+    "name": "Rizal",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 11810257,
+  "bounds": {
+    "minlat": 14.0124090,
+    "minlon": 120.7272437,
+    "maxlat": 14.0249987,
+    "maxlon": 120.7305090
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "041034015",
+    "population": "1135",
+    "population:date": "2020-05-01",
+    "ref": "0401034015",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 16700433,
+  "bounds": {
+    "minlat": 13.9183963,
+    "minlon": 122.0988810,
+    "maxlat": 13.9208731,
+    "maxlon": 122.1008386
+  },
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "045619038",
+    "population": "943",
+    "population:date": "2020-05-01",
+    "ref": "0405619038",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 19664828,
+  "bounds": {
+    "minlat": 16.8954005,
+    "minlon": 121.7813110,
+    "maxlat": 16.9157952,
+    "maxlon": 121.8049046
+  },
+  "tags": {
+    "admin_level": "10",
+    "admin_type:PH": "barangay",
+    "boundary": "administrative",
+    "is_in:city": "Cauayan",
+    "name": "Rizal",
+    "old_ref": "023108056",
+    "population": "697",
+    "population:date": "2024-07-01",
+    "postal_code": "3305",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+}
+
+  ]
+}

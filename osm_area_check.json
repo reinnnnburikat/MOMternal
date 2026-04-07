@@ -1,0 +1,46 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.61.8 b1080abd",
+  "osm3s": {
+    "timestamp_osm_base": "2026-02-18T23:58:25Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 103716,
+  "bounds": {
+    "minlat": 14.5296505,
+    "minlon": 120.9987708,
+    "maxlat": 14.5794322,
+    "maxlon": 121.0500718
+  },
+  "tags": {
+    "admin_level": "6",
+    "border_type": "highly_urbanized_city",
+    "boundary": "administrative",
+    "name": "Makati",
+    "name:ar": "ماكاتي",
+    "name:azb": "ماکاتی",
+    "name:en": "Makati",
+    "name:fa": "ماکاتی",
+    "name:ja": "マカティ",
+    "name:ko": "마카티",
+    "name:ks": "مکاتی",
+    "name:ru": "Макати",
+    "name:tl": "Makati",
+    "name:ur": "مکاتی",
+    "old_ref": "137602000",
+    "population": "309770",
+    "population:date": "2024-07-01",
+    "ref": "1380300000",
+    "type": "boundary",
+    "wikidata": "Q1508",
+    "wikimedia_commons": "Category:Makati",
+    "wikipedia": "en:Makati"
+  }
+}
+
+  ]
+}

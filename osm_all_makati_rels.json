@@ -1,0 +1,5714 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T18:17:04Z",
+    "timestamp_areas_base": "2026-04-07T09:09:14Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 103686,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Urdaneta",
+    "name:etymology": "Andrés de Urdaneta",
+    "name:etymology:wikidata": "Q316780",
+    "old_ref": "137602030",
+    "population": "4720",
+    "population:date": "2024-07-01",
+    "ref": "1380300030",
+    "type": "boundary",
+    "wikidata": "Q134444296",
+    "wikimedia_commons": "Category:Urdaneta, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103690,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Lorenzo",
+    "old_ref": "137602025",
+    "population": "14793",
+    "population:date": "2024-07-01",
+    "ref": "1380300025",
+    "type": "boundary",
+    "wikidata": "Q134444293",
+    "wikimedia_commons": "Category:San Lorenzo, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103701,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Bel-Air",
+    "old_ref": "137602002",
+    "population": "39354",
+    "population:date": "2024-07-01",
+    "ref": "1380300002",
+    "type": "boundary",
+    "wikidata": "Q4881694",
+    "wikimedia_commons": "Category:Bel-Air, Makati",
+    "wikipedia": "en:Bel-Air, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103702,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Antonio",
+    "old_ref": "137602023",
+    "population": "18012",
+    "population:date": "2024-07-01",
+    "ref": "1380300023",
+    "type": "boundary",
+    "wikidata": "Q134444291",
+    "wikimedia_commons": "Category:San Antonio, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103716,
+  "tags": {
+    "admin_level": "6",
+    "border_type": "highly_urbanized_city",
+    "boundary": "administrative",
+    "name": "Makati",
+    "name:ar": "ماكاتي",
+    "name:azb": "ماکاتی",
+    "name:en": "Makati",
+    "name:es": "Macati",
+    "name:fa": "ماکاتی",
+    "name:ja": "マカティ",
+    "name:ko": "마카티",
+    "name:ks": "مکاتی",
+    "name:ru": "Макати",
+    "name:tl": "Makati",
+    "name:ur": "مکاتی",
+    "name:zh": "馬卡蒂",
+    "name:zh-Hant": "馬卡蒂",
+    "old_ref": "137602000",
+    "population": "309770",
+    "population:date": "2024-07-01",
+    "ref": "1380300000",
+    "type": "boundary",
+    "website": "https://www.makati.gov.ph/",
+    "wikidata": "Q1508",
+    "wikimedia_commons": "Category:Makati",
+    "wikipedia": "en:Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103729,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Bangkal",
+    "old_ref": "137602001",
+    "population": "18013",
+    "population:date": "2024-07-01",
+    "ref": "1380300001",
+    "type": "boundary",
+    "wikidata": "Q134444281",
+    "wikimedia_commons": "Category:Bangkal, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103731,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Palanan",
+    "old_ref": "137602015",
+    "population": "11934",
+    "population:date": "2024-07-01",
+    "postal_code": "1235",
+    "ref": "1380300015",
+    "type": "boundary",
+    "wikidata": "Q134444287",
+    "wikimedia_commons": "Category:Palanan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103737,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Poblacion",
+    "old_ref": "137602020",
+    "population": "17088",
+    "population:date": "2024-07-01",
+    "postal_code": "1210",
+    "ref": "1380300020",
+    "type": "boundary",
+    "wikidata": "Q16824783",
+    "wikimedia_commons": "Category:Poblacion, Makati",
+    "wikipedia": "en:Poblacion, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103760,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Magallanes",
+    "old_ref": "137602013",
+    "population": "5473",
+    "population:date": "2024-07-01",
+    "ref": "1380300013",
+    "type": "boundary",
+    "wikidata": "Q134444285",
+    "wikimedia_commons": "Category:Magallanes, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103761,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Dasmariñas",
+    "old_ref": "137602006",
+    "population": "4320",
+    "population:date": "2024-07-01",
+    "ref": "1380300006",
+    "type": "boundary",
+    "wikidata": "Q5226803",
+    "wikimedia_commons": "Category:Damariñas, Makati",
+    "wikipedia": "en:Dasmariñas, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103767,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Isidro",
+    "old_ref": "137602024",
+    "population": "6260",
+    "population:date": "2024-07-01",
+    "postal_code": "1234",
+    "ref": "1380300024",
+    "type": "boundary",
+    "wikidata": "Q134444292",
+    "wikimedia_commons": "Category:San Isidro, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103768,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Pio del Pilar",
+    "name:etymology:wikidata": "Q3905410",
+    "old_ref": "137602018",
+    "population": "55572",
+    "population:date": "2024-07-01",
+    "ref": "1380300018",
+    "type": "boundary",
+    "wikidata": "Q134444289",
+    "wikimedia_commons": "Category:Pio del Pilar, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104053,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Santa Cruz",
+    "old_ref": "137602026",
+    "population": "6744",
+    "population:date": "2024-07-01",
+    "postal_code": "1205",
+    "ref": "1380300026",
+    "short_name": "Sta. Cruz",
+    "type": "boundary",
+    "wikidata": "Q134444294",
+    "wikimedia_commons": "Category:Santa Cruz, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104057,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Kasilawan",
+    "old_ref": "137602011",
+    "population": "5007",
+    "population:date": "2024-07-01",
+    "postal_code": "1206",
+    "ref": "1380300011",
+    "type": "boundary",
+    "wikidata": "Q134444283",
+    "wikimedia_commons": "Category:Kasilawan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104452,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Guadalupe Viejo",
+    "old_ref": "137602010",
+    "population": "13525",
+    "population:date": "2024-07-01",
+    "postal_code": "1211",
+    "ref": "1380300010",
+    "type": "boundary",
+    "wikidata": "Q134444282",
+    "wikimedia_commons": "Category:Guadalupe Viejo, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104453,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Guadalupe Nuevo",
+    "old_ref": "137602009",
+    "population": "21596",
+    "population:date": "2024-07-01",
+    "postal_code": "1212",
+    "ref": "1380300009",
+    "type": "boundary",
+    "wikidata": "Q65072629",
+    "wikimedia_commons": "Category:Guadalupe Nuevo, Makati",
+    "wikipedia": "en:Guadalupe Nuevo"
+  }
+},
+{
+  "type": "relation",
+  "id": 104456,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Pinagkaisahan",
+    "old_ref": "137602017",
+    "population": "5323",
+    "population:date": "2024-07-01",
+    "postal_code": "1213",
+    "ref": "1380300017",
+    "type": "boundary",
+    "wikidata": "Q134444288",
+    "wikimedia_commons": "Category:Pinagkaisahan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 109159,
+  "tags": {
+    "air_conditioning": "yes",
+    "colour": "#FFCC00",
+    "from": "North Avenue",
+    "name": "MRT Line 3: North Avenue → Taft Avenue",
+    "name:ja": "マニラMRT 3号線：ノースアベニュー→タフトアベニュー",
+    "name:ko": "마닐라MRT 3 호선: 노스 애비뉴→태프트 애비뉴",
+    "name:zh": "马尼拉捷运3号线（北大道→塔虎脱大道）",
+    "network": "Manila MRT",
+    "operator": "Metro Rail Transit Corporation",
+    "public_transport:version": "2",
+    "ref": "3",
+    "route": "light_rail",
+    "to": "Taft Avenue",
+    "type": "route",
+    "wikidata": "Q13422345",
+    "wikipedia": "en:MRT Line 3 (Metro Manila)"
+  }
+},
+{
+  "type": "relation",
+  "id": 109972,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Forbes Park",
+    "old_ref": "137602008",
+    "population": "4183",
+    "population:date": "2024-07-01",
+    "ref": "1380300008",
+    "type": "boundary",
+    "wikidata": "Q5467263",
+    "wikimedia_commons": "Category:Forbes Park, Makati",
+    "wikipedia": "en:Forbes Park, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 130317,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "La Paz",
+    "old_ref": "137602012",
+    "population": "6682",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300012",
+    "type": "boundary",
+    "wikidata": "Q134444284",
+    "wikimedia_commons": "Category:La Paz, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151235,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Carmona",
+    "old_ref": "137602005",
+    "population": "3034",
+    "population:date": "2024-07-01",
+    "postal_code": "1207",
+    "ref": "1380300005",
+    "type": "boundary",
+    "wikidata": "Q5043737",
+    "wikimedia_commons": "Category:Carmona, Makati",
+    "wikipedia": "en:Carmona, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151236,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Valenzuela",
+    "old_ref": "137602031",
+    "population": "5598",
+    "population:date": "2024-07-01",
+    "postal_code": "1208",
+    "ref": "1380300031",
+    "type": "boundary",
+    "wikidata": "Q134444297",
+    "wikimedia_commons": "Category:Valenzuela, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151237,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Tejeros",
+    "old_ref": "137602029",
+    "population": "16019",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300029",
+    "type": "boundary",
+    "wikidata": "Q134444295",
+    "wikimedia_commons": "Category:Tejeros, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151238,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Singkamas",
+    "old_ref": "137602027",
+    "population": "7485",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300027",
+    "type": "boundary",
+    "wikidata": "Q7523674",
+    "wikimedia_commons": "Category:Singkamas, Makati",
+    "wikipedia": "en:Singkamas, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 164194,
+  "tags": {
+    "amenity": "townhall",
+    "building": "yes",
+    "name": "Forbes Park Barangay Hall",
+    "townhall:type": "village",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 899028,
+  "tags": {
+    "name": "Radial Road 3",
+    "ref": "R-3",
+    "ref:colour": "green",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 1577135,
+  "tags": {
+    "name": "Circumferential Road 4",
+    "osmc:symbol": ":green::C-4:white",
+    "ref": "C-4",
+    "ref:colour": "green",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 1788555,
+  "tags": {
+    "admin_level": "7",
+    "alt_name": "District Ⅱ;District 2;2nd District",
+    "boundary": "administrative",
+    "name": "District II",
+    "note": "Sangguniang Panlungsod district; distinct from the 2nd District of Makati which elects a representative to Congress",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 1788556,
+  "tags": {
+    "admin_level": "7",
+    "alt_name": "District Ⅰ;District 1;1st District",
+    "boundary": "administrative",
+    "name": "District I",
+    "note": "Sangguniang Panlungsod district; distinct from the 1st District of Makati which elects a representative to Congress",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 1805479,
+  "tags": {
+    "admin_level": "12",
+    "boundary": "administrative",
+    "is_in": "San Isidro",
+    "name": "Sitio 4",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 1805480,
+  "tags": {
+    "admin_level": "12",
+    "boundary": "administrative",
+    "is_in": "San Isidro",
+    "name": "Sitio 8",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 1805481,
+  "tags": {
+    "admin_level": "12",
+    "boundary": "administrative",
+    "is_in": "San Isidro",
+    "name": "Sitio 6",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 1805482,
+  "tags": {
+    "admin_level": "12",
+    "boundary": "administrative",
+    "is_in": "San Isidro",
+    "name": "Sitio 7",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 2535059,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Dalahican",
+    "name": "PITX–Dalahican, Lucena City",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "Intricate relation - do not auto-sort",
+    "operator": "JAM Liner",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-DLH",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 2945939,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:neighbourhood": "Poblacion",
+    "addr:province": "Metro Manila",
+    "addr:street": "J. P. Rizal Street",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/b/b3/0122jfBarangay_Poblacion_Makati_City_Parks_Pasig_River_Landmarksfvf_05.jpg",
+    "leisure": "park",
+    "loc_name": "Poblacion Linear Park, Guadalupe Viejo Linear Park",
+    "name": "Makati Riverside Park",
+    "opening_hours": "24/7",
+    "operator": "City Government of Makati",
+    "operator:type": "government_facility-public",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3014322,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Olympia",
+    "old_ref": "137602014",
+    "population": "19035",
+    "population:date": "2024-07-01",
+    "postal_code": "1207",
+    "ref": "1380300014",
+    "type": "boundary",
+    "wikidata": "Q134444286",
+    "wikimedia_commons": "Category:Olympia, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 3316720,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Fairview",
+    "name": "Pacita Complex–Fairview via Ayala (outbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "38",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Pacita Complex",
+    "type": "route",
+    "via": "Ayala",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 3565849,
+  "tags": {
+    "building": "apartments",
+    "name": "Atrium A",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3565850,
+  "tags": {
+    "building": "apartments",
+    "name": "Atrium B",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3577336,
+  "tags": {
+    "building": "yes",
+    "name": "Eugenio Lόpez Foundation Building",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3790802,
+  "tags": {
+    "int_ref": "AH26",
+    "name": "E2: Skyway Elevated northbound",
+    "network": "PH:E",
+    "operator": "SMC Infrastructure",
+    "owner": "Department of Public Works and Highways",
+    "ref": "E2",
+    "ref:colour": "yellow",
+    "route": "road",
+    "symbol": "https://upload.wikimedia.org/wikipedia/commons/f/ff/E2_%28Philippines%29.svg",
+    "type": "route",
+    "wikipedia": "en:Metro Manila Skyway"
+  }
+},
+{
+  "type": "relation",
+  "id": 3867081,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:neighbourhood": "Poblacion",
+    "addr:postcode": "1210",
+    "addr:province": "Metro Manila",
+    "addr:street": "Morong Street",
+    "building": "yes",
+    "government": "election_commission",
+    "loc_name": "Komisyon sa Halalan",
+    "name": "Commission on Elections",
+    "office": "government",
+    "operator": "Commission on Elections",
+    "operator:en": "Commission on Elections",
+    "operator:short": "COMELEC",
+    "operator:tl": "Komisyon sa Halalan",
+    "operator:wikidata": "Q2459712",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 3945594,
+  "tags": {
+    "alt_name": "Mantrade",
+    "name": "Magallanes",
+    "operator": "Metropolitan Manila Development Authority",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 3945870,
+  "tags": {
+    "name": "Pasay Road",
+    "operator": "Philippine National Railways",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 3945901,
+  "tags": {
+    "name": "Dela Rosa",
+    "operator": "Philippine National Railways",
+    "public_transport": "stop_area",
+    "ref": "DLR",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 4676883,
+  "tags": {
+    "brand": "DNS",
+    "colour": "yellow",
+    "from": "Glorietta 3",
+    "name": "BF Homes–Glorietta 3 P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "Delta Neosolutions, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P BFH-GRT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "BF Homes",
+    "type": "route",
+    "via": "Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 5456751,
+  "tags": {
+    "brand": "MetroExpress",
+    "colour": "orange",
+    "fee": "yes",
+    "from": "NoMo",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P BM: NoMo → Trasierra",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "BM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Makati/Trasierra",
+    "type": "route",
+    "via": "CAVITEx;NAIAx;Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 5472562,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:floor": "4th Floor",
+    "addr:housename": "RCBC Plaza",
+    "addr:housenumber": "6819",
+    "addr:street": "Ayala Avenue",
+    "addr:street:corner": "Sen. Gil Puyat Avenue",
+    "amenity": "theatre",
+    "level": "3",
+    "name": "Carlos P. Romulo Auditorium",
+    "type": "multipolygon",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 5472563,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "6819",
+    "addr:street": "Ayala Avenue",
+    "addr:street:corner": "Sen. Gil Puyat Avenue",
+    "landuse": "commercial",
+    "name": "RCBC Plaza",
+    "type": "multipolygon",
+    "website": "https://rcbcplaza.com.ph/",
+    "wikidata": "Q7276071",
+    "wikipedia": "en:RCBC Plaza"
+  }
+},
+{
+  "type": "relation",
+  "id": 5472564,
+  "tags": {
+    "building:levels": "41",
+    "building:material": "glass",
+    "building:part": "yes",
+    "height": "167",
+    "name": "Tower 2",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 5472565,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housename": "RCBC Plaza",
+    "addr:housenumber": "6819",
+    "addr:street": "Ayala Avenue",
+    "building:part": "yes",
+    "height": "20",
+    "name": "Yuchengco Museum",
+    "name:it": "Museo Yuchengco",
+    "tourism": "museum",
+    "type": "multipolygon",
+    "website": "https://www.yuchengcomuseum.org/"
+  }
+},
+{
+  "type": "relation",
+  "id": 5492994,
+  "tags": {
+    "destination": "Makati CBD",
+    "detour": "1",
+    "distance": "13.8",
+    "name": "Mabuhay Route 1",
+    "network": "ph:mmda:mabuhay",
+    "operator": "MMDA",
+    "route": "detour",
+    "source": "MMDA",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 5493116,
+  "tags": {
+    "destination": "Makati CBD",
+    "detour": "1",
+    "distance": "8.4",
+    "name": "Mabuhay Route 4",
+    "network": "ph:mmda:mabuhay",
+    "operator": "MMDA",
+    "route": "detour",
+    "source": "MMDA",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 5493137,
+  "tags": {
+    "destination": "Manila;SLEX",
+    "detour": "1",
+    "distance": "9.4",
+    "name": "Mabuhay Route 5",
+    "network": "ph:mmda:mabuhay",
+    "operator": "MMDA",
+    "route": "detour",
+    "source": "MMDA",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 5493182,
+  "tags": {
+    "destination": "NLEX",
+    "detour": "1",
+    "distance": "26.2",
+    "name": "Mabuhay Route 7",
+    "network": "ph:mmda:mabuhay",
+    "operator": "MMDA",
+    "route": "detour",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 5503171,
+  "tags": {
+    "name": "RCBC Plaza",
+    "type": "building"
+  }
+},
+{
+  "type": "relation",
+  "id": 6093548,
+  "tags": {
+    "name": "Batangas-Pandacan Pipeline",
+    "operator": "First Philippine Industrial Corporation",
+    "route": "pipeline",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 6791962,
+  "tags": {
+    "bicycle": "yes",
+    "bicycle:conditional": "yes @ (Su 06:00-18:00)",
+    "motor_vehicle:conditional": "no @ (Su 06:00-18:00)",
+    "name": "BGC Bike Lane",
+    "network": "lcn",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 6821217,
+  "tags": {
+    "brand": "BGC Bus",
+    "duration": "20",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "30",
+    "name": "BGC Bus LX: Lower West Express",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "note": "Intricate relation - do not auto-sort",
+    "opening_hours": "Mo-Fr 00:00-23:59",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "LX",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "Fort Victoria",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 6833740,
+  "tags": {
+    "description": "Roxas Triangle Towers condominiums is composed of two towers; One Roxas Triangle and Two Roxas Triangle",
+    "landuse": "residential",
+    "name": "Roxas Triangle Towers",
+    "type": "multipolygon",
+    "wikipedia:en": "One Roxas Triangle"
+  }
+},
+{
+  "type": "relation",
+  "id": 7496337,
+  "tags": {
+    "alt_name": "Muntinlupa-Taguig-Manila-Doña Imelda-Quezon Transmission Line",
+    "cables": "3",
+    "name": "Sucat-Taguig-Paco-Araneta-Balintawak Transmission Line",
+    "note": "Reference numbers are arranged at ascending and straight order for disambiguation purposes as the original order is out of order due to various transmission projects made on the line.",
+    "operator": "National Grid Corporation of the Philippines",
+    "operator:short": "NGCP",
+    "operator:wikidata": "Q28197109",
+    "operator:wikipedia": "en:National Grid Corporation of the Philippines",
+    "ref": "8LI1QUE-DIM;8LI1DIM-MNA;8LIMNA-MUN",
+    "route": "power",
+    "type": "route",
+    "voltage": "230000",
+    "wikidata": "Q55641899",
+    "wikipedia": "en:Sucat–Paco–Araneta–Balintawak Transmission Line",
+    "wires": "double"
+  }
+},
+{
+  "type": "relation",
+  "id": 7772860,
+  "tags": {
+    "air_conditioning": "yes",
+    "colour": "white",
+    "fee": "yes",
+    "from": "Divisoria",
+    "name": "Alabang–Divisoria (outbound)",
+    "network": "LTFRB National Capital Region",
+    "operator": "HM Transport",
+    "public_transport:version": "2",
+    "ref": "PNR-2",
+    "route": "bus",
+    "to": "Alabang",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 7946169,
+  "tags": {
+    "leisure": "sports_centre",
+    "name": "Badminton Courts",
+    "type": "site"
+  }
+},
+{
+  "type": "relation",
+  "id": 8000186,
+  "tags": {
+    "name": "Guadalupe (EDSA Carousel)",
+    "name:zh": "瓜沓俞帛",
+    "operator": "Metropolitan Manila Development Authority",
+    "public_transport": "stop_area",
+    "public_transport:version": "2",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8000187,
+  "tags": {
+    "name": "Buendia (EDSA Carousel)",
+    "name:zh": "文智亚",
+    "network": "LTFRB PUB",
+    "operator": "Metropolitan Manila Development Authority",
+    "public_transport": "stop_area",
+    "public_transport:version": "2",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8000188,
+  "tags": {
+    "name": "Ayala",
+    "name:zh": "亚耶拉",
+    "public_transport": "stop_area",
+    "public_transport:version": "2",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8000201,
+  "tags": {
+    "name": "Magallanes",
+    "name:zh": "麦哲伦",
+    "public_transport": "stop_area",
+    "public_transport:version": "2",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 8000253,
+  "tags": {
+    "air_conditioning": "yes",
+    "colour": "#FFCC00",
+    "from": "Taft Avenue",
+    "name": "MRT Line 3: Taft Avenue → North Avenue",
+    "name:ja": "マニラMRT 3号線：タフトアベニュー→ノースアベニュー",
+    "name:ko": "마닐라MRT 3 호선: 태프트 애비뉴→노스 애비뉴",
+    "name:zh": "马尼拉捷运3号线（塔虎脱大道→北大道）",
+    "network": "Manila MRT",
+    "operator": "Metro Rail Transit Corporation",
+    "public_transport:version": "2",
+    "ref": "3",
+    "route": "light_rail",
+    "to": "North Avenue",
+    "type": "route",
+    "wikipedia": "en:MRT Line 3 (Metro Manila)"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202468,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Matnog",
+    "name": "DLTBCo: Matnog → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202571,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: Southern Luzon (northbound)",
+    "network": "AH",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202572,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: Southern Luzon (southbound)",
+    "network": "AH",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202637,
+  "tags": {
+    "colour": "gold",
+    "disused:route": "bus",
+    "disused:type": "route",
+    "from": "Clark International Airport",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "NAIA–Clark P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "04:00-21:00",
+    "operator": "Genesis Bus Transport Service, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P MNL-CRK",
+    "smoking": "no",
+    "to": "NAIA Terminal 3",
+    "via": "SM City Clark",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202662,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR West (northbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202663,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR West (southbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202664,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR East (northbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8202665,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR East (southbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8216811,
+  "tags": {
+    "air_conditioning": "yes",
+    "colour": "white",
+    "fee": "yes",
+    "from": "FTI",
+    "name": "FTI–Divisoria (inbound)",
+    "network": "LTFRB National Capital Region",
+    "network:wikidata": "Q6483998",
+    "operator": "HM Transport",
+    "public_transport:version": "2",
+    "ref": "PNR-1",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Divisoria",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8234483,
+  "tags": {
+    "name": "Magallanes",
+    "name:zh": "麦哲伦",
+    "type": "building"
+  }
+},
+{
+  "type": "relation",
+  "id": 8250542,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DNS",
+    "colour": "yellow",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX–Circuit Makati P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Su 05:00-21:30",
+    "operator": "Delta Neosolutions, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P PITX-CKTM",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Makati CBD",
+    "type": "route",
+    "via": "NAIAX",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8334727,
+  "tags": {
+    "name": "Ayala Avenue Bicycle Lanes",
+    "network": "lcn",
+    "operator": "City Government of Makati",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8343623,
+  "tags": {
+    "name": "PNR South Main Line: Manila → Legazpi",
+    "operator": "Philippine National Railways",
+    "operator:wikidata": "Q1637464",
+    "public_transport:version": "2",
+    "route": "railway",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 8438773,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Sacred Heart Street",
+    "brand": "YMCA",
+    "landuse": "commercial",
+    "name": "YMCA of Makati",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 8545505,
+  "tags": {
+    "from": "Governor Pascual",
+    "name": "PNR Shuttle Service Line: Governor Pascual → FTI",
+    "network": "PNR Metro Commuter",
+    "operator": "Philippine National Railways",
+    "passenger": "suburban",
+    "public_transport:version": "2",
+    "ref": "SS",
+    "route": "train",
+    "to": "FTI",
+    "type": "route",
+    "via": "Solis"
+  }
+},
+{
+  "type": "relation",
+  "id": 8676820,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "duration": "02:00",
+    "fee": "yes",
+    "from": "SoMo",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P Route BM",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "Mo-Fr 05:00-19:30",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "BM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Trasierra",
+    "type": "route",
+    "via": "Daang Hari;MCX;SLEX;Skyway;Amorsolo Exit;Glorietta;The Circuit Makati",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8676821,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "MetroExpress",
+    "colour": "orange",
+    "disused:route": "bus",
+    "duration": "02:30",
+    "fee": "yes",
+    "from": "Robinsons Place Dasmariñas",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P Route DM",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "note": "suspended P2P bus route until further notice",
+    "opening_hours": "Mo-Fr 05:00-06:00",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "DM",
+    "service_times": "Mo-Fr 06:00",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Makati City/Trasierra",
+    "type": "route",
+    "via": "Vista Mall Dasmariñas;Salitran;Salawag;Daang Reyna;E2 (MCX-SLEx-Skyway);Glorietta;The Circuit Makati",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8706030,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Balayan",
+    "name": "PITX–Balayan via CALAX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-BLY",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "start_date": "2020-09-30",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Tuy;Alfonso;Tagaytay;Silang;CALAX;SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 8747987,
+  "tags": {
+    "fee": "yes",
+    "from": "Upper McKinley Gate 3",
+    "name": "Citylink Bus Route (Upper McKinley - San Lorenzo Place)",
+    "operator": "Citylink Coach Services, Inc.",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "to": "San Lorenzo Place",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 8747988,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "disused:route": "bus",
+    "duration": "02:30:00",
+    "fee": "yes",
+    "from": "Trasierra",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P Route DM",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "note": "suspended P2P bus route until further notice",
+    "opening_hours": "Mo-Fr 17:00-17:30",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "DM",
+    "service_times": "Mo-Fr 17:30",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Robinsons Place Dasmariñas",
+    "type": "route",
+    "via": "Skyway;SLEX;MCX;Daang Hari;Salawag;Salitran",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 8748037,
+  "tags": {
+    "fee": "yes",
+    "from": "San Lorenzo Place",
+    "name": "Citylink Bus Route (San Lorenzo Place - Upper McKinley)",
+    "operator": "Citylink Coach Services, Inc.",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Upper McKinley Gate 3",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 8751702,
+  "tags": {
+    "affiliation": "MMDA",
+    "check_date": "2023-04-28",
+    "duration": "01:35:00",
+    "facebook": "https://www.facebook.com/mmdaprfs",
+    "foot": "yes",
+    "from": "Escolta",
+    "interval": "01:00:00",
+    "interval:conditional": "00:45:00 @ (Mo-Sa 08:15-09:00); 00:30:00 @ (Mo-Sa 17:00-17:30)",
+    "motor_vehicle": "no",
+    "name": "PRFS Escolta → Pinagbuhatan",
+    "opening_hours": "Mo-Sa 08:15-17:30",
+    "operator": "Pasig River Ferry Service",
+    "public_transport:version": "2",
+    "route": "ferry",
+    "smoking": "no",
+    "source": "survey;maxar;mmdaprfs",
+    "timestamp": "2",
+    "to": "Pinagbuhatan",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 8913357,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "duration": "02:00",
+    "fee": "yes",
+    "from": "Trasierra",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P Route BM",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "Mo-Fr 05:00-20:30",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "BM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "SoMo",
+    "type": "route",
+    "via": "SLEX;MCX;Daang Hari",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9082535,
+  "tags": {
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX → BGC via Kalayaan Avenue",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "13",
+    "operator": "Green Frog ZE Transport Corporation",
+    "public_transport:version": "2",
+    "ref": "4",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circulars 2020-019, 2021-016",
+    "to": "McKinley West",
+    "type": "route",
+    "via": "Buendia;Bonifacio Global City;C-5/Buting",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9236380,
+  "tags": {
+    "colour": "white",
+    "from": "EDSA/Buendia",
+    "internet_access": "wlan",
+    "name": "EDSA/Buendia-Mandaluyong City Hall",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "operator": "eSakay, Inc.",
+    "public_transport:version": "2",
+    "ref": "304",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Mandaluyong City Hall",
+    "type": "route",
+    "via": "Jupiter",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 9332898,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Calatagan",
+    "name": "PITX–Calatagan via Nasugbu-Lian, Tagaytay, Carmona, Pasay",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-CLT",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "start_date": "2020-09-30",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Lian;Nasugbu;Tuy;Alfonso;Tagaytay;Carmona;SLEx",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 9336836,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "duration": "01:00",
+    "fee": "yes",
+    "from": "Vista Mall Taguig",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P TM: Vista Mall Taguig → Trasierra",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "Mo-Fr 05:00-19:30",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "TM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Trasierra",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9336837,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "duration": "01:00",
+    "fee": "yes",
+    "from": "Trasierra",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P TM: Trasierra → Vista Mall Taguig",
+    "network": "PH:P2P",
+    "opening_hours": "Mo-Fr 05:00-20:00",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "TM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Vista Mall Taguig",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9336838,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "yellow",
+    "duration": "00:45",
+    "from": "Puregold Noveleta",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "San Agustin P2P: Puregold Noveleta → One Ayala",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "Mo-Fr 05:00-19:00",
+    "operator": "San Agustin Transport Service, Inc.",
+    "public_transport:version": "2",
+    "ref": "NM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "One Ayala",
+    "type": "route",
+    "via": "CAVITEx;NAIAx;Skyway;Makati CBD",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9336839,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "yellow",
+    "duration": "01:30",
+    "from": "The District Imus",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "The District Imus–Ayala Center P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Fr 05:00-19:00",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P IMU–MKT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "One Ayala",
+    "type": "route",
+    "via": "Daang Hari;MCX;Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9344634,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "duration": "01:00",
+    "fee": "yes",
+    "from": "Vista Mall Taguig",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P TO: Vista Mall Taguig → Starmall Shaw",
+    "network": "PH:P2P",
+    "opening_hours": "Mo-Fr 05:00-19:30",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "TO",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Starmall Shaw",
+    "type": "route",
+    "via": "Robinsons Galleria",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9395469,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "red",
+    "duration": "01:00",
+    "from": "Makati City/Greenbelt 1",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Greenbelt 1–Las Piñas P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "05:00-19:30",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P GBT–LPC",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Las Piñas City",
+    "type": "route",
+    "via": "Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9395470,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "red",
+    "duration": "01:00",
+    "from": "Las Piñas City/Pilar",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Greenbelt 1–Las Piñas P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Fr 05:00-20:00",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P GBT–LPC",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Makati City/Greenbelt 1",
+    "type": "route",
+    "via": "Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9395512,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "yellow",
+    "duration": "00:45",
+    "from": "One Ayala",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "San Agustin P2P: One Ayala → Puregold Noveleta",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "Mo-Fr 07:00-21:00",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "NM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Puregold Noveleta",
+    "type": "route",
+    "via": "Skyway;NAIAx;CAVITEx",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9430778,
+  "tags": {
+    "colour": "gold",
+    "from": "NAIA Terminal 3",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "NAIA–Clark P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "opening_hours": "04:00-21:00",
+    "operator": "Genesis Bus Transport Service, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P MNL-CRK",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Clark International Airport",
+    "type": "route",
+    "via": "SM City Clark",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9453755,
+  "tags": {
+    "air_conditioning": "yes",
+    "fee": "yes",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "interval": "3",
+    "name": "EDSA Carousel",
+    "network": "LTFRB–National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "E",
+    "operator": "Mega Manila Consortium Corporation;Jell Transport Inc.",
+    "payment:cash": "yes",
+    "payment:ep_beep": "yes",
+    "public_transport:version": "2",
+    "ref": "1",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Monumento",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9471499,
+  "tags": {
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "E2: Skyway At-grade northbound",
+    "network": "PH:E",
+    "operator": "Skyway O&M Corporation",
+    "owner": "Department of Public Works and Highways",
+    "ref": "E2",
+    "ref:colour": "yellow",
+    "route": "road",
+    "symbol": "https://upload.wikimedia.org/wikipedia/commons/f/ff/E2_%28Philippines%29.svg",
+    "type": "route",
+    "wikipedia": "en:Metro Manila Skyway"
+  }
+},
+{
+  "type": "relation",
+  "id": 9596797,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX–Lucena City via Buendia, Alabang",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "Intricate relation - do not auto-sort",
+    "operator": "JAC Liner Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PITX-LUCE",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Dalahican Port",
+    "type": "route",
+    "via": "Lucena City Grand Central Terminal",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 9596798,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Lucena City Grand Central Terminal",
+    "name": "PITX–Lucena City via Buendia, Alabang",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "Intricate relation - do not auto-sort",
+    "operator": "JAC Liner Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-LCN",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 9601908,
+  "tags": {
+    "name": "Route 190: Gil Puyat Avenue (eastbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "190",
+    "ref:colour": "white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 9601909,
+  "tags": {
+    "name": "Circumferential Road 3",
+    "ref": "C-3",
+    "ref:colour": "green",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 9605327,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "yellow",
+    "duration": "01:30",
+    "from": "One Ayala",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "The District Imus–Ayala Center P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Fr 07:00-18:00",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P IMU–AYC",
+    "route": "bus",
+    "smoking": "no",
+    "to": "The District Imus",
+    "type": "route",
+    "via": "Skyway;MCx;Daang Hari",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9702258,
+  "tags": {
+    "building": "apartments",
+    "name": "Apartment Building № 2",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 9702259,
+  "tags": {
+    "building": "apartments",
+    "name": "Apartment Building № 1",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 9796418,
+  "tags": {
+    "brand": "RRCG",
+    "from": "One Ayala",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "RRCG P2P: One Ayala → Robinsons Place Cainta",
+    "network": "PH:P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Fr 05:00-19:30",
+    "operator": "RRCG",
+    "public_transport:version": "2",
+    "ref": "CM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Robinsons Place Cainta",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 9856704,
+  "tags": {
+    "air_conditioning": "yes",
+    "fixme": "stops",
+    "from": "Ayala",
+    "name": "Ayala–Fairview via Quezon Avenue (inbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Lippad Trans",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "17",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2020-019",
+    "to": "Fairview",
+    "type": "route",
+    "via": "Quezon Avenue",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 9973186,
+  "tags": {
+    "name": "EDSA bike lane",
+    "network": "ncn",
+    "note": "missing national bicycle lane between Extension and Magallanes Interchange",
+    "operator": "Metropolitan Manila Development Authority;Department of Public Works and Highways",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 9991811,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Calatagan",
+    "name": "PITX–Calatagan via CALAX, Balayan",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-CLT",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "start_date": "2020-09-30",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Balayan;Tuy;Alfonso;Tagaytay;Silang;CALAX;SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10015475,
+  "tags": {
+    "from": "FTI",
+    "name": "PNR Shuttle Service Line: FTI → Governor Pascual",
+    "network": "PNR Metro Commuter",
+    "operator": "Philippine National Railways",
+    "passenger": "suburban",
+    "public_transport:version": "2",
+    "ref": "SS",
+    "route": "train",
+    "to": "Governor Pascual",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 10086921,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Nasugbu",
+    "name": "Pasay–Nasugbu via Carmona, Tagaytay",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PSY-NSB",
+    "route": "bus",
+    "smoking": "no",
+    "start_date": "2020-09-30",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "DLTBCo Pasay",
+    "type": "route",
+    "via": "Tuy;Alfonso;Tagaytay;Silang;Carmona;SLEx",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10086922,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "DLTBCo Pasay",
+    "name": "Pasay–Nasugbu via Carmona, Tagaytay",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PSY-NSB",
+    "route": "bus",
+    "smoking": "no",
+    "start_date": "2020-09-30",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Nasugbu",
+    "type": "route",
+    "via": "SLEX;Carmona;Dasmariñas;Silang;Tagaytay;Alfonso;Tuy",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10092669,
+  "tags": {
+    "brand": "TAS",
+    "colour": "green",
+    "from": "Nuvali",
+    "internet_access": "wlan",
+    "name": "Nuvali–Circuit Makati P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "TAS Trans Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P NVL-MKT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Makati City/Circuit",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10092670,
+  "tags": {
+    "brand": "TAS",
+    "colour": "green",
+    "from": "Makati City/Circuit",
+    "internet_access": "wlan",
+    "name": "Nuvali–Circuit Makati P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "TAS Trans Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P NVL-MKT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Nuvali",
+    "type": "route",
+    "via": "SLEX;Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10153679,
+  "tags": {
+    "brand": "DNS",
+    "colour": "yellow",
+    "from": "Makati City/Circuit",
+    "name": "DNS P2P: Circuit Makati → PITX",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Su 05:00-21:30",
+    "operator": "Delta Neosolutions, Inc.",
+    "public_transport:version": "2",
+    "ref": "DNS P2P",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "NAIAx",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10183363,
+  "tags": {
+    "from": "Southwoods Mall",
+    "name": "Ayala–Southwoods",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "61",
+    "route": "bus",
+    "to": "Ayala Center",
+    "type": "route",
+    "via": "Susana Heights Exit",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10183711,
+  "tags": {
+    "air_conditioning": "yes",
+    "fee": "yes",
+    "from": "Monumento",
+    "interval": "3",
+    "name": "EDSA Carousel",
+    "network": "LTFRB–National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "E",
+    "operator": "Mega Manila Consortium Corporation;Jell Transport Inc.",
+    "payment:cash": "yes",
+    "payment:ep_beep": "yes",
+    "public_transport:version": "2",
+    "ref": "1",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "SM Mall of Asia",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10227334,
+  "tags": {
+    "industrial": "depot",
+    "landuse": "industrial",
+    "name": "Global Electric Transportation",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 10227335,
+  "tags": {
+    "addr:street": "Edison Street",
+    "addr:street:corner": "Pasteur",
+    "alt_name": "Light of the World Christian Academy of Makati",
+    "amenity": "school",
+    "name": "Christian Academy of Makati",
+    "operator": "Light of the World",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 10316638,
+  "tags": {
+    "air_conditioning": "yes",
+    "fixme": "stops",
+    "from": "Fairview",
+    "name": "Ayala–Fairview via Quezon Avenue (outbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Lippad Trans",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "17",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2020-019",
+    "to": "Ayala",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10335990,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "ALPS",
+    "charge": "PHP410.00",
+    "colour": "blue",
+    "duration": "01:30",
+    "fee": "yes",
+    "from": "Ortigas Center",
+    "name": "Ortigas Center–Batangas City P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "ALPS the Bus, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P OTC-BTC",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Batangas City",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10387313,
+  "tags": {
+    "brand": "DNS",
+    "from": "Vista Mall Lakefront",
+    "name": "Vista Mall Lakefront–Glorietta 3 P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "DNS",
+    "public_transport:version": "2",
+    "ref": "P2P VML-GRT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Makati City/Glorietta 3",
+    "type": "route",
+    "via": "SLEX;Sucat Exit",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10558870,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Balayan",
+    "name": "PITX–Balayan via Cuenca",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-BLY",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10594408,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Legazpi City Bus Terminal",
+    "name": "DLTBCo: Legazpi City → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10594409,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Bulan Bus Terminal",
+    "name": "DLTBCo: Bulan → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10595741,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Sorsogon Integrated Terminal Exchange",
+    "name": "DLTBCo: Sorsogon City → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10595742,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Daet Central Terminal",
+    "name": "DLTBCo: Daet → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-009",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10645333,
+  "tags": {
+    "brand": "DNS",
+    "colour": "yellow",
+    "from": "Glorietta 3",
+    "name": "Vista Mall Lakefront–Glorietta 3 P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "Delta Neosolutions, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P VML-GRT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Vista Mall Lakefront",
+    "type": "route",
+    "via": "SLEX;Sucat Exit",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10645334,
+  "tags": {
+    "brand": "DNS",
+    "from": "BF Homes",
+    "name": "BF Homes–Glorietta 3 P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "DNS Transport",
+    "public_transport:version": "2",
+    "ref": "P2P BFH-GRT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Makati City/Glorietta 3",
+    "type": "route",
+    "via": "Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 10645335,
+  "tags": {
+    "from": "PITX",
+    "name": "PITX–Balibago",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "34",
+    "opening_hours": "04:00-21:30",
+    "operator": "Cher Transport",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "30",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "to": "Balibago",
+    "type": "route",
+    "via": "Buendia;SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10650252,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "A. Bragais Liner;Bobis Liner;Philtranco;R. Diaz Liner;RMB Bicol Express",
+    "from": "Tabaco City Integrated Central Terminal",
+    "name": "Bus Route: Tabaco → PITX",
+    "network": "LTFRB PUB",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Bobis Liner;A. Bragais Liner;R. Diaz Liner;Philtranco Service Enterprises, Inc.;RMB Bicol Express Transport Service, Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PITX-TBCO",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-009",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Tiwi;Tigaon",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10662273,
+  "tags": {
+    "air_conditioning": "yes",
+    "duration": "01:15",
+    "from": "Batangas City",
+    "name": "PITX–Batangas City via ACTEX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "N. Dela Rosa Liner",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DL",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Santo Tomas;Calamba;Alabang",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10775454,
+  "tags": {
+    "from": "Pasay",
+    "name": "Pasay–Balibago",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "old_ref": "35",
+    "operator": "BBL Trans",
+    "public_transport:version": "2",
+    "ref": "11",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "to": "Balibago Complex Bus Terminal",
+    "type": "route",
+    "via": "SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 10808143,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Tabaco City Integrated Central Terminal",
+    "name": "DLTBCo: Tabaco → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DLTBCo",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-009",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Sibaguan",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11026525,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "ALPS",
+    "charge": "410.00 PHP",
+    "colour": "blue",
+    "duration": "01:30",
+    "fee": "yes",
+    "from": "Batangas City Grand Central Terminal",
+    "name": "Ortigas Center–Batangas City P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "ALPS the Bus, Inc.",
+    "public_transport:version": "2",
+    "ref": "P2P OTC-BTC",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "SM Megamall",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11034027,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "duration": "02:15",
+    "fee": "yes",
+    "from": "Batangas City",
+    "interval": "01:00",
+    "name": "PITX–Batangas City via Skyway",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-BTP",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "STAR;SLEX;Skyway",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11045872,
+  "tags": {
+    "colour": "white",
+    "from": "Park Square",
+    "name": "UV Express: Ayala Center → Springville, Molino, Bacoor via Skyway",
+    "network": "PH:UV:Metro Manila",
+    "public_transport:version": "2",
+    "ref": "Ayala Center-Springville",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Springville UV Express Terminal",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11045873,
+  "tags": {
+    "colour": "white",
+    "from": "Springville UV Express Terminal via Skyway",
+    "name": "UV Express: Springville, Molino, Bacoor → Ayala Center",
+    "network": "PH:UV:Metro Manila",
+    "public_transport:version": "2",
+    "ref": "Ayala Center-Springville",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Park Square",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11049092,
+  "tags": {
+    "access": "private",
+    "air_conditioning": "yes",
+    "description": "Bus shuttle service for medical front-line workers",
+    "name": "DOTr Medical Route 18: EDSA (PITX→Monumento)",
+    "network": "DOTr Medical Route",
+    "operator": "Department of Transportation",
+    "public_transport:version": "2",
+    "ref": "MR 18",
+    "route": "bus",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11062406,
+  "tags": {
+    "from": "Ayala",
+    "name": "Ayala–Biñan",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "old_ref": "15",
+    "operator": "JAC Liner Inc.",
+    "public_transport:version": "2",
+    "ref": "12",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Biñan",
+    "type": "route",
+    "via": "Susana Heights",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11062407,
+  "tags": {
+    "from": "Biñan",
+    "name": "Ayala–Biñan",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "old_ref": "15",
+    "operator": "JAC Liner Inc.",
+    "public_transport:version": "2",
+    "ref": "12",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Ayala Center",
+    "type": "route",
+    "via": "Susana Heights",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11075636,
+  "tags": {
+    "construction:route": "railway",
+    "name": "North-South Commuter Railway: Calamba → Solis",
+    "operator": "Philippine National Railways",
+    "ref": "NSCR",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11075637,
+  "tags": {
+    "construction:route": "railway",
+    "name": "North-South Commuter Railway: Solis → Calamba",
+    "operator": "Philippine National Railways",
+    "ref": "NSCR",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11115718,
+  "tags": {
+    "from": "FTI",
+    "name": "FTI–Navotas via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Taguig Metro Link",
+    "public_transport:version": "2",
+    "ref": "45",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-074",
+    "to": "Navotas",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11115719,
+  "tags": {
+    "from": "Navotas",
+    "name": "FTI–Navotas via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Taguig Metro Link",
+    "public_transport:version": "2",
+    "ref": "45",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2020-019",
+    "to": "FTI",
+    "type": "route",
+    "via": "Ayala Avenue"
+  }
+},
+{
+  "type": "relation",
+  "id": 11115720,
+  "tags": {
+    "from": "Ayala Center",
+    "name": "Ayala–Alabang",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "old_ref": "14",
+    "operator": "HM Transport",
+    "payment:cash": "no",
+    "payment:ep_tripko": "only",
+    "public_transport:version": "2",
+    "ref": "10",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Vista Terminal Exchange",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11115721,
+  "tags": {
+    "from": "Alabang",
+    "name": "Ayala–Alabang",
+    "network": "PUB",
+    "old_ref": "14",
+    "operator": "HM Transport Inc.; CEM Trans",
+    "payment:cash": "no",
+    "payment:ep_tripko": "only",
+    "public_transport:version": "2",
+    "ref": "10",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Ayala Center",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11122214,
+  "tags": {
+    "colour": "gray",
+    "from": "Ayala",
+    "name": "Ayala-Pateros via JP Rizal",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T213",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Pateros",
+    "type": "route",
+    "via": "J.P. Rizal Street",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11125575,
+  "tags": {
+    "bus": "share_taxi",
+    "from": "FTI",
+    "name": "Guadalupe-FTI",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Fort Bonifacio-Pateros Transport Service and Multi-purpose Cooperative",
+    "public_transport:version": "2",
+    "ref": "210",
+    "route": "bus",
+    "service_times": "05:00-20:00",
+    "to": "Guadalupe Terminal",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11125576,
+  "tags": {
+    "colour": "gray",
+    "from": "Guadalupe Commercial Complex",
+    "name": "Guadalupe-L. Guinto via Pasig Line",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T324",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Leon Guinto",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11142887,
+  "tags": {
+    "colour": "gray",
+    "from": "Philippine Racing Club",
+    "name": "Kayamanan C - PRC via Pasong Tamo",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "note": "Original route ends: Philippine Racing Club office, Pasong Tamo Extension at Taguig. Present terminals since route rationalization.",
+    "public_transport:version": "2",
+    "ref": "T331",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2020-026",
+    "to": "Kayamanan C",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11142888,
+  "tags": {
+    "colour": "gray",
+    "from": "Kayamanan C",
+    "name": "Kayamanan C - PRC via Pasong Tamo",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "note": "Original route ends: Philippine Racing Club office, Pasong Tamo Extension at Taguig. Present terminals since route rationalization.",
+    "public_transport:version": "2",
+    "ref": "T331",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2020-026",
+    "to": "Philippine Racing Club",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11142889,
+  "tags": {
+    "colour": "yellow",
+    "from": "Philippine Racing Club",
+    "name": "Libertad-PRC",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T369",
+    "route": "bus",
+    "to": "Libertad",
+    "type": "route",
+    "via": "Pasong Tamo;Kaliwa;Buendia;LRT Taft"
+  }
+},
+{
+  "type": "relation",
+  "id": 11142890,
+  "tags": {
+    "colour": "yellow",
+    "from": "Libertad",
+    "name": "Libertad-PRC",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T369",
+    "route": "bus",
+    "to": "Philippine Racing Club",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11158008,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "duration": "02:00",
+    "fee": "yes",
+    "from": "Lemery",
+    "name": "PITX–Lemery via Cuenca",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-LEM",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Lipa City;CALABARZON;Turbina",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11158091,
+  "tags": {
+    "access": "private",
+    "air_conditioning": "yes",
+    "description": "Bus shuttle service for medical front-line workers",
+    "name": "DOTr Medical Route 18: EDSA (Monumento→PITX)",
+    "network": "DOTr Medical Route",
+    "operator": "Department of Transportation",
+    "public_transport:version": "2",
+    "ref": "MR 18",
+    "route": "bus",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11185051,
+  "tags": {
+    "brand": "MetroExpress;MEX",
+    "colour": "orange",
+    "fee": "yes",
+    "from": "Trasierra",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "MetroExpress P2P BM: Trasierra → NoMo",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "MetroExpress Connect, Inc.",
+    "payment:cash": "no",
+    "payment:ep_PrimeTap": "only",
+    "public_transport:version": "2",
+    "ref": "BM",
+    "route": "bus",
+    "smoking": "no",
+    "to": "NoMo",
+    "type": "route",
+    "via": "Skyway;NAIAx;CAVITEx",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192391,
+  "tags": {
+    "brand": "BGC Bus",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "name": "BGC Bus AX: Ayala Avenue Express",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "opening_hours": "Mo-Fr 06:00-10:00",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "AX",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "Glorietta 5",
+    "type": "route",
+    "via": "Ayala Avenue"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192394,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "cyan",
+    "duration": "33",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "45",
+    "name": "BGC Bus NR: Night Route (EDSA-Ayala → University Parkway: Sunday 6am-6pm)",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "opening_hours": "Su 06:00-18:00",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "NR",
+    "route": "bus",
+    "to": "University Parkway",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192395,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "cyan",
+    "duration": "28",
+    "from": "Market! Market!",
+    "interval": "45",
+    "name": "BGC Bus NR: Night Route (Market! Market! → EDSA-Ayala)",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "note": "Intricate relation - do not auto-sort",
+    "opening_hours": "Mo-Fr 22:00-06:00; Sa-Su 06:00-22:00",
+    "operator": "Bonifacio Transport Corporation",
+    "public_transport:version": "2",
+    "ref": "NR",
+    "route": "bus",
+    "to": "EDSA-Ayala",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192396,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "cyan",
+    "duration": "33",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "name": "BGC Bus NR: Night Route (EDSA-Ayala → University Parkway)",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "opening_hours": "Mo-Fr 22:00-06:00; Sa 06:00-22:00; Su 18:00-22:00",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "NR",
+    "route": "bus",
+    "to": "University Parkway",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192397,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "black",
+    "duration": "32",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "45",
+    "name": "BGC Bus NX: North Express",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "note": "Intricate relation - do not auto-sort",
+    "opening_hours": "Mo-Fr 06:00-23:59",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "NX",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "The Fort Strip",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192398,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "red",
+    "duration": "20",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "30",
+    "name": "BGC East Express Loop",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "opening_hours": "Mo-Fr 00:00-23:59",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "payment:gcash": "yes",
+    "public_transport:version": "2",
+    "ref": "63",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "Market! Market!",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192399,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "green",
+    "duration": "15",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "30",
+    "name": "BGC Bus UX: Upper West Express",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "opening_hours": "Mo-Fr 00:00-23:59",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "UX",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "Crescent Park West",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11192402,
+  "tags": {
+    "from": "McKinley West",
+    "name": "McKinley → PITX via Kalayaan Avenue",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "13",
+    "operator": "Green Frog ZE Transport Corporation",
+    "public_transport:version": "2",
+    "ref": "4",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circulars 2020-019, 2021-016",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "C-5/Buting;Buendia",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 11262573,
+  "tags": {
+    "colour": "white",
+    "from": "Park Square",
+    "name": "UV Express: Ayala Center → Pacita Complex via San Pedro Exit",
+    "network": "UV Express",
+    "operator": "Reysal Public Transportation Association; San Pedro Van Drivers",
+    "public_transport:version": "2",
+    "ref": "ACPC",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Pacita Complex",
+    "type": "route",
+    "via": "San Pedro Exit",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11262574,
+  "tags": {
+    "colour": "white",
+    "from": "Pacita Complex UV Express Terminal",
+    "name": "UV Express: Pacita Complex → Ayala Center via San Pedro Exit",
+    "network": "UV Express",
+    "note": "Northbound via Susana Heights until opening of San Pedro Exit northbound",
+    "operator": "Reysal Public Transportation Association; San Pedro Van Drivers",
+    "public_transport:version": "2",
+    "ref": "ACPC",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Ayala Center",
+    "type": "route",
+    "via": "SLEX;Skyway",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11288343,
+  "tags": {
+    "colour": "gray",
+    "from": "Mantrade",
+    "name": "Jeepney Route T305: Mantrade → Ayala via Pasong Tamo",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T305",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Ayala",
+    "type": "route",
+    "via": "Pasong Tamo",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11288344,
+  "tags": {
+    "colour": "gray",
+    "from": "Ayala",
+    "name": "Jeepney Route T305: Ayala → Mantrade via Pasong Tamo",
+    "network": "PUJ",
+    "public_transport:version": "2",
+    "ref": "T305",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Mantrade",
+    "type": "route",
+    "via": "Pasong Tamo",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11288345,
+  "tags": {
+    "colour": "gray",
+    "from": "Ayala",
+    "name": "Jeepney Route T306: Ayala - Washington",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T306",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Washington",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11483660,
+  "tags": {
+    "bus": "share_taxi",
+    "colour": "white",
+    "from": "Guadalupe",
+    "name": "Fort Bonifacio Gate 3-Guadalupe (ABC)",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Fort Bonifacio - Pateros Transport Service and Multi-purpose Cooperative",
+    "public_transport:version": "2",
+    "ref": "202",
+    "route": "bus",
+    "service_times": "05:00-20:00",
+    "smoking": "no",
+    "to": "Gate 3 Plaza",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11483661,
+  "tags": {
+    "colour": "white",
+    "from": "Gate 3 Plaza",
+    "name": "Fort Bonifacio Gate 3 - Guadalupe (ABC)",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "operator": "Fort Bonifacio - Pateros Transport Service and Multi-purpose Cooperative",
+    "public_transport:version": "2",
+    "ref": "202",
+    "route": "bus",
+    "service_times": "05:00-20:00",
+    "smoking": "no",
+    "to": "Guadalupe Terminal",
+    "type": "route",
+    "via": "Market Market",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11509138,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "Superlines",
+    "from": "Balatan",
+    "name": "Bus Route: Balatan → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Superlines Transportation Co. Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11524305,
+  "tags": {
+    "colour": "yellow",
+    "from": "Kayamanan C",
+    "name": "FTI–Kayamanan C",
+    "network": "LTFRB PUJ",
+    "public_transport:version": "2",
+    "ref": "T226",
+    "route": "bus",
+    "to": "FTI",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11524306,
+  "tags": {
+    "colour": "yellow",
+    "from": "FTI",
+    "name": "FTI–Kayamanan C",
+    "network": "LTFRB PUJ",
+    "public_transport:version": "2",
+    "ref": "T226",
+    "route": "bus",
+    "to": "Kayaman C",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 11545320,
+  "tags": {
+    "from": "Balibago Complex",
+    "name": "Pasay–Balibago",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "old_ref": "35",
+    "operator": "BBL Trans",
+    "public_transport:version": "2",
+    "ref": "11",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "to": "Pasay",
+    "type": "route",
+    "via": "SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11545321,
+  "tags": {
+    "from": "Balibago",
+    "name": "PITX–Balibago",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "old_ref": "34",
+    "operator": "Cher Transport",
+    "public_transport:version": "2",
+    "ref": "30",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "SLEX;Gil Puyat Avenue",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11569614,
+  "tags": {
+    "name": "EDSA",
+    "public_transport": "stop_area",
+    "type": "public_transport"
+  }
+},
+{
+  "type": "relation",
+  "id": 11611024,
+  "tags": {
+    "colour": "white",
+    "from": "Mandaluyong City Hall",
+    "internet_access": "wlan",
+    "name": "EDSA/Buendia-Mandaluyong City Hall",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "operator": "eSakay, Inc.",
+    "public_transport:version": "2",
+    "ref": "304",
+    "route": "bus",
+    "service_times": "05:00-20:00",
+    "smoking": "no",
+    "to": "EDSA-Jupiter",
+    "type": "route",
+    "via": "Jupiter",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11611025,
+  "tags": {
+    "colour": "gray",
+    "from": "Leon Guinto",
+    "name": "Guadalupe-L. Guinto via Pasig Line",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T324",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2020-026",
+    "to": "Guadalupe",
+    "type": "route",
+    "via": "Makati City Hall",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11693672,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Santa Cruz",
+    "name": "PITX–Santa Cruz, Laguna via Skyway, Pila",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-SCL",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "via": "Skyway;Pila",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11826693,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "duration": "01:30",
+    "fee": "yes",
+    "from": "Lipa City Grand Terminal",
+    "name": "PITX–Lipa City via Skyway, Turbina, Santo Tomas Exit",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX–LPB",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Santo Tomas Exit;Turbina;SLEX;NAIAX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11826695,
+  "tags": {
+    "air_conditioning": "yes",
+    "duration": "01:30",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX–Batangas City via Buendia, Alabang, Lipa City",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Gold Star Bus Transit, Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PITX-BTGS",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Batangas City",
+    "type": "route",
+    "via": "Lipa City",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11826696,
+  "tags": {
+    "air_conditioning": "yes",
+    "duration": "02:45",
+    "from": "Batangas City Grand Central Terminal",
+    "name": "PITX–Batangas City via Buendia, Alabang, Lipa City",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Gold Star Bus Transit, Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-BTP",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Lipa City;Alabang;Buendia",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 11959938,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "North Street",
+    "addr:street:corner": "East Street",
+    "air_conditioning": "yes",
+    "building": "retail",
+    "email": "hello@ayalamalls.com",
+    "internet_access": "wlan",
+    "layer": "1",
+    "name": "Glorietta 5",
+    "opening_hours": "Mo-Th 10:00-21:00; Fr-Su 10:00-21:00",
+    "operator": "Ayala Malls",
+    "operator:wikidata": "Q16836231",
+    "phone": "+63 2 7752 7272",
+    "shop": "mall",
+    "start_date": "2009",
+    "type": "multipolygon",
+    "website": "https://www.ayalamalls.com/main/malls/ayala-glorietta",
+    "wikidata": "Q5571513",
+    "wikipedia": "en:Glorietta"
+  }
+},
+{
+  "type": "relation",
+  "id": 12227979,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Ayala Avenue",
+    "addr:street:corner": "Makati Avenue",
+    "name": "Makati Shangri-La",
+    "tourism": "hotel",
+    "type": "multipolygon",
+    "website": "https://www.shangri-la.com/en/manila/makatishangrila/"
+  }
+},
+{
+  "type": "relation",
+  "id": 12227980,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Esperanza Street",
+    "addr:street:corner": "Makati Avenue",
+    "landuse": "commercial",
+    "layer": "1",
+    "name": "New World Hotel",
+    "postal_code": "1228",
+    "tourism": "hotel",
+    "type": "multipolygon",
+    "wikidata": "Q111403809"
+  }
+},
+{
+  "type": "relation",
+  "id": 12227981,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Esperanza Street",
+    "addr:street:corner": "Paseo de Roxas",
+    "landuse": "residential",
+    "name": "The Residences at Greenbelt",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 12227982,
+  "tags": {
+    "landuse": "retail",
+    "name": "Greenbelt",
+    "type": "multipolygon",
+    "wikidata": "Q5603686"
+  }
+},
+{
+  "type": "relation",
+  "id": 12227983,
+  "tags": {
+    "name": "Ayala Center Makati",
+    "place": "neighbourhood",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 12254199,
+  "tags": {
+    "bus": "share_taxi",
+    "colour": "white",
+    "from": "Guadalupe",
+    "name": "FTI-Guadalupe",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "missing stops to follow-up",
+    "operator": "Fort Bonifacio-Pateros Transport Service and Multi-purpose Cooperative",
+    "public_transport:version": "2",
+    "ref": "210",
+    "route": "bus",
+    "service_times": "05:00-20:00",
+    "smoking": "no",
+    "to": "FTI",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 12257194,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "DLTBCo",
+    "charge": "50 PHP/21 km",
+    "colour": "red",
+    "fee": "yes",
+    "from": "Siniloan",
+    "name": "PITX–Siniloan, Laguna via Skyway, Pila",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Del Monte Land Transport Bus Company, Inc.",
+    "operator:type": "private",
+    "owner": "Del Monte Motor Works",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-SNL",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "via": "Skyway;Pila",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 12273898,
+  "tags": {
+    "from": "Ayala Center",
+    "name": "Ayala–Southwoods",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "61",
+    "route": "bus",
+    "to": "Southwoods",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 12273899,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "Superlines",
+    "colour": "red",
+    "from": "Daet",
+    "name": "Bus Route: Daet → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Superlines Transportation Company, Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2020-051",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 12373065,
+  "tags": {
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "E2: Skyway At-grade southbound",
+    "network": "PH:E",
+    "operator": "SMC Infrastructure",
+    "owner": "Department of Public Works and Highways",
+    "ref": "E2",
+    "ref:colour": "yellow",
+    "route": "road",
+    "symbol": "https://upload.wikimedia.org/wikipedia/commons/f/ff/E2_%28Philippines%29.svg",
+    "type": "route",
+    "wikipedia": "en:Skyway (Metro Manila)"
+  }
+},
+{
+  "type": "relation",
+  "id": 12373066,
+  "tags": {
+    "int_ref": "AH26",
+    "name": "E2: Skyway Elevated southbound",
+    "network": "PH:E",
+    "operator": "SMC Infrastructure",
+    "owner": "Department of Public Works and Highways",
+    "ref": "E2",
+    "ref:colour": "yellow",
+    "route": "road",
+    "symbol": "https://upload.wikimedia.org/wikipedia/commons/f/ff/E2_%28Philippines%29.svg",
+    "type": "route",
+    "wikipedia": "en:Metro Manila Skyway"
+  }
+},
+{
+  "type": "relation",
+  "id": 12373579,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR Central (northbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 12373618,
+  "tags": {
+    "int_name": "Asian Highway 26",
+    "int_ref": "AH26",
+    "int_ref:colour": "blue",
+    "name": "AH26: NCR Central (southbound)",
+    "network": "AH",
+    "osmc:symbol": ":blue::AH26:white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 12423259,
+  "tags": {
+    "name": "Route 1: Pasay → Laoag",
+    "network": "PH:N",
+    "ref": "1",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 12423260,
+  "tags": {
+    "name": "Route 1: Laoag → Pasay",
+    "network": "PH:N",
+    "ref": "1",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 12520016,
+  "tags": {
+    "name": "PNR South Main Line: Legazpi → Manila",
+    "operator": "Philippine National Railways",
+    "operator:wikidata": "Q1637464",
+    "public_transport:version": "2",
+    "route": "railway",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 12673421,
+  "tags": {
+    "from": "Ayala Center",
+    "name": "Ayala–Biñan via Carmona",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "old_ref": "15C",
+    "operator": "JAC Liner Inc.",
+    "public_transport:version": "2",
+    "ref": "12C",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Biñan",
+    "type": "route",
+    "via": "Carmona",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 12673422,
+  "tags": {
+    "from": "Biñan",
+    "name": "Ayala–Biñan via Carmona",
+    "network": "LTFRB Region IV-A",
+    "network:wikidata": "Q6483998",
+    "old_ref": "15C",
+    "operator": "JAC Liner Inc.",
+    "public_transport:version": "2",
+    "ref": "12C",
+    "route": "bus",
+    "service_times": "05:00-22:00",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Ayala Center",
+    "type": "route",
+    "via": "Carmona",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 13459659,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "Raymond",
+    "colour": "white",
+    "from": "Infanta",
+    "name": "Bus Route: Infanta → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Raymond Transportation (S & Y Escobar)",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 13613318,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Pacita Complex",
+    "name": "Pacita Complex–Fairview via Ayala (inbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "38",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Fairview",
+    "type": "route",
+    "via": "Ayala",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853150,
+  "tags": {
+    "name": "Route 191: Kalayaan Overpass (westbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "191",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853151,
+  "tags": {
+    "name": "Route 191: Kalayaan Overpass (eastbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "191",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853152,
+  "tags": {
+    "name": "Route 190: Kalayaan Avenue/San Guillermo Avenue (westbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "190",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853153,
+  "tags": {
+    "name": "Route 190: Kalayaan Avenue/San Guillermo Avenue (eastbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "190",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853174,
+  "tags": {
+    "name": "Route 145: Osmeña Highway (northbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "145",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853175,
+  "tags": {
+    "name": "Route 145: Osmeña Highway (southbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "145",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 13853224,
+  "tags": {
+    "name": "Route 190: Gil Puyat Avenue (westbound)",
+    "network": "PH:N",
+    "operator": "Department of Public Works and Highways",
+    "ref": "190",
+    "ref:colour": "white",
+    "route": "road",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 14065998,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Pasacao Terminal",
+    "name": "Bus Route: Pasacao → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Raymond Transportation (S & Y Escobar)",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "Raymond",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-009",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 14253820,
+  "tags": {
+    "access": "yes",
+    "garden:type": "municipal",
+    "leisure": "garden",
+    "loc_name": "San Isidro Mini Play Park",
+    "mapillary": "2967287050215015",
+    "name": "Dian Street cor. Edison Street Mini Play Park",
+    "operator": "City Government of Makati",
+    "operator:type": "government_facility-public",
+    "previously": "node:6925966352",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 14253821,
+  "tags": {
+    "addr:street": "Edison Street",
+    "amenity": "fuel",
+    "brand": "Shell",
+    "brand:wikidata": "Q110716465",
+    "compressed_air": "yes",
+    "mapillary": "1651447721878309",
+    "name": "Shell",
+    "toilets": "yes",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 14706521,
+  "tags": {
+    "brand": "BGC Bus",
+    "colour": "green",
+    "duration": "15",
+    "fee": "yes",
+    "from": "EDSA-Ayala",
+    "interval": "30",
+    "name": "BGC Bus WX: West Express",
+    "network": "BGC Bus",
+    "network:wikidata": "Q4942000",
+    "opening_hours": "Mo-Fr 00:00-23:59",
+    "operator": "Bonifacio Transport Corporation",
+    "payment:cash": "no",
+    "payment:ep_beep": "only",
+    "public_transport:version": "2",
+    "ref": "WX",
+    "roundtrip": "yes",
+    "route": "bus",
+    "to": "Crescent Park West",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 14885754,
+  "tags": {
+    "colour": "yellow",
+    "from": "PITX",
+    "name": "Jeepney Route T3212: PITX → Cash & Carry",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3212",
+    "route": "bus",
+    "to": "Cash & Carry",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 14885755,
+  "tags": {
+    "colour": "yellow",
+    "from": "Cash & Carry",
+    "name": "Jeepney Route T3212: Cash & Carry → PITX",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3212",
+    "route": "bus",
+    "to": "PITX",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 14885774,
+  "tags": {
+    "colour": "yellow",
+    "from": "Market! Market!",
+    "name": "Jeepney Route T3213: Market Market → PICC via C. Roces",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3213",
+    "route": "bus",
+    "to": "PICC",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 14885775,
+  "tags": {
+    "colour": "yellow",
+    "from": "PICC",
+    "name": "Jeepney Route T3213: PICC → Market Market via C. Roces",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3213",
+    "route": "bus",
+    "to": "Market! Market!",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019277,
+  "tags": {
+    "from": "Plaza Lawton",
+    "name": "Biñan–Plaza Lawton",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "JAM Transit",
+    "public_transport:version": "2",
+    "ref": "25",
+    "route": "bus",
+    "to": "Biñan",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019278,
+  "tags": {
+    "from": "Cubao–Farmers Market",
+    "name": "Pacita Complex–Cubao via E. Rodriguez (outbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "public_transport:version": "2",
+    "ref": "53",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Pacita Complex",
+    "type": "route",
+    "via": "E. Rodriguez Sr. Avenue",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019279,
+  "tags": {
+    "from": "Pacita Complex",
+    "name": "Pacita Complex–Cubao via E. Rodriguez (inbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "public_transport:version": "2",
+    "ref": "53",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Cubao/Farmers Market",
+    "type": "route",
+    "via": "E. Rodriguez Sr. Avenue",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019288,
+  "tags": {
+    "from": "Pacita Complex",
+    "name": "Pacita Complex–Plaza Lawton via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "public_transport:version": "2",
+    "ref": "48",
+    "route": "bus",
+    "to": "Plaza Lawton",
+    "type": "route",
+    "via": "Ayala"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019291,
+  "tags": {
+    "from": "Pacita Complex",
+    "name": "Pacita Complex–Navotas via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Cher Transport",
+    "public_transport:version": "2",
+    "ref": "46",
+    "route": "bus",
+    "to": "Navotas",
+    "type": "route",
+    "via": "Ayala Avenue",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019292,
+  "tags": {
+    "from": "Navotas",
+    "name": "Pacita Complex–Navotas via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Cher Transport",
+    "public_transport:version": "2",
+    "ref": "46",
+    "route": "bus",
+    "to": "Pacita Complex",
+    "type": "route",
+    "via": "Ayala",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019293,
+  "tags": {
+    "fixme": "stops",
+    "from": "Malanday",
+    "name": "Ayala–Malanday via MacArthur Highway (inbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "NAT Transpo Group Inc.",
+    "public_transport:version": "2",
+    "ref": "42",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2020-019",
+    "to": "MacArthur Highway",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019294,
+  "tags": {
+    "fixme": "stops",
+    "from": "Ayala",
+    "name": "Ayala–Malanday via MacArthur Highway (outbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "NAT Transpo Group Inc.",
+    "public_transport:version": "2",
+    "ref": "42",
+    "route": "bus",
+    "source:ref": "LTFRB Memorandum Circular 2020-019",
+    "to": "Malanday",
+    "type": "route",
+    "via": "MacArthur Highway",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019297,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "Alabang Metro Link",
+    "from": "Alabang",
+    "name": "Alabang–Fairview via Ayala Avenue (inbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Metro Link Group",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "40",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Fairview",
+    "type": "route",
+    "via": "Ayala Avenue"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019298,
+  "tags": {
+    "air_conditioning": "yes",
+    "brand": "Alabang Metro Link",
+    "from": "Fairview",
+    "name": "Alabang–Fairview via Ayala Avenue (outbound)",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Metro Link Group",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "40",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Alabang",
+    "type": "route",
+    "via": "Ayala Avenue"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019307,
+  "tags": {
+    "from": "Plaza Lawton",
+    "name": "Pacita Complex–Plaza Lawton via Ayala",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Dela Rosa Transit",
+    "public_transport:version": "2",
+    "ref": "48",
+    "route": "bus",
+    "to": "Pacita Complex",
+    "type": "route",
+    "via": "Ayala Avenue"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019308,
+  "tags": {
+    "from": "Biñan",
+    "name": "Biñan–Plaza Lawton",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "JAM Transit",
+    "public_transport:version": "2",
+    "ref": "25",
+    "route": "bus",
+    "to": "Plaza Lawton",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019309,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Plaza Lawton",
+    "name": "Alabang–Lawton via Skyway",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Saint Rose Transit",
+    "public_transport:version": "2",
+    "ref": "24",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB Memorandum Circular 2022-067",
+    "source:ref:2020": "LTFRB Memorandum Circular 2020-019",
+    "to": "Alabang South Station",
+    "type": "route",
+    "via": "SLEX",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15019310,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Vista Terminal Exchange",
+    "name": "Alabang–Lawton via Skyway",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "operator": "Saint Rose Transit",
+    "public_transport:version": "2",
+    "ref": "24",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Plaza Lawton",
+    "type": "route",
+    "via": "Skyway",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15021411,
+  "tags": {
+    "colour": "gray",
+    "from": "Pateros",
+    "name": "Ayala-Pateros via JP Rizal",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T213",
+    "route": "bus",
+    "smoking": "no",
+    "source:ref": "LTFRB MC 2020-026",
+    "to": "Ayala",
+    "type": "route",
+    "via": "J.P. Rizal Street",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15028744,
+  "tags": {
+    "from": "M. Reyes",
+    "name": "Libertad-M. Reyes",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3199",
+    "route": "bus",
+    "to": "Libertad",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15028745,
+  "tags": {
+    "from": "Libertad",
+    "name": "Libertad-M. Reyes",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T3199",
+    "route": "bus",
+    "to": "M. Reyes",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15028746,
+  "tags": {
+    "colour": "yellow",
+    "from": "Libertad",
+    "name": "Evangelista-Libertad",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T322",
+    "route": "bus",
+    "to": "Evangelista",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15028747,
+  "tags": {
+    "colour": "yellow",
+    "from": "Libertad",
+    "name": "Evangelista-Libertad",
+    "network": "LTFRB PUJ",
+    "network:wikidata": "Q6483998",
+    "public_transport:version": "2",
+    "ref": "T322",
+    "route": "bus",
+    "to": "Evangelista",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 15034711,
+  "tags": {
+    "air_conditioning": "yes",
+    "duration": "30",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX–Lipa City via Buendia",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "JAM Liner Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX–LPB",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Lipa City Grand Terminal",
+    "type": "route",
+    "via": "Buendia",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15034712,
+  "tags": {
+    "air_conditioning": "yes",
+    "duration": "01:30",
+    "from": "Lipa City",
+    "interval": "30",
+    "name": "PITX–Lipa City via Buendia",
+    "network": "LTFRB PUB",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "JAM Liner Inc.;JAM Transit Inc.",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PTX-LPB",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "PITX",
+    "type": "route",
+    "via": "Buendia",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15071488,
+  "tags": {
+    "from": "McKinley Hill",
+    "name": "City Bus Route 60: McKinley Hill → Southwoods",
+    "network": "PUB",
+    "proposed:route": "bus",
+    "public_transport:version": "2",
+    "ref": "60",
+    "to": "Southwoods",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15091402,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Parañaque Integrated Terminal Exchange",
+    "name": "PITX–Lucena City via Buendia, Alabang",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "Intricate relation - do not auto-sort",
+    "operator": "Dela Rosa Express",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "PITX-LUCE",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-023",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "SM City Lucena",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15091403,
+  "tags": {
+    "air_conditioning": "yes",
+    "from": "Lucena City Grand Central Terminal",
+    "name": "PITX–Lucena City via Buendia, Alabang",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "note": "Intricate relation - do not auto-sort",
+    "operator": "Dela Rosa Express",
+    "payment:cash": "yes",
+    "public_transport:version": "2",
+    "ref": "DX",
+    "route": "bus",
+    "smoking": "no",
+    "source": "LTFRB Memorandum Circular 2021-023",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Parañaque Integrated Terminal Exchange",
+    "type": "route",
+    "via": "Alabang;Buendia",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15794533,
+  "tags": {
+    "construction": "cemetery",
+    "landuse": "construction",
+    "name": "Makati Columbarium",
+    "note": "Public free crematorium",
+    "operator": "Makati City Engineering",
+    "operator:type": "government",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 15892930,
+  "tags": {
+    "affiliation": "MMDA",
+    "check_date": "2023-04-28",
+    "contact:facebook": "@mmdaprfs",
+    "duration": "01:05:00",
+    "foot": "yes",
+    "from": "Guadalupe",
+    "interval": "05:30:00",
+    "interval:conditional": "03:00:00 @ (Mo-Sa 12:30-15:30)",
+    "motor_vehicle": "no",
+    "name": "PRFS Guadelupe → Escolta",
+    "opening_hours": "Mo-Sa 07:00-15:35",
+    "operator": "Pasig River Ferry Service",
+    "public_transport:version": "2",
+    "route": "ferry",
+    "smoking": "no",
+    "source": "survey;maxar;mmdaprfs",
+    "timestamp": "2",
+    "to": "Escolta",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15892931,
+  "tags": {
+    "affiliation": "MMDA",
+    "check_date": "2023-04-28",
+    "duration": "01:27:00",
+    "facebook": "https://www.facebook.com/mmdaprfs",
+    "foot": "yes",
+    "from": "Pinagbuhatan",
+    "interval": "01:00:00",
+    "interval:conditional": "00:30:00 @ (Mo-Sa 07:00-07:30); 01:30:00 @ (Mo-Sa 09:30-14:00); 02:00:00 @ (Mo-Sa 14:00-16:00)",
+    "motor_vehicle": "no",
+    "name": "PRFS Pinagbuhatan → Escolta",
+    "opening_hours": "Mo-Sa 07:00-16:00",
+    "operator": "Pasig River Ferry Service",
+    "public_transport:version": "2",
+    "route": "ferry",
+    "smoking": "no",
+    "source": "survey;maxar;mmdaprfs",
+    "timestamp": "2",
+    "to": "Escolta",
+    "type": "route",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15911119,
+  "tags": {
+    "air_conditioning": "yes",
+    "charge": "615 PHP",
+    "duration": "06:00",
+    "fee": "yes",
+    "from": "Victory Liner Baguio Terminal",
+    "interval": "00:30",
+    "name": "Bus Route (express): Baguio → Pasay",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "opening_hours": "00:00 - 24:00",
+    "operator": "Victory Liner, Inc.",
+    "public_transport:version": "2",
+    "ref": "Baguio Pasay Express",
+    "reservation": "no",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Victory Liner Pasay Terminal",
+    "type": "route",
+    "via": "Sison",
+    "website": "https://www.victoryliner.com/",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 15920100,
+  "tags": {
+    "air_conditioning": "yes",
+    "charge": "615 PHP",
+    "duration": "06:00",
+    "fee": "yes",
+    "from": "Victory Liner Pasay Terminal",
+    "interval": "00:30",
+    "name": "Bus Route (express): Pasay → Baguio",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "opening_hours": "00:00 - 24:00",
+    "operator": "Victory Liner, Inc.",
+    "public_transport:version": "2",
+    "ref": "Pasay Baguio Express",
+    "reservation": "no",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Victory Liner Baguio Terminal",
+    "type": "route",
+    "via": "Sison",
+    "website": "https://www.victoryliner.com/",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 16357223,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "54",
+    "addr:postcode": "1209",
+    "addr:street": "Jupiter Street",
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "Bel-Air Paseo",
+    "brand": "BPI",
+    "brand:wikidata": "Q2501256",
+    "mapillary": "312906824199236",
+    "name": "BPI",
+    "official_name": "Bank of the Philippine Islands",
+    "operator": "Bank of the Philippine Islands",
+    "type": "multipolygon",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 16357224,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:street": "Jupiter Street",
+    "amenity": "bank",
+    "branch": "Bel-Air Makati",
+    "name": "PNB",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 16788961,
+  "tags": {
+    "air_conditioning": "yes",
+    "charge": "615 PHP",
+    "duration": "08:00",
+    "fee": "yes",
+    "from": "Victory Liner Baguio Terminal",
+    "interval": "00:30",
+    "name": "Bus Route (inner city): Baguio → Pasay",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "opening_hours": "00:00 - 24:00",
+    "operator": "Victory Liner, Inc.",
+    "public_transport:version": "2",
+    "ref": "Baguio Pasay Inner City",
+    "reservation": "no",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Victory Liner Pasay Terminal",
+    "type": "route",
+    "via": "Sison",
+    "website": "https://www.victoryliner.com/",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 16789396,
+  "tags": {
+    "air_conditioning": "yes",
+    "charge": "615 PHP",
+    "duration": "08:00",
+    "fee": "yes",
+    "from": "Victory Liner Pasay Terminal",
+    "interval": "00:30",
+    "name": "Bus Route (inner city): Pasay → Baguio",
+    "network": "LTFRB PUB",
+    "network:wikidata": "Q6483998",
+    "opening_hours": "00:00 - 24:00",
+    "operator": "Victory Liner, Inc.",
+    "public_transport:version": "2",
+    "ref": "Pasay Baguio Inner City",
+    "reservation": "no",
+    "route": "bus",
+    "smoking": "no",
+    "surveillance": "indoor",
+    "surveillance:type": "camera",
+    "to": "Victory Liner Baguio Terminal",
+    "type": "route",
+    "via": "Sison",
+    "website": "https://www.victoryliner.com/",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "relation",
+  "id": 16870941,
+  "tags": {
+    "boundary": "political",
+    "name": "2nd District of Makati",
+    "note": "Distinct from the 2nd Sangguniang Panlungsod District (boundary = administrative + admin_level=7)",
+    "political_division": "congressional_district",
+    "source:start_date": "Republic Act No. 7854",
+    "start_date": "1995",
+    "type": "boundary",
+    "wikidata": "Q66771374",
+    "wikipedia": "en:Makati's 2nd congressional district"
+  }
+},
+{
+  "type": "relation",
+  "id": 16870942,
+  "tags": {
+    "boundary": "political",
+    "name": "1st District of Makati",
+    "note": "Distinct from the 1st Sangguniang Panlungsod District (boundary = administrative + admin_level=7)",
+    "political_division": "congressional_district",
+    "source:start_date": "Republic Act No. 7854",
+    "start_date": "1995",
+    "type": "boundary",
+    "wikidata": "Q66771490",
+    "wikipedia": "en:Makati's 1st congressional district"
+  }
+},
+{
+  "type": "relation",
+  "id": 17036242,
+  "tags": {
+    "name": "Gil Puyat Avenue (Makati → Pasay)",
+    "network": "rcn",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 17060924,
+  "tags": {
+    "name": "R-4",
+    "network": "ncn",
+    "ref": "R-4",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 17311189,
+  "tags": {
+    "name": "Gil Puyat Avenue (Pasay → Makati)",
+    "network": "rcn",
+    "route": "bicycle",
+    "type": "route"
+  }
+},
+{
+  "type": "relation",
+  "id": 17448021,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "6321",
+    "addr:postcode": "1211",
+    "addr:street": "Estrella Street",
+    "amenity": "college",
+    "contact:facebook": "csrmakati",
+    "isced:level": "0-3",
+    "name": "Colegio de Santa Rosa",
+    "operator:type": "religious",
+    "phone": "+63 2 8899 0066",
+    "type": "multipolygon",
+    "website": "https://csr.edu.ph/HOME.html",
+    "wikidata": "Q5142942",
+    "wikipedia": "en:Colegio de Santa Rosa - Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 17448268,
+  "tags": {
+    "landuse": "residential",
+    "name": "The Proscenium at Rockwell",
+    "operator": "Rockwell Land Corporation",
+    "residential": "apartments",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17506016,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Phoenix",
+    "brand:wikidata": "Q7186949",
+    "name": "Phoenix",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17506063,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "CleanFuel",
+    "fuel:lpg": "yes",
+    "name": "CleanFuel",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17509153,
+  "tags": {
+    "addr2:street": "Fleur de Liz Street",
+    "addr:city": "Makati",
+    "addr:housenumber": "243",
+    "addr:postcode": "1204",
+    "addr:street": "Pablo Ocampo Street",
+    "alt_name": "Banco de Oro",
+    "amenity": "bank",
+    "branch": "Makati - P. Ocampo Sr. Ext.",
+    "name": "BDO",
+    "operator": "BDO Unibank",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17572936,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "1923",
+    "addr:postcode": "1212",
+    "addr:street": "Orense Street",
+    "amenity": "school",
+    "name": "Guadalupe Catholic School",
+    "old_ref": "1406855",
+    "previously": "node:255051700",
+    "ref": "1406855",
+    "type": "multipolygon",
+    "website": "http://www.guadalupecatholicschool.edu.ph/"
+  }
+},
+{
+  "type": "relation",
+  "id": 17580041,
+  "tags": {
+    "addr2:street": "Danlig Street",
+    "addr:city": "Makati",
+    "addr:street": "EDSA",
+    "amenity": "pharmacy",
+    "branch": "Makati City EDSA Danlig",
+    "brand": "Mercury Drug",
+    "brand:wikidata": "Q6818610",
+    "dispensing": "yes",
+    "drive_through": "yes",
+    "healthcare": "pharmacy",
+    "landuse": "retail",
+    "name": "Mercury Drug",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17633819,
+  "tags": {
+    "boundary": "religious",
+    "denomination": "roman_catholic",
+    "name": "Santuario de San Antonio Parish",
+    "religion": "christian",
+    "religious_level": "10",
+    "start_date": "1975",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 17633820,
+  "tags": {
+    "boundary": "religious",
+    "denomination": "roman_catholic",
+    "name": "Vicariate of Our Lady of Guadalupe",
+    "religion": "christian",
+    "religious_level": "8",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 17685104,
+  "tags": {
+    "description": "Jilivip (https://jilivipcasino.ph) is an online casino in the Philippines that offers many games from service providers, such as slots games, live casinos, and fishing games.",
+    "name": "JILIVIP SLOT",
+    "network": "https://jilivipcasino.ph",
+    "note": "Jilivip (https://jilivipcasino.ph) is an online casino in the Philippines that offers many games from service providers, such as slots games, live casinos, and fishing games.",
+    "operator": "JILIVIP",
+    "public_transport": "stop_area",
+    "ref": "1223",
+    "site": "sport",
+    "type": "public_transport",
+    "website": "https://jilivipcasino.ph"
+  }
+},
+{
+  "type": "relation",
+  "id": 17699216,
+  "tags": {
+    "colour": "white",
+    "fee": "yes",
+    "from": "Alabang",
+    "name": "Alabang–Divisoria (inbound)",
+    "network": "LTFRB National Capital Region",
+    "operator": "HM Transport",
+    "public_transport:version": "2",
+    "ref": "PNR-2",
+    "route": "bus",
+    "to": "Divisoria",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 17699217,
+  "tags": {
+    "colour": "white",
+    "fee": "yes",
+    "from": "Divisoria",
+    "name": "FTI–Divisoria (outbound)",
+    "network": "LTFRB National Capital Region",
+    "network:wikidata": "Q6483998",
+    "operator": "HM Transport",
+    "public_transport:version": "2",
+    "ref": "PNR-1",
+    "route": "bus",
+    "smoking": "no",
+    "to": "FTI",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 17902330,
+  "tags": {
+    "brand": "San Agustin",
+    "colour": "yellow",
+    "duration": "01:30",
+    "from": "One Ayala",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "The District Imus–Ayala Center P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "opening_hours": "Mo-Fr 18:00-21:00",
+    "operator": "San Agustin Transport Service Corporation",
+    "public_transport:version": "2",
+    "ref": "P2P IMU–MKT",
+    "route": "bus",
+    "smoking": "no",
+    "to": "The District Imus;Dasmariñas",
+    "type": "route",
+    "via": "Skyway;MCx;Daang Hari",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 18248718,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Petron",
+    "brand:wikidata": "Q7179011",
+    "building": "roof",
+    "layer": "1",
+    "name": "Petron",
+    "type": "multipolygon",
+    "website": "http://www.petronmarketing.com/?mode=default&cmd=get&id=86"
+  }
+},
+{
+  "type": "relation",
+  "id": 18846034,
+  "tags": {
+    "cables": "3",
+    "name": "Taguig - Manila Transmission Line",
+    "operator": "National Grid Corporation of the Philippines",
+    "operator:short": "NGCP",
+    "operator:wikidata": "Q28197109",
+    "route": "power",
+    "type": "route",
+    "voltage": "230000"
+  }
+},
+{
+  "type": "relation",
+  "id": 19014224,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "3251",
+    "addr:street": "J. Magsaysay Street",
+    "amenity": "school",
+    "name": "Maximo Estrella Senior High School",
+    "operator:type": "public",
+    "ref": "340558",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 19014225,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "3251",
+    "addr:province": "Southern Manila District",
+    "addr:street": "J. Magsaysay Street",
+    "amenity": "school",
+    "isced:level": "0-1",
+    "name": "Maximo Estrella Elementary School",
+    "name:es": "Escuela Elemental Máximo Estrella",
+    "name:fil": "Paaralang Elementaryang Maximo Estrella",
+    "name:tl": "Paaralang Elementaryang Maximo Estrella",
+    "old_name": "Tejeros Elementary School",
+    "operator": "District IV Makati City Schools Division, DepEd",
+    "operator:type": "public",
+    "population:pupils:2012": "1607",
+    "population:pupils:2015": "1654",
+    "ref": "136707",
+    "source": "Department of Education, Philippines",
+    "source:date": "2012",
+    "start_date": "1956",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 19014281,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:neighbourhood": "Guadalupe Nuevo",
+    "addr:province": "Metro Manila",
+    "addr:street": "Escuela Street",
+    "amenity": "school",
+    "capacity": "2000",
+    "loc_name": "Mataas na Paaralan ng Nemesio I. Yabut",
+    "name": "Nemesio I. Yabut Senior High School",
+    "operator": "Makati City Schools Division Office",
+    "operator:type": "public",
+    "ref": "340554",
+    "start_date": "2016",
+    "type": "multipolygon",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 19014282,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:neighbourhood": "Guadalupe Nuevo",
+    "addr:province": "Metro Manila",
+    "addr:street": "Escuela Street",
+    "amenity": "school",
+    "capacity": "3000",
+    "isced:level": "1",
+    "loc_name": "Mababang Paaralan ng Nemesio I. Yabut",
+    "name": "Nemesio I. Yabut Elementary School",
+    "old_name": "Guadalupe Elementary School",
+    "operator": "District V Makati City Schools Division, DepEd",
+    "operator:type": "public",
+    "population:pupils:2012": "1647",
+    "population:pupils:2015": "1598",
+    "previously": "node:255070180",
+    "ref": "136710",
+    "source": "Department of Education, Philippines",
+    "source:date": "2012",
+    "specialized_education": "special_needs",
+    "start_date": "1936",
+    "type": "multipolygon",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 19685366,
+  "tags": {
+    "from": "General Trias",
+    "name": "General Trias → BGC via Paliparan, Molino",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Solid Star Transport Inc.",
+    "public_transport:version": "2",
+    "ref": "67",
+    "route": "bus",
+    "to": "Bonifacio Global City",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 19715845,
+  "tags": {
+    "from": "Bonifacio Global City",
+    "name": "BGC → General Trias via Molino, Paliparan",
+    "network": "LTFRB National Capital Region",
+    "network:short": "LTFRB NCR",
+    "network:wikidata": "Q6483998",
+    "operator": "Solid Star Transport Inc.",
+    "public_transport:version": "2",
+    "ref": "67",
+    "route": "bus",
+    "to": "General Trias",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 19729804,
+  "tags": {
+    "brand": "TAS",
+    "from": "Nuvali",
+    "internet_access": "wlan",
+    "name": "One Ayala-Nuvali P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "TAS Trans Corporation",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "to": "One Ayala",
+    "type": "route",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 19729805,
+  "tags": {
+    "alt_name": "One Ayala-Nuvali(Santa Rosa)",
+    "brand": "TAS",
+    "from": "One Ayala",
+    "internet_access": "wlan",
+    "name": "One Ayala-Nuvali P2P",
+    "network": "P2P",
+    "network:wikidata": "Q65085330",
+    "network:wikipedia": "en:Premium Point-to-Point Bus Service",
+    "operator": "TAS Trans Corporation",
+    "public_transport:version": "2",
+    "route": "bus",
+    "smoking": "no",
+    "to": "Nuvali",
+    "type": "route",
+    "via": "SLEX;Skyway",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "relation",
+  "id": 20012109,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:postcode": "1234",
+    "addr:street": "Senator Gil J. Puyat Avenue",
+    "amenity": "fuel",
+    "brand": "UniOil",
+    "building": "roof",
+    "layer": "1",
+    "mapillary": "36jayfKOl45SW1NdsLTG7A",
+    "name": "UniOil",
+    "operator": "UNIOIL SGV GASOLINE & SERVICE STATION",
+    "self_service": "no",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297185,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:housenumber": "2236",
+    "addr:postcode": "1233",
+    "addr:street": "Chino Roces Avenue",
+    "construction": "residential",
+    "landuse": "construction",
+    "name": "Avida Towers Makati Southpoint",
+    "type": "multipolygon",
+    "website": "https://avidalandcorp.com/properties/avida-towers-makati-southpoint/"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297187,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:street": "Chino Roces Avenue",
+    "construction": "residential",
+    "landuse": "construction",
+    "name": "Jade Residences",
+    "residential": "apartments",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297188,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:street": "Chino Roces Avenue",
+    "landuse": "commercial",
+    "name": "Cebu Oversea Hardware Co, Inc.",
+    "name:en": "Cebu Oversea Hardware Co, Inc.",
+    "office": "company",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297190,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:street": "Chino Roces Avenue",
+    "construction": "residential",
+    "landuse": "construction",
+    "name": "Fortis Residence",
+    "operator": "DMCI Homes",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297193,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:street": "Chino Roces Avenue",
+    "contact:facebook": "https://www.facebook.com/studio300bowling",
+    "leisure": "bowling_alley",
+    "material": "concrete",
+    "mobile": "+63 917 135 2300",
+    "name": "Studio 300",
+    "sport": "10pin",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20297194,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:street": "Chino Roces Avenue",
+    "landuse": "industrial",
+    "name": "Kampri Inc.",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20356581,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "2316",
+    "addr:street": "Chino Roces Avenue Extension",
+    "addr:village": "Magallanes",
+    "alt_name": "The Alley at Karrivin",
+    "landuse": "retail",
+    "name": "Karrivin Plaza",
+    "short_name": "Karrivin",
+    "type": "multipolygon",
+    "website": "https://www.thealleyatkarrivin.com/"
+  }
+},
+{
+  "type": "relation",
+  "id": 20356584,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "2324",
+    "addr:postcode": "1231",
+    "addr:street": "Chino Roces Avenue Extension",
+    "addr:village": "Magallanes",
+    "alt_name": "BMW Prestige Cars",
+    "landuse": "retail",
+    "name": "Prestige Cars",
+    "shop": "car",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20356586,
+  "tags": {
+    "landuse": "residential",
+    "name": "Dasmariñas Village",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20395491,
+  "tags": {
+    "addr:barangay": "Magallanes",
+    "addr:city": "Makati",
+    "addr:postcode": "1232",
+    "addr:street": "EDSA",
+    "addr:street:corner": "Chino Roces Avenue Extension",
+    "landuse": "retail",
+    "name": "League One Southgate Mall",
+    "shop": "mall",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20395492,
+  "tags": {
+    "addr:city": "Makati",
+    "addr:housenumber": "2257",
+    "addr:street": "Chino Roces Avenue Extension",
+    "landuse": "commercial",
+    "name": "Patio 2257",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20398506,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:postcode": "1233",
+    "addr:street": "Don Bosco Street",
+    "landuse": "residential",
+    "name": "Yulo Plaza",
+    "residential": "terrace",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 20398507,
+  "tags": {
+    "addr:barangay": "Bangkal",
+    "addr:city": "Makati",
+    "addr:postcode": "1233",
+    "addr:street": "Chino Roces Avenue",
+    "government": "finance",
+    "landuse": "commercial",
+    "name": "Philippine Deposit Insurance Corporation",
+    "office": "government",
+    "type": "multipolygon",
+    "website": "https://www.pdic.gov.ph/",
+    "wikidata": "Q7185037",
+    "wikipedia": "en:Philippine Deposit Insurance Corporation"
+  }
+}
+
+  ]
+}

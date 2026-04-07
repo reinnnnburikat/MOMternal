@@ -1,0 +1,429 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T18:08:00Z",
+    "timestamp_areas_base": "2026-04-07T09:09:14Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 103686,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Urdaneta",
+    "name:etymology": "Andrés de Urdaneta",
+    "name:etymology:wikidata": "Q316780",
+    "old_ref": "137602030",
+    "population": "4720",
+    "population:date": "2024-07-01",
+    "ref": "1380300030",
+    "type": "boundary",
+    "wikidata": "Q134444296",
+    "wikimedia_commons": "Category:Urdaneta, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103690,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Lorenzo",
+    "old_ref": "137602025",
+    "population": "14793",
+    "population:date": "2024-07-01",
+    "ref": "1380300025",
+    "type": "boundary",
+    "wikidata": "Q134444293",
+    "wikimedia_commons": "Category:San Lorenzo, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103701,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Bel-Air",
+    "old_ref": "137602002",
+    "population": "39354",
+    "population:date": "2024-07-01",
+    "ref": "1380300002",
+    "type": "boundary",
+    "wikidata": "Q4881694",
+    "wikimedia_commons": "Category:Bel-Air, Makati",
+    "wikipedia": "en:Bel-Air, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103702,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Antonio",
+    "old_ref": "137602023",
+    "population": "18012",
+    "population:date": "2024-07-01",
+    "ref": "1380300023",
+    "type": "boundary",
+    "wikidata": "Q134444291",
+    "wikimedia_commons": "Category:San Antonio, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103729,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Bangkal",
+    "old_ref": "137602001",
+    "population": "18013",
+    "population:date": "2024-07-01",
+    "ref": "1380300001",
+    "type": "boundary",
+    "wikidata": "Q134444281",
+    "wikimedia_commons": "Category:Bangkal, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103731,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Palanan",
+    "old_ref": "137602015",
+    "population": "11934",
+    "population:date": "2024-07-01",
+    "postal_code": "1235",
+    "ref": "1380300015",
+    "type": "boundary",
+    "wikidata": "Q134444287",
+    "wikimedia_commons": "Category:Palanan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103737,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Poblacion",
+    "old_ref": "137602020",
+    "population": "17088",
+    "population:date": "2024-07-01",
+    "postal_code": "1210",
+    "ref": "1380300020",
+    "type": "boundary",
+    "wikidata": "Q16824783",
+    "wikimedia_commons": "Category:Poblacion, Makati",
+    "wikipedia": "en:Poblacion, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103760,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Magallanes",
+    "old_ref": "137602013",
+    "population": "5473",
+    "population:date": "2024-07-01",
+    "ref": "1380300013",
+    "type": "boundary",
+    "wikidata": "Q134444285",
+    "wikimedia_commons": "Category:Magallanes, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103761,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Dasmariñas",
+    "old_ref": "137602006",
+    "population": "4320",
+    "population:date": "2024-07-01",
+    "ref": "1380300006",
+    "type": "boundary",
+    "wikidata": "Q5226803",
+    "wikimedia_commons": "Category:Damariñas, Makati",
+    "wikipedia": "en:Dasmariñas, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103767,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "San Isidro",
+    "old_ref": "137602024",
+    "population": "6260",
+    "population:date": "2024-07-01",
+    "postal_code": "1234",
+    "ref": "1380300024",
+    "type": "boundary",
+    "wikidata": "Q134444292",
+    "wikimedia_commons": "Category:San Isidro, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 103768,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Pio del Pilar",
+    "name:etymology:wikidata": "Q3905410",
+    "old_ref": "137602018",
+    "population": "55572",
+    "population:date": "2024-07-01",
+    "ref": "1380300018",
+    "type": "boundary",
+    "wikidata": "Q134444289",
+    "wikimedia_commons": "Category:Pio del Pilar, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104053,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Santa Cruz",
+    "old_ref": "137602026",
+    "population": "6744",
+    "population:date": "2024-07-01",
+    "postal_code": "1205",
+    "ref": "1380300026",
+    "short_name": "Sta. Cruz",
+    "type": "boundary",
+    "wikidata": "Q134444294",
+    "wikimedia_commons": "Category:Santa Cruz, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104057,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Kasilawan",
+    "old_ref": "137602011",
+    "population": "5007",
+    "population:date": "2024-07-01",
+    "postal_code": "1206",
+    "ref": "1380300011",
+    "type": "boundary",
+    "wikidata": "Q134444283",
+    "wikimedia_commons": "Category:Kasilawan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104452,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Guadalupe Viejo",
+    "old_ref": "137602010",
+    "population": "13525",
+    "population:date": "2024-07-01",
+    "postal_code": "1211",
+    "ref": "1380300010",
+    "type": "boundary",
+    "wikidata": "Q134444282",
+    "wikimedia_commons": "Category:Guadalupe Viejo, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 104453,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Guadalupe Nuevo",
+    "old_ref": "137602009",
+    "population": "21596",
+    "population:date": "2024-07-01",
+    "postal_code": "1212",
+    "ref": "1380300009",
+    "type": "boundary",
+    "wikidata": "Q65072629",
+    "wikimedia_commons": "Category:Guadalupe Nuevo, Makati",
+    "wikipedia": "en:Guadalupe Nuevo"
+  }
+},
+{
+  "type": "relation",
+  "id": 104456,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Pinagkaisahan",
+    "old_ref": "137602017",
+    "population": "5323",
+    "population:date": "2024-07-01",
+    "postal_code": "1213",
+    "ref": "1380300017",
+    "type": "boundary",
+    "wikidata": "Q134444288",
+    "wikimedia_commons": "Category:Pinagkaisahan, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 109972,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Forbes Park",
+    "old_ref": "137602008",
+    "population": "4183",
+    "population:date": "2024-07-01",
+    "ref": "1380300008",
+    "type": "boundary",
+    "wikidata": "Q5467263",
+    "wikimedia_commons": "Category:Forbes Park, Makati",
+    "wikipedia": "en:Forbes Park, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 130317,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "La Paz",
+    "old_ref": "137602012",
+    "population": "6682",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300012",
+    "type": "boundary",
+    "wikidata": "Q134444284",
+    "wikimedia_commons": "Category:La Paz, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151235,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Carmona",
+    "old_ref": "137602005",
+    "population": "3034",
+    "population:date": "2024-07-01",
+    "postal_code": "1207",
+    "ref": "1380300005",
+    "type": "boundary",
+    "wikidata": "Q5043737",
+    "wikimedia_commons": "Category:Carmona, Makati",
+    "wikipedia": "en:Carmona, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151236,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Valenzuela",
+    "old_ref": "137602031",
+    "population": "5598",
+    "population:date": "2024-07-01",
+    "postal_code": "1208",
+    "ref": "1380300031",
+    "type": "boundary",
+    "wikidata": "Q134444297",
+    "wikimedia_commons": "Category:Valenzuela, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151237,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Tejeros",
+    "old_ref": "137602029",
+    "population": "16019",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300029",
+    "type": "boundary",
+    "wikidata": "Q134444295",
+    "wikimedia_commons": "Category:Tejeros, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 151238,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Singkamas",
+    "old_ref": "137602027",
+    "population": "7485",
+    "population:date": "2024-07-01",
+    "postal_code": "1204",
+    "ref": "1380300027",
+    "type": "boundary",
+    "wikidata": "Q7523674",
+    "wikimedia_commons": "Category:Singkamas, Makati",
+    "wikipedia": "en:Singkamas, Makati"
+  }
+},
+{
+  "type": "relation",
+  "id": 3014322,
+  "tags": {
+    "admin_level": "10",
+    "border_type": "barangay",
+    "boundary": "administrative",
+    "name": "Olympia",
+    "old_ref": "137602014",
+    "population": "19035",
+    "population:date": "2024-07-01",
+    "postal_code": "1207",
+    "ref": "1380300014",
+    "type": "boundary",
+    "wikidata": "Q134444286",
+    "wikimedia_commons": "Category:Olympia, Makati"
+  }
+}
+
+  ]
+}

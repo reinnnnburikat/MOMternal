@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/supabase";
 import ZAI from "z-ai-web-dev-sdk";
+import {
+  MATERNAL_AI_SYSTEM_PROMPT,
+  buildUserPrompt,
+  type AIResponse,
+} from "@/lib/ai-prompts";
 
 /**
  * POST /api/consultations/[id]/ai-suggest
+ *
+ * Enhanced AI Intervention Recommendation System (GOD MODE).
  * Sends assessment data to z-ai-web-dev-sdk (server-side only) to generate
- * NIC nursing interventions. Stores result as JSON string in aiSuggestions.
+ * NIC nursing interventions using comprehensive maternal health domain knowledge.
+ * Stores result as JSON string in aiSuggestions.
  */
 export async function POST(
   _request: NextRequest,
@@ -14,7 +22,7 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Fetch consultation with patient clinical data (not identity)
+    // Fetch consultation with patient clinical data (NOT identity data)
     const consultation = await queryOne(
       `SELECT c.*,
               p.gravidity AS patient_gravidity, p.parity AS patient_parity,
@@ -33,7 +41,7 @@ export async function POST(
       );
     }
 
-    // Build clinical assessment payload (NO patient-identifiable data)
+    // Build clinical assessment payload (NO patient-identifiable data — DPA compliant)
     const assessmentData = {
       subjectiveSymptoms: consultation.subjective_symptoms,
       objectiveVitals: consultation.objective_vitals,
@@ -55,42 +63,7 @@ export async function POST(
       },
     };
 
-    const systemPrompt =
-      "You are a maternal health nursing AI assistant. Given the following maternal assessment data, generate nursing interventions ONLY. Follow the NIC (Nursing Interventions Classification) framework. Do NOT diagnose or prescribe medicine. Do NOT include patient-identifiable data.";
-
-    const userPrompt = `Based on this maternal health assessment data, generate appropriate nursing interventions.
-
-Clinical Data:
-- Subjective Symptoms: ${assessmentData.subjectiveSymptoms || "None recorded"}
-- Objective Vitals: ${assessmentData.objectiveVitals || "None recorded"}
-- Fetal Heart Rate: ${assessmentData.fetalHeartRate || "Not measured"}
-- Fundal Height: ${assessmentData.fundalHeight || "Not measured"}
-- Allergies: ${assessmentData.allergies || "None reported"}
-- Current Medications: ${assessmentData.medications || "None"}
-- Physical Exam: ${assessmentData.physicalExam || "None recorded"}
-- Lab Results: ${assessmentData.labResults || "None recorded"}
-- Notes: ${assessmentData.notes || "None"}
-- ICD-10 Diagnosis: ${assessmentData.icd10Diagnosis || "None assigned"}
-- NANDA Diagnosis: ${assessmentData.nandaDiagnosis || "None assigned"}
-- Gravidity: ${assessmentData.clinicalContext.gravidity}
-- Parity: ${assessmentData.clinicalContext.parity}
-- Age of Gestation: ${assessmentData.clinicalContext.aog || "Unknown"}
-- Blood Type: ${assessmentData.clinicalContext.bloodType || "Unknown"}
-- Risk Level: ${assessmentData.clinicalContext.riskLevel}
-
-Respond with valid JSON ONLY (no markdown, no explanation outside JSON) in this exact format:
-{
-  "interventions": [
-    {
-      "name": "Intervention name (NIC classification)",
-      "description": "Detailed description of the intervention",
-      "category": "Category name (e.g., Physiological, Psychosocial, Safety)"
-    }
-  ],
-  "priorityIntervention": "Name of the most critical intervention",
-  "rationale": "Brief rationale for the priority intervention",
-  "preventionLevel": "primary | secondary | tertiary"
-}`;
+    const userPrompt = buildUserPrompt(assessmentData);
 
     // Call z-ai-web-dev-sdk on server side
     const zai = await ZAI.create();
@@ -99,7 +72,7 @@ Respond with valid JSON ONLY (no markdown, no explanation outside JSON) in this 
       messages: [
         {
           role: "assistant",
-          content: systemPrompt,
+          content: MATERNAL_AI_SYSTEM_PROMPT,
         },
         {
           role: "user",
@@ -130,17 +103,23 @@ Respond with valid JSON ONLY (no markdown, no explanation outside JSON) in this 
     }
     cleaned = cleaned.trim();
 
-    let aiSuggestions;
+    let aiSuggestions: AIResponse;
     try {
-      aiSuggestions = JSON.parse(cleaned);
+      aiSuggestions = JSON.parse(cleaned) as AIResponse;
     } catch {
       aiSuggestions = {
         interventions: [],
         priorityIntervention: "",
+        priorityCode: 0,
         rationale: "",
         preventionLevel: "secondary",
+        riskIndicators: [],
+        nursingConsiderations: [],
+        referralNeeded: false,
+        referralReason: "",
+        followUpSchedule: "",
         rawResponse: rawContent,
-      };
+      } as unknown as AIResponse;
     }
 
     // Store as JSON string in the consultation

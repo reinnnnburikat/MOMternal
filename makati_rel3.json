@@ -1,0 +1,44 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T16:12:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 103716,
+  "tags": {
+    "admin_level": "6",
+    "border_type": "highly_urbanized_city",
+    "boundary": "administrative",
+    "name": "Makati",
+    "name:ar": "ماكاتي",
+    "name:azb": "ماکاتی",
+    "name:en": "Makati",
+    "name:es": "Macati",
+    "name:fa": "ماکاتی",
+    "name:ja": "マカティ",
+    "name:ko": "마카티",
+    "name:ks": "مکاتی",
+    "name:ru": "Макати",
+    "name:tl": "Makati",
+    "name:ur": "مکاتی",
+    "name:zh": "馬卡蒂",
+    "name:zh-Hant": "馬卡蒂",
+    "old_ref": "137602000",
+    "population": "309770",
+    "population:date": "2024-07-01",
+    "ref": "1380300000",
+    "type": "boundary",
+    "website": "https://www.makati.gov.ph/",
+    "wikidata": "Q1508",
+    "wikimedia_commons": "Category:Makati",
+    "wikipedia": "en:Makati"
+  }
+}
+
+  ]
+}

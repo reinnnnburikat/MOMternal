@@ -57,152 +57,49 @@ const RISK_LABELS: Record<string, string> = {
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 const DEFAULT_ZOOM = 14;
 
-// Approximate barangay centroids for Makati
+// Accurate barangay centroids computed from OSM boundary polygon geometries
+// Source: OpenStreetMap Overpass API (admin_level=10 relations, Feb 2026)
+// Rizal centroid is approximate (no OSM boundary relation exists)
 const BARANGAY_CENTROIDS: Record<string, [number, number]> = {
-  'Guadalupe Nuevo': [14.5547, 121.0244],
-  'Guadalupe Viejo': [14.5580, 121.0220],
-  'Poblacion': [14.5535, 121.0310],
-  'San Isidro': [14.5580, 121.0140],
-  'Valenzuela': [14.5590, 121.0190],
-  'Tejeros': [14.5560, 121.0160],
-  'Bel-Air': [14.5505, 121.0300],
-  'San Lorenzo': [14.5510, 121.0250],
-  'Urdaneta': [14.5520, 121.0280],
-  'Kasilawan': [14.5550, 121.0200],
-  'San Antonio': [14.5470, 121.0260],
-  'Bangkal': [14.5490, 121.0180],
-  'Carmona': [14.5510, 121.0160],
-  'Olympia': [14.5520, 121.0200],
-  'Santa Cruz': [14.5600, 121.0120],
-  'Cembo': [14.5610, 121.0200],
-  'South Cembo': [14.5585, 121.0220],
-  'Comembo': [14.5630, 121.0220],
-  'Pitogo': [14.5640, 121.0180],
+  'Bangkal': [14.5446, 121.0123],
+  'Bel-Air': [14.562, 121.0263],
+  'Carmona': [14.5749, 121.0179],
+  'Cembo': [14.5636, 121.0509],
+  'Comembo': [14.548, 121.0641],
+  'Dasmariñas': [14.5376, 121.029],
+  'East Rembo': [14.5541, 121.0618],
+  'Forbes Park': [14.5446, 121.039],
+  'Guadalupe Nuevo': [14.562, 121.0469],
+  'Guadalupe Viejo': [14.5651, 121.0417],
+  'Kasilawan': [14.5766, 121.0152],
+  'La Paz': [14.5681, 121.0086],
+  'Magallanes': [14.5327, 121.0184],
+  'Olympia': [14.5709, 121.0192],
+  'Palanan': [14.5594, 121.0016],
+  'Pembo': [14.5448, 121.059],
+  'Pinagkaisahan': [14.5572, 121.0409],
+  'Pio Del Pilar': [14.5519, 121.0114],
+  'Pitogo': [14.5569, 121.0451],
+  'Poblacion': [14.5659, 121.0294],
+  'Post Proper Northside': [14.5621, 121.0559],
+  'Post Proper Southside': [14.5408, 121.0441],
   'Rizal': [14.5570, 121.0120],
-  'West Rembo': [14.5590, 121.0320],
-  'East Rembo': [14.5600, 121.0340],
-  'Pembo': [14.5620, 121.0360],
-  'Pinagkaisahan': [14.5550, 121.0150],
-  'Magallanes': [14.5440, 121.0300],
-  'La Paz': [14.5600, 121.0100],
-  'San Miguel': [14.5620, 121.0100],
+  'San Antonio': [14.5647, 121.0106],
+  'San Isidro': [14.5541, 121.0046],
+  'San Lorenzo': [14.5527, 121.0196],
+  'Santa Cruz': [14.5676, 121.0148],
+  'Singkamas': [14.5729, 121.0117],
+  'South Cembo': [14.5595, 121.0509],
+  'Tejeros': [14.5729, 121.014],
+  'Urdaneta': [14.5566, 121.0298],
+  'Valenzuela': [14.5691, 121.0235],
+  'West Rembo': [14.56, 121.0601],
 };
 
-// Simplified approximate GeoJSON polygons for key Makati barangays
-const BARANGAY_BOUNDARIES = [
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Poblacion' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0280, 14.5520], [121.0320, 14.5520], [121.0340, 14.5540],
-        [121.0340, 14.5570], [121.0320, 14.5580], [121.0280, 14.5570],
-        [121.0270, 14.5550], [121.0280, 14.5520],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Bel-Air' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0270, 14.5480], [121.0320, 14.5480], [121.0340, 14.5500],
-        [121.0340, 14.5520], [121.0280, 14.5520], [121.0270, 14.5500],
-        [121.0270, 14.5480],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'San Lorenzo' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0220, 14.5490], [121.0270, 14.5490], [121.0270, 14.5530],
-        [121.0240, 14.5530], [121.0220, 14.5510], [121.0220, 14.5490],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Guadalupe Nuevo' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0210, 14.5520], [121.0250, 14.5520], [121.0250, 14.5570],
-        [121.0220, 14.5570], [121.0210, 14.5550], [121.0210, 14.5520],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Guadalupe Viejo' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0190, 14.5560], [121.0220, 14.5560], [121.0220, 14.5610],
-        [121.0190, 14.5610], [121.0180, 14.5580], [121.0190, 14.5560],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'San Isidro' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0100, 14.5560], [121.0150, 14.5560], [121.0150, 14.5610],
-        [121.0100, 14.5610], [121.0090, 14.5580], [121.0100, 14.5560],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Valenzuela' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0150, 14.5570], [121.0190, 14.5570], [121.0190, 14.5620],
-        [121.0160, 14.5620], [121.0150, 14.5590], [121.0150, 14.5570],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Tejeros' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0130, 14.5540], [121.0180, 14.5540], [121.0180, 14.5570],
-        [121.0150, 14.5570], [121.0130, 14.5550], [121.0130, 14.5540],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Urdaneta' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0250, 14.5500], [121.0290, 14.5500], [121.0290, 14.5530],
-        [121.0260, 14.5530], [121.0250, 14.5510], [121.0250, 14.5500],
-      ]],
-    },
-  },
-  {
-    type: 'Feature' as const,
-    properties: { name: 'Bangkal' },
-    geometry: {
-      type: 'Polygon' as const,
-      coordinates: [[
-        [121.0150, 14.5460], [121.0200, 14.5460], [121.0200, 14.5500],
-        [121.0160, 14.5500], [121.0150, 14.5480], [121.0150, 14.5460],
-      ]],
-    },
-  },
-];
+// GeoJSON boundaries are loaded from /makati-barangays.geojson (OSM Overpass API)
+// 32 of 33 barangays have boundary polygons; Rizal has no OSM boundary relation
+// This is set when the file is fetched and parsed
+let BARANGAY_BOUNDARIES: any[] = [];
 
 export function MapView() {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -382,34 +279,39 @@ export function MapView() {
         maxZoom: 19,
       }).addTo(map);
 
-      // Always add barangay boundary outlines (no fill, just borders)
-      BARANGAY_BOUNDARIES.forEach((feature) => {
-        L.geoJSON(feature as any, {
-          style: {
-            color: '#e11d48',
-            weight: 1.5,
-            opacity: 0.35,
-            fillColor: '#e11d48',
-            fillOpacity: 0.05,
-            dashArray: '4 4',
-          },
-          onEachFeature: (_feature: any, layer: any) => {
-            layer.bindTooltip(feature.properties.name, {
-              sticky: true,
-              className: 'barangay-label',
-            });
-          },
-        }).addTo(map);
-      });
+      // Load accurate barangay boundaries from GeoJSON file (OSM source)
+      try {
+        const geoRes = await fetch('/makati-barangays.geojson');
+        const geoData = await geoRes.json();
+        BARANGAY_BOUNDARIES = geoData.features || [];
 
-      // Fit bounds to show all barangay boundaries
-      const allBounds = L.geoJSON({
-        type: 'FeatureCollection' as const,
-        features: BARANGAY_BOUNDARIES,
-      }).getBounds();
+        // Add all 33 barangay boundary outlines
+        BARANGAY_BOUNDARIES.forEach((feature: any) => {
+          L.geoJSON(feature, {
+            style: {
+              color: '#e11d48',
+              weight: 1.5,
+              opacity: 0.4,
+              fillColor: '#e11d48',
+              fillOpacity: 0.06,
+              dashArray: '5 3',
+            },
+            onEachFeature: (_f: any, layer: any) => {
+              layer.bindTooltip(feature.properties.name, {
+                sticky: true,
+                className: 'barangay-label',
+              });
+            },
+          }).addTo(map);
+        });
 
-      if (allBounds.isValid()) {
-        map.fitBounds(allBounds, { padding: [30, 30], maxZoom: DEFAULT_ZOOM });
+        // Fit map to show all barangay boundaries
+        const allBounds = L.geoJSON(geoData).getBounds();
+        if (allBounds.isValid()) {
+          map.fitBounds(allBounds, { padding: [30, 30], maxZoom: DEFAULT_ZOOM });
+        }
+      } catch (err) {
+        console.error('Failed to load barangay GeoJSON:', err);
       }
 
       mapInstanceRef.current = map;

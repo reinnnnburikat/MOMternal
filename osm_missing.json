@@ -1,0 +1,454 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-07T18:08:00Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 103752,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Comembo",
+    "old_ref": "1380300004",
+    "population": "15805",
+    "population:date": "2020-05-01",
+    "postal_code": "1641",
+    "ref": "1381500030",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 103753,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Pembo",
+    "old_ref": "1380300016",
+    "population": "44506",
+    "population:date": "2020-05-01",
+    "postal_code": "1642",
+    "ref": "1381500032",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q114229115"
+  }
+},
+{
+  "type": "relation",
+  "id": 104457,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "South Cembo",
+    "old_ref": "1380300028",
+    "population": "29649",
+    "population:date": "2020-05-01",
+    "postal_code": "1645",
+    "ref": "1381500037",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 104458,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Cembo",
+    "old_ref": "1380300003",
+    "population": "25049",
+    "population:date": "2020-05-01",
+    "postal_code": "1640",
+    "ref": "1381500029",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 104459,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "West Rembo",
+    "old_ref": "1380300032",
+    "population": "29649",
+    "population:date": "2020-05-01",
+    "postal_code": "1644",
+    "ref": "1381500038",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q115917686"
+  }
+},
+{
+  "type": "relation",
+  "id": 104460,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "East Rembo",
+    "old_ref": "1380300007",
+    "population": "26448",
+    "population:date": "2020-05-01",
+    "postal_code": "1643",
+    "ref": "1381500031",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q116158103"
+  }
+},
+{
+  "type": "relation",
+  "id": 131669,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "1380300033",
+    "population": "44536",
+    "population:date": "2020-05-01",
+    "postal_code": "1649",
+    "ref": "1381500036",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q114229344"
+  }
+},
+{
+  "type": "relation",
+  "id": 131671,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Pitogo",
+    "old_ref": "1380300019",
+    "population": "14654",
+    "population:date": "2020-05-01",
+    "postal_code": "1646",
+    "ref": "1381500033",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q55630079"
+  }
+},
+{
+  "type": "relation",
+  "id": 1274618,
+  "tags": {
+    "admin_level": "8",
+    "boundary": "administrative",
+    "name": "Cemboing",
+    "population": "170",
+    "population:date": "2021",
+    "postal_code": "70500",
+    "ref:FR:SIREN": "217001122",
+    "ref:INSEE": "70112",
+    "source:population": "INSEE 2024",
+    "type": "boundary",
+    "wikidata": "Q834679",
+    "wikipedia": "fr:Cemboing"
+  }
+},
+{
+  "type": "relation",
+  "id": 1504641,
+  "tags": {
+    "ISO3166-2": "PH-RIZ",
+    "admin_level": "4",
+    "admin_type:PH": "province",
+    "boundary": "administrative",
+    "int_ref": "PH-RIZ",
+    "is_in:archipelago": "Luzon",
+    "is_in:region": "Calabarzon",
+    "name": "Rizal",
+    "name:en": "Rizal",
+    "name:eo": "Rizalo",
+    "name:ko": "리살주",
+    "name:ru": "Рисаль",
+    "name:tl": "Rizal",
+    "official_name": "Province of Rizal",
+    "old_ref": "045800000",
+    "population": "3330143",
+    "population:date": "2020-05-01",
+    "ref": "0405800000",
+    "type": "boundary",
+    "wikidata": "Q13874",
+    "wikipedia": "en:Rizal (province)"
+  }
+},
+{
+  "type": "relation",
+  "id": 1815341,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Post Proper Northside",
+    "old_ref": "1380300021",
+    "population": "57940",
+    "population:date": "2015-08-01",
+    "postal_code": "1647",
+    "ref": "1381500034",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q65072625"
+  }
+},
+{
+  "type": "relation",
+  "id": 2776941,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "place": "village",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 7720338,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "083715048",
+    "population": "363",
+    "population:date": "2020-05-01",
+    "ref": "0803715048",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q119238327"
+  }
+},
+{
+  "type": "relation",
+  "id": 8222338,
+  "tags": {
+    "admin_level": "6",
+    "alt_name:tl": "Munisipalidad ng Rizal",
+    "border_type": "municipality",
+    "boundary": "administrative",
+    "land_area": "administrative",
+    "name": "Rizal",
+    "name:en": "Rizal",
+    "name:es": "Rizal",
+    "name:ko": "리살",
+    "name:tl": "Rizal",
+    "official_name": "Municipality of Rizal",
+    "official_name:en": "Municipality of Rizal",
+    "official_name:es": "Municipio de Rizal",
+    "official_name:tl": "Bayan ng Rizal",
+    "old_ref": "043423000",
+    "population": "18864",
+    "population:date": "2024-07-01",
+    "postal_code": "4003",
+    "ref": "0403423000",
+    "type": "boundary",
+    "wikidata": "Q75928",
+    "wikimedia_commons": "Category:Rizal, Laguna",
+    "wikipedia": "en:Rizal, Laguna"
+  }
+},
+{
+  "type": "relation",
+  "id": 8851476,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Post Proper Southside",
+    "old_ref": "1380300022",
+    "population": "63308",
+    "population:date": "2020-05-01",
+    "postal_code": "1648",
+    "ref": "1381500035",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q65072630"
+  }
+},
+{
+  "type": "relation",
+  "id": 9824138,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal Palapala II",
+    "population": "2228",
+    "population:date": "2020-05-01",
+    "ref": "063022126",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 9824139,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal Palapala I",
+    "population": "1699",
+    "population:date": "2020-05-01",
+    "ref": "063022125",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 11510862,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "is_in:city": "City of Talisay",
+    "is_in:state": "Negros Occidental",
+    "name": "Rizal",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 11810257,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "041034015",
+    "population": "1135",
+    "population:date": "2020-05-01",
+    "ref": "0401034015",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 11975544,
+  "tags": {
+    "admin_level": "9",
+    "boundary": "administrative",
+    "name": "Cemboráin",
+    "name:es": "Cemboráin",
+    "name:eu": "Zenborain",
+    "type": "boundary",
+    "wikidata": "Q12269288",
+    "wikipedia": "eu:Zenborain"
+  }
+},
+{
+  "type": "relation",
+  "id": 12589323,
+  "tags": {
+    "admin_level": "7",
+    "boundary": "administrative",
+    "name": "Cembor",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 15776706,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "check_date": "2023-04-26",
+    "name": "Rizal Monument",
+    "source": "Baguio City Assessor's Office",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 16241254,
+  "tags": {
+    "admin_level": "6",
+    "border_type": "municipality",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "name:etymology": "José Rizal",
+    "name:etymology:wikidata": "Q1500",
+    "name:ko": "리살",
+    "old_ref": "175108000",
+    "population": "40319",
+    "population:date": "2024-07-01",
+    "ref": "1705108000",
+    "type": "boundary",
+    "wikidata": "Q107499",
+    "wikimedia_commons": "Category:Rizal, Occidental Mindoro",
+    "wikipedia": "en:Rizal, Occidental Mindoro"
+  }
+},
+{
+  "type": "relation",
+  "id": 16700433,
+  "tags": {
+    "admin_level": "10",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "045619038",
+    "population": "943",
+    "population:date": "2020-05-01",
+    "ref": "0405619038",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 17683242,
+  "tags": {
+    "admin_level": "6",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "name:ko": "리살",
+    "type": "boundary",
+    "wikidata": "Q55570",
+    "wikipedia": "en:Rizal, Nueva Ecija"
+  }
+},
+{
+  "type": "relation",
+  "id": 19664828,
+  "tags": {
+    "admin_level": "10",
+    "admin_type:PH": "barangay",
+    "boundary": "administrative",
+    "is_in:city": "Cauayan",
+    "name": "Rizal",
+    "old_ref": "023108056",
+    "population": "697",
+    "population:date": "2024-07-01",
+    "postal_code": "3305",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary"
+  }
+},
+{
+  "type": "relation",
+  "id": 19893360,
+  "tags": {
+    "admin_level": "6",
+    "admin_type:PH": "municipality",
+    "boundary": "administrative",
+    "name": "Rizal",
+    "old_ref": "021521000",
+    "population": "19577",
+    "population:date": "2024-07-01",
+    "source:population": "Philippine Statistics Authority",
+    "type": "boundary",
+    "wikidata": "Q49333",
+    "wikimedia_commons": "Category:Rizal, Cagayan",
+    "wikipedia": "en:Rizal, Cagayan"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://gist.github.com/govvin/0817926ee34562b2e4d008631ff6eb64",
+    "name": "Query for available Philippine barangay boundaries in",
+    "snippet": "Overpass Turbo query: Barangay boundaries in OpenStreetMap . Run: https:// overpass - turbo .eu/s/17ed. For admin_level details, see osm .org/wiki/Tag: boundary ... Read more",
+    "host_name": "gist.github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://help.openstreetmap.org/questions/66501/how-to-get-settlement-boundaries-from-overpass-turbo",
+    "name": "How to get settlement boundaries from Overpass Turbo?",
+    "snippet": "Oct 26, 2018 — First, you only look for place=\"town\", but OSM uses different values for settlements depending on the size, see the wiki. Furthermore the ... Read more",
+    "host_name": "help.openstreetmap.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://overpass-turbo.eu/?Q=[out:json];(rel['name'='Philippines'][type=boundary];rel['name:en'='Philippines'][type=boundary];);out%20geom;",
+    "name": "overpass turbo",
+    "snippet": "Export . Wizard Style. Save Logout Load. Settings Help. overpass turbo overpass turbo ... [out:json];(rel['name'=' Philippines '][type= boundary ];rel['name:en ... Read more",
+    "host_name": "overpass-turbo.eu",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://community.openstreetmap.org/t/return-only-boundary-place-via-overpass/116214",
+    "name": "Return only boundary=place via overpass - Help and support",
+    "snippet": "Jul 18, 2024 — I have a pretty basic query and all I want is the ' boundary ' of the 'place' but I am harvesting some other features too.",
+    "host_name": "community.openstreetmap.org",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://gis.stackexchange.com/questions/103716/how-to-export-tracks-of-a-specific-polygon-in-overpass-turbo",
+    "name": "How to export tracks of a specific polygon in overpass-turbo?",
+    "snippet": "Jun 30, 2014 — I would like to export some features (in this case route=hiking ) that are inside a specific boundary . So not the boundary box that I can choose ... Read more",
+    "host_name": "gis.stackexchange.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://help.openstreetmap.org/questions/18368/export-all-boundaries-in-an-area-via-overpass",
+    "name": "Export all boundaries in an area via overpass",
+    "snippet": "Dec 11, 2012 — I want to export all relations with tags such as boundary=administrative and all childs of those relations in a certain area. I'm using Overpass API, but I get ... Read more",
+    "host_name": "help.openstreetmap.org",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://community.openstreetmap.org/t/overpass-query-using-administrative-boundaries-as-the-bounding-box/88296",
+    "name": "Overpass query using administrative boundaries as the",
+    "snippet": "Oct 14, 2019 — Is it possible to write an overpass query that will find X within an administrative area? eg, could we find 'grit bins in Sutton'? Read more",
+    "host_name": "community.openstreetmap.org",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://community.openstreetmap.org/t/osm-boundaries-and-how-to-extract-them/4747",
+    "name": "Osm-boundaries and how to extract them - Help and support",
+    "snippet": "Oct 28, 2022 — You can use Overpass - turbo , just type in Wizard: boundary=administrative and admin_level=10 in Paris. It will return a set of boundaties. Read more",
+    "host_name": "community.openstreetmap.org",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.openstreetmap.org",
+    "name": "OpenStreetMap",
+    "snippet": "OpenStreetMap is a map of the world, created by people like you and free to use under an open license.",
+    "host_name": "www.openstreetmap.org",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.makati.gov.ph/content/downloads/3/1542?f=Barangay%20Boundary%20Map",
+    "name": "Makati Web Portal",
+    "snippet": "Download the barangay boundary map from the Makati Web Portal.",
+    "host_name": "www.makati.gov.ph",
+    "rank": 9,
+    "date": "Apr 1, 2026",
+    "favicon": ""
+  }
+]

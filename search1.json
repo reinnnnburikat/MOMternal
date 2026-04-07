@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://github.com/faeldon/philippines-json-maps",
+    "name": "Philippines Administrative Boundaries JSON Maps",
+    "snippet": "Sample Maps. Files are generated for all locations in the Philippines at different administrative levels.",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.makati.gov.ph/assets/uploads/staticmenu/docs/physical_features.pdf",
+    "name": "1.3.1 Geographic Location Makati is located at the center of",
+    "snippet": "The City is composed of 33 barangays , which are distributed between two (2) legislative districts. Figure 2 shows the barangay cluster map of the City. 3 pages",
+    "host_name": "www.makati.gov.ph",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://commons.wikimedia.org/wiki/File:Barangay_map_of_Makati_with_labels_(2023).svg",
+    "name": "File:Barangay map of Makati with labels (2023).svg",
+    "snippet": "Nov 11, 2023 — Summary. edit. Description Barangay map of Makati with labels (2023).svg. English: Barangay map of Makati, minus the ceded barangays to Taguig.",
+    "host_name": "commons.wikimedia.org",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://wiki.openstreetmap.org/wiki/Makati",
+    "name": "Makati - OpenStreetMap Wiki",
+    "snippet": "Feb 2, 2020 — It is divided into 33 barangays . Makati is known as the Philippines ' financial center and the home to some of the tallest buildings in the ...",
+    "host_name": "wiki.openstreetmap.org",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://simplemaps.com/data/ph-cities",
+    "name": "Philippines Cities Database",
+    "snippet": "A database of 57 prominent cities in Philippines . Includes a city's latitude, longitude, highly urbanized city and other variables of interest. MIT license.",
+    "host_name": "simplemaps.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Makati",
+    "name": "Makati",
+    "snippet": "Makati officially the City of Makati ( Filipino : Lungsod ng Makati ), is one of the highly urbanized cities that make up Metro Manila, the capital region of ...",
+    "host_name": "en.wikipedia.org",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.mapz.com/maps/Makati",
+    "name": "Map Makati Download",
+    "snippet": "Our city map of Makati ( Philippines ) shows 592 km of streets and paths. If ... Add locations and areas using simply structured CSV or GeoJSON files.",
+    "host_name": "www.mapz.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.arcgis.com/home/item.html?id=6f34bba7672c49cab261a49da4c674ce",
+    "name": "Philippines Boundaries - Overview",
+    "snippet": "Region · Province · Municipality. Each ...",
+    "host_name": "www.arcgis.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://geocode.xyz/14.57150,121.01903",
+    "name": "Philippines Southern Manila District, Metro",
+    "snippet": "J.P. Rizal Street and Jose P. Rizal Avenue, Makati, Metro Manila · 1207 · Confidence Score: 0.9 · Distance: 0.013 km.",
+    "host_name": "geocode.xyz",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/qgis.ph/posts/2009066402989161",
+    "name": "Latest Philippines geojson map for academic project",
+    "snippet": "Philippine legislative district geojson files exist? · Where to download Philippines ...",
+    "host_name": "www.facebook.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
