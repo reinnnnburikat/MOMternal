@@ -1,227 +1,65 @@
 ---
 Task ID: 1
-Agent: main-coordinator
-Task: Design & set up Prisma database schema for MOMternal
+Agent: Main Agent
+Task: Fix Risk Map - map not rendering properly, shows solid color instead of actual map tiles
 
 Work Log:
-- Designed complete database schema with Nurse, Patient, Consultation, AuditLog models
-- Pushed schema to SQLite database via prisma db push
-- Created seed script with 4 nurse accounts, 5 patients, 3 consultations
+- Analyzed the RiskMapView component and identified the root cause
+- Found that the map container div was conditionally rendered (only when `loading` was false)
+- The useEffect for Leaflet initialization ran on mount when `loading` was `true`, so `mapRef.current` was null
+- This caused the map init to bail out, and the effect never re-ran after loading completed
+- Rewrote the map component to:
+  - Always render the map container div (never replaced with skeleton)
+  - Initialize Leaflet map immediately on mount with OSM tiles
+  - Add barangay boundary outlines as base layer (always visible, even with 0 patients)
+  - Fetch patient data separately after map is ready
+  - Show a small loading overlay pill on the map while data loads (does NOT block the map)
+  - Added `invalidateSize()` after 200ms delay to fix tile rendering
+  - Map shows properly even with 0 patients/consultations
 
 Stage Summary:
-- Database schema with 4 models: Nurse, Patient, Consultation, AuditLog
-- Pre-seeded data: 4 nurses, 5 patients (with varying risk levels), 3 consultations
+- Fixed the chicken-and-egg bug where map div didn't exist during useEffect init
+- Map now always renders with OpenStreetMap tiles + barangay boundary outlines
+- Patient data layers are added on top after API responds
+- Error/loading states shown as small overlay pills instead of blocking the entire map
 
 ---
 Task ID: 2
-Agent: main-coordinator
-Task: Set up UI theme and app layout
+Agent: Main Agent
+Task: Remove seeded patients - only nurse accounts should be pre-seeded
 
 Work Log:
-- Updated globals.css with soft pink medical theme (rose-600 primary)
-- Created risk level CSS classes: risk-low (green), risk-moderate (amber), risk-high (red)
-- Created custom scrollbar styles
-- Updated layout.tsx with MOMternal branding and metadata
+- Checked database state: already had 0 patients, 0 consultations, 4 nurses
+- Created cleanup/seed script at scripts/seed-clean.ts
+- Cleaned all data and re-seeded exactly 3 nurse accounts:
+  1. Maria Santos (nurse.santos@momternal.ph)
+  2. Ana Reyes (nurse.reyes@momternal.ph)
+  3. Admin (admin@momternal.ph)
+- Password for all: nurse123
+- Verified final state: 3 nurses, 0 patients, 0 consultations
+- Also fixed supabase.ts connection to use direct connection parameters instead of URL string (more reliable with special characters in password)
 
 Stage Summary:
-- Soft pink medical theme with rose-600 as primary color
-- Risk-level color system implemented
-- MOMternal branding applied
+- Database is clean: 3 nurses, 0 patients, 0 consultations
+- Supabase connection updated to use explicit host/port/user/password for reliability
 
 ---
 Task ID: 3
-Agent: auth-api-builder
-Task: Build authentication API routes
+Agent: Main Agent
+Task: Standardize padding across entire UI system
 
 Work Log:
-- Created POST /api/auth/login route with bcryptjs password verification
-- Created GET /api/auth/verify route for session validation
+- Audited all 8 view components for padding consistency
+- Found inconsistencies:
+  1. Dashboard skeleton used `p-6` while actual stat cards use `p-5`
+  2. Consultation step progress used `p-3 sm:p-4` (responsive variant)
+  3. Consultation resume banner used `p-3`
+- Fixed all inconsistencies:
+  - Dashboard skeleton: `p-6` → `p-5`
+  - Step progress: `p-3 sm:p-4` → `p-4` (consistent)
+  - Resume banner: `p-3` → `p-4` (consistent)
+- Verified lint passes after all changes
 
 Stage Summary:
-- Auth login and verify API routes ready
-
----
-Task ID: 3b
-Agent: patient-api-builder
-Task: Build patient management API routes
-
-Work Log:
-- Created GET/POST /api/patients with search, filter, and auto-ID generation
-- Created GET/PUT/DELETE /api/patients/[id] with AOG calculation
-- Created POST /api/patients/[id]/consultations for new consultation creation
-
-Stage Summary:
-- Full patient CRUD API routes ready
-
----
-Task ID: 6-api
-Agent: consultation-api-builder
-Task: Build consultation and AI suggestion API routes
-
-Work Log:
-- Created GET/PUT /api/consultations/[id] with auto-step tracking
-- Created POST /api/consultations/[id]/ai-suggest using z-ai-web-dev-sdk
-- Created POST /api/consultations/[id]/referral for referral generation
-
-Stage Summary:
-- Consultation CRUD and AI integration API routes ready
-
----
-Task ID: 4-9-api
-Agent: dashboard-audit-api-builder
-Task: Build dashboard stats and audit log API routes
-
-Work Log:
-- Created GET /api/dashboard/stats with parallel queries
-- Created GET /api/dashboard/resume for paused consultations
-- Created GET/POST /api/audit with pagination and filtering
-- Created GET /api/map/data for risk map data
-
-Stage Summary:
-- Dashboard, resume, audit, and map data API routes ready
-
----
-Task ID: 3c
-Agent: main-coordinator
-Task: Build frontend: Main page.tsx SPA router + Login view + AppShell
-
-Work Log:
-- Created Zustand store (app-store.ts) for navigation, auth, patient/consultation context
-- Built SPA router in page.tsx with ViewRouter pattern
-- Built LoginView with email/password, demo account shortcuts, DPA compliance notice
-- Built AppShell with responsive sidebar, header, session management, footer
-
-Stage Summary:
-- Complete SPA routing system
-- Login page with pre-seeded account quick-fill
-- Responsive sidebar layout with mobile sheet support
-
----
-Task ID: 4-frontend
-Agent: dashboard-frontend-builder
-Task: Build Dashboard view component
-
-Work Log:
-- Created dashboard-view.tsx with stat cards, quick actions, paused assessments, recent consultations
-- Added Low Risk stat card (5 cards total)
-- Fixed step labels to match 8-step wizard
-
-Stage Summary:
-- Dashboard view with 5 stat cards, paused assessments, recent consultations
-
----
-Task ID: 5-frontend
-Agent: patient-frontend-builder
-Task: Build patient management view components
-
-Work Log:
-- Created patient-list-view.tsx with search, risk/barangay filters, patient cards
-- Created patient-profile-view.tsx with demographics, OB history, consultation history
-- Added consultation detail dialog for viewing completed consultations
-- Added AOG auto-calculation from LMP
-
-Stage Summary:
-- Complete patient management frontend views with consultation detail dialog
-
----
-Task ID: 6-frontend
-Agent: consultation-wizard-builder
-Task: Build consultation wizard component
-
-Work Log:
-- Created 8-step consultation wizard with step progress indicator
-- Implemented SOAP assessment, findings, diagnosis, risk classification, AI suggestions, HITL, evaluation, referral
-- Added auto-save, smart resume, and privacy notice
-
-Stage Summary:
-- Full 8-step consultation wizard with AI integration
-
----
-Task ID: 8-9-frontend
-Agent: map-audit-frontend-builder
-Task: Build Map and Audit Log view components
-
-Work Log:
-- Created map-view.tsx with Leaflet.js, Makati barangay GeoJSON, color-coded risk markers
-- Created audit-view.tsx with filterable table, pagination, expandable details
-
-Stage Summary:
-- Community risk map and audit log views ready
-
----
-Task ID: 14-19
-Agent: main-coordinator
-Task: Polish and fix UI consistency
-
-Work Log:
-- Fixed step labels in dashboard and patient profile to match 8-step wizard (0-7)
-- Added Low Risk stat card to dashboard (5 cards total)
-- Added AOG auto-calculation from LMP in patient list and profile views
-- Added consultation detail dialog to patient profile for viewing completed consultations
-- Fixed map API to return barangayData with lat/lng coordinates
-- Fixed dashboard resume handler to use patient DB ID for navigation
-- Cleaned up Prisma query logging (now only error/warn)
-- Fixed all lint errors (JSX in try/catch converted to useMemo)
-
-Stage Summary:
-- All step labels consistent across dashboard, patient profile, and consultation wizard
-- Consultation detail dialog for read-only viewing of completed consultations
-- AOG calculated client-side from LMP when not pre-computed
-- Map data now includes coordinates for centroid marker placement
-
----
-Task ID: 2a
-Agent: main-coordinator
-Task: Fix Risk Map, remove seeded patients, standardize padding
-
-Work Log:
-- Fixed Risk Map: Changed from CDN CSS injection to local `import 'leaflet/dist/leaflet.css'`
-- Removed all seeded patients/consultations from seed script — only 4 nurse accounts remain
-- Reset SQLite database and reseeded with nurses-only data
-- Standardized spacing: space-y-6 for all view wrappers (was space-y-4)
-- Standardized stat card grids: gap-4 (was gap-3)
-- Standardized stat card padding: p-5 on CardContent (was px-4/py-4)
-- Removed py-0 gap-0 hacks from dashboard cards
-- Updated map-view, dashboard-view, patient-list-view, consultation-view, audit-view
-
-Stage Summary:
-- Map renders properly with local Leaflet CSS import
-- Patient count starts from 0 as requested
-- Consistent padding/spacing across all system views
-
----
-Task ID: 5
-Agent: main-coordinator
-Task: Push code to GitHub
-
-Work Log:
-- Added GitHub remote: https://github.com/reinnnnburikat/MOMternal.git
-- Made initial push with all project files
-- Committed map fix, seed cleanup, padding standardization
-
-Stage Summary:
-- Code pushed to GitHub main branch
-
----
-Task ID: 6
-Agent: main-coordinator + subagent
-Task: Migrate from SQLite/Prisma to Supabase PostgreSQL
-
-Work Log:
-- Installed @supabase/supabase-js and pg packages
-- Created pg Pool client utility (src/lib/supabase.ts) for direct PostgreSQL access
-- Created snake_case/camelCase conversion utilities (src/lib/case.ts)
-- Created SQL migration file with proper schema and indexes
-- Executed migration on Supabase: 4 tables created (nurse, patient, consultation, audit_log)
-- Seeded 4 nurse accounts on Supabase (password: nurse123)
-- Migrated all 12 API routes from Prisma ORM to raw SQL queries via pg Pool
-- Updated .env DATABASE_URL to point to Supabase PostgreSQL
-- All routes maintain exact same API response format for frontend compatibility
-- Passed lint with zero errors
-
-Stage Summary:
-- Database fully migrated to Supabase PostgreSQL (aws-1-ap-southeast-1)
-- All 12 API routes use pg Pool with parameterized queries
-- snake_case DB columns → camelCase API responses via mapping utilities
-- Nurse accounts seeded: nurse.santos, nurse.reyes, nurse.cruz, admin (password: nurse123)
-- No patients seeded — starts from 0 as requested
+- Standard padding system: `space-y-6` for sections, `p-5` for stat cards, `p-4` for content areas
+- All views now follow the same padding convention

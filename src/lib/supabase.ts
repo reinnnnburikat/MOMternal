@@ -4,8 +4,11 @@ const { Pool } = pg;
 
 // Server-side database pool using direct PostgreSQL connection to Supabase
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL ||
-    'postgresql://postgres.qvdxbhjpophjiycjxmxn:qf%23j%26%263yptpJyk%3F@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres',
+  host: process.env.DB_HOST || 'aws-1-ap-southeast-1.pooler.supabase.com',
+  port: parseInt(process.env.DB_PORT || '6543'),
+  database: process.env.DB_NAME || 'postgres',
+  user: process.env.DB_USER || 'postgres.qvdxbhjpophjiycjxmxn',
+  password: process.env.DB_PASSWORD || 'qf#j&&3yptpJyk?',
   ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,

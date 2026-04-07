@@ -555,7 +555,7 @@ export function ConsultationView() {
   // ─── Step Progress Indicator ─────────────────────────────────────────────
 
   const StepProgress = () => (
-    <div className="bg-white rounded-xl border border-rose-100 shadow-sm p-3 sm:p-4 mb-4">
+    <div className="bg-white rounded-xl border border-rose-100 shadow-sm p-4 mb-4">
       <div className="flex items-center">
         {STEP_META.map((step, idx) => {
           const Icon = step.icon;
@@ -627,7 +627,7 @@ export function ConsultationView() {
     if (sc <= 0 || sc >= 7) return null;
     const lastStepMeta = STEP_META[sc] || STEP_META[0];
     return (
-      <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+      <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
         <Info className="h-5 w-5 flex-shrink-0" />
         <p className="text-sm">
           <span className="font-semibold">Assessment Paused</span> — Last Activity: Step {sc} (

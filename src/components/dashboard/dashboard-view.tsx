@@ -117,7 +117,7 @@ function StatsCardsSkeleton() {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       {Array.from({ length: 5 }).map((_, i) => (
         <Card key={i}>
-          <CardContent className="p-6">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <Skeleton className="h-10 w-10 rounded-lg" />
               <Skeleton className="h-4 w-16" />

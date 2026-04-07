@@ -1,6 +1,5 @@
 'use client';
 
-import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { MapPin, AlertTriangle, ShieldCheck, ShieldAlert, Filter, Layers } from 'lucide-react';
+import { MapPin, AlertTriangle, ShieldCheck, ShieldAlert, Filter, Layers, Loader2 } from 'lucide-react';
 
 // --- Types ---
 interface RiskDistribution {
@@ -56,7 +54,7 @@ const RISK_LABELS: Record<string, string> = {
 };
 
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
-const DEFAULT_ZOOM = 13;
+const DEFAULT_ZOOM = 14;
 
 // Approximate barangay centroids for Makati
 const BARANGAY_CENTROIDS: Record<string, [number, number]> = {
@@ -208,12 +206,14 @@ const BARANGAY_BOUNDARIES = [
 export function MapView() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
-  const [loading, setLoading] = useState(true);
+  const dataLayersRef = useRef<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [mapData, setMapData] = useState<MapApiResponse | null>(null);
 
-  // Fetch map data
+  // Fetch map data (separate from map init)
   const fetchMapData = useCallback(async () => {
     try {
       setLoading(true);
@@ -225,88 +225,27 @@ export function MapView() {
       return data;
     } catch (err) {
       console.error('Error fetching map data:', err);
-      setError('Unable to load map data. Please try again.');
+      setError('Unable to load patient data. Map is still viewable.');
       return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initialize map
-  useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return;
-
-    let destroyed = false;
-
-    const initMap = async () => {
-      // Dynamically import leaflet to avoid SSR issues
-      const L = (await import('leaflet')).default;
-
-      if (destroyed || !mapRef.current) return;
-
-      // Initialize the map
-      const map = L.map(mapRef.current, {
-        center: MAKATI_CENTER,
-        zoom: DEFAULT_ZOOM,
-        zoomControl: true,
-      });
-
-      // OpenStreetMap tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-
-      // Fetch data and render layers
-      const data = await fetchMapData();
-      if (data && !destroyed) {
-        renderMapLayers(map, data, L);
-      }
-    };
-
-    initMap();
-
-    return () => {
-      destroyed = true;
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  // Re-render markers when risk filter changes
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!mapInstanceRef.current || !mapData) return;
-
-    const updateMarkers = async () => {
-      const L = (await import('leaflet')).default;
-      const map = mapInstanceRef.current;
-      if (!map) return;
-
-      // Remove existing marker layers except tile layer
-      map.eachLayer((layer: any) => {
-        if (!(layer instanceof L.TileLayer)) {
-          map.removeLayer(layer);
-        }
-      });
-
-      renderMapLayers(map, mapData, L, riskFilter);
-    };
-
-    updateMarkers();
-  }, [riskFilter, mapData]);
-
-  const renderMapLayers = (
+  // Render data layers on top of the base map
+  const renderDataLayers = useCallback((
     map: any,
-    data: MapApiResponse,
     L: any,
+    data: MapApiResponse,
     filter: string = 'all'
   ) => {
-    // Build a lookup of barangay data
+    // Remove previous data layers
+    dataLayersRef.current.forEach((layer) => map.removeLayer(layer));
+    dataLayersRef.current = [];
+
+    const newLayers: any[] = [];
+
+    // Build barangay lookup
     const barangayLookup: Record<string, BarangayData> = {};
     data.barangayData.forEach((b) => {
       barangayLookup[b.barangay] = b;
@@ -320,7 +259,7 @@ export function MapView() {
 
       const fillColor = RISK_COLORS[riskLevel] || RISK_COLORS.low;
 
-      L.geoJSON(feature as any, {
+      const geoLayer = L.geoJSON(feature as any, {
         style: {
           color: fillColor,
           weight: 2,
@@ -347,10 +286,12 @@ export function MapView() {
           }
           layer.bindTooltip(name, { sticky: true });
         },
-      }).addTo(map);
+      });
+      geoLayer.addTo(map);
+      newLayers.push(geoLayer);
     });
 
-    // Add patient markers (circle markers)
+    // Add patient markers
     const filteredMarkers = filter === 'all'
       ? data.markers
       : data.markers.filter((m) => m.riskLevel === filter);
@@ -359,26 +300,27 @@ export function MapView() {
       const color = RISK_COLORS[marker.riskLevel] || RISK_COLORS.low;
       const bd = barangayLookup[marker.barangay];
 
-      L.circleMarker([marker.lat, marker.lng], {
+      const circleMarker = L.circleMarker([marker.lat, marker.lng], {
         radius: 8,
         fillColor: color,
         color: '#ffffff',
         weight: 2,
         opacity: 1,
         fillOpacity: 0.85,
-      })
-        .addTo(map)
-        .bindPopup(`
-          <div style="min-width:180px;font-family:system-ui;">
-            <strong style="font-size:14px;">${marker.barangay}</strong><br/>
-            <span style="color:#666;font-size:12px;">Patient: ${marker.patientId}</span><br/>
-            <span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;color:white;background:${color};">${RISK_LABELS[marker.riskLevel] || marker.riskLevel}</span>
-            ${bd ? `<br/><span style="color:#666;font-size:11px;margin-top:4px;display:block;">Total patients in area: ${bd.patientCount}</span>` : ''}
-          </div>
-        `);
+      });
+      circleMarker.addTo(map);
+      circleMarker.bindPopup(`
+        <div style="min-width:180px;font-family:system-ui;">
+          <strong style="font-size:14px;">${marker.barangay}</strong><br/>
+          <span style="color:#666;font-size:12px;">Patient: ${marker.patientId}</span><br/>
+          <span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;color:white;background:${color};">${RISK_LABELS[marker.riskLevel] || marker.riskLevel}</span>
+          ${bd ? `<br/><span style="color:#666;font-size:11px;margin-top:4px;display:block;">Total patients in area: ${bd.patientCount}</span>` : ''}
+        </div>
+      `);
+      newLayers.push(circleMarker);
     });
 
-    // Add markers for barangays that have data but no individual markers (centroid markers)
+    // Add centroid markers for barangays with aggregated data but no individual markers
     const barangaysWithMarkers = new Set(data.markers.map((m) => m.barangay));
     data.barangayData.forEach((bd) => {
       if (!barangaysWithMarkers.has(bd.barangay) && BARANGAY_CENTROIDS[bd.barangay]) {
@@ -387,52 +329,147 @@ export function MapView() {
         const color = RISK_COLORS[bd.latestRiskLevel] || RISK_COLORS.low;
         const [lat, lng] = BARANGAY_CENTROIDS[bd.barangay];
 
-        L.circleMarker([lat, lng], {
+        const centroidMarker = L.circleMarker([lat, lng], {
           radius: 10,
           fillColor: color,
           color: '#ffffff',
           weight: 2,
           opacity: 1,
           fillOpacity: 0.7,
-        })
-          .addTo(map)
-          .bindPopup(`
-            <div style="min-width:180px;font-family:system-ui;">
-              <strong style="font-size:14px;">${bd.barangay}</strong><br/>
-              <span style="color:#666;">Patients: ${bd.patientCount}</span><br/>
-              <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
-                <span style="background:#dcfce7;color:#166534;padding:2px 6px;border-radius:4px;font-size:11px;">Low: ${bd.riskDistribution.low}</span>
-                <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:11px;">Mod: ${bd.riskDistribution.moderate}</span>
-                <span style="background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:11px;">High: ${bd.riskDistribution.high}</span>
-              </div>
+        });
+        centroidMarker.addTo(map);
+        centroidMarker.bindPopup(`
+          <div style="min-width:180px;font-family:system-ui;">
+            <strong style="font-size:14px;">${bd.barangay}</strong><br/>
+            <span style="color:#666;">Patients: ${bd.patientCount}</span><br/>
+            <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+              <span style="background:#dcfce7;color:#166534;padding:2px 6px;border-radius:4px;font-size:11px;">Low: ${bd.riskDistribution.low}</span>
+              <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:11px;">Mod: ${bd.riskDistribution.moderate}</span>
+              <span style="background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:11px;">High: ${bd.riskDistribution.high}</span>
             </div>
-          `);
+          </div>
+        `);
+        newLayers.push(centroidMarker);
       }
     });
-  };
+
+    dataLayersRef.current = newLayers;
+  }, []);
+
+  // Initialize map (runs once) — always render map tiles and barangay outlines
+  useEffect(() => {
+    if (typeof window === 'undefined' || !mapRef.current) return;
+
+    let destroyed = false;
+
+    const initMap = async () => {
+      // Dynamically import leaflet to avoid SSR issues
+      const L = (await import('leaflet')).default;
+
+      if (destroyed || !mapRef.current) return;
+
+      // Invalidate size to fix rendering if container was hidden
+      const map = L.map(mapRef.current, {
+        center: MAKATI_CENTER,
+        zoom: DEFAULT_ZOOM,
+        zoomControl: true,
+      });
+
+      // OpenStreetMap tiles — always visible
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Always add barangay boundary outlines (no fill, just borders)
+      BARANGAY_BOUNDARIES.forEach((feature) => {
+        L.geoJSON(feature as any, {
+          style: {
+            color: '#e11d48',
+            weight: 1.5,
+            opacity: 0.35,
+            fillColor: '#e11d48',
+            fillOpacity: 0.05,
+            dashArray: '4 4',
+          },
+          onEachFeature: (_feature: any, layer: any) => {
+            layer.bindTooltip(feature.properties.name, {
+              sticky: true,
+              className: 'barangay-label',
+            });
+          },
+        }).addTo(map);
+      });
+
+      // Fit bounds to show all barangay boundaries
+      const allBounds = L.geoJSON({
+        type: 'FeatureCollection' as const,
+        features: BARANGAY_BOUNDARIES,
+      }).getBounds();
+
+      if (allBounds.isValid()) {
+        map.fitBounds(allBounds, { padding: [30, 30], maxZoom: DEFAULT_ZOOM });
+      }
+
+      mapInstanceRef.current = map;
+      setMapReady(true);
+
+      // Force a resize after a short delay to ensure tiles load properly
+      setTimeout(() => {
+        if (!destroyed && mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 200);
+    };
+
+    initMap();
+
+    return () => {
+      destroyed = true;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      dataLayersRef.current = [];
+      setMapReady(false);
+    };
+  }, []);
+
+  // Fetch data after map is ready
+  useEffect(() => {
+    if (!mapReady) return;
+
+    const loadData = async () => {
+      const L = (await import('leaflet')).default;
+      const data = await fetchMapData();
+      if (data && mapInstanceRef.current) {
+        renderDataLayers(mapInstanceRef.current, L, data, riskFilter);
+      }
+    };
+
+    loadData();
+  }, [mapReady]);
+
+  // Re-render data layers when filter changes
+  useEffect(() => {
+    if (!mapInstanceRef.current || !mapData) return;
+
+    const updateLayers = async () => {
+      const L = (await import('leaflet')).default;
+      const map = mapInstanceRef.current;
+      if (!map) return;
+
+      renderDataLayers(map, L, mapData, riskFilter);
+    };
+
+    updateLayers();
+  }, [riskFilter, mapData, renderDataLayers]);
 
   // Compute summary stats
   const totalPatients = mapData?.barangayData.reduce((sum, b) => sum + b.patientCount, 0) ?? 0;
   const highRiskCount = mapData?.barangayData.reduce((sum, b) => sum + b.riskDistribution.high, 0) ?? 0;
   const moderateRiskCount = mapData?.barangayData.reduce((sum, b) => sum + b.riskDistribution.moderate, 0) ?? 0;
   const lowRiskCount = mapData?.barangayData.reduce((sum, b) => sum + b.riskDistribution.low, 0) ?? 0;
-
-  if (error && !mapData) {
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">Unable to load map</p>
-            <p className="text-sm text-muted-foreground mb-4">{error}</p>
-            <Button onClick={fetchMapData} variant="outline">
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -484,7 +521,7 @@ export function MapView() {
         </Card>
       </div>
 
-      {/* Map */}
+      {/* Map Card */}
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -529,39 +566,61 @@ export function MapView() {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <Skeleton className="w-full h-[500px] rounded-lg" />
-          ) : (
-            <div className="relative">
-              <div
-                ref={mapRef}
-                className="w-full rounded-lg border border-rose-100 overflow-hidden"
-                style={{ height: '500px' }}
-              />
-              {/* Legend */}
-              <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm border border-rose-100 rounded-lg shadow-md p-3">
-                <p className="text-xs font-semibold text-foreground mb-2">Risk Levels</p>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-green-500 border border-white shadow-sm" />
-                    <span className="text-xs text-muted-foreground">Low Risk</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-amber-500 border border-white shadow-sm" />
-                    <span className="text-xs text-muted-foreground">Moderate Risk</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm" />
-                    <span className="text-xs text-muted-foreground">High Risk</span>
-                  </div>
+          <div className="relative">
+            {/* Map container is ALWAYS rendered — tiles load immediately */}
+            <div
+              ref={mapRef}
+              className="w-full rounded-lg border border-rose-100 overflow-hidden bg-rose-50/30"
+              style={{ height: '500px', minHeight: '400px' }}
+            />
+
+            {/* Loading overlay — small pill, does NOT block the map */}
+            {loading && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur-sm border border-rose-100 rounded-full shadow-md px-4 py-2 flex items-center gap-2">
+                <Loader2 className="h-3.5 w-3.5 text-rose-600 animate-spin" />
+                <span className="text-xs font-medium text-foreground">Loading patient data...</span>
+              </div>
+            )}
+
+            {/* Error banner — small pill, does NOT block the map */}
+            {error && !loading && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-amber-50/95 backdrop-blur-sm border border-amber-200 rounded-full shadow-md px-4 py-2 flex items-center gap-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                <span className="text-xs font-medium text-amber-800">{error}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
+                  onClick={fetchMapData}
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+
+            {/* Legend */}
+            <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm border border-rose-100 rounded-lg shadow-md p-3">
+              <p className="text-xs font-semibold text-foreground mb-2">Risk Levels</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-green-500 border border-white shadow-sm" />
+                  <span className="text-xs text-muted-foreground">Low Risk</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-amber-500 border border-white shadow-sm" />
+                  <span className="text-xs text-muted-foreground">Moderate Risk</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm" />
+                  <span className="text-xs text-muted-foreground">High Risk</span>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Barangay Table */}
+      {/* Barangay Table — only show if there's data */}
       {mapData && mapData.barangayData.length > 0 && (
         <Card>
           <CardHeader className="pb-4">
