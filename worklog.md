@@ -63,3 +63,24 @@ Work Log:
 Stage Summary:
 - Standard padding system: `space-y-6` for sections, `p-5` for stat cards, `p-4` for content areas
 - All views now follow the same padding convention
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Push fixes to GitHub and fix remaining Leaflet CSS issue
+
+Work Log:
+- Found that the Leaflet CSS (`leaflet/dist/leaflet.css`) was never imported in the map component
+- This caused map tiles to not render properly — the map container lacked proper CSS for tile positioning
+- Added `import 'leaflet/dist/leaflet.css'` at the top of `src/components/map/map-view.tsx`
+- Verified the fix: Leaflet CSS now appears in the rendered HTML as `leaflet_ef5f0413.css`
+- Pushed 3 commits to GitHub (origin/main):
+  1. `fix: map rendering, remove seeded patients, standardize padding`
+  2. `feat: migrate from SQLite/Prisma to Supabase PostgreSQL`
+  3. `fix: add leaflet CSS import for proper map tile rendering`
+
+Stage Summary:
+- All 3 original bug fixes completed and pushed to GitHub
+- Risk map now renders correctly with OSM tiles, barangay boundaries visible even with zero patients
+- Map API returns empty data gracefully (no patients seeded)
+- Repository is up-to-date at https://github.com/reinnnnburikat/MOMternal.git
