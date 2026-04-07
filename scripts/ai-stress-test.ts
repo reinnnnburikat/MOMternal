@@ -6,7 +6,8 @@
  * Usage: bun run scripts/ai-stress-test.ts
  */
 
-import { type AssessmentData } from '../src/lib/ai-prompts';
+import ZAI from 'z-ai-web-dev-sdk';
+import { type AssessmentData, MATERNAL_AI_SYSTEM_PROMPT, buildUserPrompt } from '../src/lib/ai-prompts';
 
 // ─── Test Types ──────────────────────────────────────────────────────────
 
