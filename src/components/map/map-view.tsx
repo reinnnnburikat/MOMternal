@@ -1,5 +1,6 @@
 'use client';
 
+import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -240,14 +241,6 @@ export function MapView() {
     const initMap = async () => {
       // Dynamically import leaflet to avoid SSR issues
       const L = (await import('leaflet')).default;
-      // Inject leaflet CSS via link tag to avoid SSR/TS issues
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id = 'leaflet-css';
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
 
       if (destroyed || !mapRef.current) return;
 
@@ -426,7 +419,7 @@ export function MapView() {
 
   if (error && !mapData) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
@@ -442,11 +435,11 @@ export function MapView() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0">
               <MapPin className="h-4.5 w-4.5 text-rose-600" />
             </div>
@@ -456,8 +449,8 @@ export function MapView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="h-4.5 w-4.5 text-emerald-600" />
             </div>
@@ -467,8 +460,8 @@ export function MapView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
               <AlertTriangle className="h-4.5 w-4.5 text-amber-600" />
             </div>
@@ -478,8 +471,8 @@ export function MapView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
               <ShieldAlert className="h-4.5 w-4.5 text-red-600" />
             </div>

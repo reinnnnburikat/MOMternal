@@ -114,7 +114,7 @@ function getStatusBadge(status: string) {
 
 function StatsCardsSkeleton() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
       {Array.from({ length: 5 }).map((_, i) => (
         <Card key={i}>
           <CardContent className="p-6">
@@ -317,12 +317,12 @@ export function DashboardView() {
       {isLoadingStats ? (
         <StatsCardsSkeleton />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {statsCards.map((card) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="py-0 gap-0">
-                <CardContent className="p-6">
+              <Card key={card.label}>
+                <CardContent className="p-5">
                   <div className="flex items-center justify-between">
                     <div className={`${card.bg} p-2.5 rounded-lg`}>
                       <Icon className={`h-5 w-5 ${card.color}`} />
@@ -350,7 +350,7 @@ export function DashboardView() {
       )}
 
       {/* Quick Actions */}
-      <Card className="py-0 gap-0">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">Quick Actions</CardTitle>
         </CardHeader>
@@ -383,7 +383,7 @@ export function DashboardView() {
       {isLoadingPaused ? (
         <PausedSkeleton />
       ) : (
-        <Card className="py-0 gap-0">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg">Paused Assessments</CardTitle>
             <CardDescription>
@@ -440,7 +440,7 @@ export function DashboardView() {
       {isLoadingStats ? (
         <RecentTableSkeleton />
       ) : stats && stats.recentConsultations.length > 0 ? (
-        <Card className="py-0 gap-0">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg">Recent Consultations</CardTitle>
             <CardDescription>
@@ -491,7 +491,7 @@ export function DashboardView() {
           </CardContent>
         </Card>
       ) : stats ? (
-        <Card className="py-0 gap-0">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg">Recent Consultations</CardTitle>
           </CardHeader>

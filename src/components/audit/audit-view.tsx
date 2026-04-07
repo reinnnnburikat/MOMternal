@@ -256,11 +256,11 @@ export function AuditView() {
   const deleteCount = logs.filter((l) => l.action === 'delete').length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0">
               <ClipboardList className="h-4.5 w-4.5 text-rose-600" />
             </div>
@@ -270,8 +270,8 @@ export function AuditView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
               <Activity className="h-4.5 w-4.5 text-emerald-600" />
             </div>
@@ -281,8 +281,8 @@ export function AuditView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
               <FileText className="h-4.5 w-4.5 text-blue-600" />
             </div>
@@ -292,8 +292,8 @@ export function AuditView() {
             </div>
           </CardContent>
         </Card>
-        <Card className="py-4">
-          <CardContent className="flex items-center gap-3 px-4">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-5">
             <div className="h-9 w-9 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
               <Activity className="h-4.5 w-4.5 text-red-600" />
             </div>
