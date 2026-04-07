@@ -1,0 +1,1632 @@
+═════════════════════════════════════════════════════════
+  MOMternal AI Intervention Stress Test Suite
+  Date: 2026-04-07T23:36:41.492Z
+  Total Tests: 100
+═══════════════════════════════════════════════════════
+
+  Running Test 01/100: [A. Risk Stra] Low risk — normal pregnancy, all vitals normal...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [01/100] Low risk — normal pregnancy, all vitals normal
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 02/100: [A. Risk Stra] Moderate risk — mild anemia (Hb 9.5)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [02/100] Moderate risk — mild anemia (Hb 9.5)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 03/100: [A. Risk Stra] Moderate risk — elevated BP (135/88)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [03/100] Moderate risk — elevated BP (135/88)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 04/100: [A. Risk Stra] High risk — severe preeclampsia (BP 170/110)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [04/100] High risk — severe preeclampsia (BP 170/110)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 05/100: [A. Risk Stra] High risk — FHR bradycardia (100 bpm)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [05/100] High risk — FHR bradycardia (100 bpm)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 06/100: [A. Risk Stra] Low risk — routine 2nd trimester visit...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [06/100] Low risk — routine 2nd trimester visit
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 07/100: [A. Risk Stra] High risk — severe anemia + hypertension...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [07/100] High risk — severe anemia + hypertension
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 08/100: [A. Risk Stra] Low risk — early pregnancy 8 weeks...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [08/100] Low risk — early pregnancy 8 weeks
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 09/100: [A. Risk.Stra] Moderate risk — gestational diabetes controlled...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [09/100] Moderate risk — gestational diabetes controlled
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 10/100: [A. Risk Stra] High risk — placental abruption signs...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [10/100] High risk — placental abruption signs
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 11/100: [A. Risk Stra] Moderate risk — urinary tract infection...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [11/100] Moderate risk — urinary tract infection
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 12/100: [A. Risk Stra] Low risk — advanced maternal age 38...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [12/100] Low risk — advanced maternal age 38
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 13/100: [A. Risk Stra] High risk — eclampsia seizure history...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [13/100] High risk — eclampsia seizure history
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 14/100: [A. Risk Stra] Moderate risk — hypothyroidism...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [14/100] Moderate risk — hypothyroidism
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 15/100: [A. Risk Stra] Low risk — normal postpartum check...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [15/100] Low risk — normal postpartum check
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 16/100: [B. Vital Sig] Normal BP ≤120/80...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [16/100] Normal BP ≤120/80
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 17/100: [B. Vital Sig] BP 125/82 (elevated)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [17/100] BP 125/82 (elevated)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 18/100: [B. Vital Sig] BP 145/95 (HTN Stage 1)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [18/100] BP 145/95 (HTN Stage 1)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 19/100: [B. Vital Sig] BP 165/105 (HTN Stage 2)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [19/100] BP 165/105 (HTN Stage 2)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 20/100: [B. Vital Sig] BP 172/112 (severe range)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [20/100] BP 172/112 (severe range)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 21/100: [B. Vital Sig] FHR 108 bpm (bradycardia)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [21/100] FHR 108 bpm (bradycardia)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 22/100: [B. Vital Sig] FHR 162 bpm (tachycardia)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [22/100] FHR 162 bpm (tachycardia)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 23/100: [B. Vital Sig] FHR 95 bpm (severe distress)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [23/100] FHR 95 bpm (severe distress)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 24/100: [B. Vital Sig] Temp 37.7°C (low-grade)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [24/100] Temp 37.7°C (low-grade)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 25/100: [B. Vital Sig] Temp 38.2°C (fever)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [25/100] Temp 38.2°C (fever)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 26/100: [B. Vital Sig] Temp 39.0°C (high fever)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [26/100] Temp 39.0°C (high fever)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 27/100: [B. Vital Sig] Hb 10.5 (mild anemia)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [27/100] Hb 10.5 (mild anemia)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 28/100: [B. Vital Sig] Hb 7.5 (moderate anemia)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [28/100] Hb 7.5 (moderate anemia)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 29/100: [B. Vital Sig] Hb 6.2 (severe anemia)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [29/100] Hb 6.2 (severe anemia)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 30/100: [B. Vital Sig] Glucose 96 (GDM threshold)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [30/100] Glucose 96 (GDM threshold)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 31/100: [B. Vital Sig] Glucose 130 (overt DM)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [31/100] Glucose 130 (overt DM)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 32/100: [B. Vital Sig] Proteinuria 1+ trace...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [32/100] Proteinuria 1+ trace
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 33/100: [B. Vital Sig] Proteinuria 2+ significant...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [33/100] Proteinuria 2+ significant
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 34/100: [B. Vital Sig] Proteinuria 3+ with HTN...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [34/100] Proteinuria 3+ with HTN
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 35/100: [B. Vital Sig] HR 110 (tachycardia borderline)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [35/100] HR 110 (tachycardia borderline)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 36/100: [C. Trimester] 1st tri — hyperemesis gravidarum...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [36/100] 1st tri — hyperemesis gravidarum
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 37/100: [C. Trimester] 1st tri — folic acid guidance...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [37/100] 1st tri — folic acid guidance
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 38/100: [C. Trimester] 2nd tri — fetal movement education...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [38/100] 2nd tri — fetal movement education
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 39/100: [C. Trimester] 2nd tri — TT immunization...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [39/100] 2nd tri — TT immunization
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 40/100: [C. Trimester] 2nd tri — GDM screening due...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [40/100] 2nd tri — GDM screening due
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 41/100: [C. Trimester] 3rd tri — preterm labor signs...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [41/100] 3rd tri — preterm labor signs
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 42/100: [C. Trimester] 3rd tri — birth preparedness...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [42/100] 3rd tri — birth preparedness
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 43/100: [C. Trimester] 3rd tri — decreased fetal movements...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [43/100] 3rd tri — decreased fetal movements
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 44/100: [C. Trimester] 3rd tri — breastfeeding education...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [44/100] 3rd tri — breastfeeding education
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 45/100: [C. Trimester] 3rd tri — danger sign awareness...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [45/100] 3rd tri — danger sign awareness
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 46/100: [D. NANDA] NANDA: Risk for Infection...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [46/100] NANDA: Risk for Infection
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 47/100: [D. NANDA] NANDA: Anxiety...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [47/100] NANDA: Anxiety
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 48/100: [D. NANDA] NANDA: Fatigue...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [48/100] NANDA: Fatigue
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 49/100: [D. NANDA] NANDA: Imbalanced Nutrition...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [49/100] NANDA: Imbalanced Nutrition
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 50/100: [D. NANDA] NANDA: Risk for Bleeding...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [50/100] NANDA: Risk for Bleeding
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 51/100: [D. NANDA] NANDA: Deficient Knowledge...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [51/100] NANDA: Deficient Knowledge
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 52/100: [D. NANDA] NANDA: Ineffective Coping...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [52/100] NANDA: Ineffective Coping
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 53/100: [D. NANDA] NANDA: Risk for Impaired Parenting...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [53/100] NANDA: Risk for Impaired Parenting
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 54/100: [D. NANDA] NANDA: Risk for Injury fetal...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [54/100] NANDA: Risk for Injury fetal
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 55/100: [D. NANDA] NANDA: Risk for Fluid Volume...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [55/100] NANDA: Risk for Fluid Volume
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 56/100: [D. NANDA] NANDA: Risk for Perfusion...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [56/100] NANDA: Risk for Perfusion
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 57/100: [D. NANDA] NANDA: Risk for Cerebral Perfusion...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [57/100] NANDA: Risk for Cerebral Perfusion
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 58/100: [D. NANDA] NANDA: Decisional Conflict...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [58/100] NANDA: Decisional Conflict
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 59/100: [D. NANDA] NANDA: Risk for Shock...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [59/100] NANDA: Risk for Shock
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 60/100: [D. NANDA] NANDA: Risk for Aspiration...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [60/100] NANDA: Risk for Aspiration
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 61/100: [E. ICD-10] ICD O10 — Pre-existing hypertension...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [61/100] ICD O10 — Pre-existing hypertension
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 62/100: [E. ICD-10] ICD O12 — Gestational HTN...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [62/100] ICD O12 — Gestational HTN
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 63/100: [E. ICD-10] ICD O14 — Pre-eclampsia...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [63/100] ICD O14 — Pre-eclampsia
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 64/100: [E. ICD-10] ICD O24.3 — GDM...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [64/100] ICD O24.3 — GDM
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 65/100: [E. ICD-10] ICD O99.0 — Anemia...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [65/100] ICD O99.0 — Anemia
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 66/100: [E. ICD-10] ICD O20 — Threatened abortion...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [66/100] ICD O20 — Threatened abortion
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 67/100: [E. ICD-10] ICD O60 — Preterm labor...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [67/100] ICD O60 — Preterm labor
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 68/100: [E. ICD-10] ICD O23 — UTI...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [68/100] ICD O23 — UTI
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 69/100: [E. ICD-10] ICD O36 — Fetal concern...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [69/100] ICD O36 — Fetal concern
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 70/100: [E. ICD-10] ICD O68 — Fetal stress in labor...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [70/100] ICD O68 — Fetal stress in labor
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 71/100: [F. Emergenci] WHO: Severe headache + blurred vision...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [71/100] WHO: Severe headache + blurred vision
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 72/100: [F. Emergenci] WHO: Vaginal bleeding active...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [72/100] WHO: Vaginal bleeding active
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 73/100: [F. Emergenci] WHO: Convulsions/seizures...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [73/100] WHO: Convulsions/seizures
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 74/100: [F. Emergenci] WHO: Severe abdominal pain...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [74/100] WHO: Severe abdominal pain
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 75/100: [F. Emergenci] WHO: Extreme weakness...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [75/100] WHO: Extreme weakness
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 76/100: [F. Emergenci] WHO: Reduced/absent fetal movements...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [76/100] WHO: Reduced/absent fetal movements
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 77/100: [F. Emergenci] WHO: Fever with infection signs...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [77/100] WHO: Fever with infection signs
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 78/100: [F. Emergenci] WHO: Severe vomiting...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [78/100] WHO: Severe vomiting
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 79/100: [F. Emergenci] WHO: Difficulty breathing...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [79/100] WHO: Difficulty breathing
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 80/100: [F. Emergenci] WHO: Face/hand swelling (sudden)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [80/100] WHO: Face/hand swelling (sudden)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 81/100: [G. Cultural] Filipino dietary counseling (rice-based)...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [81/100] Filipino dietary counseling (rice-based)
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 82/100: [G. Cultural] BHW community involvement...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [82/100] BHW community involvement
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 83/100: [G. Cultural] Family decision-making support...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [83/100] Family decision-making support
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 84/100: [G. Cultural] Malunggay/herbal medicine inquiry...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [84/100] Malunggay/herbal medicine inquiry
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 85/100: [G. Cultural] Financial constraints / PhilHealth awareness...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [85/100] Financial constraints / PhilHealth awareness
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 86/100: [H. Edge Case] Missing data — all nulls...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [86/100] Missing data — all nulls
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 87/100: [H. Edge Case] Very early pregnancy 4 weeks...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [87/100] Very early pregnancy 4 weeks
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 88/100: [H. Edge Case] Advanced maternal age 42 with G6P5...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [88/100] Advanced maternal age 42 with G6P5
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 89/100: [H. Edge Case] Multiple risk factors combined...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [89/100] Multiple risk factors combined
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 90/100: [H. Edge Case] Normal routine visit — no issues...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [90/100] Normal routine visit — no issues
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 91/100: [I. JSON Form] JSON format: normal case...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [91/100] JSON format: normal case
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 92/100: [I. JSON Form] JSON format: moderate risk...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [92/100] JSON format: moderate risk
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 93/100: [I. JSON Form] JSON format: high risk...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [93/100] JSON format: high risk
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 94/100: [I. JSON Form] JSON format: minimal data...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [94/100] JSON format: minimal data
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 95/100: [I. JSON Form] JSON format: with all fields populated...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [95/100] JSON format: with all fields populated
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 96/100: [I. JSON Form] JSON format: 1st trimester...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [96/100] JSON format: 1st trimester
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 97/100: [I. JSON Form] JSON format: 3rd trimester emergency...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [97/100] JSON format: 3rd trimester emergency
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 98/100: [I. JSON Form] JSON format: postpartum...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [98/100] JSON format: postpartum
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 99/100: [I. JSON Form] JSON format: overdose scenario...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [99/100] JSON format: overdose scenario
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+  Running Test 00/100: [I. JSON Form] JSON format: high-risk with cultural data...Failed to make API request:  95 |                 headers: headers,
+ 96 |                 body: JSON.stringify(requestBody),
+ 97 |             });
+ 98 |             if (!response.ok) {
+ 99 |                 const errorBody = await response.text();
+100 |                 throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                                ^
+error: API request failed with status 401: {"error":"missing X-Token header"}
+      at createChatCompletion (/home/z/my-project/node_modules/z-ai-web-dev-sdk/dist/index.js:100:27)
+      at async runTest (/home/z/my-project/scripts/ai-stress-test.ts:323:51)
+      at async main (/home/z/my-project/scripts/ai-stress-test.ts:478:26)
+
+  ❌ FAIL [00/100] JSON format: high-risk with cultural data
+         → Error: API request failed with status 401: {"error":"missing X-Token header"}
+
+═══════════════════════════════════════════════════════
+  RESULTS SUMMARY
+═══════════════════════════════════════════════════════
+  Total Tests: 100
+  ✅ Passed: 0
+  ❌ Failed: 100
+  Accuracy: 0.0%
+
+  Category Breakdown:
+    A                              0/15 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    B                              0/20 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    C                              0/10 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    D                              0/15 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    E                              0/10 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    F                              0/10 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    G                              0/5 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    H                              0/5 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+    I                              0/10 (0.0%)  ░░░░░░░░░░░░░░░░░░░░
+
+  Failed Tests:
+    ❌ [#1] Low risk — normal pregnancy, all vitals normal
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#2] Moderate risk — mild anemia (Hb 9.5)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#3] Moderate risk — elevated BP (135/88)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#4] High risk — severe preeclampsia (BP 170/110)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#5] High risk — FHR bradycardia (100 bpm)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#6] Low risk — routine 2nd trimester visit
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#7] High risk — severe anemia + hypertension
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#8] Low risk — early pregnancy 8 weeks
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#9] Moderate risk — gestational diabetes controlled
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#10] High risk — placental abruption signs
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#11] Moderate risk — urinary tract infection
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#12] Low risk — advanced maternal age 38
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#13] High risk — eclampsia seizure history
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#14] Moderate risk — hypothyroidism
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#15] Low risk — normal postpartum check
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#16] Normal BP ≤120/80
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#17] BP 125/82 (elevated)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#18] BP 145/95 (HTN Stage 1)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#19] BP 165/105 (HTN Stage 2)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#20] BP 172/112 (severe range)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#21] FHR 108 bpm (bradycardia)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#22] FHR 162 bpm (tachycardia)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#23] FHR 95 bpm (severe distress)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#24] Temp 37.7°C (low-grade)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#25] Temp 38.2°C (fever)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#26] Temp 39.0°C (high fever)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#27] Hb 10.5 (mild anemia)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#28] Hb 7.5 (moderate anemia)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#29] Hb 6.2 (severe anemia)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#30] Glucose 96 (GDM threshold)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#31] Glucose 130 (overt DM)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#32] Proteinuria 1+ trace
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#33] Proteinuria 2+ significant
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#34] Proteinuria 3+ with HTN
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#35] HR 110 (tachycardia borderline)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#36] 1st tri — hyperemesis gravidarum
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#37] 1st tri — folic acid guidance
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#38] 2nd tri — fetal movement education
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#39] 2nd tri — TT immunization
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#40] 2nd tri — GDM screening due
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#41] 3rd tri — preterm labor signs
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#42] 3rd tri — birth preparedness
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#43] 3rd tri — decreased fetal movements
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#44] 3rd tri — breastfeeding education
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#45] 3rd tri — danger sign awareness
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#46] NANDA: Risk for Infection
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#47] NANDA: Anxiety
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#48] NANDA: Fatigue
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#49] NANDA: Imbalanced Nutrition
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#50] NANDA: Risk for Bleeding
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#51] NANDA: Deficient Knowledge
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#52] NANDA: Ineffective Coping
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#53] NANDA: Risk for Impaired Parenting
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#54] NANDA: Risk for Injury fetal
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#55] NANDA: Risk for Fluid Volume
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#56] NANDA: Risk for Perfusion
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#57] NANDA: Risk for Cerebral Perfusion
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#58] NANDA: Decisional Conflict
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#59] NANDA: Risk for Shock
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#60] NANDA: Risk for Aspiration
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#61] ICD O10 — Pre-existing hypertension
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#62] ICD O12 — Gestational HTN
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#63] ICD O14 — Pre-eclampsia
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#64] ICD O24.3 — GDM
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#65] ICD O99.0 — Anemia
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#66] ICD O20 — Threatened abortion
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#67] ICD O60 — Preterm labor
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#68] ICD O23 — UTI
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#69] ICD O36 — Fetal concern
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#70] ICD O68 — Fetal stress in labor
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#71] WHO: Severe headache + blurred vision
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#72] WHO: Vaginal bleeding active
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#73] WHO: Convulsions/seizures
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#74] WHO: Severe abdominal pain
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#75] WHO: Extreme weakness
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#76] WHO: Reduced/absent fetal movements
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#77] WHO: Fever with infection signs
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#78] WHO: Severe vomiting
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#79] WHO: Difficulty breathing
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#80] WHO: Face/hand swelling (sudden)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#81] Filipino dietary counseling (rice-based)
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#82] BHW community involvement
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#83] Family decision-making support
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#84] Malunggay/herbal medicine inquiry
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#85] Financial constraints / PhilHealth awareness
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#86] Missing data — all nulls
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#87] Very early pregnancy 4 weeks
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#88] Advanced maternal age 42 with G6P5
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#89] Multiple risk factors combined
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#90] Normal routine visit — no issues
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#91] JSON format: normal case
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#92] JSON format: moderate risk
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#93] JSON format: high risk
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#94] JSON format: minimal data
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#95] JSON format: with all fields populated
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#96] JSON format: 1st trimester
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#97] JSON format: 3rd trimester emergency
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#98] JSON format: postpartum
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#99] JSON format: overdose scenario
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+    ❌ [#100] JSON format: high-risk with cultural data
+       → Error: API request failed with status 401: {"error":"missing X-Token header"}
+
+  Full results saved to: /home/z/my-project/scripts/ai-test-results.json
+
+  ⚠️  ACCURACY BELOW 90% — Additional prompt tuning may be needed.
+

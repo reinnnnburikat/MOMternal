@@ -58,47 +58,45 @@ const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 const DEFAULT_ZOOM = 14;
 
 // Accurate barangay centroids computed from OSM boundary polygon geometries
-// Source: OpenStreetMap Overpass API (admin_level=10 relations, Feb 2026)
-// Rizal centroid is approximate (no OSM boundary relation exists)
+// Source: OpenStreetMap Overpass API (admin_level=10 relations, all 33 barangays)
 const BARANGAY_CENTROIDS: Record<string, [number, number]> = {
-  'Bangkal': [14.5446, 121.0123],
-  'Bel-Air': [14.562, 121.0263],
-  'Carmona': [14.5749, 121.0179],
-  'Cembo': [14.5636, 121.0509],
-  'Comembo': [14.548, 121.0641],
-  'Dasmariñas': [14.5376, 121.029],
-  'East Rembo': [14.5541, 121.0618],
-  'Forbes Park': [14.5446, 121.039],
-  'Guadalupe Nuevo': [14.562, 121.0469],
-  'Guadalupe Viejo': [14.5651, 121.0417],
-  'Kasilawan': [14.5766, 121.0152],
-  'La Paz': [14.5681, 121.0086],
-  'Magallanes': [14.5327, 121.0184],
-  'Olympia': [14.5709, 121.0192],
-  'Palanan': [14.5594, 121.0016],
-  'Pembo': [14.5448, 121.059],
-  'Pinagkaisahan': [14.5572, 121.0409],
-  'Pio Del Pilar': [14.5519, 121.0114],
-  'Pitogo': [14.5569, 121.0451],
-  'Poblacion': [14.5659, 121.0294],
+  'Bangkal': [14.5447, 121.0124],
+  'Bel-Air': [14.562, 121.0266],
+  'Carmona': [14.5752, 121.0178],
+  'Cembo': [14.5638, 121.0509],
+  'Comembo': [14.5481, 121.0641],
+  'Dasmariñas': [14.5379, 121.029],
+  'East Rembo': [14.5539, 121.0618],
+  'Forbes Park': [14.545, 121.0389],
+  'Guadalupe Nuevo': [14.5618, 121.0467],
+  'Guadalupe Viejo': [14.5652, 121.0414],
+  'Kasilawan': [14.5767, 121.0153],
+  'La Paz': [14.5683, 121.0082],
+  'Magallanes': [14.5329, 121.0182],
+  'Olympia': [14.5708, 121.0193],
+  'Palanan': [14.5593, 121.0019],
+  'Pembo': [14.5448, 121.0591],
+  'Pinagkaisahan': [14.5573, 121.041],
+  'Pio Del Pilar': [14.552, 121.0116],
+  'Pitogo': [14.557, 121.045],
+  'Poblacion': [14.5659, 121.0293],
   'Post Proper Northside': [14.5621, 121.0559],
-  'Post Proper Southside': [14.5408, 121.0441],
-  'Rizal': [14.5570, 121.0120],
-  'San Antonio': [14.5647, 121.0106],
-  'San Isidro': [14.5541, 121.0046],
-  'San Lorenzo': [14.5527, 121.0196],
-  'Santa Cruz': [14.5676, 121.0148],
-  'Singkamas': [14.5729, 121.0117],
-  'South Cembo': [14.5595, 121.0509],
+  'Post Proper Southside': [14.5408, 121.0442],
+  'Rizal': [14.537, 121.0612],
+  'San Antonio': [14.5647, 121.0104],
+  'San Isidro': [14.5542, 121.0047],
+  'San Lorenzo': [14.5531, 121.019],
+  'Santa Cruz': [14.5673, 121.0149],
+  'Singkamas': [14.5727, 121.0115],
+  'South Cembo': [14.5594, 121.0507],
   'Tejeros': [14.5729, 121.014],
-  'Urdaneta': [14.5566, 121.0298],
-  'Valenzuela': [14.5691, 121.0235],
-  'West Rembo': [14.56, 121.0601],
+  'Urdaneta': [14.5564, 121.0297],
+  'Valenzuela': [14.5692, 121.0235],
+  'West Rembo': [14.5601, 121.0601],
 };
 
 // GeoJSON boundaries are loaded from /makati-barangays.geojson (OSM Overpass API)
-// 32 of 33 barangays have boundary polygons; Rizal has no OSM boundary relation
-// This is set when the file is fetched and parsed
+// All 33 Makati barangays with full boundary polygons from live OSM data
 let BARANGAY_BOUNDARIES: any[] = [];
 
 export function MapView() {

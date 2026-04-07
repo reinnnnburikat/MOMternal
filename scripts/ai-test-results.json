@@ -1,0 +1,1047 @@
+{
+  "timestamp": "2026-04-07T23:39:10.339Z",
+  "total": 100,
+  "passed": 0,
+  "failed": 100,
+  "accuracy": "0.0%",
+  "categoryResults": {
+    "A": {
+      "total": 15,
+      "passed": 0
+    },
+    "B": {
+      "total": 20,
+      "passed": 0
+    },
+    "C": {
+      "total": 10,
+      "passed": 0
+    },
+    "D": {
+      "total": 15,
+      "passed": 0
+    },
+    "E": {
+      "total": 10,
+      "passed": 0
+    },
+    "F": {
+      "total": 10,
+      "passed": 0
+    },
+    "G": {
+      "total": 5,
+      "passed": 0
+    },
+    "H": {
+      "total": 5,
+      "passed": 0
+    },
+    "I": {
+      "total": 10,
+      "passed": 0
+    }
+  },
+  "results": [
+    {
+      "id": 1,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — normal pregnancy, all vitals normal",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 14
+    },
+    {
+      "id": 2,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — mild anemia (Hb 9.5)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 3,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — elevated BP (135/88)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 4,
+      "category": "A. Risk Stratification",
+      "name": "High risk — severe preeclampsia (BP 170/110)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 5,
+      "category": "A. Risk Stratification",
+      "name": "High risk — FHR bradycardia (100 bpm)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 6,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — routine 2nd trimester visit",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 7,
+      "category": "A. Risk Stratification",
+      "name": "High risk — severe anemia + hypertension",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 8,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — early pregnancy 8 weeks",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 9,
+      "category": "A. Risk.Stratification",
+      "name": "Moderate risk — gestational diabetes controlled",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 10,
+      "category": "A. Risk Stratification",
+      "name": "High risk — placental abruption signs",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 11,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — urinary tract infection",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 12,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — advanced maternal age 38",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 13,
+      "category": "A. Risk Stratification",
+      "name": "High risk — eclampsia seizure history",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 14,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — hypothyroidism",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 15,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — normal postpartum check",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 16,
+      "category": "B. Vital Signs",
+      "name": "Normal BP ≤120/80",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 17,
+      "category": "B. Vital Signs",
+      "name": "BP 125/82 (elevated)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 18,
+      "category": "B. Vital Signs",
+      "name": "BP 145/95 (HTN Stage 1)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 19,
+      "category": "B. Vital Signs",
+      "name": "BP 165/105 (HTN Stage 2)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 20,
+      "category": "B. Vital Signs",
+      "name": "BP 172/112 (severe range)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 21,
+      "category": "B. Vital Signs",
+      "name": "FHR 108 bpm (bradycardia)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 22,
+      "category": "B. Vital Signs",
+      "name": "FHR 162 bpm (tachycardia)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 23,
+      "category": "B. Vital Signs",
+      "name": "FHR 95 bpm (severe distress)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 24,
+      "category": "B. Vital Signs",
+      "name": "Temp 37.7°C (low-grade)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 25,
+      "category": "B. Vital Signs",
+      "name": "Temp 38.2°C (fever)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 26,
+      "category": "B. Vital Signs",
+      "name": "Temp 39.0°C (high fever)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 27,
+      "category": "B. Vital Signs",
+      "name": "Hb 10.5 (mild anemia)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 28,
+      "category": "B. Vital Signs",
+      "name": "Hb 7.5 (moderate anemia)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 29,
+      "category": "B. Vital Signs",
+      "name": "Hb 6.2 (severe anemia)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 30,
+      "category": "B. Vital Signs",
+      "name": "Glucose 96 (GDM threshold)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 31,
+      "category": "B. Vital Signs",
+      "name": "Glucose 130 (overt DM)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 32,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 1+ trace",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 33,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 2+ significant",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 34,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 3+ with HTN",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 35,
+      "category": "B. Vital Signs",
+      "name": "HR 110 (tachycardia borderline)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 36,
+      "category": "C. Trimester",
+      "name": "1st tri — hyperemesis gravidarum",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 37,
+      "category": "C. Trimester",
+      "name": "1st tri — folic acid guidance",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 38,
+      "category": "C. Trimester",
+      "name": "2nd tri — fetal movement education",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 39,
+      "category": "C. Trimester",
+      "name": "2nd tri — TT immunization",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 40,
+      "category": "C. Trimester",
+      "name": "2nd tri — GDM screening due",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 41,
+      "category": "C. Trimester",
+      "name": "3rd tri — preterm labor signs",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 42,
+      "category": "C. Trimester",
+      "name": "3rd tri — birth preparedness",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 43,
+      "category": "C. Trimester",
+      "name": "3rd tri — decreased fetal movements",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 44,
+      "category": "C. Trimester",
+      "name": "3rd tri — breastfeeding education",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 45,
+      "category": "C. Trimester",
+      "name": "3rd tri — danger sign awareness",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 46,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Infection",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 47,
+      "category": "D. NANDA",
+      "name": "NANDA: Anxiety",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 48,
+      "category": "D. NANDA",
+      "name": "NANDA: Fatigue",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 49,
+      "category": "D. NANDA",
+      "name": "NANDA: Imbalanced Nutrition",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 50,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Bleeding",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 51,
+      "category": "D. NANDA",
+      "name": "NANDA: Deficient Knowledge",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 52,
+      "category": "D. NANDA",
+      "name": "NANDA: Ineffective Coping",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 53,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Impaired Parenting",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 54,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Injury fetal",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 55,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Fluid Volume",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 56,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Perfusion",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 57,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Cerebral Perfusion",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 58,
+      "category": "D. NANDA",
+      "name": "NANDA: Decisional Conflict",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 59,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Shock",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 60,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Aspiration",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 61,
+      "category": "E. ICD-10",
+      "name": "ICD O10 — Pre-existing hypertension",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 62,
+      "category": "E. ICD-10",
+      "name": "ICD O12 — Gestational HTN",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 63,
+      "category": "E. ICD-10",
+      "name": "ICD O14 — Pre-eclampsia",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 64,
+      "category": "E. ICD-10",
+      "name": "ICD O24.3 — GDM",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 65,
+      "category": "E. ICD-10",
+      "name": "ICD O99.0 — Anemia",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 66,
+      "category": "E. ICD-10",
+      "name": "ICD O20 — Threatened abortion",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 67,
+      "category": "E. ICD-10",
+      "name": "ICD O60 — Preterm labor",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 68,
+      "category": "E. ICD-10",
+      "name": "ICD O23 — UTI",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 69,
+      "category": "E. ICD-10",
+      "name": "ICD O36 — Fetal concern",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 70,
+      "category": "E. ICD-10",
+      "name": "ICD O68 — Fetal stress in labor",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 71,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe headache + blurred vision",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 72,
+      "category": "F. Emergencies",
+      "name": "WHO: Vaginal bleeding active",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 73,
+      "category": "F. Emergencies",
+      "name": "WHO: Convulsions/seizures",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 74,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe abdominal pain",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 75,
+      "category": "F. Emergencies",
+      "name": "WHO: Extreme weakness",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 76,
+      "category": "F. Emergencies",
+      "name": "WHO: Reduced/absent fetal movements",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 77,
+      "category": "F. Emergencies",
+      "name": "WHO: Fever with infection signs",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 78,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe vomiting",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 79,
+      "category": "F. Emergencies",
+      "name": "WHO: Difficulty breathing",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 80,
+      "category": "F. Emergencies",
+      "name": "WHO: Face/hand swelling (sudden)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 81,
+      "category": "G. Cultural",
+      "name": "Filipino dietary counseling (rice-based)",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 82,
+      "category": "G. Cultural",
+      "name": "BHW community involvement",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 83,
+      "category": "G. Cultural",
+      "name": "Family decision-making support",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 84,
+      "category": "G. Cultural",
+      "name": "Malunggay/herbal medicine inquiry",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 85,
+      "category": "G. Cultural",
+      "name": "Financial constraints / PhilHealth awareness",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 86,
+      "category": "H. Edge Cases",
+      "name": "Missing data — all nulls",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 87,
+      "category": "H. Edge Cases",
+      "name": "Very early pregnancy 4 weeks",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 88,
+      "category": "H. Edge Cases",
+      "name": "Advanced maternal age 42 with G6P5",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 89,
+      "category": "H. Edge Cases",
+      "name": "Multiple risk factors combined",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 90,
+      "category": "H. Edge Cases",
+      "name": "Normal routine visit — no issues",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 91,
+      "category": "I. JSON Format",
+      "name": "JSON format: normal case",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 92,
+      "category": "I. JSON Format",
+      "name": "JSON format: moderate risk",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 93,
+      "category": "I. JSON Format",
+      "name": "JSON format: high risk",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 94,
+      "category": "I. JSON Format",
+      "name": "JSON format: minimal data",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 95,
+      "category": "I. JSON Format",
+      "name": "JSON format: with all fields populated",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 96,
+      "category": "I. JSON Format",
+      "name": "JSON format: 1st trimester",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 97,
+      "category": "I. JSON Format",
+      "name": "JSON format: 3rd trimester emergency",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 98,
+      "category": "I. JSON Format",
+      "name": "JSON format: postpartum",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    },
+    {
+      "id": 99,
+      "category": "I. JSON Format",
+      "name": "JSON format: overdose scenario",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 3
+    },
+    {
+      "id": 100,
+      "category": "I. JSON Format",
+      "name": "JSON format: high-risk with cultural data",
+      "passed": false,
+      "failures": [
+        "Error: API request failed with status 401: {\"error\":\"missing X-Token header\"}"
+      ],
+      "duration": 4
+    }
+  ]
+}
