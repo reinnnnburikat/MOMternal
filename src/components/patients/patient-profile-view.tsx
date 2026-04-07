@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Card,
   CardContent,
@@ -27,6 +28,9 @@ import {
   Activity,
   Heart,
   ShieldCheck,
+  Stethoscope,
+  UserCheck,
+  CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -64,6 +68,20 @@ interface ConsultationData {
   referralStatus: string;
   createdAt: string;
   updatedAt: string;
+  subjectiveSymptoms?: string | null;
+  objectiveVitals?: string | null;
+  fetalHeartRate?: string | null;
+  fundalHeight?: string | null;
+  allergies?: string | null;
+  medications?: string | null;
+  physicalExam?: string | null;
+  labResults?: string | null;
+  notes?: string | null;
+  icd10Diagnosis?: string | null;
+  nandaDiagnosis?: string | null;
+  selectedInterventions?: string | null;
+  evaluationNotes?: string | null;
+  referralSummary?: string | null;
 }
 
 const RISK_LABELS: Record<string, string> = {
@@ -79,14 +97,14 @@ const RISK_CLASSES: Record<string, string> = {
 };
 
 const STEP_LABELS: Record<number, string> = {
-  0: 'Not Started',
-  1: 'Subjective',
-  2: 'Objective',
-  3: 'Findings',
-  4: 'Diagnosis',
-  5: 'Risk Assessment',
-  6: 'AI Suggestions',
-  7: 'Evaluation',
+  0: 'Assessment (SOAP)',
+  1: 'Additional Findings',
+  2: 'Diagnosis',
+  3: 'Risk Classification',
+  4: 'AI Suggestions',
+  5: 'Nurse Selection',
+  6: 'Evaluation',
+  7: 'Referral',
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -139,6 +157,7 @@ export function PatientProfileView() {
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingConsultation, setIsCreatingConsultation] = useState(false);
+  const [viewingConsultation, setViewingConsultation] = useState<ConsultationData | null>(null);
 
   useEffect(() => {
     if (!selectedPatientId) {
@@ -195,9 +214,13 @@ export function PatientProfileView() {
     }
   };
 
-  const handleViewConsultation = (consultationId: string) => {
-    setSelectedConsultationId(consultationId);
-    setCurrentView('consultation');
+  const handleViewConsultation = (consultation: ConsultationData) => {
+    if (consultation.status === 'completed') {
+      setViewingConsultation(consultation);
+    } else {
+      setSelectedConsultationId(consultation.id);
+      setCurrentView('consultation');
+    }
   };
 
   if (isLoading) {
@@ -228,6 +251,16 @@ export function PatientProfileView() {
       age--;
     }
     return age;
+  };
+
+  const calculateAOG = (lmp: string) => {
+    const lmpDate = new Date(lmp);
+    const today = new Date();
+    const totalDays = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (totalDays < 0) return 'Invalid LMP';
+    const weeks = Math.floor(totalDays / 7);
+    const days = totalDays % 7;
+    return `${weeks}w ${days}d`;
   };
 
   return (
@@ -305,8 +338,8 @@ export function PatientProfileView() {
               <Heart className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">Age of Gestation</p>
-                <p className={`text-sm font-bold ${patient.aog ? 'text-rose-600' : 'text-muted-foreground'}`}>
-                  {patient.aog || 'Not available'}
+                <p className={`text-sm font-bold ${patient.aog || patient.lmp ? 'text-rose-600' : 'text-muted-foreground'}`}>
+                  {patient.aog || (patient.lmp ? calculateAOG(patient.lmp) : 'Not available')}
                 </p>
               </div>
             </div>
@@ -426,7 +459,9 @@ export function PatientProfileView() {
                           {consultation.status === 'completed' ? 'Completed' : 'In Progress'}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          Step {consultation.stepCompleted}/7 — {STEP_LABELS[consultation.stepCompleted] || 'Unknown'}
+                          {consultation.stepCompleted >= 7
+                            ? 'All steps completed'
+                            : `Step ${consultation.stepCompleted + 1} of 8 — ${STEP_LABELS[consultation.stepCompleted + 1] || 'In Progress'}`}
                         </span>
                       </div>
 
@@ -444,7 +479,7 @@ export function PatientProfileView() {
                       variant="outline"
                       size="sm"
                       className="text-xs border-rose-200 hover:bg-rose-50 gap-1 flex-shrink-0"
-                      onClick={() => handleViewConsultation(consultation.id)}
+                      onClick={() => handleViewConsultation(consultation)}
                     >
                       View
                       <ChevronRight className="h-3 w-3" />
@@ -456,6 +491,190 @@ export function PatientProfileView() {
           </div>
         )}
       </div>
+
+      {/* Consultation Detail Dialog */}
+      <Dialog open={!!viewingConsultation} onOpenChange={(open) => !open && setViewingConsultation(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <span className="font-mono text-sm text-rose-600">{viewingConsultation?.consultationNo}</span>
+              <span className="text-xs text-muted-foreground">
+                {viewingConsultation && format(new Date(viewingConsultation.consultationDate), 'MMMM d, yyyy')}
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+          {viewingConsultation && (
+            <div className="space-y-4 mt-2">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${RISK_CLASSES[viewingConsultation.riskLevel] || RISK_CLASSES.low}`}>
+                  {RISK_LABELS[viewingConsultation.riskLevel] || 'Low Risk'}
+                </span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-50 text-emerald-700 border-emerald-200">
+                  Completed
+                </span>
+                {viewingConsultation.referralStatus === 'completed' && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200">
+                    Referred
+                  </span>
+                )}
+              </div>
+
+              {viewingConsultation.subjectiveSymptoms && (
+                <div className="rounded-lg border border-rose-100 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><Stethoscope className="h-3 w-3" /> Subjective (Symptoms)</p>
+                  <p className="text-sm text-foreground">{viewingConsultation.subjectiveSymptoms}</p>
+                </div>
+              )}
+
+              {viewingConsultation.objectiveVitals && (
+                <div className="rounded-lg border border-rose-100 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><Activity className="h-3 w-3" /> Objective (Vitals)</p>
+                  <VitalsDisplay raw={viewingConsultation.objectiveVitals} />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                {viewingConsultation.fetalHeartRate && (
+                  <div className="rounded-lg border border-rose-100 p-3">
+                    <p className="text-xs text-muted-foreground">Fetal Heart Rate</p>
+                    <p className="text-sm font-semibold text-foreground">{viewingConsultation.fetalHeartRate}</p>
+                  </div>
+                )}
+                {viewingConsultation.fundalHeight && (
+                  <div className="rounded-lg border border-rose-100 p-3">
+                    <p className="text-xs text-muted-foreground">Fundal Height</p>
+                    <p className="text-sm font-semibold text-foreground">{viewingConsultation.fundalHeight}</p>
+                  </div>
+                )}
+              </div>
+
+              {(viewingConsultation.physicalExam || viewingConsultation.labResults) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {viewingConsultation.physicalExam && (
+                    <div className="rounded-lg border border-rose-100 p-3">
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Physical Exam</p>
+                      <p className="text-sm text-foreground">{viewingConsultation.physicalExam}</p>
+                    </div>
+                  )}
+                  {viewingConsultation.labResults && (
+                    <div className="rounded-lg border border-rose-100 p-3">
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">Lab Results</p>
+                      <p className="text-sm text-foreground">{viewingConsultation.labResults}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {(viewingConsultation.icd10Diagnosis || viewingConsultation.nandaDiagnosis) && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground">Diagnosis</h4>
+                  {viewingConsultation.icd10Diagnosis && (
+                    <div className="rounded-lg border border-rose-100 p-3">
+                      <p className="text-xs text-muted-foreground">ICD-10</p>
+                      <p className="text-sm text-foreground">{viewingConsultation.icd10Diagnosis}</p>
+                    </div>
+                  )}
+                  {viewingConsultation.nandaDiagnosis && (
+                    <div className="rounded-lg border border-rose-100 p-3">
+                      <p className="text-xs text-muted-foreground">NANDA-I</p>
+                      <p className="text-sm text-foreground">{viewingConsultation.nandaDiagnosis}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {viewingConsultation.selectedInterventions && (
+                <div className="rounded-lg border border-rose-100 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1"><UserCheck className="h-3 w-3" /> Selected Interventions</p>
+                  <InterventionList raw={viewingConsultation.selectedInterventions} />
+                </div>
+              )}
+
+              {viewingConsultation.evaluationStatus && (
+                <div className="rounded-lg border border-rose-100 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Evaluation (NOC)</p>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                    viewingConsultation.evaluationStatus === 'achieved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                    viewingConsultation.evaluationStatus === 'partially' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                    'bg-red-50 text-red-700 border-red-200'
+                  }`}>
+                    {viewingConsultation.evaluationStatus === 'achieved' ? 'Achieved' :
+                     viewingConsultation.evaluationStatus === 'partially' ? 'Partially Achieved' : 'Not Achieved'}
+                  </span>
+                  {viewingConsultation.evaluationNotes && (
+                    <p className="text-sm text-muted-foreground mt-2">{viewingConsultation.evaluationNotes}</p>
+                  )}
+                </div>
+              )}
+
+              {viewingConsultation.referralSummary && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+                  <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Referral Summary</p>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">{viewingConsultation.referralSummary}</p>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2 border-t">
+                <Button size="sm" variant="outline" className="border-rose-200" onClick={() => setViewingConsultation(null)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function VitalsDisplay({ raw }: { raw: string }) {
+  const vitals = useMemo(() => {
+    try {
+      return JSON.parse(raw) as Record<string, string>;
+    } catch {
+      return null;
+    }
+  }, [raw]);
+
+  if (!vitals) {
+    return <p className="text-sm text-foreground">{raw}</p>;
+  }
+
+  return (
+    <div className="space-y-1 text-sm">
+      {Object.entries(vitals).map(([key, value]) => (
+        <div key={key} className="flex justify-between">
+          <span className="text-xs text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+          <span className="font-medium text-foreground">{String(value)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InterventionList({ raw }: { raw: string }) {
+  const items = useMemo(() => {
+    try {
+      const parsed = JSON.parse(raw);
+      const list = Array.isArray(parsed) ? parsed : [parsed];
+      return list.map((item: unknown) =>
+        typeof item === 'string' ? item : (item as Record<string, string>)?.name || JSON.stringify(item)
+      );
+    } catch {
+      return [] as string[];
+    }
+  }, [raw]);
+
+  if (items.length === 0) {
+    return <p className="text-sm text-foreground">{raw}</p>;
+  }
+
+  return (
+    <ul className="space-y-1.5">
+      {items.map((name, i) => (
+        <li key={i} className="flex items-start gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 flex-shrink-0" />
+          <span className="text-sm text-foreground">{name}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

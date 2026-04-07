@@ -30,6 +30,7 @@ import {
   List,
   PlayCircle,
   TrendingUp,
+  ShieldCheck,
 } from 'lucide-react';
 
 // ---------- types ----------
@@ -66,13 +67,14 @@ interface PausedConsultation {
 // ---------- helpers ----------
 
 const STEP_LABELS: Record<number, string> = {
-  1: 'Subjective Assessment',
-  2: 'Vitals & Objective Data',
-  3: 'Additional Findings',
-  4: 'Diagnosis',
-  5: 'Risk Assessment',
-  6: 'Interventions',
-  7: 'Evaluation & Plan',
+  0: 'Assessment (SOAP)',
+  1: 'Additional Findings',
+  2: 'Diagnosis',
+  3: 'Risk Classification',
+  4: 'AI Suggestions',
+  5: 'Nurse Selection (HITL)',
+  6: 'Evaluation (NOC)',
+  7: 'Referral',
 };
 
 function getRiskBadgeClass(riskLevel: string) {
@@ -112,8 +114,8 @@ function getStatusBadge(status: string) {
 
 function StatsCardsSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {Array.from({ length: 4 }).map((_, i) => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {Array.from({ length: 5 }).map((_, i) => (
         <Card key={i}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -242,6 +244,8 @@ export function DashboardView() {
 
   // --- stats cards config ---
 
+  const lowRiskPatients = stats ? (stats.totalPatients - stats.highRiskPatients - stats.moderateRiskPatients) : 0;
+
   const statsCards = stats
     ? [
         {
@@ -253,6 +257,16 @@ export function DashboardView() {
           trend: stats.monthlyTrend.length > 0
             ? `${stats.monthlyTrend[stats.monthlyTrend.length - 1].count} this month`
             : undefined,
+        },
+        {
+          label: 'Low Risk',
+          value: lowRiskPatients,
+          icon: ShieldCheck,
+          color: 'text-emerald-600',
+          bg: 'bg-emerald-50',
+          trend: lowRiskPatients > 0
+            ? 'Stable'
+            : 'No low-risk patients',
         },
         {
           label: 'High Risk Patients',
@@ -278,8 +292,8 @@ export function DashboardView() {
           label: 'Recent Consultations',
           value: stats.recentConsultations.length,
           icon: Activity,
-          color: 'text-emerald-600',
-          bg: 'bg-emerald-50',
+          color: 'text-rose-600',
+          bg: 'bg-rose-50',
           trend: stats.consultationsByRisk
             ? `${stats.consultationsByRisk.low} low · ${stats.consultationsByRisk.moderate} mod · ${stats.consultationsByRisk.high} high`
             : undefined,
@@ -303,7 +317,7 @@ export function DashboardView() {
       {isLoadingStats ? (
         <StatsCardsSkeleton />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {statsCards.map((card) => {
             const Icon = card.icon;
             return (

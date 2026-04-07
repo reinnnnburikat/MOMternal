@@ -177,6 +177,17 @@ export function PatientListView() {
     return format(new Date(dateStr), 'MMM d, yyyy');
   };
 
+  const calculateAOG = (lmp: string | null) => {
+    if (!lmp) return '';
+    const lmpDate = new Date(lmp);
+    const today = new Date();
+    const totalDays = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (totalDays < 0) return '';
+    const weeks = Math.floor(totalDays / 7);
+    const days = totalDays % 7;
+    return `${weeks}w ${days}d`;
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -346,9 +357,9 @@ export function PatientListView() {
                     <span>LMP: {formatDate(patient.lmp)}</span>
                   </div>
                 )}
-                {patient.aog && (
+                {(patient.aog || patient.lmp) && (
                   <span className="font-medium text-rose-600">
-                    AOG: {patient.aog}
+                    AOG: {patient.aog || calculateAOG(patient.lmp)}
                   </span>
                 )}
                 {patient.latestConsultationDate && (

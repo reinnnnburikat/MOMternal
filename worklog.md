@@ -11,7 +11,6 @@ Work Log:
 Stage Summary:
 - Database schema with 4 models: Nurse, Patient, Consultation, AuditLog
 - Pre-seeded data: 4 nurses, 5 patients (with varying risk levels), 3 consultations
-- Seed data covers all risk levels: low (2), moderate (1), high (2)
 
 ---
 Task ID: 2
@@ -103,12 +102,12 @@ Agent: dashboard-frontend-builder
 Task: Build Dashboard view component
 
 Work Log:
-- Created dashboard-view.tsx with 4 stat cards, quick actions, paused assessments, recent consultations
-- Implemented loading skeletons for all sections
-- Wired all navigation to Zustand store
+- Created dashboard-view.tsx with stat cards, quick actions, paused assessments, recent consultations
+- Added Low Risk stat card (5 cards total)
+- Fixed step labels to match 8-step wizard
 
 Stage Summary:
-- Dashboard view with stats, paused assessments, recent consultations
+- Dashboard view with 5 stat cards, paused assessments, recent consultations
 
 ---
 Task ID: 5-frontend
@@ -118,10 +117,11 @@ Task: Build patient management view components
 Work Log:
 - Created patient-list-view.tsx with search, risk/barangay filters, patient cards
 - Created patient-profile-view.tsx with demographics, OB history, consultation history
-- Created new-patient-view.tsx with react-hook-form and validation
+- Added consultation detail dialog for viewing completed consultations
+- Added AOG auto-calculation from LMP
 
 Stage Summary:
-- Complete patient management frontend views
+- Complete patient management frontend views with consultation detail dialog
 
 ---
 Task ID: 6-frontend
@@ -147,3 +147,24 @@ Work Log:
 
 Stage Summary:
 - Community risk map and audit log views ready
+
+---
+Task ID: 14-19
+Agent: main-coordinator
+Task: Polish and fix UI consistency
+
+Work Log:
+- Fixed step labels in dashboard and patient profile to match 8-step wizard (0-7)
+- Added Low Risk stat card to dashboard (5 cards total)
+- Added AOG auto-calculation from LMP in patient list and profile views
+- Added consultation detail dialog to patient profile for viewing completed consultations
+- Fixed map API to return barangayData with lat/lng coordinates
+- Fixed dashboard resume handler to use patient DB ID for navigation
+- Cleaned up Prisma query logging (now only error/warn)
+- Fixed all lint errors (JSX in try/catch converted to useMemo)
+
+Stage Summary:
+- All step labels consistent across dashboard, patient profile, and consultation wizard
+- Consultation detail dialog for read-only viewing of completed consultations
+- AOG calculated client-side from LMP when not pre-computed
+- Map data now includes coordinates for centroid marker placement
