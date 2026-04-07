@@ -168,3 +168,60 @@ Stage Summary:
 - Consultation detail dialog for read-only viewing of completed consultations
 - AOG calculated client-side from LMP when not pre-computed
 - Map data now includes coordinates for centroid marker placement
+
+---
+Task ID: 2a
+Agent: main-coordinator
+Task: Fix Risk Map, remove seeded patients, standardize padding
+
+Work Log:
+- Fixed Risk Map: Changed from CDN CSS injection to local `import 'leaflet/dist/leaflet.css'`
+- Removed all seeded patients/consultations from seed script — only 4 nurse accounts remain
+- Reset SQLite database and reseeded with nurses-only data
+- Standardized spacing: space-y-6 for all view wrappers (was space-y-4)
+- Standardized stat card grids: gap-4 (was gap-3)
+- Standardized stat card padding: p-5 on CardContent (was px-4/py-4)
+- Removed py-0 gap-0 hacks from dashboard cards
+- Updated map-view, dashboard-view, patient-list-view, consultation-view, audit-view
+
+Stage Summary:
+- Map renders properly with local Leaflet CSS import
+- Patient count starts from 0 as requested
+- Consistent padding/spacing across all system views
+
+---
+Task ID: 5
+Agent: main-coordinator
+Task: Push code to GitHub
+
+Work Log:
+- Added GitHub remote: https://github.com/reinnnnburikat/MOMternal.git
+- Made initial push with all project files
+- Committed map fix, seed cleanup, padding standardization
+
+Stage Summary:
+- Code pushed to GitHub main branch
+
+---
+Task ID: 6
+Agent: main-coordinator + subagent
+Task: Migrate from SQLite/Prisma to Supabase PostgreSQL
+
+Work Log:
+- Installed @supabase/supabase-js and pg packages
+- Created pg Pool client utility (src/lib/supabase.ts) for direct PostgreSQL access
+- Created snake_case/camelCase conversion utilities (src/lib/case.ts)
+- Created SQL migration file with proper schema and indexes
+- Executed migration on Supabase: 4 tables created (nurse, patient, consultation, audit_log)
+- Seeded 4 nurse accounts on Supabase (password: nurse123)
+- Migrated all 12 API routes from Prisma ORM to raw SQL queries via pg Pool
+- Updated .env DATABASE_URL to point to Supabase PostgreSQL
+- All routes maintain exact same API response format for frontend compatibility
+- Passed lint with zero errors
+
+Stage Summary:
+- Database fully migrated to Supabase PostgreSQL (aws-1-ap-southeast-1)
+- All 12 API routes use pg Pool with parameterized queries
+- snake_case DB columns → camelCase API responses via mapping utilities
+- Nurse accounts seeded: nurse.santos, nurse.reyes, nurse.cruz, admin (password: nurse123)
+- No patients seeded — starts from 0 as requested
