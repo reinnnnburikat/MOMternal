@@ -10,7 +10,7 @@ export async function GET() {
       },
       include: {
         patient: {
-          select: { name: true, patientId: true },
+          select: { id: true, name: true, patientId: true },
         },
       },
       orderBy: { updatedAt: "desc" },

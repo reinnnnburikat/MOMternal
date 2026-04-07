@@ -60,7 +60,7 @@ interface PausedConsultation {
   patientId: string;
   stepCompleted: number;
   updatedAt: string;
-  patient: { name: string; patientId: string };
+  patient: { id: string; name: string; patientId: string };
 }
 
 // ---------- helpers ----------
@@ -231,11 +231,12 @@ export function DashboardView() {
 
   const handleResume = (consultation: PausedConsultation) => {
     setSelectedConsultationId(consultation.id);
+    useAppStore.getState().setSelectedPatientId(consultation.patientId);
     setCurrentView('consultation');
   };
 
-  const handleViewPatient = (patientId: string) => {
-    useAppStore.getState().setSelectedPatientId(patientId);
+  const handleViewPatient = (patientDbId: string) => {
+    useAppStore.getState().setSelectedPatientId(patientDbId);
     setCurrentView('patient-profile');
   };
 
@@ -394,7 +395,7 @@ export function DashboardView() {
                     <div className="space-y-1">
                       <button
                         type="button"
-                        onClick={() => handleViewPatient(c.patient.patientId)}
+                        onClick={() => handleViewPatient(c.patient.id)}
                         className="text-sm font-semibold text-rose-900 hover:text-rose-700 hover:underline transition-colors"
                       >
                         {c.patient.name}
@@ -449,7 +450,7 @@ export function DashboardView() {
                       <TableCell>
                         <button
                           type="button"
-                          onClick={() => handleViewPatient(c.patient.patientId)}
+                          onClick={() => handleViewPatient(c.patient.id)}
                           className="text-sm font-medium text-foreground hover:text-rose-600 hover:underline transition-colors"
                         >
                           {c.patient.name}
