@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Nurse {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String
+  licenseNo    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  consultations Consultation[]
+  auditLogs     AuditLog[]
+}
+
+model Patient {
+  id              String         @id @default(cuid())
+  patientId       String         @unique // e.g. "MOM-2025-001"
+  name            String
+  dateOfBirth     DateTime
+  address         String
+  contactNumber   String?
+  emergencyContact String?
+  emergencyRelation String?
+  gravidity       Int            @default(0) // G - number of pregnancies
+  parity          Int            @default(0) // P - number of births
+  lmp             DateTime?      // Last Menstrual Period
+  aog             String?        // Age of Gestation (calculated)
+  bloodType       String?
+  allergies       String?
+  medicalHistory  String?
+  barangay        String?
+  riskLevel       String         @default("low") // low, moderate, high
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  consultations   Consultation[]
+}
+
+model Consultation {
+  id              String          @id @default(cuid())
+  consultationNo  String          @unique // e.g. "CONSULT-001"
+  patientId       String
+  patient         Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  nurseId         String
+  nurse           Nurse           @relation(fields: [nurseId], references: [id])
+  consultationDate DateTime       @default(now())
+  stepCompleted   Int             @default(0) // for wizard resume (0-7)
+  status          String          @default("in_progress") // in_progress, completed
+  // SOAP Assessment
+  subjectiveSymptoms String?
+  objectiveVitals   String?       // JSON string of vitals
+  fetalHeartRate    String?
+  fundalHeight      String?
+  allergies         String?
+  medications       String?
+  // Additional Findings
+  physicalExam      String?
+  labResults        String?
+  notes             String?
+  // Diagnosis
+  icd10Diagnosis    String?
+  nandaDiagnosis    String?
+  // Risk
+  riskLevel         String         @default("low")
+  // AI
+  aiSuggestions     String?        // JSON string of AI suggestions
+  selectedInterventions String?    // JSON string of selected interventions
+  // Evaluation
+  evaluationStatus  String?        // achieved, partially, not_achieved
+  evaluationNotes   String?
+  // Referral
+  referralSummary   String?
+  referralStatus    String         @default("none") // none, pending, completed
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  nurseId   String
+  nurse     Nurse    @relation(fields: [nurseId], references: [id])
+  action    String   // create, update, delete
+  entity    String   // patient, consultation, etc.
+  entityId  String?
+  details   String?  // JSON string of changes
+  timestamp DateTime @default(now())
+}

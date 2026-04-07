@@ -1,0 +1,1500 @@
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useAppStore } from '@/store/app-store';
+import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Stethoscope,
+  ClipboardPlus,
+  Activity,
+  Brain,
+  ShieldAlert,
+  Sparkles,
+  UserCheck,
+  CheckCircle2,
+  FileText,
+  ChevronRight,
+  ChevronLeft,
+  Save,
+  AlertTriangle,
+  RefreshCw,
+  Copy,
+  Download,
+  Baby,
+  Heart,
+  Thermometer,
+  Weight,
+  Wind,
+  Plus,
+  Trash2,
+  Loader2,
+  Shield,
+  Info,
+} from 'lucide-react';
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface PatientInfo {
+  id: string;
+  patientId: string;
+  name: string;
+  dateOfBirth?: string;
+  bloodType?: string | null;
+  gravidity?: number;
+  parity?: number;
+  aog?: string | null;
+  riskLevel?: string;
+}
+
+interface ConsultationData {
+  id: string;
+  consultationNo: string;
+  consultationDate: string;
+  stepCompleted: number;
+  status: string;
+  patient: PatientInfo;
+  // SOAP Assessment
+  subjectiveSymptoms?: string | null;
+  objectiveVitals?: string | null;
+  fetalHeartRate?: string | null;
+  fundalHeight?: string | null;
+  allergies?: string | null;
+  medications?: string | null;
+  // Additional Findings
+  physicalExam?: string | null;
+  labResults?: string | null;
+  notes?: string | null;
+  // Diagnosis
+  icd10Diagnosis?: string | null;
+  nandaDiagnosis?: string | null;
+  // Risk
+  riskLevel?: string;
+  // AI
+  aiSuggestions?: string | null;
+  selectedInterventions?: string | null;
+  // Evaluation
+  evaluationStatus?: string | null;
+  evaluationNotes?: string | null;
+  // Referral
+  referralSummary?: string | null;
+  referralStatus?: string;
+}
+
+interface AISuggestion {
+  interventions: Array<{
+    name: string;
+    description: string;
+    category: string;
+  }>;
+  priorityIntervention: string;
+  rationale: string;
+  preventionLevel: string;
+  rawResponse?: string;
+}
+
+interface VitalsForm {
+  bloodPressure: string;
+  heartRate: string;
+  temperature: string;
+  weight: string;
+  respiratoryRate: string;
+}
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
+const STEP_META = [
+  { label: 'Assessment', shortLabel: 'SOAP', icon: Stethoscope },
+  { label: 'Findings', shortLabel: 'Findings', icon: ClipboardPlus },
+  { label: 'Diagnosis', shortLabel: 'Dx', icon: Activity },
+  { label: 'Risk Level', shortLabel: 'Risk', icon: ShieldAlert },
+  { label: 'AI Suggest', shortLabel: 'AI', icon: Sparkles },
+  { label: 'Nurse Select', shortLabel: 'HITL', icon: UserCheck },
+  { label: 'Evaluation', shortLabel: 'Eval', icon: CheckCircle2 },
+  { label: 'Referral', shortLabel: 'Refer', icon: FileText },
+] as const;
+
+const TOTAL_STEPS = STEP_META.length;
+
+const DEFAULT_VITALS: VitalsForm = {
+  bloodPressure: '',
+  heartRate: '',
+  temperature: '',
+  weight: '',
+  respiratoryRate: '',
+};
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function parseVitals(raw: string | null | undefined): VitalsForm {
+  if (!raw) return { ...DEFAULT_VITALS };
+  try {
+    return { ...DEFAULT_VITALS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_VITALS };
+  }
+}
+
+function stringifyVitals(v: VitalsForm): string {
+  return JSON.stringify(v);
+}
+
+function parseAI(raw: string | null | undefined): AISuggestion | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function parseSelectedInterventions(raw: string | null | undefined): Array<{ name: string; description?: string }> {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+// Map backend stepCompleted to frontend step index
+function resolveStartStep(backendStep: number): number {
+  if (backendStep <= 0) return 0;
+  // The backend step 1=subjective, 2=objective (both part of FE step 0)
+  // Backend step 3=findings (FE step 1), etc.
+  // When backend step is 1 or 2, user finished SOAP → start at FE step 1
+  if (backendStep <= 2) return 1;
+  if (backendStep <= 3) return 2;
+  if (backendStep <= 4) return 3;
+  if (backendStep <= 5) return 4;
+  if (backendStep <= 6) return 5;
+  return 7;
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
+export function ConsultationView() {
+  const selectedConsultationId = useAppStore((s) => s.selectedConsultationId);
+  const goBack = useAppStore((s) => s.goBack);
+  const updateActivity = useAppStore((s) => s.updateActivity);
+
+  // ── State ──
+  const [consultation, setConsultation] = useState<ConsultationData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [customIntervention, setCustomIntervention] = useState('');
+  const isInitialized = useRef(false);
+
+  // ── Form fields ──
+  const [subjectiveSymptoms, setSubjectiveSymptoms] = useState('');
+  const [vitals, setVitals] = useState<VitalsForm>({ ...DEFAULT_VITALS });
+  const [fetalHeartRate, setFetalHeartRate] = useState('');
+  const [fundalHeight, setFundalHeight] = useState('');
+  const [allergies, setAllergies] = useState('');
+  const [medications, setMedications] = useState('');
+  const [physicalExam, setPhysicalExam] = useState('');
+  const [labResults, setLabResults] = useState('');
+  const [notes, setNotes] = useState('');
+  const [icd10Diagnosis, setIcd10Diagnosis] = useState('');
+  const [nandaDiagnosis, setNandaDiagnosis] = useState('');
+  const [riskLevel, setRiskLevel] = useState('');
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion | null>(null);
+  const [selectedInterventions, setSelectedInterventions] = useState<Array<{ name: string; description?: string }>>([]);
+  const [evaluationStatus, setEvaluationStatus] = useState('');
+  const [evaluationNotes, setEvaluationNotes] = useState('');
+  const [referralSummary, setReferralSummary] = useState('');
+
+  // ── Fetch consultation on mount ──
+  useEffect(() => {
+    if (!selectedConsultationId) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchConsultation() {
+      try {
+        const res = await fetch(`/api/consultations/${selectedConsultationId}`);
+        if (!res.ok) throw new Error('Failed to fetch consultation');
+        const data = await res.json();
+        setConsultation(data);
+
+        // Populate form fields from existing data
+        setSubjectiveSymptoms(data.subjectiveSymptoms || '');
+        setVitals(parseVitals(data.objectiveVitals));
+        setFetalHeartRate(data.fetalHeartRate || '');
+        setFundalHeight(data.fundalHeight || '');
+        setAllergies(data.allergies || '');
+        setMedications(data.medications || '');
+        setPhysicalExam(data.physicalExam || '');
+        setLabResults(data.labResults || '');
+        setNotes(data.notes || '');
+        setIcd10Diagnosis(data.icd10Diagnosis || '');
+        setNandaDiagnosis(data.nandaDiagnosis || '');
+        setRiskLevel(data.riskLevel || '');
+        setAiSuggestions(parseAI(data.aiSuggestions));
+        setSelectedInterventions(parseSelectedInterventions(data.selectedInterventions));
+        setEvaluationStatus(data.evaluationStatus || '');
+        setEvaluationNotes(data.evaluationNotes || '');
+        setReferralSummary(data.referralSummary || '');
+
+        // Set current step from stepCompleted
+        const startStep = resolveStartStep(data.stepCompleted);
+        setCurrentStep(startStep);
+        isInitialized.current = true;
+      } catch (err) {
+        console.error('Error fetching consultation:', err);
+        toast.error('Failed to load consultation');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchConsultation();
+  }, [selectedConsultationId]);
+
+  // ── Auto-save on unmount / navigate away ──
+  useEffect(() => {
+    return () => {
+      // Only save if initialized
+      if (isInitialized.current && selectedConsultationId) {
+        saveCurrentStepSilent();
+      }
+    };
+  }, []);
+
+  // ── Save function ──
+  const buildSavePayload = useCallback(
+    (step: number): Record<string, unknown> => {
+      const payload: Record<string, unknown> = {};
+      switch (step) {
+        case 0:
+          if (subjectiveSymptoms) payload.subjectiveSymptoms = subjectiveSymptoms;
+          payload.objectiveVitals = stringifyVitals(vitals);
+          if (fetalHeartRate) payload.fetalHeartRate = fetalHeartRate;
+          if (fundalHeight) payload.fundalHeight = fundalHeight;
+          if (allergies) payload.allergies = allergies;
+          if (medications) payload.medications = medications;
+          break;
+        case 1:
+          if (physicalExam) payload.physicalExam = physicalExam;
+          if (labResults) payload.labResults = labResults;
+          if (notes) payload.notes = notes;
+          break;
+        case 2:
+          if (icd10Diagnosis) payload.icd10Diagnosis = icd10Diagnosis;
+          if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
+          break;
+        case 3:
+          if (riskLevel) payload.riskLevel = riskLevel;
+          break;
+        case 4:
+          // AI suggestions are saved by the AI endpoint
+          break;
+        case 5:
+          payload.selectedInterventions = JSON.stringify(selectedInterventions);
+          break;
+        case 6:
+          if (evaluationStatus) payload.evaluationStatus = evaluationStatus;
+          if (evaluationNotes) payload.evaluationNotes = evaluationNotes;
+          break;
+        case 7:
+          // Referral is saved by the referral endpoint
+          break;
+      }
+      return payload;
+    },
+    [
+      subjectiveSymptoms,
+      vitals,
+      fetalHeartRate,
+      fundalHeight,
+      allergies,
+      medications,
+      physicalExam,
+      labResults,
+      notes,
+      icd10Diagnosis,
+      nandaDiagnosis,
+      riskLevel,
+      selectedInterventions,
+      evaluationStatus,
+      evaluationNotes,
+    ]
+  );
+
+  const saveStep = useCallback(
+    async (step: number): Promise<boolean> => {
+      if (!selectedConsultationId) return false;
+      const payload = buildSavePayload(step);
+      if (Object.keys(payload).length === 0) return true;
+
+      setSaving(true);
+      try {
+        const res = await fetch(`/api/consultations/${selectedConsultationId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        const updated = await res.json();
+        setConsultation(updated);
+        toast.success('Progress saved');
+        updateActivity();
+        return true;
+      } catch {
+        toast.error('Failed to save progress');
+        return false;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [selectedConsultationId, buildSavePayload, updateActivity]
+  );
+
+  const saveCurrentStepSilent = useCallback(async () => {
+    if (!selectedConsultationId) return;
+    const payload = buildSavePayload(currentStep);
+    if (Object.keys(payload).length === 0) return;
+    try {
+      await fetch(`/api/consultations/${selectedConsultationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // Silent save — don't show errors
+    }
+  }, [selectedConsultationId, buildSavePayload, currentStep]);
+
+  // ── Navigation ──
+  const goToStep = useCallback(
+    async (targetStep: number) => {
+      // Save current step before navigating
+      await saveStep(currentStep);
+      setCurrentStep(targetStep);
+      updateActivity();
+    },
+    [currentStep, saveStep, updateActivity]
+  );
+
+  const handleNext = useCallback(async () => {
+    if (currentStep < TOTAL_STEPS - 1) {
+      await goToStep(currentStep + 1);
+    }
+  }, [currentStep, goToStep]);
+
+  const handleBack = useCallback(async () => {
+    if (currentStep > 0) {
+      await goToStep(currentStep - 1);
+    }
+  }, [currentStep, goToStep]);
+
+  const handleComplete = useCallback(async () => {
+    await saveStep(currentStep);
+    goBack();
+    toast.success('Consultation completed!');
+  }, [currentStep, saveStep, goBack]);
+
+  // ── AI Suggest ──
+  const handleAiSuggest = useCallback(async () => {
+    if (!selectedConsultationId) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('AI suggestion failed');
+      const data = await res.json();
+      setAiSuggestions(data.aiSuggestions);
+      toast.success('AI suggestions generated');
+      updateActivity();
+    } catch {
+      toast.error('Failed to generate AI suggestions');
+    } finally {
+      setAiLoading(false);
+    }
+  }, [selectedConsultationId, updateActivity]);
+
+  // ── Generate Referral ──
+  const handleGenerateReferral = useCallback(async () => {
+    if (!selectedConsultationId) return;
+    setReferralLoading(true);
+    try {
+      // Save evaluation first
+      await saveStep(currentStep);
+      const res = await fetch(`/api/consultations/${selectedConsultationId}/referral`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Referral generation failed');
+      const data = await res.json();
+      setReferralSummary(data.referralSummary);
+      toast.success('Referral generated');
+      updateActivity();
+    } catch {
+      toast.error('Failed to generate referral');
+    } finally {
+      setReferralLoading(false);
+    }
+  }, [selectedConsultationId, currentStep, saveStep, updateActivity]);
+
+  // ── HITL Intervention Management ──
+  const toggleAiIntervention = useCallback(
+    (intervention: { name: string; description: string }) => {
+      setSelectedInterventions((prev) => {
+        const exists = prev.some((i) => i.name === intervention.name);
+        if (exists) return prev.filter((i) => i.name !== intervention.name);
+        return [...prev, { name: intervention.name, description: intervention.description }];
+      });
+    },
+    []
+  );
+
+  const addCustomIntervention = useCallback(() => {
+    const trimmed = customIntervention.trim();
+    if (!trimmed) return;
+    setSelectedInterventions((prev) => [...prev, { name: trimmed }]);
+    setCustomIntervention('');
+  }, [customIntervention]);
+
+  const removeIntervention = useCallback((name: string) => {
+    setSelectedInterventions((prev) => prev.filter((i) => i.name !== name));
+  }, []);
+
+  // ── Clipboard & Download ──
+  const handleCopyToClipboard = useCallback(async () => {
+    if (!referralSummary) return;
+    try {
+      await navigator.clipboard.writeText(referralSummary);
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Failed to copy');
+    }
+  }, [referralSummary]);
+
+  const handleDownloadTxt = useCallback(() => {
+    if (!referralSummary) return;
+    const blob = new Blob([referralSummary], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `referral-${consultation?.consultationNo || 'consultation'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Downloaded');
+  }, [referralSummary, consultation]);
+
+  // ── Render helpers ──
+  const canProceed = (): boolean => {
+    switch (currentStep) {
+      case 3:
+        return riskLevel.length > 0;
+      case 4:
+        return aiSuggestions !== null;
+      default:
+        return true;
+    }
+  };
+
+  // ─── Loading State ──────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+        </div>
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-60" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!consultation) {
+    return (
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="py-12 text-center">
+          <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+          <p className="text-amber-800 font-medium">No consultation selected</p>
+          <p className="text-amber-600 text-sm mt-1">Please select a consultation to continue.</p>
+          <Button variant="outline" className="mt-4" onClick={goBack}>
+            Go Back
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // ─── Step Progress Indicator ─────────────────────────────────────────────
+
+  const StepProgress = () => (
+    <div className="bg-white rounded-xl border border-rose-100 shadow-sm p-3 sm:p-4 mb-4">
+      <div className="flex items-center">
+        {STEP_META.map((step, idx) => {
+          const Icon = step.icon;
+          const isCompleted = idx < currentStep;
+          const isCurrent = idx === currentStep;
+          const isFuture = idx > currentStep;
+
+          return (
+            <div key={idx} className="flex items-center flex-1 last:flex-initial">
+              {/* Step circle + label */}
+              <button
+                onClick={() => {
+                  if (idx <= currentStep) goToStep(idx);
+                }}
+                disabled={idx > currentStep}
+                className="flex flex-col items-center gap-1 min-w-0"
+              >
+                <div
+                  className={`
+                    flex items-center justify-center rounded-full transition-all duration-200
+                    ${isCompleted ? 'bg-rose-600 text-white shadow-sm shadow-rose-200' : ''}
+                    ${isCurrent ? 'bg-rose-600 text-white ring-4 ring-rose-100 shadow-sm shadow-rose-200 scale-110' : ''}
+                    ${isFuture ? 'bg-gray-100 text-gray-400' : ''}
+                    ${idx <= currentStep ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed'}
+                    h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm font-semibold
+                  `}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <span>{idx + 1}</span>
+                  )}
+                </div>
+                {/* Label: hidden on very small screens, short on mobile, full on desktop */}
+                <span
+                  className={`
+                    text-[9px] sm:text-[10px] lg:text-xs text-center leading-tight truncate max-w-[56px] lg:max-w-[72px]
+                    ${isCurrent ? 'text-rose-700 font-semibold' : ''}
+                    ${isCompleted ? 'text-rose-600 font-medium' : ''}
+                    ${isFuture ? 'text-gray-400' : ''}
+                  `}
+                >
+                  <span className="hidden sm:inline">{step.label}</span>
+                  <span className="sm:hidden">{step.shortLabel}</span>
+                </span>
+              </button>
+
+              {/* Connector line */}
+              {idx < TOTAL_STEPS - 1 && (
+                <div className="flex-1 mx-1 sm:mx-2 h-0.5 min-w-[8px] sm:min-w-[16px]">
+                  <div
+                    className={`h-full rounded-full transition-colors duration-200 ${
+                      idx < currentStep ? 'bg-rose-400' : 'bg-gray-200'
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ─── Resume Banner ──────────────────────────────────────────────────────
+
+  const ResumeBanner = () => {
+    const sc = consultation.stepCompleted;
+    if (sc <= 0 || sc >= 7) return null;
+    const lastStepMeta = STEP_META[sc] || STEP_META[0];
+    return (
+      <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+        <Info className="h-5 w-5 flex-shrink-0" />
+        <p className="text-sm">
+          <span className="font-semibold">Assessment Paused</span> — Last Activity: Step {sc} (
+          {lastStepMeta.label})
+        </p>
+      </div>
+    );
+  };
+
+  // ─── Patient Header ─────────────────────────────────────────────────────
+
+  const PatientHeader = () => (
+    <div className="flex items-center gap-3 mb-4">
+      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-200 to-pink-200 flex items-center justify-center flex-shrink-0">
+        <Baby className="h-6 w-6 text-rose-700" />
+      </div>
+      <div className="min-w-0">
+        <h2 className="text-lg font-semibold text-foreground truncate">
+          {consultation.patient.name}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {consultation.patient.patientId}
+          {consultation.patient.aog && (
+            <span className="ml-2">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                {consultation.patient.aog}
+              </Badge>
+            </span>
+          )}
+          {consultation.patient.riskLevel && (
+            <span className="ml-1">
+              <Badge
+                variant="outline"
+                className={`text-[10px] px-1.5 py-0 ${
+                  consultation.patient.riskLevel === 'high'
+                    ? 'border-red-300 text-red-600 bg-red-50'
+                    : consultation.patient.riskLevel === 'moderate'
+                      ? 'border-yellow-300 text-yellow-600 bg-yellow-50'
+                      : 'border-green-300 text-green-600 bg-green-50'
+                }`}
+              >
+                {consultation.patient.riskLevel} risk
+              </Badge>
+            </span>
+          )}
+        </p>
+      </div>
+      <div className="ml-auto text-right hidden sm:block">
+        <p className="text-xs text-muted-foreground">{consultation.consultationNo}</p>
+        <p className="text-xs text-muted-foreground">
+          {new Date(consultation.consultationDate).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  );
+
+  // ─── Step 0: Assessment (SOAP) ──────────────────────────────────────────
+
+  const StepAssessment = () => (
+    <div className="space-y-6">
+      {/* Subjective */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Heart className="h-4.5 w-4.5 text-rose-500" />
+          <h3 className="font-semibold text-foreground">Subjective</h3>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="subjectiveSymptoms">Symptoms / Chief Complaint</Label>
+          <Textarea
+            id="subjectiveSymptoms"
+            placeholder="Patient reports: e.g., headache, nausea, swelling..."
+            className="min-h-[100px] resize-y"
+            value={subjectiveSymptoms}
+            onChange={(e) => setSubjectiveSymptoms(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Objective */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Stethoscope className="h-4.5 w-4.5 text-rose-500" />
+          <h3 className="font-semibold text-foreground">Objective — Vital Signs</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="bloodPressure" className="flex items-center gap-1.5">
+              <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+              Blood Pressure
+            </Label>
+            <Input
+              id="bloodPressure"
+              placeholder="e.g. 120/80 mmHg"
+              value={vitals.bloodPressure}
+              onChange={(e) => setVitals((v) => ({ ...v, bloodPressure: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="heartRate" className="flex items-center gap-1.5">
+              <Heart className="h-3.5 w-3.5 text-muted-foreground" />
+              Heart Rate
+            </Label>
+            <Input
+              id="heartRate"
+              placeholder="e.g. 72 bpm"
+              value={vitals.heartRate}
+              onChange={(e) => setVitals((v) => ({ ...v, heartRate: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="temperature" className="flex items-center gap-1.5">
+              <Thermometer className="h-3.5 w-3.5 text-muted-foreground" />
+              Temperature
+            </Label>
+            <Input
+              id="temperature"
+              placeholder="e.g. 36.8°C"
+              value={vitals.temperature}
+              onChange={(e) => setVitals((v) => ({ ...v, temperature: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="weight" className="flex items-center gap-1.5">
+              <Weight className="h-3.5 w-3.5 text-muted-foreground" />
+              Weight
+            </Label>
+            <Input
+              id="weight"
+              placeholder="e.g. 65 kg"
+              value={vitals.weight}
+              onChange={(e) => setVitals((v) => ({ ...v, weight: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="respiratoryRate" className="flex items-center gap-1.5">
+              <Wind className="h-3.5 w-3.5 text-muted-foreground" />
+              Respiratory Rate
+            </Label>
+            <Input
+              id="respiratoryRate"
+              placeholder="e.g. 18 cpm"
+              value={vitals.respiratoryRate}
+              onChange={(e) => setVitals((v) => ({ ...v, respiratoryRate: e.target.value }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Obstetric-specific */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Baby className="h-4.5 w-4.5 text-rose-500" />
+          <h3 className="font-semibold text-foreground">Obstetric Assessment</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="fetalHeartRate">Fetal Heart Rate</Label>
+            <Input
+              id="fetalHeartRate"
+              placeholder="e.g. 140 bpm"
+              value={fetalHeartRate}
+              onChange={(e) => setFetalHeartRate(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="fundalHeight">Fundal Height</Label>
+            <Input
+              id="fundalHeight"
+              placeholder="e.g. 24 cm"
+              value={fundalHeight}
+              onChange={(e) => setFundalHeight(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Allergies & Medications */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="allergies" className="flex items-center gap-1.5">
+            <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+            Allergies
+          </Label>
+          <Input
+            id="allergies"
+            placeholder="e.g. Penicillin, Sulfa drugs"
+            value={allergies}
+            onChange={(e) => setAllergies(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="medications">Current Medications</Label>
+          <Textarea
+            id="medications"
+            placeholder="List current medications..."
+            className="min-h-[60px] resize-y"
+            value={medications}
+            onChange={(e) => setMedications(e.target.value)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─── Step 1: Additional Findings ────────────────────────────────────────
+
+  const StepFindings = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="physicalExam">Physical Examination Findings</Label>
+        <Textarea
+          id="physicalExam"
+          placeholder="General appearance, fundal assessment, edema, etc."
+          className="min-h-[100px] resize-y"
+          value={physicalExam}
+          onChange={(e) => setPhysicalExam(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="labResults">Laboratory Results</Label>
+        <Textarea
+          id="labResults"
+          placeholder="CBC, Urinalysis, Blood typing, etc."
+          className="min-h-[100px] resize-y"
+          value={labResults}
+          onChange={(e) => setLabResults(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="notes">Additional Notes</Label>
+        <Textarea
+          id="notes"
+          placeholder="Any additional observations or notes..."
+          className="min-h-[80px] resize-y"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+
+  // ─── Step 2: Diagnosis ──────────────────────────────────────────────────
+
+  const StepDiagnosis = () => (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="icd10Diagnosis" className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-rose-500" />
+          ICD-10 Diagnosis
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          International Classification of Diseases — medical diagnosis codes for tracking and
+          reporting.
+        </p>
+        <Textarea
+          id="icd10Diagnosis"
+          placeholder="e.g., O10.11 (Pre-existing hypertension with pre-eclampsia, first trimester)"
+          className="min-h-[80px] resize-y"
+          value={icd10Diagnosis}
+          onChange={(e) => setIcd10Diagnosis(e.target.value)}
+        />
+      </div>
+      <Separator />
+      <div className="space-y-2">
+        <Label htmlFor="nandaDiagnosis" className="flex items-center gap-2">
+          <Brain className="h-4 w-4 text-rose-500" />
+          NANDA-I Nursing Diagnosis
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          North American Nursing Diagnosis Association — clinical judgments about individual,
+          family, or community responses to actual or potential health problems.
+        </p>
+        <Textarea
+          id="nandaDiagnosis"
+          placeholder="e.g., Risk for ineffective peripheral tissue perfusion related to pre-eclampsia"
+          className="min-h-[100px] resize-y"
+          value={nandaDiagnosis}
+          onChange={(e) => setNandaDiagnosis(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+
+  // ─── Step 3: Risk Classification ────────────────────────────────────────
+
+  const riskOptions = [
+    {
+      value: 'low',
+      label: 'Low Risk',
+      description: 'Uncomplicated pregnancy, normal vitals, no red flags',
+      color: 'green',
+      border: 'border-green-400',
+      bg: 'bg-green-50',
+      text: 'text-green-800',
+      icon: CheckCircle2,
+    },
+    {
+      value: 'moderate',
+      label: 'Moderate Risk',
+      description: 'Some risk factors present, closer monitoring needed',
+      color: 'yellow',
+      border: 'border-yellow-400',
+      bg: 'bg-yellow-50',
+      text: 'text-yellow-800',
+      icon: AlertTriangle,
+    },
+    {
+      value: 'high',
+      label: 'High Risk',
+      description: 'Significant risk factors, urgent referral may be required',
+      color: 'red',
+      border: 'border-red-400',
+      bg: 'bg-red-50',
+      text: 'text-red-800',
+      icon: ShieldAlert,
+    },
+  ] as const;
+
+  const StepRisk = () => (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Classify the patient&apos;s current risk level based on the assessment and findings.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {riskOptions.map((opt) => {
+          const isSelected = riskLevel === opt.value;
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setRiskLevel(opt.value)}
+              className={`
+                relative flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all duration-200
+                ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
+              `}
+            >
+              {isSelected && (
+                <div className="absolute top-2 right-2">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-rose-600" />
+                </div>
+              )}
+              <Icon className={`h-8 w-8 ${isSelected ? opt.text : 'text-gray-400'}`} />
+              <div className="text-center">
+                <p className={`font-semibold text-sm ${isSelected ? opt.text : 'text-foreground'}`}>
+                  {opt.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{opt.description}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ─── Step 4: AI Intervention Suggestion ─────────────────────────────────
+
+  const StepAiSuggest = () => (
+    <div className="space-y-4">
+      {/* Generate button */}
+      {!aiSuggestions && !aiLoading && (
+        <div className="text-center py-8">
+          <Sparkles className="h-12 w-12 text-rose-300 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-1">AI-Assisted Interventions</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+            Based on the assessment data, our AI can suggest nursing interventions using the NIC
+            (Nursing Interventions Classification) framework.
+          </p>
+          <Button onClick={handleAiSuggest} size="lg" className="gap-2 bg-rose-600 hover:bg-rose-700">
+            <Sparkles className="h-4.5 w-4.5" />
+            Suggest Interventions
+          </Button>
+          <p className="text-[11px] text-muted-foreground mt-4 flex items-center justify-center gap-1">
+            <Shield className="h-3 w-3" />
+            AI only receives clinical data, no patient identifiers
+          </p>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {aiLoading && (
+        <div className="text-center py-12">
+          <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground font-medium">
+            AI is analyzing assessment data...
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">This may take a few moments</p>
+        </div>
+      )}
+
+      {/* AI Results */}
+      {aiSuggestions && !aiLoading && (
+        <div className="space-y-4">
+          {/* Priority intervention */}
+          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <ShieldAlert className="h-4 w-4 text-rose-600" />
+              <span className="font-semibold text-sm text-rose-800">Priority Intervention</span>
+            </div>
+            <p className="font-medium text-rose-900">{aiSuggestions.priorityIntervention || 'N/A'}</p>
+            <p className="text-sm text-rose-700 mt-1">{aiSuggestions.rationale || 'No rationale provided'}</p>
+            {aiSuggestions.preventionLevel && (
+              <Badge
+                variant="secondary"
+                className="mt-2 bg-rose-100 text-rose-700 hover:bg-rose-100 text-xs"
+              >
+                Prevention: {aiSuggestions.preventionLevel}
+              </Badge>
+            )}
+          </div>
+
+          {/* Suggested interventions list */}
+          <div>
+            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+              <ClipboardPlus className="h-4 w-4 text-rose-500" />
+              Suggested NIC Interventions
+            </h4>
+            <div className="space-y-2">
+              {aiSuggestions.interventions?.map((intervention, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-white hover:border-rose-200 transition-colors"
+                >
+                  <div className="mt-0.5 flex-shrink-0">
+                    <Checkbox
+                      checked={selectedInterventions.some((i) => i.name === intervention.name)}
+                      onCheckedChange={() => toggleAiIntervention(intervention)}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm">{intervention.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {intervention.description}
+                    </p>
+                    {intervention.category && (
+                      <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
+                        {intervention.category}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {(!aiSuggestions.interventions || aiSuggestions.interventions.length === 0) && (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  No interventions were generated. Try regenerating.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Regenerate */}
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={handleAiSuggest} disabled={aiLoading} className="gap-2">
+              <RefreshCw className={`h-3.5 w-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
+              Regenerate Suggestions
+            </Button>
+          </div>
+
+          {/* Privacy notice */}
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+            <Shield className="h-3 w-3" />
+            AI only receives clinical data, no patient identifiers
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // ─── Step 5: Nurse Selection (HITL) ─────────────────────────────────────
+
+  const StepHITL = () => (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-semibold mb-1">Human-in-the-Loop Intervention Selection</h3>
+        <p className="text-sm text-muted-foreground">
+          Review the AI suggestions above and select which interventions to apply. You can also add
+          custom interventions based on your clinical judgment.
+        </p>
+      </div>
+
+      {/* AI suggestions as checkboxes */}
+      {aiSuggestions && aiSuggestions.interventions && aiSuggestions.interventions.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+            AI-Suggested Interventions
+          </p>
+          <div className="space-y-2">
+            {aiSuggestions.interventions.map((intervention, idx) => {
+              const isChecked = selectedInterventions.some((i) => i.name === intervention.name);
+              return (
+                <label
+                  key={idx}
+                  className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                    isChecked
+                      ? 'border-rose-300 bg-rose-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={() => toggleAiIntervention(intervention)}
+                    className="mt-0.5"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{intervention.name}</p>
+                    {intervention.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{intervention.description}</p>
+                    )}
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <Separator />
+
+      {/* Custom interventions */}
+      <div>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+          Custom Interventions
+        </p>
+        <div className="flex gap-2 mb-3">
+          <Input
+            placeholder="Add a custom intervention..."
+            value={customIntervention}
+            onChange={(e) => setCustomIntervention(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addCustomIntervention();
+              }
+            }}
+          />
+          <Button onClick={addCustomIntervention} disabled={!customIntervention.trim()} size="icon">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Selected / custom interventions list */}
+        {selectedInterventions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">
+              Selected Interventions ({selectedInterventions.length})
+            </p>
+            {selectedInterventions.map((intervention, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 p-2.5 rounded-lg border border-rose-200 bg-rose-50"
+              >
+                <CheckCircle2 className="h-4 w-4 text-rose-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{intervention.name}</p>
+                  {intervention.description && (
+                    <p className="text-xs text-muted-foreground truncate">{intervention.description}</p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-red-600"
+                  onClick={() => removeIntervention(intervention.name)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedInterventions.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No interventions selected yet. Select from AI suggestions or add custom ones above.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  // ─── Step 6: Evaluation (NOC) ───────────────────────────────────────────
+
+  const evalOptions = [
+    {
+      value: 'achieved',
+      label: 'Achieved',
+      description: 'Goals fully met, patient stabilized',
+      color: 'green',
+      border: 'border-green-400',
+      bg: 'bg-green-50',
+      text: 'text-green-800',
+    },
+    {
+      value: 'partially',
+      label: 'Partially Achieved',
+      description: 'Some improvement, goals partially met',
+      color: 'yellow',
+      border: 'border-yellow-400',
+      bg: 'bg-yellow-50',
+      text: 'text-yellow-800',
+    },
+    {
+      value: 'not_achieved',
+      label: 'Not Achieved',
+      description: 'No improvement or condition worsened',
+      color: 'red',
+      border: 'border-red-400',
+      bg: 'bg-red-50',
+      text: 'text-red-800',
+    },
+  ] as const;
+
+  const StepEvaluation = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="font-semibold mb-1">NOC Evaluation Status</h3>
+        <p className="text-sm text-muted-foreground">
+          Assess whether the nursing outcomes criteria have been met.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {evalOptions.map((opt) => {
+          const isSelected = evaluationStatus === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setEvaluationStatus(opt.value)}
+              className={`
+                relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all duration-200
+                ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
+              `}
+            >
+              {isSelected && (
+                <div className="absolute top-2 right-2">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-rose-600" />
+                </div>
+              )}
+              <div className={`text-center`}>
+                <p className={`font-semibold text-sm ${isSelected ? opt.text : 'text-foreground'}`}>
+                  {opt.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{opt.description}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="evaluationNotes">Evaluation Notes</Label>
+        <Textarea
+          id="evaluationNotes"
+          placeholder="Document the evaluation findings, patient response, and follow-up plan..."
+          className="min-h-[100px] resize-y"
+          value={evaluationNotes}
+          onChange={(e) => setEvaluationNotes(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+
+  // ─── Step 7: Referral ───────────────────────────────────────────────────
+
+  const StepReferral = () => (
+    <div className="space-y-4">
+      {/* Generate referral button */}
+      {!referralSummary && !referralLoading && (
+        <div className="text-center py-8">
+          <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
+          <h3 className="font-semibold text-lg mb-1">Generate Referral Summary</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+            Compile all assessment data, diagnoses, interventions, and evaluation into a structured
+            referral document.
+          </p>
+          <Button
+            onClick={handleGenerateReferral}
+            size="lg"
+            className="gap-2 bg-rose-600 hover:bg-rose-700"
+          >
+            <FileText className="h-4.5 w-4.5" />
+            Generate Referral
+          </Button>
+        </div>
+      )}
+
+      {/* Loading */}
+      {referralLoading && (
+        <div className="text-center py-12">
+          <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground font-medium">Generating referral summary...</p>
+        </div>
+      )}
+
+      {/* Referral content */}
+      {referralSummary && !referralLoading && (
+        <div className="space-y-4">
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2">
+              <Copy className="h-3.5 w-3.5" />
+              Copy to Clipboard
+            </Button>
+            <Button variant="outline" onClick={handleDownloadTxt} className="gap-2">
+              <Download className="h-3.5 w-3.5" />
+              Download .txt
+            </Button>
+            <Button variant="outline" onClick={handleGenerateReferral} className="gap-2">
+              <RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} />
+              Regenerate
+            </Button>
+          </div>
+
+          {/* Referral card */}
+          <div className="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+            <div className="bg-rose-600 text-white px-4 py-3">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                MATERNAL HEALTH REFERRAL SUMMARY
+              </h4>
+            </div>
+            <pre className="p-4 text-xs font-mono leading-relaxed whitespace-pre-wrap text-gray-700 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {referralSummary}
+            </pre>
+          </div>
+
+          {/* Complete button */}
+          <div className="flex justify-center pt-4">
+            <Button
+              size="lg"
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+              onClick={handleComplete}
+            >
+              <CheckCircle2 className="h-4.5 w-4.5" />
+              Complete Consultation
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // ─── Step Renderer ──────────────────────────────────────────────────────
+
+  const stepMeta = STEP_META[currentStep];
+  const StepIcon = stepMeta.icon;
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <StepAssessment />;
+      case 1:
+        return <StepFindings />;
+      case 2:
+        return <StepDiagnosis />;
+      case 3:
+        return <StepRisk />;
+      case 4:
+        return <StepAiSuggest />;
+      case 5:
+        return <StepHITL />;
+      case 6:
+        return <StepEvaluation />;
+      case 7:
+        return <StepReferral />;
+      default:
+        return null;
+    }
+  };
+
+  const stepDescriptions: Record<number, string> = {
+    0: 'Document the patient\'s subjective symptoms and objective vital signs using the SOAP format.',
+    1: 'Record physical examination findings, laboratory results, and additional notes.',
+    2: 'Enter ICD-10 medical diagnosis and NANDA-I nursing diagnosis.',
+    3: 'Classify the patient\'s current risk level based on the assessment data.',
+    4: 'Generate AI-assisted NIC nursing intervention suggestions.',
+    5: 'Review and select interventions to apply (Human-in-the-Loop).',
+    6: 'Evaluate the nursing outcomes using NOC criteria.',
+    7: 'Generate and finalize the referral summary document.',
+  };
+
+  // ─── Main Render ────────────────────────────────────────────────────────
+
+  return (
+    <div className="space-y-0">
+      <PatientHeader />
+      <ResumeBanner />
+      <StepProgress />
+
+      {/* Step Card */}
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-0">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <StepIcon className="h-4.5 w-4.5 text-rose-600" />
+            </div>
+            <div>
+              <CardTitle className="text-base">
+                Step {currentStep + 1}: {stepMeta.label}
+              </CardTitle>
+              <CardDescription>{stepDescriptions[currentStep]}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="max-h-[calc(100vh-340px)] overflow-y-auto custom-scrollbar py-2">
+            {renderStep()}
+          </div>
+        </CardContent>
+
+        {/* Navigation Footer */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentStep === 0 || saving}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+
+          <div className="flex items-center gap-2">
+            {saving && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Saving...</span>
+              </div>
+            )}
+            {!saving && isInitialized.current && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Save className="h-3 w-3" />
+                <span>Auto-saved</span>
+              </div>
+            )}
+          </div>
+
+          {currentStep < TOTAL_STEPS - 1 ? (
+            <Button
+              onClick={handleNext}
+              disabled={saving || !canProceed()}
+              className="gap-2 bg-rose-600 hover:bg-rose-700"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleComplete}
+              disabled={saving}
+              variant="default"
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Complete
+            </Button>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+}
