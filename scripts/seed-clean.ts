@@ -53,21 +53,33 @@ async function cleanupAndSeed() {
     
     const nurses = [
       {
-        email: 'nurse.santos@momternal.ph',
-        name: 'Maria Santos',
-        licenseNo: 'RN-2024-001',
+        email: 'jaldea.k12254703@umak.edu.ph',
+        name: 'Janica Aldea',
+        licenseNo: 'RN-UMAK-001',
         password: 'nurse123',
       },
       {
-        email: 'nurse.reyes@momternal.ph',
-        name: 'Ana Reyes',
-        licenseNo: 'RN-2024-002',
+        email: 'snebre.k12257601@umak.edu.ph',
+        name: 'Sophia Bianca Nebre',
+        licenseNo: 'RN-UMAK-002',
         password: 'nurse123',
       },
       {
-        email: 'admin@momternal.ph',
-        name: 'Admin',
-        licenseNo: null,
+        email: 'doliveros.k12257017@umak.edu.ph',
+        name: 'Danchelle Joy Oliveros',
+        licenseNo: 'RN-UMAK-003',
+        password: 'nurse123',
+      },
+      {
+        email: 'krazon.k12255767@umak.edu.ph',
+        name: 'Khimverlee Razon',
+        licenseNo: 'RN-UMAK-004',
+        password: 'nurse123',
+      },
+      {
+        email: 'mvaldez.k12256669@umak.edu.ph',
+        name: 'Mean Joyce Valdez',
+        licenseNo: 'RN-UMAK-005',
         password: 'nurse123',
       },
     ];

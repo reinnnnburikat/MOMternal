@@ -6,31 +6,37 @@ async function seed() {
 
   const hashedPassword = await hash('nurse123', 10);
 
-  // Create pre-seeded nurse accounts only
+  // Create pre-seeded nurse accounts
   const nurses = [
     {
-      email: 'nurse.santos@momternal.ph',
+      email: 'jaldea.k12254703@umak.edu.ph',
       password: hashedPassword,
-      name: 'Maria Santos, RN',
-      licenseNo: 'RN-2024-001',
+      name: 'Janica Aldea',
+      licenseNo: 'RN-UMAK-001',
     },
     {
-      email: 'nurse.reyes@momternal.ph',
+      email: 'snebre.k12257601@umak.edu.ph',
       password: hashedPassword,
-      name: 'Ana Reyes, RN',
-      licenseNo: 'RN-2024-002',
+      name: 'Sophia Bianca Nebre',
+      licenseNo: 'RN-UMAK-002',
     },
     {
-      email: 'nurse.cruz@momternal.ph',
+      email: 'doliveros.k12257017@umak.edu.ph',
       password: hashedPassword,
-      name: 'Juan Cruz, RN',
-      licenseNo: 'RN-2024-003',
+      name: 'Danchelle Joy Oliveros',
+      licenseNo: 'RN-UMAK-003',
     },
     {
-      email: 'admin@momternal.ph',
+      email: 'krazon.k12255767@umak.edu.ph',
       password: hashedPassword,
-      name: 'Admin User',
-      licenseNo: 'ADMIN-001',
+      name: 'Khimverlee Razon',
+      licenseNo: 'RN-UMAK-004',
+    },
+    {
+      email: 'mvaldez.k12256669@umak.edu.ph',
+      password: hashedPassword,
+      name: 'Mean Joyce Valdez',
+      licenseNo: 'RN-UMAK-005',
     },
   ];
 

@@ -72,7 +72,7 @@ export function LoginView() {
               <Input
                 id="email"
                 type="email"
-                placeholder="nurse.santos@momternal.ph"
+                placeholder="jaldea.k12254703@umak.edu.ph"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11"
@@ -136,9 +136,11 @@ export function LoginView() {
             </p>
             <div className="mt-2 space-y-1">
               {[
-                { email: 'nurse.santos@momternal.ph', name: 'Maria Santos' },
-                { email: 'nurse.reyes@momternal.ph', name: 'Ana Reyes' },
-                { email: 'admin@momternal.ph', name: 'Admin' },
+                { email: 'jaldea.k12254703@umak.edu.ph', name: 'Janica Aldea' },
+                { email: 'snebre.k12257601@umak.edu.ph', name: 'Sophia Bianca Nebre' },
+                { email: 'doliveros.k12257017@umak.edu.ph', name: 'Danchelle Joy Oliveros' },
+                { email: 'krazon.k12255767@umak.edu.ph', name: 'Khimverlee Razon' },
+                { email: 'mvaldez.k12256669@umak.edu.ph', name: 'Mean Joyce Valdez' },
               ].map((account) => (
                 <button
                   key={account.email}
