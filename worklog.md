@@ -104,3 +104,27 @@ Updated all 3 Leaflet map popup HTML templates in `map-view.tsx` to use a polish
 - `scripts/ai-stress-test-offline.mjs`: Leading zero decimal parsing error
 - `consultation-view.tsx`: `ClipboardPlus` undefined reference
 - `app-shell.tsx`: setState in effect warning
+---
+Task ID: 1
+Agent: Main
+Task: Fix stat card sparkline colors inconsistency + AI intervention error handling
+
+Work Log:
+- Analyzed dashboard stat cards - found sparklines used 5 different colors (rose, green, red, gold, purple)
+- Unified all stat card sparkline colors to CHART_COLORS.rose for visual consistency
+- Investigated AI intervention failure - found z-ai-web-dev-sdk requires X-Token header in config
+- /etc/.z-ai-config has baseUrl and apiKey but no token field - causing 401 auth error
+- Fixed ai-suggest route: changed system prompt role from "assistant" to "system"
+- Added X-Token forwarding from gateway headers to SDK config
+- Added aiError state and error UI component with retry button
+- Updated canProceed() for step 4 to allow proceeding even when AI fails
+- Added specific error messages for auth failures (503 status)
+- Improved frontend error handling with detailed server error messages
+- Pushed all fixes to GitHub
+
+Stage Summary:
+- Dashboard sparklines now use uniform rose color across all stat cards
+- AI intervention now shows clear error state when SDK auth fails
+- Users can proceed past step 4 even if AI generation fails (manual intervention entry)
+- Root cause of AI failure: /etc/.z-ai-config missing 'token' field required by API
+- Files modified: dashboard-view.tsx, consultation-view.tsx, ai-suggest/route.ts
