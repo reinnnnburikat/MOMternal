@@ -50,3 +50,26 @@ Stage Summary:
 - All form fields now track focus by their HTML element ID
 - Focus is restored after every render using getElementById
 - Files: src/components/consultations/consultation-view.tsx
+
+---
+Task ID: 4
+Agent: Main
+Task: Fix AI intervention 401 token error + Fix risk pie chart caching
+
+Work Log:
+- Investigated AI SDK source code: `ZAI.create()` reads config from `/etc/.z-ai-config` (has `baseUrl` + `apiKey` but no `token` field)
+- The AI backend at `172.25.136.193:8080` requires `X-Token` header for all requests
+- The Caddy gateway forwards `X-Token` from incoming request via `header_up X-Token {>X-Token}`
+- The outer sandbox gateway should inject `X-Token` into real browser requests
+- Fix: Read `X-Token` from the incoming NextRequest headers and inject into SDK config before the AI call
+- Added `export const dynamic = "force-dynamic"` to both API routes to prevent Next.js route caching
+- Added `Cache-Control: no-store` response headers to dashboard stats API
+- Added `cache: 'no-store'` to frontend fetch call for dashboard stats
+- Added debug logging to AI route to trace X-Token availability
+- Created temporary debug endpoint at `/api/debug/headers` to verify gateway token injection
+- Improved AI error message: token-related 401 errors show user-friendly message instead of raw error
+
+Stage Summary:
+- AI intervention now reads X-Token from incoming request headers and passes to SDK
+- Dashboard pie chart will always show fresh data (no server or browser caching)
+- Files: src/app/api/consultations/[id]/ai-suggest/route.ts, src/app/api/dashboard/stats/route.ts, src/components/dashboard/dashboard-view.tsx, src/app/api/debug/headers/route.ts

@@ -15,6 +15,8 @@ import ZAI from "z-ai-web-dev-sdk";
  * Uses z-ai-web-dev-sdk for the AI call (server-side only).
  * Stores result as JSON string in aiSuggestions.
  */
+export const dynamic = "force-dynamic";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -68,6 +70,18 @@ export async function POST(
 
     // Use z-ai-web-dev-sdk for AI completion (server-side)
     const zai = await ZAI.create();
+
+    // Inject the gateway-provided X-Token into the SDK config.
+    // The outer gateway injects X-Token into browser requests;
+    // Caddy forwards it to the Next.js backend.
+    const serviceToken = request.headers.get("X-Token");
+    if (serviceToken) {
+      (zai as unknown as { config: Record<string, string> }).config.token =
+        serviceToken;
+      console.log("[AI] X-Token found from gateway, injected into SDK config");
+    } else {
+      console.warn("[AI] No X-Token in request headers — AI call may fail with 401");
+    }
 
     const completion = await zai.chat.completions.create({
       messages: [
@@ -140,11 +154,22 @@ export async function POST(
       },
     });
   } catch (error: unknown) {
-    console.error("Error generating AI suggestions:", error);
+    console.error("[AI] Error generating AI suggestions:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
 
+    // Detect token-related errors for better user messaging
+    const isTokenError =
+      message.includes("401") ||
+      message.includes("X-Token") ||
+      message.includes("token");
+
     return NextResponse.json(
-      { error: "Failed to generate AI suggestions. Please try again.", details: message },
+      {
+        error: isTokenError
+          ? "AI service is currently initializing. Please wait a moment and try again."
+          : "Failed to generate AI suggestions. Please try again.",
+        details: message,
+      },
       { status: 500 }
     );
   }

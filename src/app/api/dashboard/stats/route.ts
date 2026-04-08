@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/supabase";
 
+// Force dynamic rendering — never cache stale dashboard data
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     // Run all independent queries in parallel
@@ -46,7 +49,7 @@ export async function GET() {
       },
     }));
 
-    // Build consultationsByRisk
+    // Build consultationsByRisk — counts from completed consultations
     const consultationsByRisk = { low: 0, moderate: 0, high: 0 };
     for (const rc of riskCountsResult.rows) {
       const level = (rc as Record<string, unknown>).risk_level as keyof typeof consultationsByRisk;
@@ -67,15 +70,23 @@ export async function GET() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([month, count]) => ({ month, count }));
 
-    return NextResponse.json({
-      totalPatients,
-      highRiskPatients,
-      moderateRiskPatients,
-      pendingReferrals,
-      recentConsultations,
-      consultationsByRisk,
-      monthlyTrend: sortedMonthlyTrend,
-    });
+    return NextResponse.json(
+      {
+        totalPatients,
+        highRiskPatients,
+        moderateRiskPatients,
+        pendingReferrals,
+        recentConsultations,
+        consultationsByRisk,
+        monthlyTrend: sortedMonthlyTrend,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          Pragma: "no-cache",
+        },
+      }
+    );
   } catch (error) {
     console.error("Dashboard stats error:", error);
     return NextResponse.json(
