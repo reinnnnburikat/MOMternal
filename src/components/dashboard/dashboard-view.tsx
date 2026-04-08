@@ -511,8 +511,8 @@ export function DashboardView() {
           {statsCards.map((card, idx) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="dark:bg-gray-900 dark:border-gray-800">
-                <CardContent className="p-5">
+              <Card key={card.label} className="dark:bg-gray-900 dark:border-gray-800 h-full">
+                <CardContent className="p-5 flex flex-col h-full">
                   <div className="flex items-center justify-between">
                     <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-lg`}>
                       <Icon className={`h-5 w-5 ${card.color}`} />
@@ -524,15 +524,13 @@ export function DashboardView() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-3 flex-1 flex flex-col justify-end">
                     <p className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
                       {card.value}
                     </p>
                     {/* Sparkline */}
-                    <div className="mt-1 -mx-1">
-                      {sparklineData[idx] && (
-                        <StatSparkline data={sparklineData[idx]} color={card.sparkColor} />
-                      )}
+                    <div className="mt-1 -mx-1 h-8">
+                      <StatSparkline data={sparklineData[idx] || [0,0,0,0,0,0,0]} color={card.sparkColor} />
                     </div>
                     <p className="text-xs text-muted-foreground dark:text-gray-400 mt-0.5">
                       {card.label}
