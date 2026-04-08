@@ -65,13 +65,13 @@ export function LoginView() {
           <img
             src="/momternal_logo.png"
             alt="MOMternal Logo"
-            className="mb-6 w-52 h-52 object-contain drop-shadow-lg"
+            className="mb-4 w-[100px] h-[100px] object-contain"
           />
           <p className="text-white/70 text-sm font-medium">
             Mobilized Outreach Maternal Support
           </p>
 
-          <div className="mt-10 w-full space-y-3">
+          <div className="mt-6 w-full space-y-1.5">
             {features.map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-3 text-sm text-white/80">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 backdrop-blur-sm">
