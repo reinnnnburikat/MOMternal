@@ -65,10 +65,9 @@ export function LoginView() {
           <img
             src="/momternal_logo.png"
             alt="MOMternal Logo"
-            className="mb-6 w-28 h-28 object-contain"
+            className="mb-6 w-52 h-52 object-contain drop-shadow-lg"
           />
-          <h1 className="text-4xl font-bold tracking-tight">MOMternal</h1>
-          <p className="mt-2 text-white/70 text-sm font-medium">
+          <p className="text-white/70 text-sm font-medium">
             Mobilized Outreach Maternal Support
           </p>
 
