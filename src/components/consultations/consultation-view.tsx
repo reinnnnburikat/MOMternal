@@ -13,14 +13,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  ClipboardList,
+  Search,
   Stethoscope,
-  ClipboardPlus,
   Activity,
   Brain,
   ShieldAlert,
   Sparkles,
   UserCheck,
   CheckCircle2,
+  FileOutput,
   FileText,
   ChevronRight,
   ChevronLeft,
@@ -40,6 +42,16 @@ import {
   Shield,
   Info,
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -112,15 +124,31 @@ interface VitalsForm {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const STEP_META = [
-  { label: 'Assessment', shortLabel: 'SOAP', icon: Stethoscope },
-  { label: 'Findings', shortLabel: 'Findings', icon: ClipboardPlus },
-  { label: 'Diagnosis', shortLabel: 'Dx', icon: Activity },
+  { label: 'Assessment', shortLabel: 'SOAP', icon: ClipboardList },
+  { label: 'Findings', shortLabel: 'Findings', icon: Search },
+  { label: 'Diagnosis', shortLabel: 'Dx', icon: Stethoscope },
   { label: 'Risk Level', shortLabel: 'Risk', icon: ShieldAlert },
   { label: 'AI Suggest', shortLabel: 'AI', icon: Sparkles },
   { label: 'Nurse Select', shortLabel: 'HITL', icon: UserCheck },
   { label: 'Evaluation', shortLabel: 'Eval', icon: CheckCircle2 },
-  { label: 'Referral', shortLabel: 'Refer', icon: FileText },
+  { label: 'Referral', shortLabel: 'Refer', icon: FileOutput },
 ] as const;
+
+// Step color accents (border-l colors for step cards)
+const STEP_BORDER_COLORS: Record<number, string> = {
+  0: 'border-l-rose-400',
+  1: 'border-l-rose-400',
+  2: 'border-l-purple-400',
+  3: 'border-l-rose-400', // Dynamic based on risk
+  4: 'border-l-rose-500',
+  5: 'border-l-blue-400',
+  6: 'border-l-emerald-400',
+  7: 'border-l-amber-400',
+};
+
+const STEP_GLOW_CLASSES: Record<number, string> = {
+  4: 'shadow-rose-100/50 dark:shadow-rose-950/30',
+};
 
 const TOTAL_STEPS = STEP_META.length;
 
@@ -215,6 +243,11 @@ export function ConsultationView() {
   const [evaluationStatus, setEvaluationStatus] = useState('');
   const [evaluationNotes, setEvaluationNotes] = useState('');
   const [referralSummary, setReferralSummary] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+
+  // ── Dirty state tracking ──
+  const markDirty = useCallback(() => setIsDirty(true), []);
 
   // ── Fetch consultation on mount ──
   useEffect(() => {
@@ -395,11 +428,28 @@ export function ConsultationView() {
     }
   }, [currentStep, goToStep]);
 
-  const handleBack = useCallback(async () => {
+  const handleBack = useCallback(() => {
     if (currentStep > 0) {
-      await goToStep(currentStep - 1);
+      goToStep(currentStep - 1);
     }
   }, [currentStep, goToStep]);
+
+  const handleExitWizard = useCallback(() => {
+    setShowExitDialog(false);
+    setIsDirty(false);
+    saveCurrentStepSilent();
+    goBack();
+  }, [goBack, saveCurrentStepSilent]);
+
+  const handleBackClick = useCallback(() => {
+    if (currentStep === 0 && isDirty) {
+      setShowExitDialog(true);
+    } else if (currentStep > 0) {
+      goToStep(currentStep - 1);
+    } else {
+      goBack();
+    }
+  }, [currentStep, isDirty, goToStep, goBack]);
 
   const handleComplete = useCallback(async () => {
     await saveStep(currentStep);
@@ -554,8 +604,34 @@ export function ConsultationView() {
 
   // ─── Step Progress Indicator ─────────────────────────────────────────────
 
+  // ─── Exit Confirmation Dialog ──────────────────────────────────────
+
+  const ExitConfirmDialog = () => (
+    <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Leave Consultation?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved progress. Are you sure you want to leave?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Stay</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleExitWizard}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            Leave
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  // ─── Step Progress Indicator ─────────────────────────────────────────────
+
   const StepProgress = () => (
-    <div className="bg-white rounded-xl border border-rose-100 shadow-sm p-4 mb-4">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-rose-100 dark:border-gray-800 shadow-sm p-4 mb-4">
       <div className="flex items-center">
         {STEP_META.map((step, idx) => {
           const Icon = step.icon;
@@ -688,11 +764,12 @@ export function ConsultationView() {
 
   const StepAssessment = () => (
     <div className="space-y-6">
+      <input type="hidden" onChange={markDirty} />
       {/* Subjective */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Heart className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground">Subjective</h3>
+          <h3 className="font-semibold text-foreground dark:text-gray-100">Subjective</h3>
         </div>
         <div className="space-y-2">
           <Label htmlFor="subjectiveSymptoms">Symptoms / Chief Complaint</Label>
@@ -701,7 +778,7 @@ export function ConsultationView() {
             placeholder="Patient reports: e.g., headache, nausea, swelling..."
             className="min-h-[100px] resize-y"
             value={subjectiveSymptoms}
-            onChange={(e) => setSubjectiveSymptoms(e.target.value)}
+            onChange={(e) => { setSubjectiveSymptoms(e.target.value); markDirty(); }}
           />
         </div>
       </div>
@@ -712,7 +789,7 @@ export function ConsultationView() {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Stethoscope className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground">Objective — Vital Signs</h3>
+          <h3 className="font-semibold text-foreground dark:text-gray-100">Objective — Vital Signs</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
@@ -784,7 +861,7 @@ export function ConsultationView() {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Baby className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground">Obstetric Assessment</h3>
+          <h3 className="font-semibold text-foreground dark:text-gray-100">Obstetric Assessment</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
@@ -842,6 +919,7 @@ export function ConsultationView() {
 
   const StepFindings = () => (
     <div className="space-y-4">
+      <input type="hidden" onChange={markDirty} />
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
         <Textarea
@@ -849,7 +927,7 @@ export function ConsultationView() {
           placeholder="General appearance, fundal assessment, edema, etc."
           className="min-h-[100px] resize-y"
           value={physicalExam}
-          onChange={(e) => setPhysicalExam(e.target.value)}
+          onChange={(e) => { setPhysicalExam(e.target.value); markDirty(); }}
         />
       </div>
       <div className="space-y-2">
@@ -859,7 +937,7 @@ export function ConsultationView() {
           placeholder="CBC, Urinalysis, Blood typing, etc."
           className="min-h-[100px] resize-y"
           value={labResults}
-          onChange={(e) => setLabResults(e.target.value)}
+          onChange={(e) => { setLabResults(e.target.value); markDirty(); }}
         />
       </div>
       <div className="space-y-2">
@@ -869,7 +947,7 @@ export function ConsultationView() {
           placeholder="Any additional observations or notes..."
           className="min-h-[80px] resize-y"
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={(e) => { setNotes(e.target.value); markDirty(); }}
         />
       </div>
     </div>
@@ -893,7 +971,7 @@ export function ConsultationView() {
           placeholder="e.g., O10.11 (Pre-existing hypertension with pre-eclampsia, first trimester)"
           className="min-h-[80px] resize-y"
           value={icd10Diagnosis}
-          onChange={(e) => setIcd10Diagnosis(e.target.value)}
+          onChange={(e) => { setIcd10Diagnosis(e.target.value); markDirty(); }}
         />
       </div>
       <Separator />
@@ -911,7 +989,7 @@ export function ConsultationView() {
           placeholder="e.g., Risk for ineffective peripheral tissue perfusion related to pre-eclampsia"
           className="min-h-[100px] resize-y"
           value={nandaDiagnosis}
-          onChange={(e) => setNandaDiagnosis(e.target.value)}
+          onChange={(e) => { setNandaDiagnosis(e.target.value); markDirty(); }}
         />
       </div>
     </div>
@@ -965,7 +1043,7 @@ export function ConsultationView() {
             <button
               key={opt.value}
               type="button"
-              onClick={() => setRiskLevel(opt.value)}
+              onClick={() => { setRiskLevel(opt.value); markDirty(); }}
               className={`
                 relative flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all duration-200
                 ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
@@ -1049,7 +1127,7 @@ export function ConsultationView() {
           {/* Suggested interventions list */}
           <div>
             <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <ClipboardPlus className="h-4 w-4 text-rose-500" />
+              <ClipboardList className="h-4 w-4 text-rose-500" />
               Suggested NIC Interventions
             </h4>
             <div className="space-y-2">

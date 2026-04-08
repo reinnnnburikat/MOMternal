@@ -168,13 +168,33 @@ export function MapView() {
           const bd = barangayLookup[name];
           if (bd) {
             const popup = `
-              <div style="min-width:180px;font-family:system-ui;">
-                <strong style="font-size:14px;">${name}</strong><br/>
-                <span style="color:#666;">Patients: ${bd.patientCount}</span><br/>
-                <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
-                  <span style="background:#dcfce7;color:#166534;padding:2px 6px;border-radius:4px;font-size:11px;">Low: ${bd.riskDistribution.low}</span>
-                  <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:11px;">Mod: ${bd.riskDistribution.moderate}</span>
-                  <span style="background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:11px;">High: ${bd.riskDistribution.high}</span>
+              <div style="padding:14px 16px;min-width:220px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                  <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#fff1f2,#ffe4e6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-weight:600;font-size:14px;color:#1a1a2e;line-height:1.3;">${name}</div>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Barangay</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f4;border-radius:8px;margin-bottom:10px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span style="font-size:12px;font-weight:500;color:#e11d48;">${bd.patientCount} patient${bd.patientCount !== 1 ? 's' : ''}</span>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <div style="flex:1;text-align:center;padding:6px 4px;background:#f0fdf4;border-radius:8px;">
+                    <div style="font-size:15px;font-weight:700;color:#15803d;line-height:1;">${bd.riskDistribution.low}</div>
+                    <div style="font-size:10px;color:#4ade80;margin-top:3px;font-weight:500;letter-spacing:0.02em;">LOW</div>
+                  </div>
+                  <div style="flex:1;text-align:center;padding:6px 4px;background:#fffbeb;border-radius:8px;">
+                    <div style="font-size:15px;font-weight:700;color:#b45309;line-height:1;">${bd.riskDistribution.moderate}</div>
+                    <div style="font-size:10px;color:#fbbf24;margin-top:3px;font-weight:500;letter-spacing:0.02em;">MODERATE</div>
+                  </div>
+                  <div style="flex:1;text-align:center;padding:6px 4px;background:#fef2f2;border-radius:8px;">
+                    <div style="font-size:15px;font-weight:700;color:#dc2626;line-height:1;">${bd.riskDistribution.high}</div>
+                    <div style="font-size:10px;color:#f87171;margin-top:3px;font-weight:500;letter-spacing:0.02em;">HIGH</div>
+                  </div>
                 </div>
               </div>
             `;
@@ -206,11 +226,27 @@ export function MapView() {
       });
       circleMarker.addTo(map);
       circleMarker.bindPopup(`
-        <div style="min-width:180px;font-family:system-ui;">
-          <strong style="font-size:14px;">${marker.barangay}</strong><br/>
-          <span style="color:#666;font-size:12px;">Patient: ${marker.patientId}</span><br/>
-          <span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;color:white;background:${color};">${RISK_LABELS[marker.riskLevel] || marker.riskLevel}</span>
-          ${bd ? `<br/><span style="color:#666;font-size:11px;margin-top:4px;display:block;">Total patients in area: ${bd.patientCount}</span>` : ''}
+        <div style="padding:14px 16px;min-width:220px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#fff1f2,#ffe4e6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:14px;color:#1a1a2e;line-height:1.3;">${marker.barangay}</div>
+              <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Patient Location</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#f8fafc;border-radius:8px;margin-bottom:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span style="font-size:12px;color:#475569;font-weight:500;">${marker.patientId}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;color:white;background:${color};box-shadow:0 1px 3px ${color}33;">
+              <span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.5);"></span>
+              ${RISK_LABELS[marker.riskLevel] || marker.riskLevel}
+            </span>
+            ${bd ? `<span style="font-size:11px;color:#9ca3af;">${bd.patientCount} in area</span>` : ''}
+          </div>
         </div>
       `);
       newLayers.push(circleMarker);
@@ -235,13 +271,33 @@ export function MapView() {
         });
         centroidMarker.addTo(map);
         centroidMarker.bindPopup(`
-          <div style="min-width:180px;font-family:system-ui;">
-            <strong style="font-size:14px;">${bd.barangay}</strong><br/>
-            <span style="color:#666;">Patients: ${bd.patientCount}</span><br/>
-            <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
-              <span style="background:#dcfce7;color:#166534;padding:2px 6px;border-radius:4px;font-size:11px;">Low: ${bd.riskDistribution.low}</span>
-              <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:11px;">Mod: ${bd.riskDistribution.moderate}</span>
-              <span style="background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:11px;">High: ${bd.riskDistribution.high}</span>
+          <div style="padding:14px 16px;min-width:220px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#fff1f2,#ffe4e6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:14px;color:#1a1a2e;line-height:1.3;">${bd.barangay}</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Aggregated Data</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f4;border-radius:8px;margin-bottom:10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span style="font-size:12px;font-weight:500;color:#e11d48;">${bd.patientCount} patient${bd.patientCount !== 1 ? 's' : ''}</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <div style="flex:1;text-align:center;padding:6px 4px;background:#f0fdf4;border-radius:8px;">
+                <div style="font-size:15px;font-weight:700;color:#15803d;line-height:1;">${bd.riskDistribution.low}</div>
+                <div style="font-size:10px;color:#4ade80;margin-top:3px;font-weight:500;letter-spacing:0.02em;">LOW</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:6px 4px;background:#fffbeb;border-radius:8px;">
+                <div style="font-size:15px;font-weight:700;color:#b45309;line-height:1;">${bd.riskDistribution.moderate}</div>
+                <div style="font-size:10px;color:#fbbf24;margin-top:3px;font-weight:500;letter-spacing:0.02em;">MODERATE</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:6px 4px;background:#fef2f2;border-radius:8px;">
+                <div style="font-size:15px;font-weight:700;color:#dc2626;line-height:1;">${bd.riskDistribution.high}</div>
+                <div style="font-size:10px;color:#f87171;margin-top:3px;font-weight:500;letter-spacing:0.02em;">HIGH</div>
+              </div>
             </div>
           </div>
         `);

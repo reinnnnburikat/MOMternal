@@ -361,10 +361,21 @@ export function AuditView() {
         <CardContent>
           {error ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <ClipboardList className="h-10 w-10 text-muted-foreground mb-3" />
-              <p className="text-sm font-medium text-muted-foreground mb-1">Unable to load audit logs</p>
-              <p className="text-xs text-muted-foreground mb-4">{error}</p>
-              <Button onClick={fetchLogs} variant="outline" size="sm">
+              {/* Decorative outer ring */}
+              <div className="relative mb-5">
+                <div className="absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60" />
+                {/* Icon container */}
+                <div className="relative w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center">
+                  <ClipboardList className="h-9 w-9 text-rose-400" />
+                </div>
+                {/* Small decorative dot */}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/40 border-2 border-background flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                </div>
+              </div>
+              <p className="text-base font-semibold text-foreground">Unable to load audit logs</p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xs text-center">{error}</p>
+              <Button onClick={fetchLogs} className="mt-4 bg-rose-600 hover:bg-rose-700 text-white" size="sm">
                 Try Again
               </Button>
             </div>
@@ -375,13 +386,34 @@ export function AuditView() {
                   <AuditTableSkeleton />
                 ) : filteredLogs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12">
-                    <Search className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">No logs found</p>
-                    <p className="text-xs text-muted-foreground">
+                    {/* Decorative outer ring */}
+                    <div className="relative mb-5">
+                      <div className="absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60" />
+                      {/* Icon container */}
+                      <div className="relative w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center">
+                        <Search className="h-9 w-9 text-rose-400" />
+                      </div>
+                      {/* Small decorative dot */}
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/40 border-2 border-background flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                      </div>
+                    </div>
+                    <p className="text-base font-semibold text-foreground">No logs found</p>
+                    <p className="text-sm text-muted-foreground mt-1 max-w-xs text-center">
                       {searchQuery
-                        ? 'Try adjusting your search query'
-                        : 'No activity has been recorded yet'}
+                        ? 'Try adjusting your search query or filters to find what you\'re looking for.'
+                        : 'No activity has been recorded yet. Actions like creating patients or consultations will appear here.'}
                     </p>
+                    {searchQuery && (
+                      <Button
+                        onClick={() => setSearchQuery('')}
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                      >
+                        Clear Search
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <Table>

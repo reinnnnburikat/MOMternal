@@ -1,142 +1,106 @@
----
-Task ID: 1
-Agent: Main Agent
-Task: Fix Risk Map - map not rendering properly, shows solid color instead of actual map tiles
+# Work Log: Enhanced Empty States Across MOMternal App
 
-Work Log:
-- Analyzed the RiskMapView component and identified the root cause
-- Found that the map container div was conditionally rendered (only when `loading` was false)
-- The useEffect for Leaflet initialization ran on mount when `loading` was `true`, so `mapRef.current` was null
-- This caused the map init to bail out, and the effect never re-ran after loading completed
-- Rewrote the map component to:
-  - Always render the map container div (never replaced with skeleton)
-  - Initialize Leaflet map immediately on mount with OSM tiles
-  - Add barangay boundary outlines as base layer (always visible, even with 0 patients)
-  - Fetch patient data separately after map is ready
-  - Show a small loading overlay pill on the map while data loads (does NOT block the map)
-  - Added `invalidateSize()` after 200ms delay to fix tile rendering
-  - Map shows properly even with 0 patients/consultations
+## Date: 2025-07-09
 
-Stage Summary:
-- Fixed the chicken-and-egg bug where map div didn't exist during useEffect init
-- Map now always renders with OpenStreetMap tiles + barangay boundary outlines
-- Patient data layers are added on top after API responds
-- Error/loading states shown as small overlay pills instead of blocking the entire map
+## Summary
+Enhanced all empty states in the dashboard and audit views with richer visual design, clearer messaging, and actionable CTA buttons. No functionality was changed — only visual presentation improvements.
 
----
-Task ID: 2
-Agent: Main Agent
-Task: Remove seeded patients - only nurse accounts should be pre-seeded
+## Files Modified
 
-Work Log:
-- Checked database state: already had 0 patients, 0 consultations, 4 nurses
-- Created cleanup/seed script at scripts/seed-clean.ts
-- Cleaned all data and re-seeded exactly 3 nurse accounts:
-  1. Maria Santos (nurse.santos@momternal.ph)
-  2. Ana Reyes (nurse.reyes@momternal.ph)
-  3. Admin (admin@momternal.ph)
-- Password for all: nurse123
-- Verified final state: 3 nurses, 0 patients, 0 consultations
-- Also fixed supabase.ts connection to use direct connection parameters instead of URL string (more reliable with special characters in password)
+### 1. `/home/z/my-project/src/components/dashboard/dashboard-view.tsx`
 
-Stage Summary:
-- Database is clean: 3 nurses, 0 patients, 0 consultations
-- Supabase connection updated to use explicit host/port/user/password for reliability
+**Empty State: "No paused assessments" (was lines 716-722)**
+- Replaced plain `Activity` icon (`h-10 w-10 opacity-40`) with a larger decorative container
+- Added a `w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20` icon container with `h-9 w-9 text-rose-400` icon
+- Added dashed decorative outer ring (`border-2 border-dashed border-rose-200 dark:border-rose-800/40`)
+- Added a small decorative dot badge in bottom-right corner
+- Upgraded heading from `text-sm font-medium text-muted-foreground` to `text-base font-semibold text-foreground`
+- Expanded description from `text-xs` to `text-sm text-muted-foreground mt-1 max-w-xs text-center` with more helpful copy
+- Added CTA button: "Start New Consultation" with `bg-rose-600 hover:bg-rose-700 text-white` navigating to `patient-new` view
 
----
-Task ID: 3
-Agent: Main Agent
-Task: Standardize padding across entire UI system
+**Empty State: "No consultations yet" (was lines 820-826)**
+- Applied identical decorative treatment (dashed ring, colored icon container, dot badge)
+- Upgraded heading to `text-base font-semibold text-foreground`
+- Expanded description with clearer context about what will appear
+- Added CTA button: "Start Your First Consultation" with rose-600 styling navigating to `patient-new` view
 
-Work Log:
-- Audited all 8 view components for padding consistency
-- Found inconsistencies:
-  1. Dashboard skeleton used `p-6` while actual stat cards use `p-5`
-  2. Consultation step progress used `p-3 sm:p-4` (responsive variant)
-  3. Consultation resume banner used `p-3`
-- Fixed all inconsistencies:
-  - Dashboard skeleton: `p-6` → `p-5`
-  - Step progress: `p-3 sm:p-4` → `p-4` (consistent)
-  - Resume banner: `p-3` → `p-4` (consistent)
-- Verified lint passes after all changes
+### 2. `/home/z/my-project/src/components/audit/audit-view.tsx`
 
-Stage Summary:
-- Standard padding system: `space-y-6` for sections, `p-5` for stat cards, `p-4` for content areas
-- All views now follow the same padding convention
+**Error State: "Unable to load audit logs" (was lines 363-370)**
+- Applied same decorative treatment (dashed ring, colored icon container, dot badge)
+- Changed icon from plain `ClipboardList` to rose-400 colored version in container
+- Upgraded heading from `text-sm font-medium text-muted-foreground` to `text-base font-semibold text-foreground`
+- Changed "Try Again" button from `variant="outline"` to `bg-rose-600 hover:bg-rose-700 text-white` for stronger visual emphasis
+
+**Empty State: "No logs found" (was lines 377-385)**
+- Applied same decorative treatment (dashed ring, colored icon container, dot badge)
+- Changed icon from plain `Search` to rose-400 colored version in container
+- Upgraded heading to `text-base font-semibold text-foreground`
+- Expanded description text with more helpful guidance for both search and empty scenarios
+- Added conditional "Clear Search" button (outline variant) that appears only when a search query is active, allowing users to easily reset filters
+
+## Design System Applied
+All enhanced empty states follow a consistent pattern:
+- **Icon container**: `w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20` with `h-9 w-9 text-rose-400` icon
+- **Decorative ring**: `absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60`
+- **Dot badge**: Small rose circle in bottom-right for visual interest
+- **Heading**: `text-base font-semibold text-foreground`
+- **Description**: `text-sm text-muted-foreground mt-1 max-w-xs text-center`
+- **CTA buttons**: `bg-rose-600 hover:bg-rose-700 text-white` (primary) or `variant="outline"` (secondary)
+- **Spacing**: `py-12` vertical padding, `mb-5` below illustration
 
 ---
-Task ID: 4
-Agent: Main Agent
-Task: Push fixes to GitHub and fix remaining Leaflet CSS issue
 
-Work Log:
-- Found that the Leaflet CSS (`leaflet/dist/leaflet.css`) was never imported in the map component
-- This caused map tiles to not render properly — the map container lacked proper CSS for tile positioning
-- Added `import 'leaflet/dist/leaflet.css'` at the top of `src/components/map/map-view.tsx`
-- Verified the fix: Leaflet CSS now appears in the rendered HTML as `leaflet_ef5f0413.css`
-- Pushed 3 commits to GitHub (origin/main):
-  1. `fix: map rendering, remove seeded patients, standardize padding`
-  2. `feat: migrate from SQLite/Prisma to Supabase PostgreSQL`
-  3. `fix: add leaflet CSS import for proper map tile rendering`
+# Work Log: Leaflet Map Popup Design System Update
 
-Stage Summary:
-- All 3 original bug fixes completed and pushed to GitHub
-- Risk map now renders correctly with OSM tiles, barangay boundaries visible even with zero patients
-- Map API returns empty data gracefully (no patients seeded)
-- Repository is up-to-date at https://github.com/reinnnnburikat/MOMternal.git
+## Date: 2025-07-10
 
----
-Task ID: 5
-Agent: GeoJSON Fetch Agent
-Task: Fetch accurate Makati City barangay GeoJSON from OpenStreetMap
+## Summary
+Updated all 3 Leaflet map popup HTML templates in `map-view.tsx` to use a polished, consistent design system that matches the MOMternal app's rose/pink theme. Also added CSS overrides for Leaflet popup chrome (wrapper, tip, close button) in `globals.css`.
 
-Work Log:
-- Identified 33 OSM relation IDs for all Makati barangays using Overpass API
-- Fetched all 33 relations with full geometry in a single Overpass query
-- Discovered that Rizal (OSM rel/131669) is NOT within Makati City bounds (it's in Taguig at 121.057-121.067 lon)
-- Confirmed that Barangay Rizal of Makati has NO admin_level=10 boundary relation in OSM
-- Verified via bbox search, area search, and Nominatim that Rizal Makati is unmapped in OSM
-- Built conversion script (scripts/convert-osm-to-geojson.mjs) that:
-  - Merges OSM way segment geometries into connected polygon rings
-  - Handles way direction matching and closing of rings
-  - Removes duplicate consecutive points
-  - Computes centroids as mean of all polygon coordinates
-- Saved 32 barangay boundary polygons to public/makati-barangays.geojson
-- Updated centroids in map-view.tsx from OSM polygon means (32 computed + Rizal approx)
-- Kept Rizal centroid at [14.5570, 121.0120] (approximate, from previous data)
+## Files Modified
 
-Stage Summary:
-- 32/33 barangays have accurate OSM-sourced boundary polygons (avg 84 points/polygon)
-- Barangay Rizal: no OSM boundary exists; centroid only, no polygon
-- File: public/makati-barangays.geojson (70.0 KB, FeatureCollection with 32 features)
-- Scripts: scripts/fetch-geojson.mjs (fetcher), scripts/convert-osm-to-geojson.mjs (converter)
-- Centroids: all 33 updated in map-view.tsx
+### 1. `/home/z/my-project/src/app/globals.css`
 
----
-Task ID: 6
-Agent: Main Agent (Session Continuation)
-Task: Complete two pending tasks from previous session: (A) Max-accuracy barangay borders, (B) AI stress test 100 rounds 90%+ accuracy
+**Added Leaflet popup CSS overrides** (appended after existing `.leaflet-container` rule):
 
-Work Log:
-- Discovered project location at /home/z/my-project (not /home/user/MOMternal as previous session)
-- Verified Task A (Barangay Borders) is ALREADY COMPLETE:
-  - public/makati-barangays.geojson has all 33 barangays
-  - 33-181 boundary points per polygon (avg ~95 points)
-  - Source: GADM 2011 data (faeldon/philippines-json-maps) + OSM for Rizal
-  - Map loads via fetch('/makati-barangays.geojson') in map-view.tsx
-  - All 33 barangays render correctly with boundary outlines
-- Verified Task B (AI Stress Test) status:
-  - scripts/ai-stress-test.ts: 100 test cases across 9 categories (A-I)
-  - AI system prompt (ai-prompts.ts): GOD MODE - comprehensive NIC/NANDA/NOC/ICD-10/DOH/WHO knowledge
-  - Previous test run: ALL 100 FAILED with 401 "missing X-Token header"
-  - Root cause: z-ai-web-dev-sdk requires X-Token in .z-ai-config but only apiKey is present
-  - Fix applied: Added missing imports (ZAI, MATERNAL_AI_SYSTEM_PROMPT, buildUserPrompt)
-  - AI service infrastructure issue: Server at 172.25.136.193:8080 requires valid X-Token that is not currently configured
-  - Stress test code is correct and ready to run once AI service is available
-- Attempted token fix: Added "token" field to config - error changed from "missing" to "invalid" confirming header is sent but token value is unknown/expired
+- **`.leaflet-popup-content-wrapper`** — Replaced default white box with soft rose-tinted background (`#fffbfc`), 12px border-radius, custom rose-tinted box-shadow (`rgba(225,29,72,0.08)`), subtle border matching the app's `oklch(0.95 0.015 350)` palette, removed padding (content handles its own)
+- **`.leaflet-popup-content`** — Zeroed margin, set font to Geist (`var(--font-sans)` with fallbacks), 13px base size, 1.5 line-height, max-width 260px
+- **`.leaflet-popup-tip`** — Matched wrapper background/border, added subtle rose shadow
+- **`.leaflet-popup-close-button`** — Centered in 28×28px rounded-8px container, lighter font-weight (300), muted color that transitions to rose-600 on hover with soft rose background
 
-Stage Summary:
-- Task A (Barangay Borders): COMPLETE - all 33 Makati barangays with accurate boundaries
-- Task B (AI Stress Test): Code COMPLETE, infrastructure BLOCKED - AI service X-Token not configured
-- AI system is in GOD MODE: 357-line comprehensive system prompt with 50 NIC interventions, 24 NANDA diagnoses, 20+ ICD-10 codes, DOH protocols, WHO guidelines
-- Stress test: 100 cases across 9 categories covering risk stratification, vital signs, trimester-specific, NANDA matching, ICD-10 codes, emergencies, cultural sensitivity, edge cases, and JSON format validation
+### 2. `/home/z/my-project/src/components/map/map-view.tsx`
+
+**All 3 popup templates redesigned with consistent structure:**
+
+#### Common Design Pattern (shared across all 3 popups)
+- **14px/16px padding** wrapper with 220px min-width
+- **Header section**: 32×32px icon container with rose gradient background (`#fff1f2` → `ffe4e6`) containing an inline Lucide `MapPin` SVG in rose-600 (`#e11d48`), next to a title (14px semibold `#1a1a2e`) and subtitle (11px `#9ca3af`)
+- **Info card**: Soft background pill with icon + data, 8px border-radius, 8px/10px padding
+
+#### Popup 1: Barangay Boundary Popup (line ~170)
+- Header: Location icon + barangay name + "Barangay" subtitle
+- Patient count card: Rose-tinted background (`#fef2f4`), users icon in rose-600, bold rose text with plural-aware "patient(s)"
+- Risk distribution: 3-column grid with large bold numbers (15px weight 700) in green/amber/red, uppercase tracking labels underneath, each in a soft color-matched card (`#f0fdf4`, `#fffbeb`, `#fef2f2`) with 8px border-radius
+
+#### Popup 2: Patient Marker Popup (line ~228)
+- Header: Location icon + barangay name + "Patient Location" subtitle
+- Patient ID card: Slate background (`#f8fafc`), user icon in slate-500, patient ID in slate-600
+- Risk badge: Pill-shaped (20px border-radius) with white text on risk color, subtle colored box-shadow (`color33`), small white dot indicator, plus secondary "N in area" text aligned right
+
+#### Popup 3: Centroid Marker Popup (line ~273)
+- Same structure as barangay boundary popup
+- Header subtitle changed to "Aggregated Data" to differentiate from boundary popup
+- Same 3-column risk distribution grid and patient count card
+
+## Design Decisions
+- Used **inline SVGs** (Lucide icon paths) instead of emoji/unicode for crisp rendering at all zoom levels
+- Risk colors maintained from the existing `RISK_COLORS` constant (green-500, amber-500, red-500) for visual consistency with map markers
+- Rose-600 (`#e11d48`) used as the accent/primary color throughout popups, matching the app's theme
+- All border-radii set to 8px for cards/badges (matching shadcn's `--radius` feel) and 12px for the popup wrapper
+- Typography hierarchy: 15px bold numbers → 14px semibold titles → 12px medium body → 11px muted subtitles → 10px uppercase labels
+
+## Pre-existing Lint Issues (Not Introduced)
+- `scripts/ai-stress-test-offline.mjs`: Leading zero decimal parsing error
+- `consultation-view.tsx`: `ClipboardPlus` undefined reference
+- `app-shell.tsx`: setState in effect warning

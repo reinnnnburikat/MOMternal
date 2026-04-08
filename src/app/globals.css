@@ -87,6 +87,35 @@
   }
 }
 
+.dark {
+  --background: oklch(0.15 0.01 350);
+  --foreground: oklch(0.95 0.01 350);
+  --card: oklch(0.2 0.015 350);
+  --card-foreground: oklch(0.95 0.01 350);
+  --primary: oklch(0.7 0.18 350);
+  --primary-foreground: oklch(0.15 0.01 350);
+  --secondary: oklch(0.25 0.015 350);
+  --secondary-foreground: oklch(0.9 0.01 350);
+  --muted: oklch(0.25 0.01 350);
+  --muted-foreground: oklch(0.65 0.015 350);
+  --accent: oklch(0.3 0.03 350);
+  --accent-foreground: oklch(0.9 0.01 350);
+  --destructive: oklch(0.6 0.25 27);
+  --border: oklch(0.3 0.015 350);
+  --ring: oklch(0.7 0.18 350);
+  --input: oklch(0.25 0.015 350);
+  --popover: oklch(0.2 0.015 350);
+  --popover-foreground: oklch(0.95 0.01 350);
+  --sidebar: oklch(0.17 0.015 350);
+  --sidebar-foreground: oklch(0.95 0.01 350);
+  --sidebar-primary: oklch(0.7 0.18 350);
+  --sidebar-primary-foreground: oklch(0.15 0.01 350);
+  --sidebar-accent: oklch(0.25 0.03 350);
+  --sidebar-accent-foreground: oklch(0.9 0.01 350);
+  --sidebar-border: oklch(0.3 0.015 350);
+  --sidebar-ring: oklch(0.7 0.18 350);
+}
+
 /* Risk level colors */
 .risk-low {
   @apply bg-emerald-50 text-emerald-700 border-emerald-200;
@@ -127,4 +156,53 @@
 .leaflet-container {
   border-radius: var(--radius);
   font-family: var(--font-sans);
+}
+
+/* Leaflet popup — MOMternal rose theme */
+.leaflet-popup-content-wrapper {
+  background: #fffbfc;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(225, 29, 72, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid oklch(0.95 0.015 350);
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: oklch(0.25 0.015 350);
+  max-width: 260px;
+}
+
+.leaflet-popup-tip {
+  background: #fffbfc;
+  border: 1px solid oklch(0.95 0.015 350);
+  border-top: none;
+  border-left: none;
+  box-shadow: 2px 2px 4px rgba(225, 29, 72, 0.06);
+}
+
+.leaflet-popup-close-button {
+  color: oklch(0.55 0.02 350) !important;
+  font-size: 20px !important;
+  font-weight: 300 !important;
+  width: 28px !important;
+  height: 28px !important;
+  top: 6px !important;
+  right: 6px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+  z-index: 10;
+}
+
+.leaflet-popup-close-button:hover {
+  background: rgba(225, 29, 72, 0.08);
+  color: #e11d48 !important;
 }

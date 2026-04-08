@@ -5,9 +5,15 @@ import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, LogIn, Shield, Clock } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Stethoscope, Shield, Heart, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
+
+const features = [
+  { icon: Stethoscope, label: 'AI-Assisted Assessments' },
+  { icon: Shield, label: 'Secure Patient Records' },
+  { icon: Heart, label: 'Comprehensive Maternal Care' },
+  { icon: MapPin, label: 'Community Risk Mapping' },
+];
 
 export function LoginView() {
   const [email, setEmail] = useState('');
@@ -48,31 +54,76 @@ export function LoginView() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <Card className="border-0 shadow-xl shadow-rose-100/50">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-4 w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 p-2">
+    <div className="flex w-full min-h-screen">
+      {/* Left Panel — branding (hidden on mobile) */}
+      <div className="hidden md:flex md:w-1/2 lg:w-[55%] relative overflow-hidden bg-gradient-to-br from-rose-600 via-rose-700 to-pink-800 dark:from-rose-900 dark:via-rose-950 dark:to-pink-950 flex-col items-center justify-center px-12 text-white">
+        {/* Decorative background heart */}
+        <div className="absolute -right-20 -bottom-20 w-[420px] h-[420px] rounded-full bg-white/[0.04] blur-2xl" />
+        <div className="absolute -left-16 -top-16 w-64 h-64 rounded-full bg-white/[0.04] blur-xl" />
+
+        <div className="relative z-10 flex flex-col items-center text-center max-w-sm">
+          <div className="mb-6 w-24 h-24 rounded-2xl overflow-hidden bg-white/20 backdrop-blur-sm p-2 ring-1 ring-white/20">
             <img
               src="/momternal_logo.png"
               alt="MOMternal Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <CardTitle className="text-2xl font-bold text-rose-900">
-            MOMternal
-          </CardTitle>
-          <CardDescription className="text-sm text-rose-600/70">
+          <h1 className="text-4xl font-bold tracking-tight">MOMternal</h1>
+          <p className="mt-2 text-white/70 text-sm font-medium">
             Mobilized Outreach Maternal Support
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <form onSubmit={handleLogin} className="space-y-4">
+          </p>
+
+          <div className="mt-10 w-full space-y-3">
+            {features.map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-3 text-sm text-white/80">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 backdrop-blur-sm">
+                  <Icon className="h-4 w-4 text-white/90" />
+                </div>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/40">
+          Made with ❤ for UMAK
+        </p>
+      </div>
+
+      {/* Right Panel — form */}
+      <div className="flex w-full md:w-1/2 lg:w-[45%] items-center justify-center bg-white dark:bg-gray-950 px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Mobile logo (shown only below md) */}
+          <div className="mb-8 flex md:hidden flex-col items-center">
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 p-1.5">
+              <img
+                src="/momternal_logo.png"
+                alt="MOMternal Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="mt-2 text-lg font-bold text-rose-900 dark:text-rose-300">
+              MOMternal
+            </span>
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Welcome Back
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Sign in to your account
+          </p>
+
+          <form onSubmit={handleLogin} className="mt-8 space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="dark:text-gray-300">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="jaldea.k12254703@umak.edu.ph"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11"
@@ -80,7 +131,9 @@ export function LoginView() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="dark:text-gray-300">
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -118,49 +171,8 @@ export function LoginView() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 text-rose-400" />
-              <span>DPA Compliant — Patient data is protected</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 text-rose-400" />
-              <span>Auto-logout after 20 minutes of inactivity</span>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-rose-100">
-            <p className="text-xs text-muted-foreground text-center">
-              Pre-seeded accounts for demo:
-            </p>
-            <div className="mt-2 space-y-1">
-              {[
-                { email: 'jaldea.k12254703@umak.edu.ph', name: 'Janica Aldea' },
-                { email: 'snebre.k12257601@umak.edu.ph', name: 'Sophia Bianca Nebre' },
-                { email: 'doliveros.k12257017@umak.edu.ph', name: 'Danchelle Joy Oliveros' },
-                { email: 'krazon.k12255767@umak.edu.ph', name: 'Khimverlee Razon' },
-                { email: 'mvaldez.k12256669@umak.edu.ph', name: 'Mean Joyce Valdez' },
-              ].map((account) => (
-                <button
-                  key={account.email}
-                  type="button"
-                  onClick={() => {
-                    setEmail(account.email);
-                    setPassword('nurse123');
-                  }}
-                  className="w-full text-left text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded px-2 py-1.5 transition-colors"
-                >
-                  {account.name} — {account.email}
-                </button>
-              ))}
-              <p className="text-xs text-muted-foreground text-center mt-1">
-                Password: <code className="bg-rose-50 px-1 rounded">nurse123</code>
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

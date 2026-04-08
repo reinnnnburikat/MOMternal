@@ -11,10 +11,34 @@ import { NewPatientView } from '@/components/patients/new-patient-view';
 import { ConsultationView } from '@/components/consultations/consultation-view';
 import { MapView } from '@/components/map/map-view';
 import { AuditView } from '@/components/audit/audit-view';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const viewTransition = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+  transition: { duration: 0.2, ease: 'easeInOut' },
+};
 
 function ViewRouter() {
   const currentView = useAppStore((s) => s.currentView);
 
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentView}
+        initial={viewTransition.initial}
+        animate={viewTransition.animate}
+        exit={viewTransition.exit}
+        transition={viewTransition.transition}
+      >
+        {switchView(currentView)}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+function switchView(currentView: AppView) {
   switch (currentView) {
     case 'login':
       return <LoginView />;
@@ -42,7 +66,6 @@ export default function Home() {
   const isSessionExpired = useAppStore((s) => s.isSessionExpired);
   const logout = useAppStore((s) => s.logout);
   const updateActivity = useAppStore((s) => s.updateActivity);
-  const currentView = useAppStore((s) => s.currentView);
 
   // Session timeout check
   useEffect(() => {
@@ -71,13 +94,31 @@ export default function Home() {
     };
   }, [updateActivity]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
-        <LoginView />
-      </div>
-    );
-  }
-
-  return <AppShell>{isAuthenticated ? <ViewRouter /> : <LoginView />}</AppShell>;
+  return (
+    <AnimatePresence mode="wait">
+      {!isAuthenticated ? (
+        <motion.div
+          key="login-screen"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
+          <LoginView />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="app-shell"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
+          <AppShell>
+            <ViewRouter />
+          </AppShell>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
