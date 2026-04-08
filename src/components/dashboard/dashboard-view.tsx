@@ -435,7 +435,7 @@ export function DashboardView() {
           color: 'text-emerald-600',
           bg: 'bg-emerald-50',
           darkBg: 'dark:bg-emerald-950/40',
-          sparkColor: CHART_COLORS.green,
+          sparkColor: CHART_COLORS.rose,
           trend: lowRiskPatients > 0
             ? 'Stable'
             : 'No low-risk patients',
@@ -447,7 +447,7 @@ export function DashboardView() {
           color: 'text-red-600',
           bg: 'bg-red-50',
           darkBg: 'dark:bg-red-950/40',
-          sparkColor: CHART_COLORS.red,
+          sparkColor: CHART_COLORS.rose,
           trend: stats.highRiskPatients > 0
             ? 'Requires attention'
             : 'All clear',
@@ -459,7 +459,7 @@ export function DashboardView() {
           color: 'text-amber-600',
           bg: 'bg-amber-50',
           darkBg: 'dark:bg-amber-950/40',
-          sparkColor: CHART_COLORS.gold,
+          sparkColor: CHART_COLORS.rose,
           trend: stats.pendingReferrals > 0
             ? 'Action needed'
             : 'Up to date',
@@ -471,7 +471,7 @@ export function DashboardView() {
           color: 'text-purple-600',
           bg: 'bg-purple-50',
           darkBg: 'dark:bg-purple-950/40',
-          sparkColor: CHART_COLORS.purple,
+          sparkColor: CHART_COLORS.rose,
           trend: stats.consultationsByRisk
             ? `${stats.consultationsByRisk.low} low · ${stats.consultationsByRisk.moderate} mod · ${stats.consultationsByRisk.high} high`
             : undefined,

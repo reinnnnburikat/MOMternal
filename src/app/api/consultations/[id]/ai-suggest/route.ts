@@ -10,17 +10,20 @@ import {
 /**
  * POST /api/consultations/[id]/ai-suggest
  *
- * Enhanced AI Intervention Recommendation System (GOD MODE).
+ * Enhanced AI Intervention Recommendation System.
  * Sends assessment data to z-ai-web-dev-sdk (server-side only) to generate
  * NIC nursing interventions using comprehensive maternal health domain knowledge.
  * Stores result as JSON string in aiSuggestions.
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+
+    // Check for X-Token in incoming request headers (may be injected by gateway)
+    const xToken = request.headers.get("x-token");
 
     // Fetch consultation with patient clinical data (NOT identity data)
     const consultation = await queryOne(
@@ -66,12 +69,45 @@ export async function POST(
     const userPrompt = buildUserPrompt(assessmentData);
 
     // Call z-ai-web-dev-sdk on server side
-    const zai = await ZAI.create();
+    // If X-Token is available from the gateway, we create a local config override
+    let zai;
+    if (xToken) {
+      // Create SDK with token from gateway by writing a temporary project-level config
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const os = await import("os");
+      const configPath = path.join(process.cwd(), ".z-ai-config");
+      const homeConfigPath = path.join(os.homedir(), ".z-ai-config");
+      const etcConfigPath = "/etc/.z-ai-config";
+
+      let baseConfig: Record<string, string> = {};
+      for (const p of [configPath, homeConfigPath, etcConfigPath]) {
+        try {
+          const raw = await fs.readFile(p, "utf-8");
+          const parsed = JSON.parse(raw);
+          if (parsed.baseUrl && parsed.apiKey) {
+            baseConfig = parsed;
+            break;
+          }
+        } catch {}
+      }
+
+      // Write project-level config with token (highest priority)
+      const fullConfig = { ...baseConfig, token: xToken };
+      await fs.writeFile(configPath, JSON.stringify(fullConfig, null, 2));
+      zai = await ZAI.create();
+      // Clean up the project-level config after use
+      try { await fs.unlink(configPath); } catch {}
+    } else {
+      // No X-Token available — try the SDK as-is
+      // This may fail if the config doesn't include a token
+      zai = await ZAI.create();
+    }
 
     const completion = await zai.chat.completions.create({
       messages: [
         {
-          role: "assistant",
+          role: "system",
           content: MATERNAL_AI_SYSTEM_PROMPT,
         },
         {
@@ -138,10 +174,20 @@ export async function POST(
         stepCompleted: updated!.step_completed,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error generating AI suggestions:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    // Provide specific error info for auth failures
+    if (message.includes("401") || message.includes("X-Token") || message.includes("missing")) {
+      return NextResponse.json(
+        { error: "AI service authentication failed. The AI intervention feature requires a valid service token. Please ensure the AI SDK token is configured in the system.", details: message },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to generate AI suggestions" },
+      { error: "Failed to generate AI suggestions", details: message },
       { status: 500 }
     );
   }

@@ -41,6 +41,7 @@ import {
   Loader2,
   Shield,
   Info,
+  AlertCircle,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -221,6 +222,7 @@ export function ConsultationView() {
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [referralLoading, setReferralLoading] = useState(false);
   const [customIntervention, setCustomIntervention] = useState('');
   const isInitialized = useRef(false);
@@ -461,21 +463,28 @@ export function ConsultationView() {
   const handleAiSuggest = useCallback(async () => {
     if (!selectedConsultationId) return;
     setAiLoading(true);
+    setAiError(null);
     try {
       const res = await fetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, {
         method: 'POST',
       });
-      if (!res.ok) throw new Error('AI suggestion failed');
       const data = await res.json();
+      if (!res.ok) {
+        setAiError(data.error || data.details || 'AI suggestion failed');
+        throw new Error(data.error || 'AI suggestion failed');
+      }
       setAiSuggestions(data.aiSuggestions);
+      setAiError(null);
       toast.success('AI suggestions generated');
       updateActivity();
-    } catch {
-      toast.error('Failed to generate AI suggestions');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to generate AI suggestions';
+      if (!aiError) setAiError(msg);
+      toast.error(msg, { duration: 5000 });
     } finally {
       setAiLoading(false);
     }
-  }, [selectedConsultationId, updateActivity]);
+  }, [selectedConsultationId, updateActivity, aiError]);
 
   // ── Generate Referral ──
   const handleGenerateReferral = useCallback(async () => {
@@ -553,7 +562,8 @@ export function ConsultationView() {
       case 3:
         return riskLevel.length > 0;
       case 4:
-        return aiSuggestions !== null;
+        // Allow proceeding if AI suggestions were generated OR if AI failed (user can add manual interventions)
+        return aiSuggestions !== null || aiError !== null;
       default:
         return true;
     }
@@ -1100,6 +1110,23 @@ export function ConsultationView() {
             AI is analyzing assessment data...
           </p>
           <p className="text-xs text-muted-foreground mt-1">This may take a few moments</p>
+        </div>
+      )}
+
+      {/* Error state */}
+      {aiError && !aiLoading && !aiSuggestions && (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="h-8 w-8 text-amber-500" />
+          </div>
+          <h3 className="font-semibold text-base mb-2">Unable to Generate AI Suggestions</h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
+            {aiError}
+          </p>
+          <Button onClick={handleAiSuggest} variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </Button>
         </div>
       )}
 
