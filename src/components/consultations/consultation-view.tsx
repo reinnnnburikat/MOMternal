@@ -1665,21 +1665,21 @@ export function ConsultationView() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <StepAssessment />;
+        return StepAssessment();
       case 1:
-        return <StepFindings />;
+        return StepFindings();
       case 2:
-        return <StepDiagnosis />;
+        return StepDiagnosis();
       case 3:
-        return <StepRisk />;
+        return StepRisk();
       case 4:
-        return <StepAiSuggest />;
+        return StepAiSuggest();
       case 5:
-        return <StepHITL />;
+        return StepHITL();
       case 6:
-        return <StepEvaluation />;
+        return StepEvaluation();
       case 7:
-        return <StepReferral />;
+        return StepReferral();
       default:
         return null;
     }
@@ -1700,9 +1700,10 @@ export function ConsultationView() {
 
   return (
     <div className="space-y-0">
-      <PatientHeader />
-      <ResumeBanner />
-      <StepProgress />
+      {PatientHeader()}
+      {ResumeBanner()}
+      {StepProgress()}
+      {ExitConfirmDialog()}
 
       {/* Step Card */}
       <Card className="overflow-hidden">
