@@ -208,3 +208,27 @@ Stage Summary:
 - Changed renderStep() to use direct function calls instead of component instantiation
 - Changed main render to use function calls for PatientHeader, ResumeBanner, StepProgress, ExitConfirmDialog
 - No code changes needed for navigation buttons — they work correctly
+
+---
+Task ID: 1 (attempt 2)
+Agent: Main Agent
+Task: Fix input field focus loss - still occurring on new consultations
+
+Work Log:
+- User reported the fix didn't work - issue only occurs on "new consultation"
+- Investigated the new consultation creation flow across all entry points:
+  - Patient Profile View: handleNewConsultation → setSelectedConsultationId + setCurrentView
+  - Patient List View: same pattern with 3 store updates
+  - Dashboard: redirects to patient-new view
+- Analyzed zustand persist middleware behavior with localStorage
+- Analyzed AnimatePresence and ViewRouter re-render patterns
+- Analyzed all potential parent re-render sources (Home component store subscriptions)
+- Conclusion: The inline function call fix addresses component identity, but there's likely an additional parent-level re-render from zustand persist writes or AnimatePresence transitions that happens specifically during new consultation navigation
+- Applied robust focus preservation using dual useLayoutEffect hooks:
+  1. First effect saves document.activeElement (if input/textarea) before React commits
+  2. Second effect restores focus to the saved element after DOM changes
+
+Stage Summary:
+- Added useLayoutEffect-based focus preservation mechanism in consultation-view.tsx
+- This is a defense-in-depth approach that works regardless of what causes the re-render
+- Uses preventScroll: true to avoid jarring scroll jumps

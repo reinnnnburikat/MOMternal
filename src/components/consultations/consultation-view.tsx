@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -227,6 +227,28 @@ export function ConsultationView() {
   const [referralLoading, setReferralLoading] = useState(false);
   const [customIntervention, setCustomIntervention] = useState('');
   const isInitialized = useRef(false);
+
+  // ── Focus preservation ──
+  // Saves the currently focused element before React commits DOM changes,
+  // then restores focus after the render. This prevents focus loss caused by
+  // parent re-renders (e.g., from zustand persist middleware, AnimatePresence, etc.)
+  const focusedElRef = useRef<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    // Save what's currently focused before React's DOM commit
+    const active = document.activeElement as HTMLElement | null;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+      focusedElRef.current = active;
+    }
+  });
+
+  useLayoutEffect(() => {
+    // After React commits DOM changes, restore focus if it was lost
+    const saved = focusedElRef.current;
+    if (saved && document.activeElement !== saved && document.contains(saved)) {
+      saved.focus({ preventScroll: true });
+    }
+  });
 
   // ── Form fields ──
   const [subjectiveSymptoms, setSubjectiveSymptoms] = useState('');
