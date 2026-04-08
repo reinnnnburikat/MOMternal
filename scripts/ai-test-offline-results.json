@@ -1,0 +1,1160 @@
+{
+  "timestamp": "2026-04-08T00:17:16.004Z",
+  "mode": "offline-rule-engine",
+  "total": 100,
+  "passed": 94,
+  "failed": 6,
+  "accuracy": "94.0%",
+  "categoryResults": {
+    "A": {
+      "total": 15,
+      "passed": 15
+    },
+    "B": {
+      "total": 20,
+      "passed": 19
+    },
+    "C": {
+      "total": 10,
+      "passed": 8
+    },
+    "D": {
+      "total": 15,
+      "passed": 14
+    },
+    "E": {
+      "total": 10,
+      "passed": 9
+    },
+    "F": {
+      "total": 10,
+      "passed": 9
+    },
+    "G": {
+      "total": 5,
+      "passed": 5
+    },
+    "H": {
+      "total": 5,
+      "passed": 5
+    },
+    "I": {
+      "total": 10,
+      "passed": 10
+    }
+  },
+  "results": [
+    {
+      "id": 1,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — normal pregnancy, all vitals normal",
+      "passed": true,
+      "failures": [],
+      "duration": 3,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 2,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — mild anemia (Hb 9.5)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 3,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — elevated BP (135/88)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 4,
+      "category": "A. Risk Stratification",
+      "name": "High risk — severe preeclampsia (BP 170/110)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 5,
+      "category": "A. Risk Stratification",
+      "name": "High risk — FHR bradycardia (100 bpm)",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 5
+    },
+    {
+      "id": 6,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — routine 2nd trimester visit",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 7,
+      "category": "A. Risk Stratification",
+      "name": "High risk — severe anemia + hypertension",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 8,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — early pregnancy 8 weeks",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 9,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — gestational diabetes controlled",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 10,
+      "category": "A. Risk Stratification",
+      "name": "High risk — placental abruption signs",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 11,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — urinary tract infection",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 12,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — advanced maternal age 38",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 13,
+      "category": "A. Risk Stratification",
+      "name": "High risk — eclampsia seizure history",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 14,
+      "category": "A. Risk Stratification",
+      "name": "Moderate risk — hypothyroidism",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 4
+    },
+    {
+      "id": 15,
+      "category": "A. Risk Stratification",
+      "name": "Low risk — normal postpartum check",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 3
+    },
+    {
+      "id": 16,
+      "category": "B. Vital Signs",
+      "name": "Normal BP ≤120/80",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 17,
+      "category": "B. Vital Signs",
+      "name": "BP 125/82 (elevated)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 18,
+      "category": "B. Vital Signs",
+      "name": "BP 145/95 (HTN Stage 1)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 19,
+      "category": "B. Vital Signs",
+      "name": "BP 165/105 (HTN Stage 2)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 20,
+      "category": "B. Vital Signs",
+      "name": "BP 172/112 (severe range)",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 21,
+      "category": "B. Vital Signs",
+      "name": "FHR 108 bpm (bradycardia)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 5
+    },
+    {
+      "id": 22,
+      "category": "B. Vital Signs",
+      "name": "FHR 162 bpm (tachycardia)",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 5
+    },
+    {
+      "id": 23,
+      "category": "B. Vital Signs",
+      "name": "FHR 95 bpm (severe distress)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 24,
+      "category": "B. Vital Signs",
+      "name": "Temp 37.7°C (low-grade)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 25,
+      "category": "B. Vital Signs",
+      "name": "Temp 38.2°C (fever)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 5
+    },
+    {
+      "id": 26,
+      "category": "B. Vital Signs",
+      "name": "Temp 39.0°C (high fever)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 27,
+      "category": "B. Vital Signs",
+      "name": "Hb 10.5 (mild anemia)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 28,
+      "category": "B. Vital Signs",
+      "name": "Hb 7.5 (moderate anemia)",
+      "passed": false,
+      "failures": [
+        "Missing expected category \"Safety\". Got: [Physiological,Psychosocial]"
+      ],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 29,
+      "category": "B. Vital Signs",
+      "name": "Hb 6.2 (severe anemia)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 30,
+      "category": "B. Vital Signs",
+      "name": "Glucose 96 (GDM threshold)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 31,
+      "category": "B. Vital Signs",
+      "name": "Glucose 130 (overt DM)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 32,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 1+ trace",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 33,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 2+ significant",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 34,
+      "category": "B. Vital Signs",
+      "name": "Proteinuria 3+ with HTN",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 35,
+      "category": "B. Vital Signs",
+      "name": "HR 110 (tachycardia borderline)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 36,
+      "category": "C. Trimester",
+      "name": "1st tri — hyperemesis gravidarum",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 37,
+      "category": "C. Trimester",
+      "name": "1st tri — folic acid guidance",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 4
+    },
+    {
+      "id": 38,
+      "category": "C. Trimester",
+      "name": "2nd tri — fetal movement education",
+      "passed": false,
+      "failures": [
+        "Missing expected category \"Psychosocial\". Got: [Physiological,Educational]"
+      ],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 39,
+      "category": "C. Trimester",
+      "name": "2nd tri — TT immunization",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 40,
+      "category": "C. Trimester",
+      "name": "2nd tri — GDM screening due",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 41,
+      "category": "C. Trimester",
+      "name": "3rd tri — preterm labor signs",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 42,
+      "category": "C. Trimester",
+      "name": "3rd tri — birth preparedness",
+      "passed": false,
+      "failures": [
+        "Missing expected category \"Psychosocial\". Got: [Physiological,Educational]"
+      ],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 43,
+      "category": "C. Trimester",
+      "name": "3rd tri — decreased fetal movements",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 44,
+      "category": "C. Trimester",
+      "name": "3rd tri — breastfeeding education",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 45,
+      "category": "C. Trimester",
+      "name": "3rd tri — danger sign awareness",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 46,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Infection",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 5
+    },
+    {
+      "id": 47,
+      "category": "D. NANDA",
+      "name": "NANDA: Anxiety",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 48,
+      "category": "D. NANDA",
+      "name": "NANDA: Fatigue",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 49,
+      "category": "D. NANDA",
+      "name": "NANDA: Imbalanced Nutrition",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 50,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Bleeding",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 51,
+      "category": "D. NANDA",
+      "name": "NANDA: Deficient Knowledge",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 52,
+      "category": "D. NANDA",
+      "name": "NANDA: Ineffective Coping",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 53,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Impaired Parenting",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 54,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Injury fetal",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 7
+    },
+    {
+      "id": 55,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Fluid Volume",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 56,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Perfusion",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 57,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Cerebral Perfusion",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 58,
+      "category": "D. NANDA",
+      "name": "NANDA: Decisional Conflict",
+      "passed": false,
+      "failures": [
+        "Missing expected category \"Educational\". Got: [Physiological,Psychosocial]"
+      ],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 5
+    },
+    {
+      "id": 59,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Shock",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 7
+    },
+    {
+      "id": 60,
+      "category": "D. NANDA",
+      "name": "NANDA: Risk for Aspiration",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 61,
+      "category": "E. ICD-10",
+      "name": "ICD O10 — Pre-existing hypertension",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 62,
+      "category": "E. ICD-10",
+      "name": "ICD O12 — Gestational HTN",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 63,
+      "category": "E. ICD-10",
+      "name": "ICD O14 — Pre-eclampsia",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 64,
+      "category": "E. ICD-10",
+      "name": "ICD O24.3 — GDM",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 65,
+      "category": "E. ICD-10",
+      "name": "ICD O99.0 — Anemia",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 66,
+      "category": "E. ICD-10",
+      "name": "ICD O20 — Threatened abortion",
+      "passed": false,
+      "failures": [
+        "Expected preventionLevel \"secondary\", got \"tertiary\""
+      ],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 67,
+      "category": "E. ICD-10",
+      "name": "ICD O60 — Preterm labor",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 68,
+      "category": "E. ICD-10",
+      "name": "ICD O23 — UTI",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 69,
+      "category": "E. ICD-10",
+      "name": "ICD O36 — Fetal concern",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 4
+    },
+    {
+      "id": 70,
+      "category": "E. ICD-10",
+      "name": "ICD O68 — Fetal stress in labor",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 71,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe headache + blurred vision",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 72,
+      "category": "F. Emergencies",
+      "name": "WHO: Vaginal bleeding active",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 73,
+      "category": "F. Emergencies",
+      "name": "WHO: Convulsions/seizures",
+      "passed": true,
+      "failures": [],
+      "duration": 1,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 74,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe abdominal pain",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 75,
+      "category": "F. Emergencies",
+      "name": "WHO: Extreme weakness",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 76,
+      "category": "F. Emergencies",
+      "name": "WHO: Reduced/absent fetal movements",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 6
+    },
+    {
+      "id": 77,
+      "category": "F. Emergencies",
+      "name": "WHO: Fever with infection signs",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 3
+    },
+    {
+      "id": 78,
+      "category": "F. Emergencies",
+      "name": "WHO: Severe vomiting",
+      "passed": false,
+      "failures": [
+        "Expected preventionLevel \"secondary\", got \"tertiary\""
+      ],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 79,
+      "category": "F. Emergencies",
+      "name": "WHO: Difficulty breathing",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 80,
+      "category": "F. Emergencies",
+      "name": "WHO: Face/hand swelling (sudden)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 81,
+      "category": "G. Cultural",
+      "name": "Filipino dietary counseling (rice-based)",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 82,
+      "category": "G. Cultural",
+      "name": "BHW community involvement",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 83,
+      "category": "G. Cultural",
+      "name": "Family decision-making support",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 84,
+      "category": "G. Cultural",
+      "name": "Malunggay/herbal medicine inquiry",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 85,
+      "category": "G. Cultural",
+      "name": "Financial constraints / PhilHealth awareness",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 86,
+      "category": "H. Edge Cases",
+      "name": "Missing data — all nulls",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 3
+    },
+    {
+      "id": 87,
+      "category": "H. Edge Cases",
+      "name": "Very early pregnancy 4 weeks",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 4
+    },
+    {
+      "id": 88,
+      "category": "H. Edge Cases",
+      "name": "Advanced maternal age 42 with G6P5",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 89,
+      "category": "H. Edge Cases",
+      "name": "Multiple risk factors combined",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 90,
+      "category": "H. Edge Cases",
+      "name": "Normal routine visit — no issues",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 91,
+      "category": "I. JSON Format",
+      "name": "JSON format: normal case",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 92,
+      "category": "I. JSON Format",
+      "name": "JSON format: moderate risk",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 6
+    },
+    {
+      "id": 93,
+      "category": "I. JSON Format",
+      "name": "JSON format: high risk",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 94,
+      "category": "I. JSON Format",
+      "name": "JSON format: minimal data",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 95,
+      "category": "I. JSON Format",
+      "name": "JSON format: with all fields populated",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "secondary",
+      "referralNeeded": false,
+      "interventionCount": 8
+    },
+    {
+      "id": 96,
+      "category": "I. JSON Format",
+      "name": "JSON format: 1st trimester",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 7
+    },
+    {
+      "id": 97,
+      "category": "I. JSON Format",
+      "name": "JSON format: 3rd trimester emergency",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 98,
+      "category": "I. JSON Format",
+      "name": "JSON format: postpartum",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "primary",
+      "referralNeeded": false,
+      "interventionCount": 3
+    },
+    {
+      "id": 99,
+      "category": "I. JSON Format",
+      "name": "JSON format: overdose scenario",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    },
+    {
+      "id": 100,
+      "category": "I. JSON Format",
+      "name": "JSON format: high-risk with cultural data",
+      "passed": true,
+      "failures": [],
+      "duration": 0,
+      "preventionLevel": "tertiary",
+      "referralNeeded": true,
+      "interventionCount": 8
+    }
+  ]
+}
