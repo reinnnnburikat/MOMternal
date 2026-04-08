@@ -26,7 +26,7 @@ const NIC_DB = {
   1570: { name: 'Medication Administration', category: 'Physiological', nanda: 'Nausea', noc: 'Therapeutic Response: Medication (1901)' },
   6540: { name: 'Weight Management', category: 'Physiological', nanda: 'Imbalanced Nutrition', noc: 'Nutritional Status: Body Weight (1003)' },
   6670: { name: 'Temperature Regulation', category: 'Physiological', nanda: 'Risk for Infection', noc: 'Thermoregulation (0800)' },
-  0180: { name: 'Energy Management', category: 'Physiological', nanda: 'Fatigue', noc: 'Energy Conservation (0003)' },
+  180: { name: 'Energy Management', category: 'Physiological', nanda: 'Fatigue', noc: 'Energy Conservation (0003)' },
   3584: { name: 'Sleep Enhancement', category: 'Physiological', nanda: 'Fatigue', noc: 'Rest (0004)' },
   6340: { name: 'Preeclampsia/Eclampsia Management', category: 'Physiological', nanda: 'Risk for Ineffective Cerebral Tissue Perfusion', noc: 'Maternal Hemodynamic Status (0402)' },
   4130: { name: 'Changing Position', category: 'Physiological', nanda: 'Fatigue', noc: 'Physical Mobility (0208)' },
@@ -282,7 +282,7 @@ function selectInterventions(data, vitals, preventionLevel) {
     codes.push(5330, 4920);
   }
   if (nanda.includes('fatigue') || subj.includes('tiredness') || subj.includes('fatigue') || subj.includes('low energy')) {
-    codes.push(0180, 3584);
+    codes.push(180, 3584);
     // Fatigue also has psychosocial component per NANDA linkage
     codes.push(5270);
   }

@@ -5,7 +5,7 @@ import {
   buildUserPrompt,
   type AIResponse,
 } from "@/lib/ai-prompts";
-import ZAI from "z-ai-web-dev-sdk";
+import { generateFallbackSuggestions } from "@/lib/ai-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -53,52 +53,65 @@ export async function POST(
       },
     };
 
-    const userPrompt = buildUserPrompt(assessmentData);
-    const zai = await ZAI.create();
-
-    // Override with gateway-provided X-Token if available (it's the real service token)
-    const gatewayToken = request.headers.get("X-Token");
-    if (gatewayToken) {
-      (zai as unknown as { config: Record<string, string> }).config.token = gatewayToken;
-    }
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: "assistant", content: MATERNAL_AI_SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
-      ],
-      thinking: { type: "disabled" },
-    });
-
-    const rawContent = completion.choices?.[0]?.message?.content;
-
-    if (!rawContent || rawContent.trim().length === 0) {
-      return NextResponse.json({ error: "AI returned an empty response." }, { status: 502 });
-    }
-
-    let cleaned = rawContent.trim();
-    if (cleaned.startsWith("```json")) cleaned = cleaned.slice(7);
-    else if (cleaned.startsWith("```")) cleaned = cleaned.slice(3);
-    if (cleaned.endsWith("```")) cleaned = cleaned.slice(0, -3);
-    cleaned = cleaned.trim();
-
     let aiSuggestions: AIResponse;
+    let usedFallback = false;
+
+    // Try AI service first using dynamic import (requires X-Token from gateway)
     try {
-      aiSuggestions = JSON.parse(cleaned) as AIResponse;
-    } catch {
-      aiSuggestions = {
-        interventions: [],
-        priorityIntervention: "",
-        priorityCode: 0,
-        rationale: "",
-        preventionLevel: "secondary",
-        riskIndicators: [],
-        nursingConsiderations: [],
-        referralNeeded: false,
-        referralReason: "",
-        followUpSchedule: "",
-        rawResponse: rawContent,
-      } as unknown as AIResponse;
+      const ZAI = (await import("z-ai-web-dev-sdk")).default;
+      const zai = await ZAI.create();
+
+      // Read X-Token from incoming request headers (injected by outer gateway)
+      const gatewayToken = request.headers.get("x-token");
+      if (gatewayToken) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (zai as any).config.token = gatewayToken;
+      }
+
+      const userPrompt = buildUserPrompt(assessmentData);
+
+      const completion = await zai.chat.completions.create({
+        messages: [
+          { role: "assistant", content: MATERNAL_AI_SYSTEM_PROMPT },
+          { role: "user", content: userPrompt },
+        ],
+        thinking: { type: "disabled" },
+      });
+
+      const rawContent = completion.choices?.[0]?.message?.content;
+
+      if (!rawContent || rawContent.trim().length === 0) {
+        throw new Error("Empty AI response");
+      }
+
+      let cleaned = rawContent.trim();
+      if (cleaned.startsWith("```json")) cleaned = cleaned.slice(7);
+      else if (cleaned.startsWith("```")) cleaned = cleaned.slice(3);
+      if (cleaned.endsWith("```")) cleaned = cleaned.slice(0, -3);
+      cleaned = cleaned.trim();
+
+      try {
+        aiSuggestions = JSON.parse(cleaned) as AIResponse;
+      } catch {
+        aiSuggestions = {
+          interventions: [],
+          priorityIntervention: "",
+          priorityCode: 0,
+          rationale: "",
+          preventionLevel: "secondary",
+          riskIndicators: [],
+          nursingConsiderations: [],
+          referralNeeded: false,
+          referralReason: "",
+          followUpSchedule: "",
+          rawResponse: rawContent,
+        } as unknown as AIResponse;
+      }
+    } catch (aiError: unknown) {
+      // AI service unavailable - use intelligent evidence-based fallback
+      console.warn("AI service unavailable, using evidence-based fallback:", aiError instanceof Error ? aiError.message : "Unknown error");
+      aiSuggestions = generateFallbackSuggestions(assessmentData);
+      usedFallback = true;
     }
 
     const aiSuggestionsJson = JSON.stringify(aiSuggestions);
@@ -110,6 +123,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       aiSuggestions,
+      usedFallback,
       consultation: { id: updated!.id, stepCompleted: updated!.step_completed },
     });
   } catch (error: unknown) {
