@@ -229,24 +229,26 @@ export function ConsultationView() {
   const isInitialized = useRef(false);
 
   // ── Focus preservation ──
-  // Saves the currently focused element before React commits DOM changes,
-  // then restores focus after the render. This prevents focus loss caused by
-  // parent re-renders (e.g., from zustand persist middleware, AnimatePresence, etc.)
-  const focusedElRef = useRef<HTMLElement | null>(null);
+  // Tracks which form field is focused by element ID (not reference),
+  // and restores focus after every render using that ID.
+  // This is more robust than element-reference tracking because it
+  // survives DOM recreation (e.g., from conditional rendering or
+  // AnimatePresence transitions).
+  const focusedFieldIdRef = useRef<string | null>(null);
+
+  // Update tracked ID whenever focus moves to a form field
+  const handleFieldFocus = useCallback((fieldId: string) => {
+    focusedFieldIdRef.current = fieldId;
+  }, []);
 
   useLayoutEffect(() => {
-    // Save what's currently focused before React's DOM commit
-    const active = document.activeElement as HTMLElement | null;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
-      focusedElRef.current = active;
-    }
-  });
-
-  useLayoutEffect(() => {
-    // After React commits DOM changes, restore focus if it was lost
-    const saved = focusedElRef.current;
-    if (saved && document.activeElement !== saved && document.contains(saved)) {
-      saved.focus({ preventScroll: true });
+    // After React commits DOM changes, restore focus to the tracked field
+    const fieldId = focusedFieldIdRef.current;
+    if (fieldId) {
+      const el = document.getElementById(fieldId);
+      if (el && document.activeElement !== el) {
+        el.focus({ preventScroll: true });
+      }
     }
   });
 
@@ -814,6 +816,7 @@ export function ConsultationView() {
             placeholder="Patient reports: e.g., headache, nausea, swelling..."
             className="min-h-[100px] resize-y"
             value={subjectiveSymptoms}
+            onFocus={() => handleFieldFocus('subjectiveSymptoms')}
             onChange={(e) => { setSubjectiveSymptoms(e.target.value); markDirty(); }}
           />
         </div>
@@ -837,6 +840,7 @@ export function ConsultationView() {
               id="bloodPressure"
               placeholder="e.g. 120/80 mmHg"
               value={vitals.bloodPressure}
+              onFocus={() => handleFieldFocus('bloodPressure')}
               onChange={(e) => { setVitals((v) => ({ ...v, bloodPressure: e.target.value })); markDirty(); }}
             />
           </div>
@@ -849,6 +853,7 @@ export function ConsultationView() {
               id="heartRate"
               placeholder="e.g. 72 bpm"
               value={vitals.heartRate}
+              onFocus={() => handleFieldFocus('heartRate')}
               onChange={(e) => { setVitals((v) => ({ ...v, heartRate: e.target.value })); markDirty(); }}
             />
           </div>
@@ -861,6 +866,7 @@ export function ConsultationView() {
               id="temperature"
               placeholder="e.g. 36.8°C"
               value={vitals.temperature}
+              onFocus={() => handleFieldFocus('temperature')}
               onChange={(e) => { setVitals((v) => ({ ...v, temperature: e.target.value })); markDirty(); }}
             />
           </div>
@@ -873,6 +879,7 @@ export function ConsultationView() {
               id="weight"
               placeholder="e.g. 65 kg"
               value={vitals.weight}
+              onFocus={() => handleFieldFocus('weight')}
               onChange={(e) => { setVitals((v) => ({ ...v, weight: e.target.value })); markDirty(); }}
             />
           </div>
@@ -885,6 +892,7 @@ export function ConsultationView() {
               id="respiratoryRate"
               placeholder="e.g. 18 cpm"
               value={vitals.respiratoryRate}
+              onFocus={() => handleFieldFocus('respiratoryRate')}
               onChange={(e) => { setVitals((v) => ({ ...v, respiratoryRate: e.target.value })); markDirty(); }}
             />
           </div>
@@ -906,6 +914,7 @@ export function ConsultationView() {
               id="fetalHeartRate"
               placeholder="e.g. 140 bpm"
               value={fetalHeartRate}
+              onFocus={() => handleFieldFocus('fetalHeartRate')}
               onChange={(e) => { setFetalHeartRate(e.target.value); markDirty(); }}
             />
           </div>
@@ -915,6 +924,7 @@ export function ConsultationView() {
               id="fundalHeight"
               placeholder="e.g. 24 cm"
               value={fundalHeight}
+              onFocus={() => handleFieldFocus('fundalHeight')}
               onChange={(e) => { setFundalHeight(e.target.value); markDirty(); }}
             />
           </div>
@@ -934,6 +944,7 @@ export function ConsultationView() {
             id="allergies"
             placeholder="e.g. Penicillin, Sulfa drugs"
             value={allergies}
+            onFocus={() => handleFieldFocus('allergies')}
             onChange={(e) => { setAllergies(e.target.value); markDirty(); }}
           />
         </div>
@@ -944,6 +955,7 @@ export function ConsultationView() {
             placeholder="List current medications..."
             className="min-h-[60px] resize-y"
             value={medications}
+            onFocus={() => handleFieldFocus('medications')}
             onChange={(e) => { setMedications(e.target.value); markDirty(); }}
           />
         </div>
@@ -962,6 +974,7 @@ export function ConsultationView() {
           placeholder="General appearance, fundal assessment, edema, etc."
           className="min-h-[100px] resize-y"
           value={physicalExam}
+          onFocus={() => handleFieldFocus('physicalExam')}
           onChange={(e) => { setPhysicalExam(e.target.value); markDirty(); }}
         />
       </div>
@@ -972,6 +985,7 @@ export function ConsultationView() {
           placeholder="CBC, Urinalysis, Blood typing, etc."
           className="min-h-[100px] resize-y"
           value={labResults}
+          onFocus={() => handleFieldFocus('labResults')}
           onChange={(e) => { setLabResults(e.target.value); markDirty(); }}
         />
       </div>
@@ -982,6 +996,7 @@ export function ConsultationView() {
           placeholder="Any additional observations or notes..."
           className="min-h-[80px] resize-y"
           value={notes}
+          onFocus={() => handleFieldFocus('notes')}
           onChange={(e) => { setNotes(e.target.value); markDirty(); }}
         />
       </div>
@@ -1006,6 +1021,7 @@ export function ConsultationView() {
           placeholder="e.g., O10.11 (Pre-existing hypertension with pre-eclampsia, first trimester)"
           className="min-h-[80px] resize-y"
           value={icd10Diagnosis}
+          onFocus={() => handleFieldFocus('icd10Diagnosis')}
           onChange={(e) => { setIcd10Diagnosis(e.target.value); markDirty(); }}
         />
       </div>
@@ -1024,6 +1040,7 @@ export function ConsultationView() {
           placeholder="e.g., Risk for ineffective peripheral tissue perfusion related to pre-eclampsia"
           className="min-h-[100px] resize-y"
           value={nandaDiagnosis}
+          onFocus={() => handleFieldFocus('nandaDiagnosis')}
           onChange={(e) => { setNandaDiagnosis(e.target.value); markDirty(); }}
         />
       </div>
@@ -1422,6 +1439,7 @@ export function ConsultationView() {
           placeholder="Document the evaluation findings, patient response, and follow-up plan..."
           className="min-h-[100px] resize-y"
           value={evaluationNotes}
+          onFocus={() => handleFieldFocus('evaluationNotes')}
           onChange={(e) => { setEvaluationNotes(e.target.value); markDirty(); }}
         />
       </div>
