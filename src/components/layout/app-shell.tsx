@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Separator } from '@/components/ui/separator';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -106,12 +105,12 @@ function SidebarContent({ onNavigate, currentView }: {
       </nav>
 
       {/* Dark Mode Toggle */}
-      <Separator className="mx-3 bg-rose-100 dark:bg-gray-800" />
+      <div className="mx-4 border-t border-rose-100 dark:border-gray-800" />
       <div className="px-3 py-2">
         <DarkModeToggle />
       </div>
 
-      <Separator className="mx-3 bg-rose-100 dark:bg-gray-800" />
+      <div className="mx-4 border-t border-rose-100 dark:border-gray-800" />
 
       {/* User */}
       <div className="border-t border-rose-100 dark:border-gray-800 px-3 py-4">

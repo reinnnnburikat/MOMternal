@@ -402,15 +402,14 @@ export function DashboardView() {
     ];
   }, [stats, lowRiskPatients]);
 
-  // Monthly trend data for line chart
+  // Monthly trend data for line chart — only use real API data
   const monthlyTrendData = useMemo(() => {
     if (!stats) return [];
-    // Use real API data if available (up to 6 months), otherwise generate
     if (stats.monthlyTrend && stats.monthlyTrend.length > 0) {
       return stats.monthlyTrend.slice(-6);
     }
-    const totalConsultations = stats.recentConsultations.length + Math.floor(Math.random() * 20);
-    return generateMonthlyTrendData(totalConsultations);
+    // No mock data — show empty chart when no real data exists
+    return getLast6MonthNames().map((month) => ({ month, count: 0 }));
   }, [stats]);
 
   // --- stats cards config ---

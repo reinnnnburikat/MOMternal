@@ -56,19 +56,17 @@ export function LoginView() {
   return (
     <div className="flex w-full min-h-screen">
       {/* Left Panel — branding (hidden on mobile) */}
-      <div className="hidden md:flex md:w-1/2 lg:w-[55%] relative overflow-hidden bg-gradient-to-br from-rose-600 via-rose-700 to-pink-800 dark:from-rose-900 dark:via-rose-950 dark:to-pink-950 flex-col items-center justify-center px-12 text-white">
+      <div className="hidden md:flex md:w-1/2 lg:w-[55%] relative overflow-hidden bg-gradient-to-br from-rose-400 via-rose-500 to-pink-600 dark:from-rose-800 dark:via-rose-900 dark:to-pink-950 flex-col items-center justify-center px-12 text-white">
         {/* Decorative background heart */}
         <div className="absolute -right-20 -bottom-20 w-[420px] h-[420px] rounded-full bg-white/[0.04] blur-2xl" />
         <div className="absolute -left-16 -top-16 w-64 h-64 rounded-full bg-white/[0.04] blur-xl" />
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm">
-          <div className="mb-6 w-24 h-24 rounded-2xl overflow-hidden bg-white/20 backdrop-blur-sm p-2 ring-1 ring-white/20">
-            <img
-              src="/momternal_logo.png"
-              alt="MOMternal Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <img
+            src="/momternal_logo.png"
+            alt="MOMternal Logo"
+            className="mb-6 w-28 h-28 object-contain"
+          />
           <h1 className="text-4xl font-bold tracking-tight">MOMternal</h1>
           <p className="mt-2 text-white/70 text-sm font-medium">
             Mobilized Outreach Maternal Support
