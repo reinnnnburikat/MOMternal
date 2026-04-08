@@ -5,13 +5,14 @@ import {
   buildUserPrompt,
   type AIResponse,
 } from "@/lib/ai-prompts";
+import ZAI from "z-ai-web-dev-sdk";
 
 /**
  * POST /api/consultations/[id]/ai-suggest
  *
  * AI Intervention Recommendation System.
  * Sends assessment data to the AI API to generate NIC nursing interventions.
- * Uses X-Token from the external gateway (injected into request headers).
+ * Uses z-ai-web-dev-sdk for the AI call (server-side only).
  * Stores result as JSON string in aiSuggestions.
  */
 export async function POST(
@@ -21,23 +22,10 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Get X-Token from the incoming request headers.
-    // The external gateway injects this token into all forwarded requests.
-    const xToken = request.headers.get("x-token");
-
-    if (!xToken) {
-      return NextResponse.json(
-        {
-          error: "AI service token not available. The AI intervention requires a valid service token which should be provided by the gateway. Please try refreshing the page or contact support if the issue persists.",
-          details: "x-token header missing from request",
-        },
-        { status: 503 }
-      );
-    }
-
     // Fetch consultation with patient clinical data (NOT identity data)
     const consultation = await queryOne(
       `SELECT c.*,
+              p.id AS patient_db_id,
               p.gravidity AS patient_gravidity, p.parity AS patient_parity,
               p.aog AS patient_aog, p.blood_type AS patient_blood_type,
               p.risk_level AS patient_risk_level
@@ -56,71 +44,46 @@ export async function POST(
 
     // Build clinical assessment payload (NO patient-identifiable data — DPA compliant)
     const assessmentData = {
-      subjectiveSymptoms: consultation.subjective_symptoms,
-      objectiveVitals: consultation.objective_vitals,
-      fetalHeartRate: consultation.fetal_heart_rate,
-      fundalHeight: consultation.fundal_height,
-      allergies: consultation.allergies,
-      medications: consultation.medications,
-      physicalExam: consultation.physical_exam,
-      labResults: consultation.lab_results,
-      notes: consultation.notes,
-      icd10Diagnosis: consultation.icd10_diagnosis,
-      nandaDiagnosis: consultation.nanda_diagnosis,
+      subjectiveSymptoms: consultation.subjective_symptoms as string | null | undefined,
+      objectiveVitals: consultation.objective_vitals as string | null | undefined,
+      fetalHeartRate: consultation.fetal_heart_rate as string | number | null | undefined,
+      fundalHeight: consultation.fundal_height as string | null | undefined,
+      allergies: consultation.allergies as string | null | undefined,
+      medications: consultation.medications as string | null | undefined,
+      physicalExam: consultation.physical_exam as string | null | undefined,
+      labResults: consultation.lab_results as string | null | undefined,
+      notes: consultation.notes as string | null | undefined,
+      icd10Diagnosis: consultation.icd10_diagnosis as string | null | undefined,
+      nandaDiagnosis: consultation.nanda_diagnosis as string | null | undefined,
       clinicalContext: {
-        gravidity: consultation.patient_gravidity,
-        parity: consultation.patient_parity,
-        aog: consultation.patient_aog,
-        bloodType: consultation.patient_blood_type,
-        riskLevel: consultation.patient_risk_level,
+        gravidity: consultation.patient_gravidity as number | null | undefined,
+        parity: consultation.patient_parity as number | null | undefined,
+        aog: consultation.patient_aog as string | null | undefined,
+        bloodType: consultation.patient_blood_type as string | null | undefined,
+        riskLevel: consultation.patient_risk_level as string | null | undefined,
       },
     };
 
     const userPrompt = buildUserPrompt(assessmentData);
 
-    // Call the AI API directly using fetch (bypassing z-ai-web-dev-sdk)
-    // We use the X-Token from the gateway for authentication
-    const aiApiUrl = "http://172.25.136.193:8080/v1/chat/completions";
+    // Use z-ai-web-dev-sdk for AI completion (server-side)
+    const zai = await ZAI.create();
 
-    const completion = await fetch(aiApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer Z.ai",
-        "X-Z-AI-From": "Z",
-        "X-Token": xToken,
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: "assistant",
-            content: MATERNAL_AI_SYSTEM_PROMPT,
-          },
-          {
-            role: "user",
-            content: userPrompt,
-          },
-        ],
-        thinking: { type: "disabled" },
-      }),
+    const completion = await zai.chat.completions.create({
+      messages: [
+        {
+          role: "assistant",
+          content: MATERNAL_AI_SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      thinking: { type: "disabled" },
     });
 
-    if (!completion.ok) {
-      const errorBody = await completion.text();
-      console.error(
-        `AI API error: ${completion.status} - ${errorBody}`
-      );
-      return NextResponse.json(
-        {
-          error: `AI service returned an error (${completion.status}). Please try again.`,
-          details: errorBody,
-        },
-        { status: 502 }
-      );
-    }
-
-    const completionData = await completion.json();
-    const rawContent = completionData.choices?.[0]?.message?.content;
+    const rawContent = completion.choices?.[0]?.message?.content;
 
     if (!rawContent || rawContent.trim().length === 0) {
       return NextResponse.json(

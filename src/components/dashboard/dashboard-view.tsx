@@ -392,15 +392,17 @@ export function DashboardView() {
     ? stats.totalPatients - stats.highRiskPatients - stats.moderateRiskPatients
     : 0;
 
-  // Risk distribution data for pie chart
+  // Risk distribution data for pie chart — uses consultation-based risk counts
+  // which reflects actual risk assessments rather than the patient table
   const riskDistributionData = useMemo(() => {
     if (!stats) return [];
+    const cbr = stats.consultationsByRisk;
     return [
-      { name: 'Low Risk', value: lowRiskPatients, color: CHART_COLORS.green },
-      { name: 'Moderate Risk', value: stats.moderateRiskPatients, color: CHART_COLORS.gold },
-      { name: 'High Risk', value: stats.highRiskPatients, color: CHART_COLORS.red },
+      { name: 'Low Risk', value: cbr.low, color: CHART_COLORS.green },
+      { name: 'Moderate Risk', value: cbr.moderate, color: CHART_COLORS.gold },
+      { name: 'High Risk', value: cbr.high, color: CHART_COLORS.red },
     ];
-  }, [stats, lowRiskPatients]);
+  }, [stats]);
 
   // Monthly trend data for line chart — only use real API data
   const monthlyTrendData = useMemo(() => {
@@ -556,7 +558,7 @@ export function DashboardView() {
                 Risk Distribution
               </CardTitle>
               <CardDescription className="dark:text-gray-400">
-                Patient breakdown by risk level
+                Consultation breakdown by assessed risk level
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -583,7 +585,7 @@ export function DashboardView() {
                     {/* Center label */}
                     <PieCenterLabel
                       viewBox={{ cx: '50%', cy: '50%' } as never}
-                      total={stats.totalPatients}
+                      total={stats.consultationsByRisk.low + stats.consultationsByRisk.moderate + stats.consultationsByRisk.high}
                     />
                   </PieChart>
                 </ResponsiveContainer>

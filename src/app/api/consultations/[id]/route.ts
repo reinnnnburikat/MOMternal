@@ -137,9 +137,9 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    // Check consultation exists
+    // Check consultation exists (also fetch patient_id for risk level sync)
     const existing = await queryOne(
-      'SELECT id, step_completed, status FROM consultation WHERE id = $1',
+      'SELECT id, step_completed, status, patient_id FROM consultation WHERE id = $1',
       [id]
     );
 
@@ -219,6 +219,15 @@ export async function PUT(
       `UPDATE consultation SET ${setClauses.join(", ")} WHERE id = $${paramIdx} RETURNING *`,
       [...values, id]
     );
+
+    // Sync risk_level to patient table when it changes in consultation
+    // This keeps the patient's current risk level in sync with the latest assessment
+    if (body.riskLevel !== undefined && existing.patient_id) {
+      await query(
+        `UPDATE patient SET risk_level = $1, updated_at = now() WHERE id = $2`,
+        [body.riskLevel, existing.patient_id]
+      );
+    }
 
     // Fetch with patient relation
     const fullRow = await queryOne(
