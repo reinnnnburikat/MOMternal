@@ -1,0 +1,148 @@
+═════════════════════════════════════════════════════════
+  MOMternal AI Intervention Stress Test Suite — OFFLINE MODE
+  Date: 2026-04-08T00:27:45.996Z
+  Total Tests: 100
+  Mode: Clinical Rule Engine (deterministic)
+═══════════════════════════════════════════════════════
+
+  ✅ PASS [01/100] Low risk — normal pregnancy, all vitals normal   (1ms)
+  ✅ PASS [02/100] Moderate risk — mild anemia (Hb 9.5)   (0ms)
+  ✅ PASS [03/100] Moderate risk — elevated BP (135/88)   (1ms)
+  ✅ PASS [04/100] High risk — severe preeclampsia (BP 170/110)   (0ms)
+  ✅ PASS [05/100] High risk — FHR bradycardia (100 bpm)   (0ms)
+  ✅ PASS [06/100] Low risk — routine 2nd trimester visit   (1ms)
+  ✅ PASS [07/100] High risk — severe anemia + hypertension   (0ms)
+  ✅ PASS [08/100] Low risk — early pregnancy 8 weeks   (0ms)
+  ✅ PASS [09/100] Moderate risk — gestational diabetes controlled   (0ms)
+  ✅ PASS [10/100] High risk — placental abruption signs   (0ms)
+  ✅ PASS [11/100] Moderate risk — urinary tract infection   (0ms)
+  ✅ PASS [12/100] Low risk — advanced maternal age 38   (0ms)
+  ✅ PASS [13/100] High risk — eclampsia seizure history   (0ms)
+  ✅ PASS [14/100] Moderate risk — hypothyroidism   (0ms)
+  ✅ PASS [15/100] Low risk — normal postpartum check   (0ms)
+  ✅ PASS [16/100] Normal BP ≤120/80   (0ms)
+  ❌ FAIL [17/100] BP 125/82 (elevated)
+         → Expected preventionLevel "secondary", got "primary"
+  ✅ PASS [18/100] BP 145/95 (HTN Stage 1)   (0ms)
+  ✅ PASS [19/100] BP 165/105 (HTN Stage 2)   (0ms)
+  ✅ PASS [20/100] BP 172/112 (severe range)   (0ms)
+  ✅ PASS [21/100] FHR 108 bpm (bradycardia)   (0ms)
+  ✅ PASS [22/100] FHR 162 bpm (tachycardia)   (0ms)
+  ✅ PASS [23/100] FHR 95 bpm (severe distress)   (0ms)
+  ❌ FAIL [24/100] Temp 37.7°C (low-grade)
+         → Expected preventionLevel "secondary", got "primary"
+  ✅ PASS [25/100] Temp 38.2°C (fever)   (0ms)
+  ✅ PASS [26/100] Temp 39.0°C (high fever)   (0ms)
+  ❌ FAIL [27/100] Hb 10.5 (mild anemia)
+         → Expected preventionLevel "secondary", got "primary"
+  ✅ PASS [28/100] Hb 7.5 (moderate anemia)   (0ms)
+  ✅ PASS [29/100] Hb 6.2 (severe anemia)   (0ms)
+  ✅ PASS [30/100] Glucose 96 (GDM threshold)   (0ms)
+  ✅ PASS [31/100] Glucose 130 (overt DM)   (0ms)
+  ❌ FAIL [32/100] Proteinuria 1+ trace
+         → Expected preventionLevel "secondary", got "primary"
+  ✅ PASS [33/100] Proteinuria 2+ significant   (0ms)
+  ✅ PASS [34/100] Proteinuria 3+ with HTN   (0ms)
+  ✅ PASS [35/100] HR 110 (tachycardia borderline)   (0ms)
+  ✅ PASS [36/100] 1st tri — hyperemesis gravidarum   (0ms)
+  ✅ PASS [37/100] 1st tri — folic acid guidance   (0ms)
+  ✅ PASS [38/100] 2nd tri — fetal movement education   (0ms)
+  ✅ PASS [39/100] 2nd tri — TT immunization   (0ms)
+  ✅ PASS [40/100] 2nd tri — GDM screening due   (0ms)
+  ✅ PASS [41/100] 3rd tri — preterm labor signs   (0ms)
+  ✅ PASS [42/100] 3rd tri — birth preparedness   (1ms)
+  ✅ PASS [43/100] 3rd tri — decreased fetal movements   (0ms)
+  ✅ PASS [44/100] 3rd tri — breastfeeding education   (0ms)
+  ✅ PASS [45/100] 3rd tri — danger sign awareness   (0ms)
+  ✅ PASS [46/100] NANDA: Risk for Infection   (0ms)
+  ✅ PASS [47/100] NANDA: Anxiety   (0ms)
+  ❌ FAIL [48/100] NANDA: Fatigue
+         → Missing category "Psychosocial". Got: [Physiological,Educational]
+  ✅ PASS [49/100] NANDA: Imbalanced Nutrition   (0ms)
+  ✅ PASS [50/100] NANDA: Risk for Bleeding   (0ms)
+  ✅ PASS [51/100] NANDA: Deficient Knowledge   (0ms)
+  ✅ PASS [52/100] NANDA: Ineffective Coping   (0ms)
+  ✅ PASS [53/100] NANDA: Risk for Impaired Parenting   (0ms)
+  ✅ PASS [54/100] NANDA: Risk for Injury fetal   (0ms)
+  ✅ PASS [55/100] NANDA: Risk for Fluid Volume   (0ms)
+  ✅ PASS [56/100] NANDA: Risk for Perfusion   (0ms)
+  ✅ PASS [57/100] NANDA: Risk for Cerebral Perfusion   (0ms)
+  ✅ PASS [58/100] NANDA: Decisional Conflict   (0ms)
+  ✅ PASS [59/100] NANDA: Risk for Shock   (0ms)
+  ✅ PASS [60/100] NANDA: Risk for Aspiration   (0ms)
+  ✅ PASS [61/100] ICD O10 — Pre-existing hypertension   (0ms)
+  ✅ PASS [62/100] ICD O12 — Gestational HTN   (0ms)
+  ✅ PASS [63/100] ICD O14 — Pre-eclampsia   (0ms)
+  ✅ PASS [64/100] ICD O24.3 — GDM   (0ms)
+  ✅ PASS [65/100] ICD O99.0 — Anemia   (0ms)
+  ✅ PASS [66/100] ICD O20 — Threatened abortion   (0ms)
+  ✅ PASS [67/100] ICD O60 — Preterm labor   (0ms)
+  ✅ PASS [68/100] ICD O23 — UTI   (0ms)
+  ✅ PASS [69/100] ICD O36 — Fetal concern   (0ms)
+  ✅ PASS [70/100] ICD O68 — Fetal stress in labor   (0ms)
+  ✅ PASS [71/100] WHO: Severe headache + blurred vision   (0ms)
+  ✅ PASS [72/100] WHO: Convulsions/fits   (0ms)
+  ✅ PASS [73/100] WHO: Severe abdominal pain   (0ms)
+  ✅ PASS [74/100] WHO: Active vaginal bleeding   (0ms)
+  ✅ PASS [75/100] WHO: Extreme weakness   (0ms)
+  ✅ PASS [76/100] WHO: Difficulty breathing   (0ms)
+  ✅ PASS [77/100] WHO: Swelling of face/hands   (0ms)
+  ✅ PASS [78/100] Cord prolapse   (0ms)
+  ✅ PASS [79/100] Uterine rupture   (0ms)
+  ✅ PASS [80/100] Amniotic fluid embolism signs   (0ms)
+  ✅ PASS [81/100] Filipino: hilot practice inquiry   (0ms)
+  ✅ PASS [82/100] Filipino: herbal medicine use   (0ms)
+  ✅ PASS [83/100] Filipino: financial constraints   (0ms)
+  ✅ PASS [84/100] Filipino: dietary practices (bagoong)   (0ms)
+  ✅ PASS [85/100] Filipino: family decision-making   (0ms)
+  ✅ PASS [86/100] Minimal data — only vitals   (0ms)
+  ✅ PASS [87/100] Grand multipara (G6 P5)   (0ms)
+  ✅ PASS [88/100] Adolescent pregnancy (16 years old)   (0ms)
+  ✅ PASS [89/100] Rh-negative mother   (0ms)
+  ✅ PASS [90/100] Multiple gestation (twins)   (0ms)
+  ✅ PASS [91/100] Postpartum hemorrhage risk   (0ms)
+  ✅ PASS [92/100] Pre-existing diabetes   (0ms)
+  ✅ PASS [93/100] HIV-positive pregnancy   (0ms)
+  ✅ PASS [94/100] Domestic violence disclosure   (0ms)
+  ✅ PASS [95/100] Substance use during pregnancy   (1ms)
+  ✅ PASS [96/100] Valid JSON — all fields present   (0ms)
+  ✅ PASS [97/100] Valid JSON — emergency fields   (0ms)
+  ✅ PASS [98/100] Valid JSON — intervention structure   (0ms)
+  ✅ PASS [99/100] Valid JSON — NANDA linkage   (0ms)
+  ✅ PASS [00/100] Valid JSON — DOH protocol reference   (0ms)
+
+═══════════════════════════════════════════════════════
+  RESULTS SUMMARY
+═══════════════════════════════════════════════════════
+  Total Tests: 100
+  ✅ Passed: 95
+  ❌ Failed: 5
+  Accuracy: 95.0%
+
+  Category Breakdown:
+    A                              15/15 (100.0%)  ████████████████████
+    B                              16/20 (80.0%)  ████████████████░░░░
+    C                              10/10 (100.0%)  ████████████████████
+    D                              14/15 (93.3%)  ███████████████████░
+    E                              10/10 (100.0%)  ████████████████████
+    F                              10/10 (100.0%)  ████████████████████
+    G                              5/5 (100.0%)  ████████████████████
+    H                              10/10 (100.0%)  ████████████████████
+    I                              5/5 (100.0%)  ████████████████████
+
+  Failed Tests:
+    ❌ [#17] BP 125/82 (elevated)
+       → Expected preventionLevel "secondary", got "primary"
+    ❌ [#24] Temp 37.7°C (low-grade)
+       → Expected preventionLevel "secondary", got "primary"
+    ❌ [#27] Hb 10.5 (mild anemia)
+       → Expected preventionLevel "secondary", got "primary"
+    ❌ [#32] Proteinuria 1+ trace
+       → Expected preventionLevel "secondary", got "primary"
+    ❌ [#48] NANDA: Fatigue
+       → Missing category "Psychosocial". Got: [Physiological,Educational]
+
+  Full results saved to: scripts/offline-test-results.json
+
+  ✅ ACCURACY TARGET MET (≥90%) — AI clinical logic validated!
+
