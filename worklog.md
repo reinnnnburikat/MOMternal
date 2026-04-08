@@ -151,3 +151,42 @@ Stage Summary:
 - Solution: bypass SDK, read X-Token from incoming request headers (injected by external gateway)
 - Files modified: ai-suggest/route.ts (complete rewrite), debug/route.ts (new)
 - AI intervention should now work when accessed through the external gateway/preview panel
+---
+Task ID: 3
+Agent: Main
+Task: Fix 4 issues in consultation workflow — input focus, footer styling, form handlers, referral PDF
+
+Work Log:
+
+### Issue 1: Input fields losing focus on every keystroke
+- Root cause: `updateActivity()` in Zustand store was called on `keydown` AND `mousemove` events from `src/app/page.tsx`, causing state updates + localStorage persistence on every keystroke
+- Fix in `src/app/page.tsx`: Removed `keydown` and `mousemove` listeners from activity tracking; kept only `click`, `scroll`, `touchstart`
+- Fix in `src/store/app-store.ts`: Removed `lastActivity` from the `partialize` config so it no longer triggers localStorage persistence on every activity update (session expiry still works in-memory)
+
+### Issue 2: Navigation footer styling
+- Root cause: Footer had `bg-gray-50/50` making it look grayed out; Back button used `variant="outline"` which looked faded
+- Fix in `src/components/consultations/consultation-view.tsx` (line ~1554): Changed footer to `bg-white dark:bg-gray-900` with `border-gray-200 dark:border-gray-700`; Changed Back button to `variant="ghost"` with explicit `text-muted-foreground hover:text-foreground` styling
+- `canProceed()` for step 4 was already correct: returns true when `aiSuggestions !== null || aiError !== null`
+
+### Issue 3: Form field onChange handlers
+- Removed unnecessary `<input type="hidden" onChange={markDirty} />` from StepAssessment (line 777) and StepFindings (line 932)
+- Added `markDirty()` calls to all 5 vitals onChange handlers: bloodPressure, heartRate, temperature, weight, respiratoryRate
+- Added `markDirty()` to fetalHeartRate, fundalHeight, allergies, medications, evaluationStatus, evaluationNotes onChange handlers
+
+### Issue 4: Formatted referral card with PDF download
+- Replaced the `<pre>` plain-text referral display with a structured HTML layout using consultation data directly
+- Created `ReferralSection` and `ReferralRow` helper sub-components for consistent rendering
+- Sections: Patient Info, Clinical Assessment (SOAP), Additional Findings, Diagnosis, AI Interventions (NIC), Evaluation (NOC)
+- Rose-colored gradient header with MOMternal branding
+- Added professional footer with consultation number, date, and system attribution
+- Replaced "Download .txt" button with "Download PDF" using `window.print()` and `Printer` icon from lucide-react
+- Added `@media print` CSS in `globals.css` that hides everything except the referral card, forces white background, handles dark mode overrides
+- Kept "Copy to Clipboard" (copies plain text `referralSummary`) and "Regenerate" buttons
+
+Files modified:
+- `src/app/page.tsx` — removed keydown/mousemove activity listeners
+- `src/store/app-store.ts` — excluded lastActivity from persist partialize
+- `src/components/consultations/consultation-view.tsx` — footer styling, markDirty fixes, formatted referral card, PDF download
+- `src/app/globals.css` — referral card typography classes, @media print styles
+
+Lint: Only pre-existing error in `scripts/ai-stress-test-offline.mjs` (leading zero decimal)

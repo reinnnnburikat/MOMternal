@@ -108,7 +108,9 @@ export const useAppStore = create<AppState>()(
         currentView: state.currentView,
         isAuthenticated: state.isAuthenticated,
         currentNurse: state.currentNurse,
-        lastActivity: state.lastActivity,
+        // lastActivity is intentionally excluded — it changes frequently and
+        // persisting it on every update causes excessive localStorage writes and
+        // re-renders that steal input focus.
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
       }),

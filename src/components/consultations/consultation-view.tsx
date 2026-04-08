@@ -42,6 +42,7 @@ import {
   Shield,
   Info,
   AlertCircle,
+  Printer,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -556,6 +557,10 @@ export function ConsultationView() {
     toast.success('Downloaded');
   }, [referralSummary, consultation]);
 
+  const handleDownloadPdf = useCallback(() => {
+    window.print();
+  }, []);
+
   // ── Render helpers ──
   const canProceed = (): boolean => {
     switch (currentStep) {
@@ -774,7 +779,6 @@ export function ConsultationView() {
 
   const StepAssessment = () => (
     <div className="space-y-6">
-      <input type="hidden" onChange={markDirty} />
       {/* Subjective */}
       <div>
         <div className="flex items-center gap-2 mb-3">
@@ -811,7 +815,7 @@ export function ConsultationView() {
               id="bloodPressure"
               placeholder="e.g. 120/80 mmHg"
               value={vitals.bloodPressure}
-              onChange={(e) => setVitals((v) => ({ ...v, bloodPressure: e.target.value }))}
+              onChange={(e) => { setVitals((v) => ({ ...v, bloodPressure: e.target.value })); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -823,7 +827,7 @@ export function ConsultationView() {
               id="heartRate"
               placeholder="e.g. 72 bpm"
               value={vitals.heartRate}
-              onChange={(e) => setVitals((v) => ({ ...v, heartRate: e.target.value }))}
+              onChange={(e) => { setVitals((v) => ({ ...v, heartRate: e.target.value })); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -835,7 +839,7 @@ export function ConsultationView() {
               id="temperature"
               placeholder="e.g. 36.8°C"
               value={vitals.temperature}
-              onChange={(e) => setVitals((v) => ({ ...v, temperature: e.target.value }))}
+              onChange={(e) => { setVitals((v) => ({ ...v, temperature: e.target.value })); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -847,7 +851,7 @@ export function ConsultationView() {
               id="weight"
               placeholder="e.g. 65 kg"
               value={vitals.weight}
-              onChange={(e) => setVitals((v) => ({ ...v, weight: e.target.value }))}
+              onChange={(e) => { setVitals((v) => ({ ...v, weight: e.target.value })); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -859,7 +863,7 @@ export function ConsultationView() {
               id="respiratoryRate"
               placeholder="e.g. 18 cpm"
               value={vitals.respiratoryRate}
-              onChange={(e) => setVitals((v) => ({ ...v, respiratoryRate: e.target.value }))}
+              onChange={(e) => { setVitals((v) => ({ ...v, respiratoryRate: e.target.value })); markDirty(); }}
             />
           </div>
         </div>
@@ -880,7 +884,7 @@ export function ConsultationView() {
               id="fetalHeartRate"
               placeholder="e.g. 140 bpm"
               value={fetalHeartRate}
-              onChange={(e) => setFetalHeartRate(e.target.value)}
+              onChange={(e) => { setFetalHeartRate(e.target.value); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -889,7 +893,7 @@ export function ConsultationView() {
               id="fundalHeight"
               placeholder="e.g. 24 cm"
               value={fundalHeight}
-              onChange={(e) => setFundalHeight(e.target.value)}
+              onChange={(e) => { setFundalHeight(e.target.value); markDirty(); }}
             />
           </div>
         </div>
@@ -908,7 +912,7 @@ export function ConsultationView() {
             id="allergies"
             placeholder="e.g. Penicillin, Sulfa drugs"
             value={allergies}
-            onChange={(e) => setAllergies(e.target.value)}
+            onChange={(e) => { setAllergies(e.target.value); markDirty(); }}
           />
         </div>
         <div className="space-y-1.5">
@@ -918,7 +922,7 @@ export function ConsultationView() {
             placeholder="List current medications..."
             className="min-h-[60px] resize-y"
             value={medications}
-            onChange={(e) => setMedications(e.target.value)}
+            onChange={(e) => { setMedications(e.target.value); markDirty(); }}
           />
         </div>
       </div>
@@ -929,7 +933,6 @@ export function ConsultationView() {
 
   const StepFindings = () => (
     <div className="space-y-4">
-      <input type="hidden" onChange={markDirty} />
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
         <Textarea
@@ -1368,7 +1371,7 @@ export function ConsultationView() {
             <button
               key={opt.value}
               type="button"
-              onClick={() => setEvaluationStatus(opt.value)}
+              onClick={() => { setEvaluationStatus(opt.value); markDirty(); }}
               className={`
                 relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all duration-200
                 ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
@@ -1397,9 +1400,27 @@ export function ConsultationView() {
           placeholder="Document the evaluation findings, patient response, and follow-up plan..."
           className="min-h-[100px] resize-y"
           value={evaluationNotes}
-          onChange={(e) => setEvaluationNotes(e.target.value)}
+          onChange={(e) => { setEvaluationNotes(e.target.value); markDirty(); }}
         />
       </div>
+    </div>
+  );
+
+  // ─── Referral Helper Components ──────────────────────────────────────
+
+  const ReferralSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div>
+      <h5 className="text-sm font-semibold text-rose-700 border-b border-rose-100 pb-1 mb-2 print:text-rose-800 print:border-rose-200">
+        {title}
+      </h5>
+      <div className="space-y-1.5 pl-1">{children}</div>
+    </div>
+  );
+
+  const ReferralRow = ({ label, value }: { label: string; value: string }) => (
+    <div>
+      <span className="referral-label">{label}</span>
+      <p className="referral-value whitespace-pre-wrap">{value}</p>
     </div>
   );
 
@@ -1444,9 +1465,9 @@ export function ConsultationView() {
               <Copy className="h-3.5 w-3.5" />
               Copy to Clipboard
             </Button>
-            <Button variant="outline" onClick={handleDownloadTxt} className="gap-2">
-              <Download className="h-3.5 w-3.5" />
-              Download .txt
+            <Button variant="outline" onClick={handleDownloadPdf} className="gap-2">
+              <Printer className="h-3.5 w-3.5" />
+              Download PDF
             </Button>
             <Button variant="outline" onClick={handleGenerateReferral} className="gap-2">
               <RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} />
@@ -1454,17 +1475,170 @@ export function ConsultationView() {
             </Button>
           </div>
 
-          {/* Referral card */}
-          <div className="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
-            <div className="bg-rose-600 text-white px-4 py-3">
-              <h4 className="font-semibold text-sm flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                MATERNAL HEALTH REFERRAL SUMMARY
-              </h4>
+          {/* Formatted Referral Card */}
+          <div id="referral-print-area" className="referral-card rounded-xl border border-gray-200 overflow-hidden bg-white">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-rose-600 to-rose-500 text-white px-6 py-4 print:bg-rose-600">
+              <div className="flex items-center gap-3">
+                <Baby className="h-6 w-6" />
+                <div>
+                  <h4 className="font-bold text-base tracking-wide">MOMTERNAL</h4>
+                  <p className="text-rose-100 text-xs">Maternal Health Referral Summary</p>
+                </div>
+              </div>
             </div>
-            <pre className="p-4 text-xs font-mono leading-relaxed whitespace-pre-wrap text-gray-700 max-h-[400px] overflow-y-auto custom-scrollbar">
-              {referralSummary}
-            </pre>
+
+            <div className="p-6 space-y-5 print:p-4 print:space-y-3">
+              {/* Patient Information */}
+              <ReferralSection title="Patient Information">
+                <ReferralRow label="Name" value={consultation.patient.name} />
+                <ReferralRow label="Patient ID" value={consultation.patient.patientId} />
+                {consultation.patient.dateOfBirth && (
+                  <ReferralRow label="Date of Birth" value={consultation.patient.dateOfBirth} />
+                )}
+                {consultation.patient.bloodType && (
+                  <ReferralRow label="Blood Type" value={consultation.patient.bloodType} />
+                )}
+                {consultation.patient.aog && (
+                  <ReferralRow label="Age of Gestation" value={consultation.patient.aog} />
+                )}
+                {consultation.patient.gravidity !== undefined && (
+                  <ReferralRow label="Gravidity" value={String(consultation.patient.gravidity)} />
+                )}
+                {consultation.patient.parity !== undefined && (
+                  <ReferralRow label="Parity" value={String(consultation.patient.parity)} />
+                )}
+                {riskLevel && (
+                  <ReferralRow
+                    label="Risk Level"
+                    value={riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+                  />
+                )}
+              </ReferralSection>
+
+              {/* Clinical Assessment (SOAP) */}
+              <ReferralSection title="Clinical Assessment (SOAP)">
+                {subjectiveSymptoms && (
+                  <div>
+                    <span className="referral-label">Subjective — Symptoms / Chief Complaint</span>
+                    <p className="referral-value whitespace-pre-wrap">{subjectiveSymptoms}</p>
+                  </div>
+                )}
+                <div>
+                  <span className="referral-label">Objective — Vital Signs</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 mt-1">
+                    {vitals.bloodPressure && (
+                      <span className="referral-value text-xs"><strong>BP:</strong> {vitals.bloodPressure}</span>
+                    )}
+                    {vitals.heartRate && (
+                      <span className="referral-value text-xs"><strong>HR:</strong> {vitals.heartRate}</span>
+                    )}
+                    {vitals.temperature && (
+                      <span className="referral-value text-xs"><strong>Temp:</strong> {vitals.temperature}</span>
+                    )}
+                    {vitals.weight && (
+                      <span className="referral-value text-xs"><strong>Weight:</strong> {vitals.weight}</span>
+                    )}
+                    {vitals.respiratoryRate && (
+                      <span className="referral-value text-xs"><strong>RR:</strong> {vitals.respiratoryRate}</span>
+                    )}
+                  </div>
+                  {(fetalHeartRate || fundalHeight) && (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+                      {fetalHeartRate && (
+                        <span className="referral-value text-xs"><strong>FHR:</strong> {fetalHeartRate}</span>
+                      )}
+                      {fundalHeight && (
+                        <span className="referral-value text-xs"><strong>Fundal Height:</strong> {fundalHeight}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {allergies && (
+                  <ReferralRow label="Allergies" value={allergies} />
+                )}
+                {medications && (
+                  <ReferralRow label="Current Medications" value={medications} />
+                )}
+              </ReferralSection>
+
+              {/* Findings */}
+              {(physicalExam || labResults || notes) && (
+                <ReferralSection title="Additional Findings">
+                  {physicalExam && (
+                    <ReferralRow label="Physical Examination" value={physicalExam} />
+                  )}
+                  {labResults && (
+                    <ReferralRow label="Laboratory Results" value={labResults} />
+                  )}
+                  {notes && (
+                    <ReferralRow label="Additional Notes" value={notes} />
+                  )}
+                </ReferralSection>
+              )}
+
+              {/* Diagnosis */}
+              {(icd10Diagnosis || nandaDiagnosis) && (
+                <ReferralSection title="Diagnosis">
+                  {icd10Diagnosis && (
+                    <ReferralRow label="ICD-10 Diagnosis" value={icd10Diagnosis} />
+                  )}
+                  {nandaDiagnosis && (
+                    <ReferralRow label="NANDA-I Nursing Diagnosis" value={nandaDiagnosis} />
+                  )}
+                </ReferralSection>
+              )}
+
+              {/* AI Interventions */}
+              {selectedInterventions.length > 0 && (
+                <ReferralSection title="AI-Suggested Interventions (NIC)">
+                  <ul className="list-disc list-inside space-y-1">
+                    {selectedInterventions.map((intervention, idx) => (
+                      <li key={idx} className="referral-value text-sm">
+                        {intervention.name}
+                        {intervention.description && (
+                          <span className="text-muted-foreground"> — {intervention.description}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {aiSuggestions?.priorityIntervention && (
+                    <div className="mt-2 p-2 bg-rose-50 rounded-lg border border-rose-100 print:bg-rose-50 print:border-rose-200">
+                      <span className="text-xs font-semibold text-rose-700">Priority: </span>
+                      <span className="text-xs text-rose-800">{aiSuggestions.priorityIntervention}</span>
+                    </div>
+                  )}
+                </ReferralSection>
+              )}
+
+              {/* Evaluation */}
+              {evaluationStatus && (
+                <ReferralSection title="Evaluation (NOC)">
+                  <ReferralRow
+                    label="Status"
+                    value={evaluationStatus === 'achieved'
+                      ? 'Achieved'
+                      : evaluationStatus === 'partially'
+                        ? 'Partially Achieved'
+                        : 'Not Achieved'}
+                  />
+                  {evaluationNotes && (
+                    <ReferralRow label="Notes" value={evaluationNotes} />
+                  )}
+                </ReferralSection>
+              )}
+
+              {/* Footer */}
+              <div className="border-t border-gray-200 pt-3 mt-4 print:border-gray-300">
+                <div className="flex flex-wrap justify-between gap-2 text-[11px] text-muted-foreground">
+                  <span>Consultation: {consultation.consultationNo}</span>
+                  <span>Date: {new Date(consultation.consultationDate).toLocaleDateString()}</span>
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  Generated by MOMternal — Maternal Health Nursing Assessment System
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Complete button */}
@@ -1552,12 +1726,12 @@ export function ConsultationView() {
         </CardContent>
 
         {/* Navigation Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={handleBack}
             disabled={currentStep === 0 || saving}
-            className="gap-2"
+            className="gap-2 text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
             Back

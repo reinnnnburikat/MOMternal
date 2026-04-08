@@ -206,3 +206,87 @@
   background: rgba(225, 29, 72, 0.08);
   color: #e11d48 !important;
 }
+
+/* Referral card typography */
+.referral-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: oklch(0.45 0.02 350);
+  margin-bottom: 2px;
+}
+
+.referral-value {
+  font-size: 13px;
+  line-height: 1.5;
+  color: oklch(0.25 0.015 350);
+}
+
+/* Print styles for referral PDF */
+@media print {
+  /* Hide everything except the referral card */
+  body * {
+    visibility: hidden;
+  }
+
+  #referral-print-area,
+  #referral-print-area * {
+    visibility: visible;
+  }
+
+  #referral-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Force white background for print */
+  .dark #referral-print-area,
+  .dark #referral-print-area * {
+    color: #1a1a2e !important;
+    background: white !important;
+    border-color: #e5e7eb !important;
+  }
+
+  .dark .referral-label {
+    color: #4b5563 !important;
+  }
+
+  .dark .referral-value {
+    color: #1a1a2e !important;
+  }
+
+  .dark .text-muted-foreground {
+    color: #6b7280 !important;
+  }
+
+  .dark .text-rose-700,
+  .dark .text-rose-800 {
+    color: #be123c !important;
+  }
+
+  .dark .border-rose-100,
+  .dark .border-rose-200 {
+    border-color: #fecdd3 !important;
+  }
+
+  .dark .bg-rose-50 {
+    background-color: #fff1f2 !important;
+  }
+
+  .dark .bg-rose-100 {
+    background-color: #ffe4e6 !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+}

@@ -77,17 +77,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isSessionExpired, logout]);
 
-  // Activity tracking
+  // Activity tracking — only non-input events to avoid re-renders on keystrokes
   useEffect(() => {
     const handleActivity = () => updateActivity();
-    window.addEventListener('mousemove', handleActivity);
-    window.addEventListener('keydown', handleActivity);
     window.addEventListener('click', handleActivity);
     window.addEventListener('scroll', handleActivity);
     window.addEventListener('touchstart', handleActivity);
     return () => {
-      window.removeEventListener('mousemove', handleActivity);
-      window.removeEventListener('keydown', handleActivity);
       window.removeEventListener('click', handleActivity);
       window.removeEventListener('scroll', handleActivity);
       window.removeEventListener('touchstart', handleActivity);
