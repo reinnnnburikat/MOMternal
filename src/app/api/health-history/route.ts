@@ -80,8 +80,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, data: formatted });
   } catch (error) {
     console.error("Error fetching health histories:", error);
+    const msg = error instanceof Error ? error.message : "Failed to fetch health histories";
     return NextResponse.json(
-      { success: false, error: "Failed to fetch health histories" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
@@ -203,8 +204,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
     console.error("Error creating health history:", error);
+    const msg = error instanceof Error ? error.message : "Failed to create health history";
     return NextResponse.json(
-      { success: false, error: "Failed to create health history" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }

@@ -79,6 +79,11 @@ export async function PUT(
       mapped.date_of_birth = new Date(mapped.date_of_birth as string);
     }
 
+    // Prevent setting address to null (NOT NULL constraint)
+    if (mapped.address === null || mapped.address === '') {
+      delete mapped.address;
+    }
+
     // Build dynamic UPDATE query
     const setClauses: string[] = [];
     const values: unknown[] = [];

@@ -68,8 +68,9 @@ export async function GET(
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching health history:", error);
+    const msg = error instanceof Error ? error.message : "Failed to fetch health history";
     return NextResponse.json(
-      { success: false, error: "Failed to fetch health history" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
@@ -175,8 +176,9 @@ export async function PUT(
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error updating health history:", error);
+    const msg = error instanceof Error ? error.message : "Failed to update health history";
     return NextResponse.json(
-      { success: false, error: "Failed to update health history" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }

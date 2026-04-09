@@ -194,8 +194,9 @@ export async function POST(
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
     console.error("Error creating consultation:", error);
+    const msg = error instanceof Error ? error.message : "Failed to create consultation";
     return NextResponse.json(
-      { success: false, error: "Failed to create consultation" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }

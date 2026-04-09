@@ -169,10 +169,8 @@ export async function GET(
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching consultation:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch consultation" },
-      { status: 500 }
-    );
+    const msg = error instanceof Error ? error.message : "Failed to fetch consultation";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -346,9 +344,7 @@ export async function PUT(
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error updating consultation:", error);
-    return NextResponse.json(
-      { error: "Failed to update consultation" },
-      { status: 500 }
-    );
+    const msg = error instanceof Error ? error.message : "Failed to update consultation";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
