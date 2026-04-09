@@ -237,3 +237,31 @@ Stage Summary:
 - Consultation wizard: 9 steps with Health History as first step
 - NOC outcomes integrated into Evaluation step with CodeCombobox dropdown
 - Pushed commit d813202
+---
+Task ID: 9
+Agent: Main Agent
+Task: Fix "Failed to save progress" — comprehensive database schema sync
+
+Work Log:
+- User reported "failed to save progress daw" when using the consultation wizard
+- Read worklog, checked dev logs, audited full codebase (frontend save logic, API routes, DB schema)
+- Found dev log had stale html2canvas/jspdf module-not-found warnings (from previous version, not in current code)
+- Compared Prisma schema against actual Supabase PostgreSQL columns
+- **ROOT CAUSE**: 10 columns were defined in Prisma schema but NEVER added to Supabase:
+  - Consultation table missing: `type_of_visit`, `nanda_code`, `nanda_name`, `prevention_level`, `intervention_evaluations`, `referral_type`, `referral_priority`, `referral_facility`, `health_history`, `health_history_ref_code`
+  - Patient table missing: `surname`, `first_name`, `middle_initial`, `name_extension`, `age`, `occupation`, `religion`, `marital_status`, `family_composition`, `income_bracket`, `surgical_history`, `family_history`, `obstetric_history`, `immunization_status`, `current_medications`, `health_practices`, `social_history`, `psychosocial_history`
+- When frontend tried to save any field mapping to a missing column, PostgreSQL threw "column does not exist" error → API returned 500 → frontend showed "Failed to save progress"
+- Ran ALTER TABLE to add all 28 missing columns (10 to consultation, 18 to patient)
+- Migrated 4 existing patients' `name` field to new `surname`/`first_name`/`middle_initial`/`name_extension` columns
+- Added `healthHistory` and `healthHistoryRefCode` to consultation API's allowedFields, FIELD_MAPPING, STEP_FIELD_MAP
+- Updated `mapConsultationFromDb` and `consultationFieldMap` in case.ts to include health history fields
+- Verified: all save operations now succeed (typeOfVisit, preventionLevel, nandaCode, interventionEvaluations, referralType, healthHistory)
+- Lint: 0 errors. Dev server: clean HTTP 200
+
+Stage Summary:
+- Root cause: Database schema drift — Prisma schema had columns that Supabase never received
+- Fixed by adding 28 missing columns to Supabase via ALTER TABLE
+- Added health history fields to consultation API route for step 0 save support
+- All 9 consultation wizard steps now save successfully
+- Files changed: src/app/api/consultations/[id]/route.ts, src/lib/case.ts
+- Pushed commit 39025a4
