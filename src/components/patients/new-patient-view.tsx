@@ -328,7 +328,7 @@ export function NewPatientView() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name Extension</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger className="h-10 w-full">
                           <SelectValue placeholder="Select extension" />
@@ -376,7 +376,7 @@ export function NewPatientView() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Blood Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger className="h-10 w-full">
                           <SelectValue placeholder="Select blood type" />
@@ -432,7 +432,7 @@ export function NewPatientView() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Barangay</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
                     <FormControl>
                       <SelectTrigger className="h-10 w-full">
                         <SelectValue placeholder="Select barangay" />
@@ -555,7 +555,7 @@ export function NewPatientView() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Religion</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger className="h-10 w-full">
                           <SelectValue placeholder="Select religion" />
@@ -580,7 +580,7 @@ export function NewPatientView() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Marital Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger className="h-10 w-full">
                           <SelectValue placeholder="Select status" />
@@ -624,7 +624,7 @@ export function NewPatientView() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Income Bracket</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
                     <FormControl>
                       <SelectTrigger className="h-10 w-full">
                         <SelectValue placeholder="Select income bracket" />
