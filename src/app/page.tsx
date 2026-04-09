@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from 'react';
+import { useEffect, useState, Component, type ReactNode, type ErrorInfo, lazy, Suspense } from 'react';
 import { useAppStore, AppView } from '@/store/app-store';
 import { LoginView } from '@/components/layout/login-view';
 import { AppShell } from '@/components/layout/app-shell';
@@ -9,11 +9,13 @@ import { PatientListView } from '@/components/patients/patient-list-view';
 import { PatientProfileView } from '@/components/patients/patient-profile-view';
 import { NewPatientView } from '@/components/patients/new-patient-view';
 import { ConsultationView } from '@/components/consultations/consultation-view';
-import { MapView } from '@/components/map/map-view';
 import { AuditView } from '@/components/audit/audit-view';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// Lazy load heavy components to reduce initial bundle size
+const MapView = lazy(() => import('@/components/map/map-view').then(m => ({ default: m.MapView })));
 
 // ---------------------------------------------------------------------------
 // Global Error Boundary — catches client-side exceptions on Vercel
@@ -60,8 +62,8 @@ class AppErrorBoundary extends Component<
               <p className="text-sm text-muted-foreground mt-2">
                 An unexpected error occurred. Please try refreshing the page.
               </p>
-              {/* Show error details in ALL environments for debugging */}
-              {err && (
+              {/* Show error details only in development for debugging */}
+              {err && process.env.NODE_ENV === 'development' && (
                 <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-left">
                   <p className="text-xs font-mono text-red-700 dark:text-red-400 break-all">
                     {err.name}: {err.message}
@@ -120,6 +122,17 @@ function ViewRouter() {
   );
 }
 
+function ViewFallback() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
 function switchView(currentView: AppView) {
   switch (currentView) {
     case 'login':
@@ -135,7 +148,7 @@ function switchView(currentView: AppView) {
     case 'consultation':
       return <ConsultationView />;
     case 'map':
-      return <MapView />;
+      return <Suspense fallback={<ViewFallback />}><MapView /></Suspense>;
     case 'audit':
       return <AuditView />;
     default:

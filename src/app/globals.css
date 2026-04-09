@@ -142,6 +142,39 @@
   background-color: #ef4444;
 }
 
+/* Focus-visible for keyboard accessibility */
+*:focus-visible {
+  outline: 2px solid oklch(0.65 0.18 350);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leaflet tooltip styling */
+.barangay-label {
+  background: oklch(0.995 0.002 350) !important;
+  border: 1px solid oklch(0.88 0.015 350) !important;
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: oklch(0.25 0.015 350) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+.dark .barangay-label {
+  background: oklch(0.21 0.01 350) !important;
+  border-color: oklch(0.32 0.012 350) !important;
+  color: oklch(0.965 0.006 350) !important;
+}
+
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

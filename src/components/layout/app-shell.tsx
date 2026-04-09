@@ -289,7 +289,23 @@ function BreadcrumbBar() {
 
 function NotificationBell() {
   const setCurrentView = useAppStore((s) => s.setCurrentView);
-  const [pausedCount] = useState(0); // Could be wired to real data
+  const [pausedCount, setPausedCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchPausedCount() {
+      try {
+        const res = await fetch('/api/dashboard/resume');
+        if (res.ok) {
+          const data = await res.json();
+          setPausedCount(data.consultations?.length ?? 0);
+        }
+      } catch { /* silent */ }
+    }
+    fetchPausedCount();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchPausedCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Tooltip>
@@ -302,14 +318,14 @@ function NotificationBell() {
         >
           <Bell className="h-4.5 w-4.5 text-muted-foreground" />
           {pausedCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
               {pausedCount > 9 ? '9+' : pausedCount}
             </span>
           )}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Notifications{pausedCount > 0 ? ` (${pausedCount})` : ''}</p>
+        <p>{pausedCount > 0 ? `${pausedCount} paused consultation${pausedCount > 1 ? 's' : ''}` : 'No notifications'}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -462,7 +478,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-medium">ICD-10</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span>Made with ❤ for UMAK</span>
+                <span>Made with </span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#e11d48" stroke="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span> for UMAK</span>
               </div>
             </div>
           </div>
