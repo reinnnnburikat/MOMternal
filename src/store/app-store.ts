@@ -41,10 +41,9 @@ interface AppState {
   selectedConsultationId: string | null;
   setSelectedConsultationId: (id: string | null) => void;
 
-  // Data refresh trigger — bumped when consultation data changes
-  // so dependent views (map, patient profile) can re-fetch
-  refreshTrigger: number;
-  bumpRefresh: () => void;
+  // Hydration state — true once client-side zustand persist has rehydrated
+  _hasHydrated: boolean;
+  _setHasHydrated: () => void;
 }
 
 const SESSION_TIMEOUT = 20 * 60 * 1000; // 20 minutes
@@ -107,12 +106,13 @@ export const useAppStore = create<AppState>()(
       selectedConsultationId: null,
       setSelectedConsultationId: (id) => set({ selectedConsultationId: id }),
 
-      // Data refresh
-      refreshTrigger: 0,
-      bumpRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
+      // Hydration
+      _hasHydrated: false,
+      _setHasHydrated: () => set({ _hasHydrated: true }),
     }),
     {
       name: 'momternal-app-state',
+      skipHydration: true,
       partialize: (state) => ({
         currentView: state.currentView,
         isAuthenticated: state.isAuthenticated,
@@ -122,10 +122,12 @@ export const useAppStore = create<AppState>()(
         // re-renders that steal input focus.
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
-        // refreshTrigger is intentionally excluded — it's ephemeral, only used
-        // to trigger re-fetches within the same session. Persisting it causes
-        // unnecessary localStorage writes on every consultation save.
       }),
+      onRehydrateStorage: () => {
+        return (state) => {
+          state?._setHasHydrated();
+        };
+      },
     }
   )
 );

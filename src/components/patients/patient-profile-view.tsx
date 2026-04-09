@@ -287,7 +287,6 @@ export function PatientProfileView() {
     (s) => s.setSelectedConsultationId,
   );
   const currentNurse = useAppStore((s) => s.currentNurse);
-  const refreshTrigger = useAppStore((s) => s.refreshTrigger);
 
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -322,7 +321,7 @@ export function PatientProfileView() {
     }
 
     fetchPatient();
-  }, [selectedPatientId, setCurrentView, refreshTrigger]);
+  }, [selectedPatientId, setCurrentView]);
 
   const handleNewConsultation = async () => {
     if (!patient || !currentNurse) return;

@@ -159,11 +159,15 @@ function SidebarContent({ onNavigate, currentView }: {
 }
 
 function DarkModeToggle() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === 'undefined') return false;
+  const [isDark, setIsDark] = useState(false);
+
+  // Sync dark mode from localStorage/matchMedia on mount (client-only)
+  // Note: setState in effect is intentional here to avoid SSR/client hydration mismatch
+  useEffect(() => {
     const saved = localStorage.getItem('momternal-theme');
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
+    const shouldBeDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setIsDark(shouldBeDark); // eslint-disable-line react-hooks/set-state-in-effect
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);

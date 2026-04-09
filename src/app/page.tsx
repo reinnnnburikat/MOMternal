@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from 'react';
 import { useAppStore, AppView } from '@/store/app-store';
 import { LoginView } from '@/components/layout/login-view';
 import { AppShell } from '@/components/layout/app-shell';
@@ -12,6 +12,73 @@ import { ConsultationView } from '@/components/consultations/consultation-view';
 import { MapView } from '@/components/map/map-view';
 import { AuditView } from '@/components/audit/audit-view';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+// ---------------------------------------------------------------------------
+// Global Error Boundary — catches client-side exceptions on Vercel
+// ---------------------------------------------------------------------------
+class AppErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('[MOMternal] ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
+          <div className="max-w-md w-full text-center space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
+                Something went wrong
+              </h2>
+              <p className="text-sm text-muted-foreground mt-2">
+                An unexpected error occurred. This has been logged for review.
+                Please try refreshing the page.
+              </p>
+              {this.state.error?.message &&
+                process.env.NODE_ENV === 'development' && (
+                  <p className="text-xs text-red-500 mt-2 font-mono bg-red-50 dark:bg-red-950/20 p-2 rounded break-all">
+                    {this.state.error.message}
+                  </p>
+                )}
+            </div>
+            <Button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="bg-rose-600 hover:bg-rose-700 text-white gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh Page
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// View routing
+// ---------------------------------------------------------------------------
 
 const viewTransition = {
   initial: { opacity: 0, y: 8 },
@@ -61,21 +128,40 @@ function switchView(currentView: AppView) {
   }
 }
 
-export default function Home() {
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
+
+function AppContent() {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const isSessionExpired = useAppStore((s) => s.isSessionExpired);
   const logout = useAppStore((s) => s.logout);
   const updateActivity = useAppStore((s) => s.updateActivity);
+  const hasHydrated = useAppStore((s) => s._hasHydrated);
+
+  // Rehydrate zustand persist on mount (client-only) — guarded for safety
+  useEffect(() => {
+    try {
+      if (
+        useAppStore.persist &&
+        typeof useAppStore.persist.rehydrate === 'function'
+      ) {
+        useAppStore.persist.rehydrate();
+      }
+    } catch (e) {
+      console.warn('[MOMternal] Zustand rehydrate failed:', e);
+    }
+  }, []);
 
   // Session timeout check
   useEffect(() => {
     const interval = setInterval(() => {
-      if (isSessionExpired()) {
+      if (hasHydrated && isSessionExpired()) {
         logout();
       }
     }, 60000); // Check every minute
     return () => clearInterval(interval);
-  }, [isSessionExpired, logout]);
+  }, [isSessionExpired, logout, hasHydrated]);
 
   // Activity tracking — only non-input events to avoid re-renders on keystrokes
   useEffect(() => {
@@ -89,6 +175,19 @@ export default function Home() {
       window.removeEventListener('touchstart', handleActivity);
     };
   }, [updateActivity]);
+
+  // Don't render until zustand has rehydrated from localStorage
+  // This prevents hydration flash (login → dashboard) on returning users
+  if (!hasHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading MOMternal...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -116,5 +215,13 @@ export default function Home() {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+export default function Home() {
+  return (
+    <AppErrorBoundary>
+      <AppContent />
+    </AppErrorBoundary>
   );
 }

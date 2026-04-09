@@ -3,7 +3,7 @@ import { query } from "@/lib/supabase";
 
 /**
  * GET /api/audit
- * Query params: action, entity, limit (default 50), offset (default 0)
+ * Query params: action, entity, search, limit (default 50), offset (default 0)
  * Returns audit logs ordered by timestamp desc with nurse name.
  */
 export async function GET(request: NextRequest) {
@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
     const entity = searchParams.get("entity");
+    const search = searchParams.get("search") || "";
     const limit = Math.min(Number(searchParams.get("limit")) || 50, 500);
     const offset = Number(searchParams.get("offset")) || 0;
 
@@ -27,6 +28,11 @@ export async function GET(request: NextRequest) {
     if (entity) {
       conditions.push(`a.entity = $${paramIdx}`);
       params.push(entity);
+      paramIdx++;
+    }
+    if (search) {
+      conditions.push(`(n.name ILIKE $${paramIdx} OR a.action ILIKE $${paramIdx} OR a.entity ILIKE $${paramIdx} OR a.entity_id ILIKE $${paramIdx} OR a.details::text ILIKE $${paramIdx})`);
+      params.push(`%${search}%`);
       paramIdx++;
     }
 

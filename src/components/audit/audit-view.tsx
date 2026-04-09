@@ -211,6 +211,9 @@ export function AuditView() {
       if (entityFilter !== 'all') {
         params.set('entity', entityFilter);
       }
+      if (searchQuery.trim()) {
+        params.set('search', searchQuery.trim());
+      }
 
       const res = await fetch(`/api/audit?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch audit logs');
@@ -224,31 +227,23 @@ export function AuditView() {
     } finally {
       setLoading(false);
     }
-  }, [page, actionFilter, entityFilter]);
+  }, [page, actionFilter, entityFilter, searchQuery]);
 
-  // Fetch on mount and when filters change
+  // Fetch on mount and when filters change (debounced for search)
   useEffect(() => {
-    fetchLogs();
+    const debounce = setTimeout(() => {
+      fetchLogs();
+    }, 300);
+    return () => clearTimeout(debounce);
   }, [fetchLogs]);
 
   // Reset page when filters change
   useEffect(() => {
     setPage(0);
-  }, [actionFilter, entityFilter]);
+  }, [actionFilter, entityFilter, searchQuery]);
 
-  // Filter by search query (client-side)
-  const filteredLogs = useMemo(() => {
-    if (!searchQuery.trim()) return logs;
-    const q = searchQuery.toLowerCase();
-    return logs.filter(
-      (log) =>
-        log.nurse?.name?.toLowerCase().includes(q) ||
-        log.action.toLowerCase().includes(q) ||
-        log.entity.toLowerCase().includes(q) ||
-        log.entityId.toLowerCase().includes(q) ||
-        log.details.toLowerCase().includes(q)
-    );
-  }, [logs, searchQuery]);
+  // Logs are now server-side filtered — no client-side filtering needed
+  const filteredLogs = logs;
 
   // Compute summary stats
   const createCount = logs.filter((l) => l.action === 'create').length;
@@ -323,7 +318,7 @@ export function AuditView() {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
-                  placeholder="Search logs..."
+                  placeholder="Search by nurse, action, entity, or details..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-8 text-xs pl-8"
@@ -497,7 +492,7 @@ export function AuditView() {
                 <div className="flex items-center justify-between mt-4 px-1">
                   <p className="text-xs text-muted-foreground">
                     Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} of {total} logs
-                    {searchQuery && ` (filtered)`}
+                    {searchQuery && ` — "${searchQuery}"`}
                   </p>
                   <div className="flex items-center gap-1">
                     <Button

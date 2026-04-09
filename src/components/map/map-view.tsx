@@ -3,7 +3,6 @@
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
-import { useAppStore } from '@/store/app-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -75,7 +74,6 @@ export function MapView() {
   const [error, setError] = useState<string | null>(null);
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [mapData, setMapData] = useState<MapApiResponse | null>(null);
-  const refreshTrigger = useAppStore((s) => s.refreshTrigger);
 
   // Fetch map data (separate from map init)
   const fetchMapData = useCallback(async () => {
@@ -373,7 +371,7 @@ export function MapView() {
     };
 
     loadData();
-  }, [mapReady, refreshTrigger]);
+  }, [mapReady]);
 
   // Re-render data layers when filter changes
   useEffect(() => {

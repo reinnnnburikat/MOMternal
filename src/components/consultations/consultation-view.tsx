@@ -42,7 +42,6 @@ import {
   Shield,
   Info,
   AlertCircle,
-  Printer,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -509,7 +508,6 @@ export function ConsultationView() {
         setConsultation(updated);
         toast.success('Progress saved');
         updateActivity();
-        useAppStore.getState().bumpRefresh();
         return true;
       } catch {
         toast.error('Failed to save progress');
@@ -531,7 +529,6 @@ export function ConsultationView() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      useAppStore.getState().bumpRefresh();
     } catch {
       // Silent save — don't show errors
     }
@@ -680,9 +677,65 @@ export function ConsultationView() {
     toast.success('Downloaded');
   }, [referralSummary, consultation]);
 
-  const handleDownloadPdf = useCallback(() => {
-    window.print();
-  }, []);
+  const handleDownloadPdf = useCallback(async () => {
+    const el = document.getElementById('referral-print-area');
+    if (!el) return;
+
+    try {
+      toast.loading('Generating PDF...', { id: 'pdf-gen' });
+
+      // Dynamically import to avoid SSR issues and reduce bundle size
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+
+      // Capture the referral card at 2x scale for high quality
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const usableWidth = pageWidth - margin * 2;
+
+      // Calculate image dimensions to fit page width
+      const imgWidth = usableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = margin;
+      let page = 0;
+
+      // Add pages as needed for multi-page content
+      while (heightLeft > 0) {
+        if (page > 0) {
+          pdf.addPage();
+        }
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+        position = -(page * (pageHeight - margin * 2)) + margin;
+        page++;
+      }
+
+      // Generate filename
+      const consultationNo = consultation?.consultationNo || 'consultation';
+      const dateStr = new Date().toISOString().slice(0, 10);
+      pdf.save(`referral-${consultationNo}-${dateStr}.pdf`);
+
+      toast.success('PDF downloaded successfully', { id: 'pdf-gen' });
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      toast.error('Failed to generate PDF. Please try again.', { id: 'pdf-gen' });
+    }
+  }, [consultation]);
 
   // ── NIC custom intervention helpers (state declared above with other useState) ──
 
@@ -2089,7 +2142,7 @@ export function ConsultationView() {
               Copy to Clipboard
             </Button>
             <Button variant="outline" onClick={handleDownloadPdf} className="gap-2">
-              <Printer className="h-3.5 w-3.5" />
+              <FileOutput className="h-3.5 w-3.5" />
               Download PDF
             </Button>
             <Button variant="outline" onClick={handleGenerateReferral} className="gap-2">

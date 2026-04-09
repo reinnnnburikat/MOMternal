@@ -72,7 +72,26 @@ export async function GET(request: NextRequest) {
     let paramIndex = 1;
 
     if (search) {
-      conditions.push(`(name ILIKE $${paramIndex} OR patient_id ILIKE $${paramIndex} OR surname ILIKE $${paramIndex} OR first_name ILIKE $${paramIndex})`);
+      // Search across patient fields AND related consultation fields
+      // Includes: name, patient_id, surname, first_name, barangay, address,
+      // consultation_no (history ID), nanda_diagnosis, icd10_diagnosis, risk_level
+      conditions.push(`(
+        p.name ILIKE $${paramIndex}
+        OR p.patient_id ILIKE $${paramIndex}
+        OR p.surname ILIKE $${paramIndex}
+        OR p.first_name ILIKE $${paramIndex}
+        OR p.barangay ILIKE $${paramIndex}
+        OR p.address ILIKE $${paramIndex}
+        OR EXISTS (
+          SELECT 1 FROM consultation c
+          WHERE c.patient_id = p.id
+            AND (c.consultation_no ILIKE $${paramIndex}
+                 OR c.nanda_diagnosis ILIKE $${paramIndex}
+                 OR c.icd10_diagnosis ILIKE $${paramIndex}
+                 OR c.risk_level ILIKE $${paramIndex}
+                 OR c.status ILIKE $${paramIndex})
+        )
+      )`);
       params.push(`%${search}%`);
       paramIndex++;
     }
