@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
 
     const dbMedicalHistory = parsedHH?.pastMedicalHistory
       ? JSON.stringify(parsedHH.pastMedicalHistory)
-      : (medicalHistory || healthHistory || null);
+      : (healthHistory || null);
     const dbSurgicalHistory = parsedHH?.previousSurgery
       ? JSON.stringify(parsedHH.previousSurgery)
       : (surgicalHistory || null);

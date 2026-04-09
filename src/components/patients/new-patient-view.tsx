@@ -42,7 +42,6 @@ import {
   FileText,
   Activity,
   AlertTriangle,
-  ShieldCheck,
   Cigarette,
   Wine,
   Pill,

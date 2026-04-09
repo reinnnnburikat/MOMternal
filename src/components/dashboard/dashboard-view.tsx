@@ -67,7 +67,7 @@ interface RecentConsultation {
   consultationDate: string;
   status: string;
   riskLevel: string;
-  patient: { name: string; patientId: string };
+  patient: { id: string; name: string; patientId: string };
 }
 
 interface PausedConsultation {

@@ -13,7 +13,6 @@ import {
   Calendar,
   MapPin,
   Baby,
-  ChevronRight,
   Filter,
 } from 'lucide-react';
 import { toast } from 'sonner';

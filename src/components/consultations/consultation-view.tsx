@@ -490,10 +490,12 @@ export function ConsultationView() {
     fetchConsultation();
   }, [selectedConsultationId]);
 
-  // ── Auto-save on unmount ──
+  // ── Auto-save on unmount (use ref to avoid stale closure) ──
+  const saveRef = useRef(saveCurrentStepSilent);
+  saveRef.current = saveCurrentStepSilent;
   useEffect(() => {
     return () => {
-      if (isInitialized.current && selectedConsultationId) saveCurrentStepSilent();
+      if (isInitialized.current && selectedConsultationId) saveRef.current();
     };
   }, []);
 
@@ -626,10 +628,10 @@ export function ConsultationView() {
     if (currentStep > 0) goToStep(currentStep - 1);
   }, [currentStep, goToStep]);
 
-  const handleExitWizard = useCallback(() => {
+  const handleExitWizard = useCallback(async () => {
     setShowExitDialog(false);
+    await saveCurrentStepSilent();
     setIsDirty(false);
-    saveCurrentStepSilent();
     goBack();
   }, [goBack, saveCurrentStepSilent]);
 
@@ -686,7 +688,7 @@ export function ConsultationView() {
       updateActivity();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to generate AI summary';
-      if (!aiError) setAiError(msg);
+      setAiError(msg);
       toast.error(msg, { duration: 5000 });
     } finally { setAiLoading(false); }
   }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep]);
@@ -714,6 +716,7 @@ export function ConsultationView() {
       if (exists) return prev.filter(i => i.name !== intervention.name);
       return [...prev, { name: intervention.name, description: intervention.description, code: intervention.code ? String(intervention.code) : undefined }];
     });
+    markDirty();
   }, []);
 
   const addCustomInterventionWithCode = useCallback(() => {
@@ -728,6 +731,7 @@ export function ConsultationView() {
 
   const removeIntervention = useCallback((name: string) => {
     setSelectedInterventions(prev => prev.filter(i => i.name !== name));
+    markDirty();
   }, []);
 
   const handleNicCodeSelect = useCallback((opt: CodeOption | null) => {
@@ -1467,7 +1471,7 @@ export function ConsultationView() {
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 justify-center">
               <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2"><Copy className="h-3.5 w-3.5" /> Copy to Clipboard</Button>
-              <Button variant="outline" onClick={handleDownloadPdf} className="gap-2"><FileOutput className="h-3.5 w-3.5" /> Download PDF</Button>
+              <Button variant="outline" onClick={handleDownloadPdf} className="gap-2"><FileOutput className="h-3.5 w-3.5" /> Download Document</Button>
               <Button variant="outline" onClick={handleGenerateReferral} className="gap-2"><RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} /> Regenerate</Button>
             </div>
 
@@ -1806,7 +1810,7 @@ export function ConsultationView() {
 
         {/* Navigation Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/80">
-          <Button variant="ghost" onClick={handleBackClick} disabled={currentStep === 0 || saving}
+          <Button variant="ghost" onClick={handleBackClick} disabled={saving}
             className="gap-2 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="h-4 w-4" /> Back
           </Button>
@@ -1819,7 +1823,7 @@ export function ConsultationView() {
               Next <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleComplete} disabled={saving} className="gap-2 bg-rose-600 hover:bg-rose-700">
+            <Button onClick={handleComplete} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700">
               <CheckCircle2 className="h-4 w-4" /> Complete
             </Button>
           )}

@@ -56,6 +56,7 @@ interface AuditLog {
 interface AuditApiResponse {
   logs: AuditLog[];
   total: number;
+  actionCounts?: Record<string, number>;
   limit: number;
   offset: number;
 }
@@ -184,6 +185,7 @@ function AuditTableSkeleton() {
 }
 
 export function AuditView() {
+  const [actionCounts, setActionCounts] = useState<Record<string, number>>({});
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -221,6 +223,7 @@ export function AuditView() {
       const data: AuditApiResponse = await res.json();
       setLogs(data.logs);
       setTotal(data.total);
+      if (data.actionCounts) setActionCounts(data.actionCounts);
     } catch (err) {
       console.error('Error fetching audit logs:', err);
       setError('Unable to load audit logs. Please try again.');
@@ -245,10 +248,10 @@ export function AuditView() {
   // Logs are now server-side filtered — no client-side filtering needed
   const filteredLogs = logs;
 
-  // Compute summary stats
-  const createCount = logs.filter((l) => l.action === 'create').length;
-  const updateCount = logs.filter((l) => l.action === 'update').length;
-  const deleteCount = logs.filter((l) => l.action === 'delete').length;
+  // Use server-side action counts (total across all pages), fallback to current page count
+  const createCount = actionCounts['create'] ?? logs.filter((l) => l.action === 'create').length;
+  const updateCount = actionCounts['update'] ?? logs.filter((l) => l.action === 'update').length;
+  const deleteCount = actionCounts['delete'] ?? logs.filter((l) => l.action === 'delete').length;
 
   return (
     <div className="space-y-6">

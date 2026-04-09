@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    // Fetch logs and total count in parallel
-    const [logsResult, totalResult] = await Promise.all([
+    // Fetch logs, total count, and action counts in parallel
+    const [logsResult, totalResult, actionCountsResult] = await Promise.all([
       query(
         `SELECT a.id, a.nurse_id, a.action, a.entity, a.entity_id, a.details, a.timestamp,
                 n.name AS "nurseName"
@@ -54,9 +54,20 @@ export async function GET(request: NextRequest) {
         `SELECT COUNT(*)::int AS total FROM audit_log a ${whereClause}`,
         params
       ),
+      query(
+        `SELECT action, COUNT(*)::int AS count FROM audit_log a ${whereClause} GROUP BY action`,
+        params
+      ),
     ]);
 
     const total = (totalResult.rows[0] as Record<string, unknown>)?.total as number || 0;
+
+    // Build action counts map
+    const actionCounts: Record<string, number> = {};
+    for (const row of actionCountsResult.rows) {
+      const r = row as Record<string, unknown>;
+      actionCounts[(r.action as string) || 'unknown'] = (r.count as number) || 0;
+    }
 
     const logs = logsResult.rows.map((r: Record<string, unknown>) => ({
       id: r.id,
@@ -71,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    return NextResponse.json({ logs, total, limit, offset });
+    return NextResponse.json({ logs, total, actionCounts, limit, offset });
   } catch (error) {
     console.error("Audit logs fetch error:", error);
     return NextResponse.json(

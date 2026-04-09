@@ -218,6 +218,7 @@ export function CodeCombobox({
                 value={internalQuery}
                 onValueChange={(v) => {
                   setInternalQuery(v);
+                  if (onInputChange) onInputChange(v);
                 }}
                 className="h-10 text-sm border-0 focus:ring-0"
               />
