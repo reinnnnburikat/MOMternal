@@ -127,3 +127,42 @@ Stage Summary:
 - UI polished: Better dark mode contrast, professional depth/shadows, subtle background pattern, consistent card styling
 - Application fully operational: lint passes, dev server running, HTTP 200
 - Files changed: src/components/consultations/consultation-view.tsx, src/app/globals.css, src/components/layout/app-shell.tsx, src/components/dashboard/dashboard-view.tsx, src/components/patients/new-patient-view.tsx, src/components/patients/patient-profile-view.tsx
+
+---
+Task ID: 7
+Agent: Main
+Task: Remaining tasks - Map pinpoint fix, Phase 6 Visit Management, PDF Generation
+
+Work Log:
+- **Map pinpoint accuracy fix**:
+  - Found `map-view.tsx` had DUPLICATE inline copy of BARANGAY_CENTROIDS instead of importing from shared module
+  - Critical casing mismatch: inline copy had `'Pio Del Pilar'` (capital D) vs shared module's `'Pio del Pilar'` (lowercase d)
+  - Replaced 34-line inline centroid definition with import from `@/components/map/barangay-centroids`
+  - Added case-insensitive `lookupCentroid()` function to API route for robustness
+  - Both API and frontend now use single source of truth
+
+- **Phase 6 - Visit Management**:
+  - Added `refreshTrigger` + `bumpRefresh()` to Zustand app store for cross-view data sync
+  - Consultation save (both explicit and silent) calls `bumpRefresh()` to notify other views
+  - Patient profile watches `refreshTrigger` and re-fetches patient data (including consultation list)
+  - Risk map watches `refreshTrigger` and re-fetches map data
+  - Added "Update Evaluation" button (PenLine icon, amber styling) on completed consultation cards
+  - Added "Update Evaluation" button in consultation detail dialog
+  - Both buttons open the completed consultation in edit mode via the consultation wizard
+
+- **PDF Generation**:
+  - Installed `jspdf@4.2.1` and `html2canvas@1.4.1`
+  - Replaced `window.print()` with proper client-side PDF generation
+  - Uses html2canvas to capture referral card at 2x scale, converts to jsPDF A4
+  - Multi-page support with proper margins (10mm) and page breaks
+  - Dynamic filename: `referral-{consultationNo}-{date}.pdf`
+  - Changed icon from Printer to Download for the PDF button
+  - Added loading toast ("Generating PDF...") and error handling
+
+Stage Summary:
+- Map markers now use correct centroids for all 33 barangays (single source of truth, case-insensitive)
+- Nurses can update evaluations on completed consultations without creating new visits
+- Patient profile and risk map auto-refresh when consultation data changes
+- Referral PDF downloads as proper A4 document (not browser print dialog)
+- Files changed: src/components/map/map-view.tsx, src/app/api/map/data/route.ts, src/store/app-store.ts, src/components/patients/patient-profile-view.tsx, src/components/consultations/consultation-view.tsx
+- All pushed to GitHub (commit dcf0127)
