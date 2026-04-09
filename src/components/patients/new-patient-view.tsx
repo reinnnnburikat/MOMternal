@@ -57,7 +57,7 @@ import makatiBarangaysData from '@/data/makati-barangays.json';
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-const NAME_EXTENSIONS = ['', 'Jr.', 'Sr.', 'II', 'III', 'IV'];
+const NAME_EXTENSIONS = ['Jr.', 'Sr.', 'II', 'III', 'IV'];
 
 const RELIGIONS = [
   'Catholic',
@@ -335,9 +335,10 @@ export function NewPatientView() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
                         {NAME_EXTENSIONS.map((ext) => (
-                          <SelectItem key={ext} value={ext} disabled={!ext}>
-                            {ext || 'None'}
+                          <SelectItem key={ext} value={ext}>
+                            {ext}
                           </SelectItem>
                         ))}
                       </SelectContent>
