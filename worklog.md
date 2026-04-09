@@ -216,3 +216,24 @@ Stage Summary:
 - 5 API routes created following existing codebase patterns
 - All field mappings and DB-to-API conversion functions added to case.ts
 - Files changed: prisma/schema.prisma, src/lib/case.ts, src/app/api/health-history/route.ts, src/app/api/health-history/[id]/route.ts, src/app/api/health-history/search/route.ts
+---
+Task ID: 2
+Agent: Main Agent + Sub-agents
+Task: Add Health History step + NOC outcomes + per-intervention NOC dropdown
+
+Work Log:
+- Analyzed uploaded images to extract exact UI requirements
+- Image 1: Health History form with reference code (HH-YYYYMMDD-XXX), Past Medical History, Previous Surgery, Trauma, Blood Transfusion, Family History (Paternal/Maternal), Personal & Social History (Smoking, Alcohol, Drug Use, Diet, Physical Activity, Sleep)
+- Image 2: Care Plan with NANDA codes (00132 Acute Pain, 00048 Risk for Fall), NIC codes (1400 Pain Management, 6490 Fall Prevention), NOC codes (2102 Pain Level), per-intervention evaluation (Met/Evaluate), Save + Create Referral buttons
+- Created NOC outcomes database (74 outcomes across 7 domains)
+- Added HealthHistory model to Prisma schema (17 fields + reference code)
+- Created 3 API routes: POST/GET for CRUD, search for reference code lookup
+- Updated consultation-view.tsx: added Health History as step 0, NOC dropdowns in Evaluation step
+- Total wizard steps increased from 8 to 9
+
+Stage Summary:
+- NOC outcomes database: 74 outcomes in /src/data/noc-outcomes.ts
+- Health History API: /api/health-history (CRUD + search)
+- Consultation wizard: 9 steps with Health History as first step
+- NOC outcomes integrated into Evaluation step with CodeCombobox dropdown
+- Pushed commit d813202
