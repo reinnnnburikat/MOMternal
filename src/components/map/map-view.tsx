@@ -2,6 +2,8 @@
 
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
+import { useAppStore } from '@/store/app-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -57,43 +59,8 @@ const RISK_LABELS: Record<string, string> = {
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 const DEFAULT_ZOOM = 14;
 
-// Accurate barangay centroids computed from OSM boundary polygon geometries
-// Source: OpenStreetMap Overpass API (admin_level=10 relations, all 33 barangays)
-const BARANGAY_CENTROIDS: Record<string, [number, number]> = {
-  'Bangkal': [14.5447, 121.0124],
-  'Bel-Air': [14.562, 121.0266],
-  'Carmona': [14.5752, 121.0178],
-  'Cembo': [14.5638, 121.0509],
-  'Comembo': [14.5481, 121.0641],
-  'Dasmariñas': [14.5379, 121.029],
-  'East Rembo': [14.5539, 121.0618],
-  'Forbes Park': [14.545, 121.0389],
-  'Guadalupe Nuevo': [14.5618, 121.0467],
-  'Guadalupe Viejo': [14.5652, 121.0414],
-  'Kasilawan': [14.5767, 121.0153],
-  'La Paz': [14.5683, 121.0082],
-  'Magallanes': [14.5329, 121.0182],
-  'Olympia': [14.5708, 121.0193],
-  'Palanan': [14.5593, 121.0019],
-  'Pembo': [14.5448, 121.0591],
-  'Pinagkaisahan': [14.5573, 121.041],
-  'Pio Del Pilar': [14.552, 121.0116],
-  'Pitogo': [14.557, 121.045],
-  'Poblacion': [14.5659, 121.0293],
-  'Post Proper Northside': [14.5621, 121.0559],
-  'Post Proper Southside': [14.5408, 121.0442],
-  'Rizal': [14.537, 121.0612],
-  'San Antonio': [14.5647, 121.0104],
-  'San Isidro': [14.5542, 121.0047],
-  'San Lorenzo': [14.5531, 121.019],
-  'Santa Cruz': [14.5673, 121.0149],
-  'Singkamas': [14.5727, 121.0115],
-  'South Cembo': [14.5594, 121.0507],
-  'Tejeros': [14.5729, 121.014],
-  'Urdaneta': [14.5564, 121.0297],
-  'Valenzuela': [14.5692, 121.0235],
-  'West Rembo': [14.5601, 121.0601],
-};
+// BARANGAY_CENTROIDS imported from shared source-of-truth module (OSM Overpass API)
+// Single source of truth — used by both map-view.tsx and /api/map/data route
 
 // GeoJSON boundaries are loaded from /makati-barangays.geojson (OSM Overpass API)
 // All 33 Makati barangays with full boundary polygons from live OSM data
@@ -108,6 +75,7 @@ export function MapView() {
   const [error, setError] = useState<string | null>(null);
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [mapData, setMapData] = useState<MapApiResponse | null>(null);
+  const refreshTrigger = useAppStore((s) => s.refreshTrigger);
 
   // Fetch map data (separate from map init)
   const fetchMapData = useCallback(async () => {
@@ -405,7 +373,7 @@ export function MapView() {
     };
 
     loadData();
-  }, [mapReady]);
+  }, [mapReady, refreshTrigger]);
 
   // Re-render data layers when filter changes
   useEffect(() => {

@@ -47,6 +47,7 @@ import {
   Brain,
   Tag,
   Home,
+  PenLine,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -286,6 +287,7 @@ export function PatientProfileView() {
     (s) => s.setSelectedConsultationId,
   );
   const currentNurse = useAppStore((s) => s.currentNurse);
+  const refreshTrigger = useAppStore((s) => s.refreshTrigger);
 
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -320,7 +322,7 @@ export function PatientProfileView() {
     }
 
     fetchPatient();
-  }, [selectedPatientId, setCurrentView]);
+  }, [selectedPatientId, setCurrentView, refreshTrigger]);
 
   const handleNewConsultation = async () => {
     if (!patient || !currentNurse) return;
@@ -355,6 +357,11 @@ export function PatientProfileView() {
       setSelectedConsultationId(consultation.id);
       setCurrentView('consultation');
     }
+  };
+
+  const handleUpdateEvaluation = (consultation: ConsultationData) => {
+    setSelectedConsultationId(consultation.id);
+    setCurrentView('consultation');
   };
 
   // ------------------------------------------------------------------
@@ -832,16 +839,29 @@ export function PatientProfileView() {
                         )}
                     </div>
 
-                    {/* View button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs border-rose-200 hover:bg-rose-50 gap-1 flex-shrink-0"
-                      onClick={() => handleViewConsultation(consultation)}
-                    >
-                      View
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {consultation.status === 'completed' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs border-amber-200 hover:bg-amber-50 text-amber-700 gap-1"
+                          onClick={(e) => { e.stopPropagation(); handleUpdateEvaluation(consultation); }}
+                        >
+                          <PenLine className="h-3 w-3" />
+                          Update
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs border-rose-200 hover:bg-rose-50 gap-1"
+                        onClick={() => handleViewConsultation(consultation)}
+                      >
+                        View
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1047,6 +1067,19 @@ export function PatientProfileView() {
                   onClick={() => setViewingConsultation(null)}
                 >
                   Close
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-700 text-white gap-1.5"
+                  onClick={() => {
+                    if (viewingConsultation) {
+                      handleUpdateEvaluation(viewingConsultation);
+                      setViewingConsultation(null);
+                    }
+                  }}
+                >
+                  <PenLine className="h-3 w-3" />
+                  Update Evaluation
                 </Button>
               </div>
             </div>

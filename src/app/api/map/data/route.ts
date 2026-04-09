@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/supabase";
 import { BARANGAY_CENTROIDS } from "@/components/map/barangay-centroids";
 
+// Case-insensitive centroid lookup (handles casing differences like 'Pio Del Pilar' vs 'Pio del Pilar')
+function lookupCentroid(barangay: string): [number, number] | undefined {
+  const exact = BARANGAY_CENTROIDS[barangay];
+  if (exact) return exact;
+  // Fallback: case-insensitive match
+  const key = Object.keys(BARANGAY_CENTROIDS).find(
+    (k) => k.toLowerCase() === barangay.toLowerCase()
+  );
+  return key ? BARANGAY_CENTROIDS[key] : undefined;
+}
+
 /**
  * GET /api/map/data
  * Returns community risk map data grouped by barangay.
@@ -73,16 +84,19 @@ export async function GET() {
       }
     }
 
-    // Convert to array and add centroid coords
-    const barangayData = Object.values(barangayMap).map((b) => ({
-      ...b,
-      lat: BARANGAY_CENTROIDS[b.barangay]?.[0] ?? MAKATI_CENTER[0],
-      lng: BARANGAY_CENTROIDS[b.barangay]?.[1] ?? MAKATI_CENTER[1],
-    }));
+    // Convert to array and add centroid coords (case-insensitive lookup)
+    const barangayData = Object.values(barangayMap).map((b) => {
+      const centroid = lookupCentroid(b.barangay);
+      return {
+        ...b,
+        lat: centroid?.[0] ?? MAKATI_CENTER[0],
+        lng: centroid?.[1] ?? MAKATI_CENTER[1],
+      };
+    });
 
-    // Flat list of all patient markers with coordinates (no names — DPA)
+    // Flat list of all patient markers with coordinates (no names — DPA, case-insensitive lookup)
     const markers = patientRiskData.map((pr) => {
-      const centroid = BARANGAY_CENTROIDS[pr.barangay];
+      const centroid = lookupCentroid(pr.barangay);
       return {
         patientId: pr.patientId,
         barangay: pr.barangay,

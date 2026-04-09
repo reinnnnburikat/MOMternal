@@ -40,6 +40,11 @@ interface AppState {
   // Consultation context
   selectedConsultationId: string | null;
   setSelectedConsultationId: (id: string | null) => void;
+
+  // Data refresh trigger — bumped when consultation data changes
+  // so dependent views (map, patient profile) can re-fetch
+  refreshTrigger: number;
+  bumpRefresh: () => void;
 }
 
 const SESSION_TIMEOUT = 20 * 60 * 1000; // 20 minutes
@@ -101,6 +106,10 @@ export const useAppStore = create<AppState>()(
       // Consultation context
       selectedConsultationId: null,
       setSelectedConsultationId: (id) => set({ selectedConsultationId: id }),
+
+      // Data refresh
+      refreshTrigger: 0,
+      bumpRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
     }),
     {
       name: 'momternal-app-state',
@@ -113,6 +122,7 @@ export const useAppStore = create<AppState>()(
         // re-renders that steal input focus.
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
+        refreshTrigger: state.refreshTrigger,
       }),
     }
   )
