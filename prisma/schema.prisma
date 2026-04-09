@@ -36,24 +36,18 @@ model Patient {
   dateOfBirth     DateTime
   age             Int?           // Computed age in years
   address         String
+  blockLotStreet  String?        // Block no. - Lot no. - Street
   barangay        String?        // Makati barangay from dropdown
   contactNumber   String?
   emergencyContact String?
   emergencyRelation String?
 
   // ── Phase 1: New Demographics Fields ──
-  occupation      String?
-  religion        String?        // Catholic, Protestant, Islam, etc.
-  maritalStatus   String?        // Single, Married, Widowed, Separated
-  familyComposition String?      // Number of household members, dependents
-  incomeBracket   String?        // Below minimum, Minimum, Above minimum
-
-  // ── OB History ──
-  gravidity       Int            @default(0) // G - number of pregnancies
-  parity          Int            @default(0) // P - number of births
-  lmp             DateTime?      // Last Menstrual Period
-  aog             String?        // Age of Gestation (calculated)
-  bloodType       String?
+  occupation      String?        // Dropdown: Unemployed, Housewife, Student, Employed Non-hazardous, Employed Hazardous
+  religion        String?        // Free text data entry
+  maritalStatus   String?        // Dropdown: Single, Married, Common-law, Widowed, Divorced/Separated
+  familyComposition String?      // Dropdown: Nuclear, Extended, Single-parent, Blended
+  incomeBracket   String?        // Dropdown: Low (<₱12,082), Lower-Middle, Middle, Upper-Middle, High (>₱120,830)
 
   // ── Phase 1: Health History ──
   allergies       String?
@@ -121,6 +115,19 @@ model Consultation {
 
   // ── Phase 2: Type of Visit ──
   typeOfVisit     String?         // Prenatal Checkup, Follow-up, Emergency, Postpartum, New Patient
+
+  // ── OB History (per-visit) ──
+  gravidity       Int            @default(0) // G - number of pregnancies
+  parity          Int            @default(0) // P - number of births
+  lmp             DateTime?      // Last Menstrual Period
+  aog             String?        // Age of Gestation (calculated)
+  bloodType       String?
+
+  // ── Assessment ──
+  chiefComplaint  String?        // Chief Complaint from assessment
+  height          String?        // in cm
+  weight          String?        // in kg
+  bmi             String?        // calculated
 
   // ── SOAP Assessment ──
   subjectiveSymptoms String?

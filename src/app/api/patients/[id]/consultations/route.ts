@@ -65,24 +65,57 @@ export async function POST(
 
     // Map optional fields from camelCase to snake_case
     const fieldMapping: Record<string, string> = {
+      // OB History (per-visit, moved from Patient)
+      gravidity: "gravidity",
+      parity: "parity",
+      lmp: "lmp",
+      aog: "aog",
+      bloodType: "blood_type",
+      // Type of Visit
+      typeOfVisit: "type_of_visit",
+      // Assessment
+      chiefComplaint: "chief_complaint",
+      height: "height",
+      weight: "weight",
+      bmi: "bmi",
+      // SOAP
       subjectiveSymptoms: "subjective_symptoms",
       objectiveVitals: "objective_vitals",
       fetalHeartRate: "fetal_heart_rate",
       fundalHeight: "fundal_height",
       allergies: "allergies",
       medications: "medications",
+      // Additional Findings
       physicalExam: "physical_exam",
       labResults: "lab_results",
       notes: "notes",
+      // Diagnosis
       icd10Diagnosis: "icd10_diagnosis",
       nandaDiagnosis: "nanda_diagnosis",
+      nandaCode: "nanda_code",
+      nandaName: "nanda_name",
+      // Risk
       riskLevel: "risk_level",
+      preventionLevel: "prevention_level",
+      // AI
       aiSuggestions: "ai_suggestions",
       selectedInterventions: "selected_interventions",
+      // Evaluation
       evaluationStatus: "evaluation_status",
       evaluationNotes: "evaluation_notes",
+      interventionEvaluations: "intervention_evaluations",
+      // Referral
+      referralType: "referral_type",
+      referralPriority: "referral_priority",
+      referralFacility: "referral_facility",
       referralSummary: "referral_summary",
       referralStatus: "referral_status",
+      // Health History (embedded on consultation)
+      healthHistory: "health_history",
+      healthHistoryRefCode: "health_history_ref_code",
+      // Wizard progress
+      stepCompleted: "step_completed",
+      status: "status",
     };
 
     // Create consultation with initial status

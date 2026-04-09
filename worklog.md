@@ -285,3 +285,213 @@ Stage Summary:
 - Logo visibility enhanced with ring borders, rose glow shadows, and drop-shadows
 - Dark mode also gets enhanced glow (`dark:shadow-[0_0_16px_rgba(244,63,94,0.3)]`)
 - No code errors, lint passes clean
+---
+Task ID: 2
+Agent: Schema Agent
+Task: Create barangay data file and update Prisma schema
+
+Work Log:
+- Created src/data/makati-barangays.ts with 22 barangays (updated Makati list)
+- Updated Prisma schema: added blockLotStreet to Patient
+- Moved gravidity/parity/lmp/aog/bloodType from Patient to Consultation
+- Added chiefComplaint/height/weight/bmi to Consultation
+- Updated demographic field comments (occupation, religion, maritalStatus, familyComposition, incomeBracket)
+- Ran db:push successfully
+- Lint passed
+
+Stage Summary:
+- 22 barangays data file ready
+- Schema updated with new fields and field migration
+---
+Task ID: 1
+Agent: Data Agent
+Task: Create NANDA-NIC-NOC data files with 13 domains
+
+Work Log:
+- Replaced nanda-diagnoses.ts with 13 domains, 74 NANDA codes, NANDA_DOMAINS constant, NandaDomain interface
+- Replaced nic-interventions.ts with 43 NIC codes linked to NANDA domains via nandaDomains field
+- Replaced noc-outcomes.ts with 38 NOC codes linked to NANDA domains via nandaDomains field
+- Added getNicByDomain(domain) and getNocByDomain(domain) filter functions
+- Added NANDA_DOMAINS constant export (13 domains with number and name)
+- Updated all search functions to also search by NANDA domain name and number
+- Verified all codes from specification are included across all 13 domains
+- Lint passed clean, dev server compiles successfully
+- Verified data counts with runtime script: 74 NANDA, 43 NIC, 38 NOC
+
+Stage Summary:
+- All 13 NANDA domains with NANDA/NIC/NOC codes from the specification document
+- Cross-domain linking: NIC and NOC have nandaDomains array for domain filtering
+- New exports: NANDA_DOMAINS, NandaDomain, getNicByDomain, getNocByDomain
+- Existing exports preserved: NANDA_DIAGNOSES, NIC_INTERVENTIONS, NOC_OUTCOMES, search functions
+- Files changed: src/data/nanda-diagnoses.ts, src/data/nic-interventions.ts, src/data/noc-outcomes.ts
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Update patients API routes for new patient form fields (blockLotStreet, healthHistory, field migration)
+
+Work Log:
+- Read worklog for context: G/P/LMP/AOG/bloodType were moved from Patient to Consultation in Prisma schema (Task ID 2)
+- Read prisma/schema.prisma: Confirmed blockLotStreet already exists on Patient, G/P/LMP/AOG/bloodType already on Consultation
+- Read all patient API routes and case.ts field mappings
+
+**Changes to src/lib/case.ts:**
+- Removed `bloodType` from `patientFieldMap` (moved to Consultation)
+- Added `address`, `blockLotStreet`, `barangay` to `patientFieldMap` for proper camelCase→snake_case mapping
+- Updated `mapPatientFromDb`: removed `gravidity`, `parity`, `lmp`, `aog`, `bloodType` fields; added `blockLotStreet`
+
+**Changes to src/app/api/patients/route.ts (POST handler):**
+- Removed `calculateAOG` helper (no longer needed on Patient)
+- Removed `gravidity`, `parity`, `lmp`, `aog`, `bloodType` from destructured payload
+- Added `blockLotStreet` and `healthHistory` to destructured payload
+- Made `address` optional — validation now requires either `barangay` OR `address` (since address is split into barangay dropdown + blockLotStreet)
+- Updated INSERT query: removed G/P/LMP/AOG/blood_type columns, added `block_lot_street`
+- `healthHistory` JSON string stored as-is in `medical_history` column
+- Cleaned up unused import (`mapPatientToDb`)
+
+**Changes to src/app/api/patients/[id]/route.ts (GET/PUT/DELETE):**
+- Removed `calculateAOG` helper
+- Removed LMP→AOG recalculation logic from PUT handler
+- Removed LMP date parsing from PUT handler
+- GET response now includes `blockLotStreet` (via updated `mapPatientFromDb`), excludes moved fields
+
+**Changes to src/app/api/patients/[id]/consultations/route.ts:**
+- Expanded fieldMapping from 16 fields to 37 fields
+- Added OB History fields: `gravidity`, `parity`, `lmp`, `aog`, `bloodType` (now per-visit on Consultation)
+- Added missing fields: `typeOfVisit`, `chiefComplaint`, `height`, `weight`, `bmi`, `nandaCode`, `nandaName`, `preventionLevel`, `interventionEvaluations`, `referralType`, `referralPriority`, `referralFacility`, `healthHistory`, `healthHistoryRefCode`, `stepCompleted`, `status`
+
+**Confirmed: /api/patients/search/route.ts does not exist** (no updates needed)
+
+- Lint: 0 errors, 0 warnings
+
+Stage Summary:
+- Patient creation no longer accepts G/P/LMP/AOG/bloodType (these are per-visit on Consultation)
+- New `blockLotStreet` field accepted and persisted to `block_lot_street` column
+- `healthHistory` JSON string stored in `medical_history` column for backward compatibility
+- Address validation relaxed: requires either `barangay` or `address` (not both)
+- Consultation creation now supports all 37 optional fields including newly migrated OB history
+- Files changed: src/lib/case.ts, src/app/api/patients/route.ts, src/app/api/patients/[id]/route.ts, src/app/api/patients/[id]/consultations/route.ts
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Complete rewrite of new-patient-view.tsx per client requirements
+
+Work Log:
+- Read worklog and current new-patient-view.tsx (1000 lines) for full context
+- Verified MAKATI_BARANGAYS data file exists with correct 22 barangays at src/data/makati-barangays.ts
+- Verified shadcn Checkbox component exists at src/components/ui/checkbox.tsx
+
+**Card 1 — Personal Information (restructured):**
+- Patient Name: kept surname/firstName/middleInitial + nameExtension dropdown with "None" option
+- Date of Birth: kept date input with MM/DD/YYYY label
+- Address: replaced old address/contactNumber/emergencyContact/emergencyRelation with:
+  - Barangay dropdown importing MAKATI_BARANGAYS (22 options), using `value={field.value || undefined}`
+  - Block/Lot/Street single text input (blockLotStreet field) with placeholder "e.g. Block 5 Lot 12 Rizal Street"
+- Occupation: changed from free text Input to Select dropdown (5 options: Unemployed, Housewife, Student, Employed — Non-hazardous, Employed — Hazardous)
+- Religion: changed from hardcoded RELIGIONS dropdown to free text Input
+- Marital Status: updated dropdown options (Single, Married, Common-law, Widowed, Divorced/Separated)
+- Family Composition: changed from Textarea to dropdown (Nuclear, Extended, Single-parent, Blended)
+- Income: replaced simple brackets with 5 specific PHP-denominated income brackets
+
+**Removed fields:** Emergency Contact, Emergency Contact Relation, Blood Type, Contact Number, Gravidity/Parity/LMP (OB History card entirely removed)
+
+**Card 2 — Health History (complete restructure):**
+- Allergies: kept as Textarea
+- Past Medical History: checkboxes (8 options including "Others (specify)") with conditional text input
+- Previous Surgery: checkboxes (4 options including "Others (specify)") with conditional text input
+- History of Trauma: dropdown (Yes/No) with conditional text input when "Yes"
+- History of Blood Transfusion: dropdown (Yes/No) with conditional text input when "Yes"
+- Family History: dropdown (Present/Absent/Unknown) with conditional checkboxes (7 options) when "Present"
+- Smoking: dropdown (Never/Former/Current) with conditional "No. of Pack Years" input
+- Alcohol Intake: dropdown (None/Occasional/Regular) with conditional "No. of standard drinks per day" input
+- Drug Use: dropdown (None/Past use/Current use) with conditional "Type of Substance" input
+- Dietary Pattern: dropdown (Adequate/Inadequate/Special diet) with conditional text input
+- Physical Activity: dropdown (Sedentary/Light/Moderate/Vigorous)
+- Sleep Pattern: dropdown (Adequate/Inadequate/Excessive)
+
+**Implementation details:**
+- Health history managed via React local state (18 useState hooks) — assembled into JSON string on submit
+- Checkbox groups use custom `toggleItem()` helper function
+- Conditional fields rendered based on state values
+- All Select components use `value={field.value || undefined}` to prevent Radix UI empty string crash
+- Submit payload sends healthHistory as JSON string containing all 12 health history sections
+- Removed unused imports (date-fns differenceInDays, useMemo, Baby/Droplets icons, makatiBarangaysData JSON)
+- Removed old constants: BLOOD_TYPES, RELIGIONS, old INCOME_BRACKETS, BARANGAYS (from JSON)
+- Kept same card styling pattern (rose-50/40 headers, border styling, action buttons)
+- Lint: 0 errors. Dev server: clean compilation, HTTP 200
+
+Stage Summary:
+- New patient form completely rewritten to match client requirements specification
+- 2-card layout: Personal Information + Health History (down from 5 cards)
+- Health history uses structured checkboxes + conditional dropdowns instead of free-text textareas
+- All health history data serialized as JSON string in healthHistory field on submit
+- Removed 4 fields (emergency contact, relation, blood type, G/P/LMP), changed 4 fields from free text to dropdown
+- Religion changed from dropdown to free text
+- File changed: src/components/patients/new-patient-view.tsx
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Update patient-profile-view.tsx to match new data structure (field migration)
+
+Work Log:
+- Read worklog for context: G/P/LMP/AOG/bloodType moved from Patient to Consultation (Task ID 2), blockLotStreet added to Patient
+- Read prisma/schema.prisma: Confirmed Patient has blockLotStreet; Consultation has gravidity, parity, lmp, aog, bloodType, chiefComplaint, height, weight, bmi
+- Read current patient-profile-view.tsx (1091 lines) to understand full structure
+
+**PatientData interface updates:**
+- Removed: `gravidity`, `parity`, `lmp`, `aog`, `bloodType` (moved to Consultation)
+- Added: `blockLotStreet: string | null`
+- Kept: All health history fields, emergencyContact/emergencyRelation (still in schema)
+
+**ConsultationData interface updates:**
+- Added per-visit OB fields: `gravidity?: number`, `parity?: number`, `lmp?: string`, `aog?: string`, `bloodType?: string`
+- Added new assessment fields: `chiefComplaint?: string | null`, `height?: string | null`, `weight?: string | null`, `bmi?: string | null`
+
+**STEP_LABELS updated** for 9-step wizard (Health History as step 0)
+
+**Card 1 (Demographics) changes:**
+- Removed: Emergency Contact section (ShieldCheck icon block)
+- Removed: Contact Number row (removed from new patient form)
+- Added: `blockLotStreet` InfoRow with MapPin icon, label "Block/Lot/Street"
+- Address now shows only barangay (simplified since blockLotStreet is separate)
+
+**Card 2 (OB History → Consultation Summary):**
+- Completely replaced OB History card with Consultation Summary card
+- Shows latest consultation's risk level, date, consultation number, and status
+- Conditionally displays per-visit OB data (G/P, LMP, AOG, blood type) from latest consultation when available
+- Shows chief complaint, height/weight/BMI from latest consultation when available
+- Shows referral status from latest consultation when applicable
+- Empty state: "No consultation recorded" with button to start first consultation
+
+**Card 3 (Health History) — JSON-aware display:**
+- Created `JsonHealthRow` component that auto-detects JSON vs plain text
+- If value starts with `{`, parses JSON and renders structured key-value pairs
+- Handles nested patterns: `{ selected: string[], othersSpecify }` → comma-separated list
+- Handles `{ answer: string, ...details }` → answer with appended details
+- Falls back to plain text InfoRow for backward compatibility
+- Applied to: Medical History, Surgical History, Family History, Obstetric History rows
+
+**Consultation Detail Dialog:**
+- Added "Visit Overview" section showing per-visit OB data (G/P, LMP, AOG, blood type) from consultation
+- Shows chief complaint, height, weight, BMI in a responsive grid
+
+**Consultation History Cards:**
+- Updated step progress display from "Step X of 8" to "Step X of 9"
+- Updated completion threshold from `>= 7` to `>= 8`
+
+**Removed unused code:**
+- Removed `calculateAOG` helper function (referenced removed patient.lmp)
+- Removed `Droplets` and `ShieldCheck` icon imports
+- Added `Ruler`, `Weight`, `Thermometer` icon imports for new fields
+
+- Lint: 0 errors. Dev server: clean compilation, HTTP 200
+
+Stage Summary:
+- Patient profile view fully aligned with new Prisma schema (G/P/LMP/AOG/bloodType per-visit on Consultation)
+- blockLotStreet displayed in demographics card
+- Consultation Summary card replaces OB History, showing latest consultation data
+- Health history fields handle both plain text (old data) and JSON (new structured data) formats
+- Consultation dialog enhanced with Visit Overview showing per-visit clinical measurements
+- File changed: src/components/patients/patient-profile-view.tsx

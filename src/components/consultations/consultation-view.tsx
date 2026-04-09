@@ -74,10 +74,6 @@ interface PatientInfo {
   patientId: string;
   name: string;
   dateOfBirth?: string;
-  bloodType?: string | null;
-  gravidity?: number;
-  parity?: number;
-  aog?: string | null;
   riskLevel?: string;
 }
 
@@ -90,6 +86,14 @@ interface ConsultationData {
   patient: PatientInfo;
   // Visit type
   typeOfVisit?: string | null;
+  // OB fields (moved from Patient)
+  gravidity?: number | null;
+  parity?: number | null;
+  lmp?: string | null;
+  aog?: string | null;
+  height?: string | null;
+  weight?: string | null;
+  bmi?: string | null;
   // SOAP Assessment
   subjectiveSymptoms?: string | null;
   objectiveVitals?: string | null;
@@ -291,6 +295,10 @@ export function ConsultationView() {
   const [fundalHeight, setFundalHeight] = useState('');
   const [allergies, setAllergies] = useState('');
   const [medications, setMedications] = useState('');
+  // ── OB fields (moved from Patient to Consultation) ──
+  const [gravidity, setGravidity] = useState('');
+  const [parity, setParity] = useState('');
+  const [lmp, setLmp] = useState('');
   const [physicalExam, setPhysicalExam] = useState('');
   const [labResults, setLabResults] = useState('');
   const [notes, setNotes] = useState('');
@@ -361,6 +369,22 @@ export function ConsultationView() {
     return Math.round(bmi * 10) / 10;
   }, [vitals.weight, vitals.height]);
 
+  // ── AOG Calculation from LMP ──
+  const consultationAOG = useMemo(() => {
+    if (!lmp) return null;
+    try {
+      const lmpDate = new Date(lmp);
+      const today = new Date();
+      const totalDays = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (totalDays < 0) return null;
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+      return `${weeks}w ${days}d`;
+    } catch {
+      return null;
+    }
+  }, [lmp]);
+
   const bmiCategory = useMemo(() => {
     if (!calculatedBMI) return null;
     if (calculatedBMI < 18.5) return { label: 'Underweight', color: 'text-blue-600', bg: 'bg-blue-50' };
@@ -419,6 +443,12 @@ export function ConsultationView() {
         setEvaluationNotes(data.evaluationNotes || '');
         setReferralSummary(data.referralSummary || '');
         setTypeOfVisit(data.typeOfVisit || '');
+        // OB fields (now on Consultation)
+        setGravidity(data.gravidity != null ? String(data.gravidity) : '');
+        setParity(data.parity != null ? String(data.parity) : '');
+        setLmp(data.lmp ? (typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
+        if (data.height) setVitals((v) => ({ ...v, height: data.height }));
+        if (data.weight) setVitals((v) => ({ ...v, weight: data.weight }));
         setPreventionLevel(data.preventionLevel || '');
         setReferralType(data.referralType || '');
         setReferralPriority(data.referralPriority || '');
@@ -485,6 +515,13 @@ export function ConsultationView() {
           if (fundalHeight) payload.fundalHeight = fundalHeight;
           if (allergies) payload.allergies = allergies;
           if (medications) payload.medications = medications;
+          // OB fields
+          if (gravidity) payload.gravidity = parseInt(gravidity, 10) || 0;
+          if (parity) payload.parity = parseInt(parity, 10) || 0;
+          if (lmp) payload.lmp = lmp;
+          if (vitals.height) payload.height = vitals.height;
+          if (vitals.weight) payload.weight = vitals.weight;
+          if (calculatedBMI) payload.bmi = String(calculatedBMI);
           break;
         case 2: // Findings
           if (physicalExam) payload.physicalExam = physicalExam;
@@ -536,6 +573,10 @@ export function ConsultationView() {
       fundalHeight,
       allergies,
       medications,
+      gravidity,
+      parity,
+      lmp,
+      calculatedBMI,
       physicalExam,
       labResults,
       notes,
@@ -1058,11 +1099,10 @@ export function ConsultationView() {
   };
 
   const TYPE_OF_VISIT_OPTIONS = [
-    'Prenatal Checkup',
+    'Routine Prenatal Check-up',
     'Follow-up',
-    'Emergency',
-    'Postpartum',
-    'New Patient Screening',
+    'Emergency Consultation',
+    'Referral',
   ];
 
   const PREVENTION_LEVEL_OPTIONS = [
@@ -1073,17 +1113,13 @@ export function ConsultationView() {
 
   const REFERRAL_TYPE_OPTIONS = [
     'Refer to Doctor',
-    'Refer to Specialist (OB-GYN)',
-    'Refer to Hospital',
-    'Transfer to Higher Facility',
-    'Refer to Laboratory',
   ];
 
   const REFERRAL_PRIORITY_OPTIONS = [
-    { value: 'routine', label: 'Routine', description: 'Within 1-2 weeks' },
-    { value: 'non_urgent', label: 'Non-urgent', description: 'Within 3-5 days' },
-    { value: 'urgent', label: 'Urgent', description: 'Within 24 hours' },
-    { value: 'same_day', label: 'Same Day', description: 'Immediate attention needed' },
+    { value: 'none', label: 'No referral', description: 'No referral needed' },
+    { value: 'urgent', label: 'Urgent referral', description: 'Immediate referral required' },
+    { value: 'non_urgent', label: 'Non-urgent', description: 'Routine referral' },
+    { value: 'same_day', label: 'Same day referral', description: 'Referral within the day' },
   ];
 
   // ─── Step 0: Health History ──────────────────────────────────────────
@@ -1562,6 +1598,64 @@ export function ConsultationView() {
             <span className="text-sm font-medium">BMI: <strong className={bmiCategory.color}>{calculatedBMI}</strong> — <span className={bmiCategory.color}>{bmiCategory.label}</span></span>
           </div>
         )}
+      </div>
+
+      <Separator />
+
+      {/* OB History — Gravidity, Parity, LMP, AOG */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Baby className="h-4.5 w-4.5 text-rose-500" />
+          <h3 className="font-semibold text-foreground dark:text-gray-100">OB History</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="gravidity">Gravidity (G)</Label>
+            <Input
+              id="gravidity"
+              type="number"
+              min="0"
+              max="20"
+              placeholder="0"
+              value={gravidity}
+              onFocus={() => handleFieldFocus('gravidity')}
+              onChange={(e) => { const v = parseInt(e.target.value, 10); setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }}
+            />
+            <p className="text-[11px] text-muted-foreground">No. of pregnancies</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="parity">Parity (P)</Label>
+            <Input
+              id="parity"
+              type="number"
+              min="0"
+              max="20"
+              placeholder="0"
+              value={parity}
+              onFocus={() => handleFieldFocus('parity')}
+              onChange={(e) => { const v = parseInt(e.target.value, 10); setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }}
+            />
+            <p className="text-[11px] text-muted-foreground">No. of births</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lmp">LMP (Last Menstrual Period)</Label>
+            <Input
+              id="lmp"
+              type="date"
+              value={lmp}
+              max={new Date().toISOString().slice(0, 10)}
+              onFocus={() => handleFieldFocus('lmp')}
+              onChange={(e) => { setLmp(e.target.value); markDirty(); }}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Age of Gestation</Label>
+            <div className={`h-9 rounded-md border px-3 flex items-center text-sm ${consultationAOG ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-800' : 'bg-muted text-muted-foreground border-transparent'}`}>
+              {consultationAOG || 'Enter LMP above'}
+            </div>
+            <p className="text-[11px] text-muted-foreground">Auto-calculated from LMP</p>
+          </div>
+        </div>
       </div>
 
       <Separator />

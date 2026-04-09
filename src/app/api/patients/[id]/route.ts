@@ -2,16 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/supabase";
 import { mapPatientFromDb, mapConsultationFromDb } from "@/lib/case";
 
-// Helper: Calculate Age of Gestation from LMP
-function calculateAOG(lmp: string | Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - new Date(lmp).getTime();
-  const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const weeks = Math.floor(totalDays / 7);
-  const days = totalDays % 7;
-  return `${weeks}w ${days}d`;
-}
-
 // GET /api/patients/[id] — Get single patient with all consultations
 export async function GET(
   request: NextRequest,
@@ -84,22 +74,9 @@ export async function PUT(
     // Map camelCase to snake_case and build update
     const mapped = mapPatientToDb(updateData);
 
-    // Recalculate AOG if LMP is being updated
-    if (mapped.lmp !== undefined) {
-      if (mapped.lmp) {
-        mapped.aog = calculateAOG(mapped.lmp as string);
-        mapped.lmp = new Date(mapped.lmp as string);
-      } else {
-        mapped.aog = null;
-      }
-    }
-
     // Parse date fields
     if (mapped.date_of_birth) {
       mapped.date_of_birth = new Date(mapped.date_of_birth as string);
-    }
-    if (mapped.lmp && !(mapped.lmp instanceof Date)) {
-      mapped.lmp = new Date(mapped.lmp as string);
     }
 
     // Build dynamic UPDATE query

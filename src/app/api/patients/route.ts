@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/supabase";
-import { mapPatientFromDb, mapPatientToDb } from "@/lib/case";
-
-// Helper: Calculate Age of Gestation from LMP
-function calculateAOG(lmp: string | Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - new Date(lmp).getTime();
-  const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const weeks = Math.floor(totalDays / 7);
-  const days = totalDays % 7;
-  return `${weeks}w ${days}d`;
-}
+import { mapPatientFromDb } from "@/lib/case";
 
 // Helper: Calculate age from date of birth
 function calculateAge(dob: string | Date): number {
@@ -156,6 +146,7 @@ export async function POST(request: NextRequest) {
       nameExtension,
       dateOfBirth,
       address,
+      blockLotStreet,
       contactNumber,
       emergencyContact,
       emergencyRelation,
@@ -165,12 +156,8 @@ export async function POST(request: NextRequest) {
       maritalStatus,
       familyComposition,
       incomeBracket,
-      gravidity,
-      parity,
-      lmp,
-      bloodType,
+      healthHistory,
       allergies,
-      medicalHistory,
       surgicalHistory,
       familyHistory,
       obstetricHistory,
@@ -181,10 +168,17 @@ export async function POST(request: NextRequest) {
       psychosocialHistory,
     } = body;
 
-    // Validate required fields
-    if (!surname || !firstName || !dateOfBirth || !address) {
+    // Validate required fields (barangay or address must be present)
+    if (!surname || !firstName || !dateOfBirth) {
       return NextResponse.json(
-        { success: false, error: "Surname, first name, date of birth, and address are required" },
+        { success: false, error: "Surname, first name, and date of birth are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!barangay && !address) {
+      return NextResponse.json(
+        { success: false, error: "Either barangay or address is required" },
         { status: 400 }
       );
     }
@@ -208,12 +202,6 @@ export async function POST(request: NextRequest) {
     // Generate patient ID
     const patientId = await generatePatientId();
 
-    // Calculate AOG from LMP if provided
-    let aog: string | null = null;
-    if (lmp) {
-      aog = calculateAOG(lmp);
-    }
-
     // Calculate age
     const age = calculateAge(dateOfBirth);
 
@@ -226,16 +214,16 @@ export async function POST(request: NextRequest) {
     });
 
     // Create patient
+    // Note: healthHistory JSON is stored as-is in medical_history
     const patientRow = await queryOne(
       `INSERT INTO patient (patient_id, surname, first_name, middle_initial, name_extension, name, date_of_birth, age,
-        address, barangay, contact_number, emergency_contact, emergency_relation,
+        address, block_lot_street, barangay, contact_number, emergency_contact, emergency_relation,
         occupation, religion, marital_status, family_composition, income_bracket,
-        gravidity, parity, lmp, aog, blood_type,
         allergies, medical_history, surgical_history, family_history, obstetric_history,
         immunization_status, current_medications, health_practices, social_history, psychosocial_history,
         risk_level)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22,
-        $23, $24, $25, $26, $27, $28, $29, $30, $31, $32)
+        $23, $24, $25, $26, $27, $28, $29, $30)
        RETURNING *`,
       [
         patientId,
@@ -246,7 +234,8 @@ export async function POST(request: NextRequest) {
         name,
         dateOfBirth,
         age,
-        address,
+        address || null,
+        blockLotStreet || null,
         barangay || null,
         contactNumber || null,
         emergencyContact || null,
@@ -256,13 +245,8 @@ export async function POST(request: NextRequest) {
         maritalStatus || null,
         familyComposition || null,
         incomeBracket || null,
-        gravidity || 0,
-        parity || 0,
-        lmp ? new Date(lmp) : null,
-        aog,
-        bloodType || null,
         allergies || null,
-        medicalHistory || null,
+        healthHistory || null,
         surgicalHistory || null,
         familyHistory || null,
         obstetricHistory || null,

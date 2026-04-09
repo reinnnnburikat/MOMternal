@@ -12,6 +12,19 @@ const STEP_FIELD_MAP: Record<string, number> = {
   // Step 1: SOAP Subjective
   subjectiveSymptoms: 1,
   subjective_symptoms: 1,
+  typeOfVisit: 1,
+  type_of_visit: 1,
+  chiefComplaint: 1,
+  chief_complaint: 1,
+  gravidity: 1,
+  parity: 1,
+  lmp: 1,
+  aog: 1,
+  bloodType: 1,
+  blood_type: 1,
+  height: 1,
+  weight: 1,
+  bmi: 1,
   // Step 2: SOAP Objective
   objectiveVitals: 2,
   objective_vitals: 2,
@@ -71,6 +84,15 @@ const FIELD_MAPPING: Record<string, string> = {
   healthHistoryRefCode: "health_history_ref_code",
   typeOfVisit: "type_of_visit",
   subjectiveSymptoms: "subjective_symptoms",
+  chiefComplaint: "chief_complaint",
+  gravidity: "gravidity",
+  parity: "parity",
+  lmp: "lmp",
+  aog: "aog",
+  bloodType: "blood_type",
+  height: "height",
+  weight: "weight",
+  bmi: "bmi",
   objectiveVitals: "objective_vitals",
   fetalHeartRate: "fetal_heart_rate",
   fundalHeight: "fundal_height",
@@ -111,9 +133,8 @@ export async function GET(
     const row = await queryOne(
       `SELECT c.*,
               p.id AS patient_db_id, p.patient_id, p.name AS patient_name,
-              p.date_of_birth AS patient_date_of_birth, p.blood_type AS patient_blood_type,
-              p.gravidity AS patient_gravidity, p.parity AS patient_parity,
-              p.aog AS patient_aog, p.risk_level AS patient_risk_level
+              p.date_of_birth AS patient_date_of_birth,
+              p.risk_level AS patient_risk_level
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.id = $1`,
@@ -127,7 +148,7 @@ export async function GET(
       );
     }
 
-    // Build response matching original format with nested patient
+    // Build response with nested patient (OB fields now on consultation)
     const result = {
       ...mapConsultationFromDb(row),
       patient: {
@@ -135,11 +156,14 @@ export async function GET(
         patientId: row.patient_id,
         name: row.patient_name,
         dateOfBirth: row.patient_date_of_birth,
-        bloodType: row.patient_blood_type,
-        gravidity: row.patient_gravidity,
-        parity: row.patient_parity,
-        aog: row.patient_aog,
         riskLevel: row.patient_risk_level,
+        gravidity: row.gravidity,
+        parity: row.parity,
+        aog: row.aog,
+        bloodType: row.blood_type,
+        height: row.height,
+        weight: row.weight,
+        bmi: row.bmi,
       },
     };
 
@@ -186,11 +210,20 @@ export async function PUT(
       "healthHistoryRefCode",
       "typeOfVisit",
       "subjectiveSymptoms",
+      "chiefComplaint",
       "objectiveVitals",
       "fetalHeartRate",
       "fundalHeight",
       "allergies",
       "medications",
+      "gravidity",
+      "parity",
+      "lmp",
+      "aog",
+      "bloodType",
+      "height",
+      "weight",
+      "bmi",
       "physicalExam",
       "labResults",
       "notes",
@@ -273,9 +306,8 @@ export async function PUT(
     const fullRow = await queryOne(
       `SELECT c.*,
               p.id AS patient_db_id, p.patient_id, p.name AS patient_name,
-              p.date_of_birth AS patient_date_of_birth, p.blood_type AS patient_blood_type,
-              p.gravidity AS patient_gravidity, p.parity AS patient_parity,
-              p.aog AS patient_aog, p.risk_level AS patient_risk_level
+              p.date_of_birth AS patient_date_of_birth,
+              p.risk_level AS patient_risk_level
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.id = $1`,
@@ -289,11 +321,14 @@ export async function PUT(
         patientId: fullRow!.patient_id,
         name: fullRow!.patient_name,
         dateOfBirth: fullRow!.patient_date_of_birth,
-        bloodType: fullRow!.patient_blood_type,
-        gravidity: fullRow!.patient_gravidity,
-        parity: fullRow!.patient_parity,
-        aog: fullRow!.patient_aog,
         riskLevel: fullRow!.patient_risk_level,
+        gravidity: fullRow!.gravidity,
+        parity: fullRow!.parity,
+        aog: fullRow!.aog,
+        bloodType: fullRow!.blood_type,
+        height: fullRow!.height,
+        weight: fullRow!.weight,
+        bmi: fullRow!.bmi,
       },
     };
 

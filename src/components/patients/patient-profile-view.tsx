@@ -23,7 +23,6 @@ import {
   Phone,
   Calendar,
   Baby,
-  Droplets,
   AlertTriangle,
   FileText,
   ClipboardList,
@@ -32,7 +31,6 @@ import {
   Clock,
   Activity,
   Heart,
-  ShieldCheck,
   Stethoscope,
   UserCheck,
   CheckCircle2,
@@ -48,6 +46,9 @@ import {
   Tag,
   Home,
   PenLine,
+  Ruler,
+  Weight,
+  Thermometer,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -68,6 +69,7 @@ interface PatientData {
   age: number | null;
   address: string;
   barangay: string | null;
+  blockLotStreet: string | null;
   contactNumber: string | null;
   emergencyContact: string | null;
   emergencyRelation: string | null;
@@ -76,11 +78,7 @@ interface PatientData {
   maritalStatus: string | null;
   familyComposition: string | null;
   incomeBracket: string | null;
-  gravidity: number;
-  parity: number;
-  lmp: string | null;
-  aog: string | null;
-  bloodType: string | null;
+  // Health history fields (may be plain text or JSON)
   allergies: string | null;
   medicalHistory: string | null;
   surgicalHistory: string | null;
@@ -107,6 +105,18 @@ interface ConsultationData {
   referralStatus: string;
   createdAt: string;
   updatedAt: string;
+  // Per-visit OB history (migrated from Patient)
+  gravidity?: number;
+  parity?: number;
+  lmp?: string;
+  aog?: string;
+  bloodType?: string;
+  // New assessment fields
+  chiefComplaint?: string | null;
+  height?: string | null;
+  weight?: string | null;
+  bmi?: string | null;
+  // Existing fields
   subjectiveSymptoms?: string | null;
   objectiveVitals?: string | null;
   fetalHeartRate?: string | null;
@@ -140,14 +150,15 @@ const RISK_CLASSES: Record<string, string> = {
 };
 
 const STEP_LABELS: Record<number, string> = {
-  0: 'Assessment (SOAP)',
-  1: 'Additional Findings',
-  2: 'Diagnosis',
-  3: 'Risk Classification',
-  4: 'AI Suggestions',
-  5: 'Nurse Selection',
-  6: 'Evaluation',
-  7: 'Referral',
+  0: 'Health History',
+  1: 'Assessment (SOAP)',
+  2: 'Additional Findings',
+  3: 'Diagnosis',
+  4: 'Risk Classification',
+  5: 'AI Suggestions',
+  6: 'Nurse Selection',
+  7: 'Evaluation',
+  8: 'Referral',
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -212,6 +223,100 @@ function InfoRow({
 
 function SectionDivider() {
   return <div className="border-t border-gray-100 dark:border-gray-700/50 my-1" />;
+}
+
+// ---------------------------------------------------------------------------
+// Structured JSON health field display
+// ---------------------------------------------------------------------------
+
+/** Format a camelCase key into a readable label */
+function formatJsonKey(key: string): string {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (s) => s.toUpperCase())
+    .trim();
+}
+
+/** Format a value from the health history JSON structure */
+function formatJsonValue(val: unknown): string {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val || 'Not specified';
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (Array.isArray(val)) return val.join(', ') || 'None';
+  if (typeof val === 'object') {
+    const obj = val as Record<string, unknown>;
+    // Pattern: { selected: string[], othersSpecify: string }
+    if (Array.isArray(obj.selected)) {
+      const parts = obj.selected.filter(Boolean);
+      if (obj.othersSpecify) parts.push(String(obj.othersSpecify));
+      return parts.join(', ') || 'None';
+    }
+    // Pattern: { answer: string, ...details }
+    if (typeof obj.answer === 'string') {
+      const details = Object.entries(obj)
+        .filter(([k, v]) => k !== 'answer' && v && String(v).trim() !== '')
+        .map(([, v]) => String(v))
+        .join(', ');
+      return details ? `${obj.answer} — ${details}` : obj.answer;
+    }
+    // Fallback: show all key-value pairs
+    return Object.entries(obj)
+      .map(([k, v]) => `${formatJsonKey(k)}: ${formatJsonValue(v)}`)
+      .join(', ');
+  }
+  return String(val);
+}
+
+/**
+ * Renders a health history field that may be plain text or structured JSON.
+ * If the value starts with `{`, it's parsed and displayed as key-value pairs.
+ * Otherwise it falls back to plain text display (backward compatibility).
+ */
+function JsonHealthRow({
+  icon: Icon,
+  label,
+  value,
+  valueClassName,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | null | undefined;
+  valueClassName?: string;
+}) {
+  const parsed = useMemo(() => {
+    if (!value || !value.trim().startsWith('{')) return null;
+    try {
+      const obj = JSON.parse(value);
+      return typeof obj === 'object' && obj !== null ? obj : null;
+    } catch {
+      return null;
+    }
+  }, [value]);
+
+  if (!parsed) {
+    return <InfoRow icon={Icon} label={label} value={value} valueClassName={valueClassName} />;
+  }
+
+  return (
+    <div className="flex items-start gap-3 py-2">
+      <Icon className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <div className="text-sm text-foreground space-y-1 mt-0.5">
+          {Object.entries(parsed).map(([key, val]) => (
+            <div key={key} className="flex items-start gap-2">
+              <span className="text-[11px] text-muted-foreground min-w-[90px] flex-shrink-0 pt-px">
+                {formatJsonKey(key)}:
+              </span>
+              <span className={`font-medium ${valueClassName ?? ''}`}>
+                {formatJsonValue(val) || 'None'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -404,20 +509,13 @@ export function PatientProfileView() {
     return age;
   };
 
-  const calculateAOG = (lmp: string) => {
-    const lmpDate = new Date(lmp);
-    const today = new Date();
-    const totalDays = Math.floor(
-      (today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    if (totalDays < 0) return 'Invalid LMP';
-    const weeks = Math.floor(totalDays / 7);
-    const days = totalDays % 7;
-    return `${weeks}w ${days}d`;
-  };
-
   const displayAge = patient.age ?? calculateAge(patient.dateOfBirth);
   const displayDOB = format(new Date(patient.dateOfBirth), 'MMMM d, yyyy');
+
+  // Latest consultation for the summary card
+  const latestConsultation = patient.consultations.length > 0
+    ? patient.consultations[0]
+    : null;
 
   // ------------------------------------------------------------------
   // Render
@@ -497,9 +595,15 @@ export function PatientProfileView() {
               label="Address"
               value={
                 patient.barangay
-                  ? `${patient.address} — Brgy. ${patient.barangay}`
+                  ? `Brgy. ${patient.barangay}`
                   : patient.address
               }
+            />
+
+            <InfoRow
+              icon={MapPin}
+              label="Block/Lot/Street"
+              value={patient.blockLotStreet}
             />
 
             <InfoRow
@@ -507,21 +611,6 @@ export function PatientProfileView() {
               label="Contact Number"
               value={patient.contactNumber}
             />
-
-            {/* Emergency Contact — custom rendering for relation */}
-            <div className="flex items-start gap-3 py-2">
-              <ShieldCheck className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  Emergency Contact
-                </p>
-                <p className="text-sm font-medium text-foreground">
-                  {patient.emergencyContact
-                    ? `${patient.emergencyContact}${patient.emergencyRelation ? ` (${patient.emergencyRelation})` : ''}`
-                    : 'Not recorded'}
-                </p>
-              </div>
-            </div>
 
             <SectionDivider />
 
@@ -558,83 +647,192 @@ export function PatientProfileView() {
         </Card>
 
         {/* ----------------------------------------------------------- */}
-        {/* Card 2: OB History                                            */}
+        {/* Card 2: Consultation Summary                                  */}
         {/* ----------------------------------------------------------- */}
         <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
           <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Baby className="h-4 w-4 text-rose-500" />
-              OB History
+              <ClipboardList className="h-4 w-4 text-rose-500" />
+              Consultation Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-0">
-            {/* Gravidity / Parity */}
-            <div className="flex items-start gap-3 py-2">
-              <Activity className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  Gravidity / Parity
-                </p>
-                <p className="text-lg font-bold text-foreground leading-tight mt-0.5">
-                  G<sub>{patient.gravidity}</sub> P<sub>{patient.parity}</sub>
-                </p>
-              </div>
-            </div>
+            {latestConsultation ? (
+              <>
+                {/* Risk Level — prominent badge */}
+                <div className="flex items-start gap-3 py-2">
+                  <AlertTriangle className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Risk Level</p>
+                    <span
+                      className={`inline-flex items-center mt-0.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                        RISK_CLASSES[latestConsultation.riskLevel] ||
+                        RISK_CLASSES.low
+                      }`}
+                    >
+                      {RISK_LABELS[latestConsultation.riskLevel] ||
+                        'Low Risk'}
+                    </span>
+                  </div>
+                </div>
 
-            {/* LMP */}
-            <InfoRow
-              icon={Calendar}
-              label="Last Menstrual Period"
-              value={
-                patient.lmp
-                  ? format(new Date(patient.lmp), 'MMMM d, yyyy')
-                  : null
-              }
-            />
+                {/* Latest consultation date */}
+                <InfoRow
+                  icon={Calendar}
+                  label="Latest Consultation"
+                  value={format(
+                    new Date(latestConsultation.consultationDate),
+                    'MMMM d, yyyy',
+                  )}
+                />
 
-            {/* Age of Gestation */}
-            <div className="flex items-start gap-3 py-2">
-              <Clock className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  Age of Gestation
+                {/* Consultation number */}
+                <InfoRow
+                  icon={FileText}
+                  label="Consultation No."
+                  value={latestConsultation.consultationNo}
+                />
+
+                {/* Status */}
+                <div className="flex items-start gap-3 py-2">
+                  <CheckCircle2 className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <span
+                      className={`inline-flex items-center mt-0.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
+                        STATUS_STYLES[latestConsultation.status] ||
+                        STATUS_STYLES.in_progress
+                      }`}
+                    >
+                      {latestConsultation.status === 'completed'
+                        ? 'Completed'
+                        : 'In Progress'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Per-visit OB History (from latest consultation) */}
+                {typeof latestConsultation.gravidity === 'number' &&
+                  typeof latestConsultation.parity === 'number' && (
+                    <div className="flex items-start gap-3 py-2">
+                      <Activity className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">
+                          Gravidity / Parity
+                        </p>
+                        <p className="text-lg font-bold text-foreground leading-tight mt-0.5">
+                          G<sub>{latestConsultation.gravidity}</sub> P
+                          <sub>{latestConsultation.parity}</sub>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                {latestConsultation.lmp && (
+                  <InfoRow
+                    icon={Calendar}
+                    label="Last Menstrual Period"
+                    value={format(
+                      new Date(latestConsultation.lmp),
+                      'MMMM d, yyyy',
+                    )}
+                  />
+                )}
+
+                {latestConsultation.aog && (
+                  <InfoRow
+                    icon={Clock}
+                    label="Age of Gestation"
+                    value={latestConsultation.aog}
+                    valueClassName="text-rose-600 font-bold"
+                  />
+                )}
+
+                {latestConsultation.bloodType && (
+                  <InfoRow
+                    icon={Thermometer}
+                    label="Blood Type"
+                    value={latestConsultation.bloodType}
+                  />
+                )}
+
+                {/* Chief Complaint */}
+                {latestConsultation.chiefComplaint && (
+                  <InfoRow
+                    icon={Stethoscope}
+                    label="Chief Complaint"
+                    value={latestConsultation.chiefComplaint}
+                  />
+                )}
+
+                {/* Height / Weight / BMI */}
+                {(latestConsultation.height ||
+                  latestConsultation.weight ||
+                  latestConsultation.bmi) && (
+                  <>
+                    <SectionDivider />
+                    {latestConsultation.height && (
+                      <InfoRow
+                        icon={Ruler}
+                        label="Height"
+                        value={`${latestConsultation.height} cm`}
+                      />
+                    )}
+                    {latestConsultation.weight && (
+                      <InfoRow
+                        icon={Weight}
+                        label="Weight"
+                        value={`${latestConsultation.weight} kg`}
+                      />
+                    )}
+                    {latestConsultation.bmi && (
+                      <InfoRow
+                        icon={Activity}
+                        label="BMI"
+                        value={latestConsultation.bmi}
+                      />
+                    )}
+                  </>
+                )}
+
+                {/* Referral info */}
+                {latestConsultation.referralStatus &&
+                  latestConsultation.referralStatus !== 'none' && (
+                    <>
+                      <SectionDivider />
+                      <InfoRow
+                        icon={AlertTriangle}
+                        label="Referral Status"
+                        value={
+                          latestConsultation.referralStatus === 'completed'
+                            ? 'Referred'
+                            : 'Pending'
+                        }
+                        valueClassName="text-amber-600"
+                      />
+                    </>
+                  )}
+              </>
+            ) : (
+              /* No consultations yet */
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center mb-3">
+                  <ClipboardList className="h-5 w-5 text-rose-300" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  No consultation recorded
                 </p>
-                <p
-                  className={`text-sm font-bold ${
-                    patient.aog || patient.lmp
-                      ? 'text-rose-600'
-                      : 'text-muted-foreground'
-                  }`}
+                <Button
+                  size="sm"
+                  className="mt-3 bg-rose-600 hover:bg-rose-700 text-white gap-1.5"
+                  onClick={handleNewConsultation}
+                  disabled={isCreatingConsultation}
                 >
-                  {patient.aog ||
-                    (patient.lmp ? calculateAOG(patient.lmp) : 'Not available')}
-                </p>
+                  <Plus className="h-3.5 w-3.5" />
+                  Start First Consultation
+                </Button>
               </div>
-            </div>
-
-            {/* Blood Type */}
-            <InfoRow
-              icon={Droplets}
-              label="Blood Type"
-              value={patient.bloodType}
-            />
-
-            <SectionDivider />
-
-            {/* Risk Level — prominent badge */}
-            <div className="flex items-start gap-3 py-2">
-              <AlertTriangle className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Risk Level</p>
-                <span
-                  className={`inline-flex items-center mt-0.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                    RISK_CLASSES[patient.riskLevel] || RISK_CLASSES.low
-                  }`}
-                >
-                  {RISK_LABELS[patient.riskLevel] || 'Low Risk'}
-                </span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -668,25 +866,29 @@ export function PatientProfileView() {
 
             <SectionDivider />
 
-            <InfoRow
+            {/* Medical History — may be plain text or structured JSON */}
+            <JsonHealthRow
               icon={Stethoscope}
               label="Medical History"
               value={patient.medicalHistory}
             />
 
-            <InfoRow
+            {/* Surgical History — may be plain text or structured JSON */}
+            <JsonHealthRow
               icon={Scissors}
               label="Surgical History"
               value={patient.surgicalHistory}
             />
 
-            <InfoRow
+            {/* Family Health History — may be plain text or structured JSON */}
+            <JsonHealthRow
               icon={Users}
               label="Family Health History"
               value={patient.familyHistory}
             />
 
-            <InfoRow
+            {/* Obstetric History — may be plain text or structured JSON */}
+            <JsonHealthRow
               icon={Baby}
               label="Obstetric History"
               value={patient.obstetricHistory}
@@ -822,9 +1024,9 @@ export function PatientProfileView() {
                             : 'In Progress'}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {consultation.stepCompleted >= 7
+                          {consultation.stepCompleted >= 8
                             ? 'All steps completed'
-                            : `Step ${consultation.stepCompleted + 1} of 8 — ${STEP_LABELS[consultation.stepCompleted + 1] || 'In Progress'}`}
+                            : `Step ${consultation.stepCompleted + 1} of 9 — ${STEP_LABELS[consultation.stepCompleted + 1] || 'In Progress'}`}
                         </span>
                       </div>
 
@@ -911,6 +1113,109 @@ export function PatientProfileView() {
                   </span>
                 )}
               </div>
+
+              {/* Per-visit OB History from consultation */}
+              {(viewingConsultation.chiefComplaint ||
+                viewingConsultation.height ||
+                viewingConsultation.weight ||
+                viewingConsultation.bmi ||
+                viewingConsultation.gravidity ||
+                viewingConsultation.parity ||
+                viewingConsultation.lmp ||
+                viewingConsultation.aog ||
+                viewingConsultation.bloodType) && (
+                <div className="rounded-lg border border-rose-100 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1">
+                    <Activity className="h-3 w-3" /> Visit Overview
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {viewingConsultation.chiefComplaint && (
+                      <div className="col-span-2 sm:col-span-3">
+                        <p className="text-[10px] text-muted-foreground">
+                          Chief Complaint
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {viewingConsultation.chiefComplaint}
+                        </p>
+                      </div>
+                    )}
+                    {typeof viewingConsultation.gravidity === 'number' &&
+                      typeof viewingConsultation.parity === 'number' && (
+                        <div>
+                          <p className="text-[10px] text-muted-foreground">
+                            G/P
+                          </p>
+                          <p className="text-sm font-semibold text-foreground">
+                            G{viewingConsultation.gravidity} P{viewingConsultation.parity}
+                          </p>
+                        </div>
+                      )}
+                    {viewingConsultation.lmp && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          LMP
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {format(
+                            new Date(viewingConsultation.lmp),
+                            'MMM d, yyyy',
+                          )}
+                        </p>
+                      </div>
+                    )}
+                    {viewingConsultation.aog && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          AOG
+                        </p>
+                        <p className="text-sm font-medium text-rose-600 font-semibold">
+                          {viewingConsultation.aog}
+                        </p>
+                      </div>
+                    )}
+                    {viewingConsultation.bloodType && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Blood Type
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {viewingConsultation.bloodType}
+                        </p>
+                      </div>
+                    )}
+                    {viewingConsultation.height && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Height
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {viewingConsultation.height} cm
+                        </p>
+                      </div>
+                    )}
+                    {viewingConsultation.weight && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Weight
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {viewingConsultation.weight} kg
+                        </p>
+                      </div>
+                    )}
+                    {viewingConsultation.bmi && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">
+                          BMI
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {viewingConsultation.bmi}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {viewingConsultation.subjectiveSymptoms && (
                 <div className="rounded-lg border border-rose-100 p-3">
