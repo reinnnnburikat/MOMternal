@@ -684,7 +684,7 @@ export function MapView() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
+                <PopoverContent className="w-[220px] p-0 z-[1001]" align="start">
                   <Command>
                     <CommandInput placeholder="Type barangay name..." />
                     <CommandList>
@@ -730,7 +730,7 @@ export function MapView() {
                 <SelectTrigger className="w-[140px] h-8 text-xs">
                   <SelectValue placeholder="Filter risk" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[1001]">
                   <SelectItem value="all">All Risks</SelectItem>
                   <SelectItem value="low">
                     <span className="flex items-center gap-2">
