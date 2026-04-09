@@ -72,7 +72,8 @@ export const useAppStore = create<AppState>()(
       // Auth
       isAuthenticated: false,
       currentNurse: null,
-      lastActivity: Date.now(),
+      // Use 0 instead of Date.now() to avoid SSR/client hydration mismatch
+      lastActivity: 0,
       login: (nurse) =>
         set({
           isAuthenticated: true,
@@ -95,6 +96,7 @@ export const useAppStore = create<AppState>()(
       isSessionExpired: () => {
         const state = get();
         if (!state.isAuthenticated) return true;
+        if (state.lastActivity === 0) return false; // Not yet initialized
         return Date.now() - state.lastActivity > SESSION_TIMEOUT;
       },
 
@@ -117,11 +119,15 @@ export const useAppStore = create<AppState>()(
         currentView: state.currentView,
         isAuthenticated: state.isAuthenticated,
         currentNurse: state.currentNurse,
-        // lastActivity is intentionally excluded — it changes frequently and
-        // persisting it on every update causes excessive localStorage writes and
-        // re-renders that steal input focus.
+        // lastActivity intentionally excluded — changes frequently
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
+      }),
+      // Ensure _hasHydrated is never overwritten by persisted state
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as object),
+        _hasHydrated: true, // Always mark as hydrated after merge
       }),
       onRehydrateStorage: () => {
         return (state) => {

@@ -1,6 +1,5 @@
 'use client';
 
-import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -282,6 +281,7 @@ export function MapView() {
 
     const initMap = async () => {
       // Dynamically import leaflet to avoid SSR issues
+      await import('leaflet/dist/leaflet.css');
       const L = (await import('leaflet')).default;
 
       if (destroyed || !mapRef.current) return;

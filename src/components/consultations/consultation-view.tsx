@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useLayoutEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
@@ -268,7 +268,7 @@ export function ConsultationView() {
     focusedFieldIdRef.current = fieldId;
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // After React commits DOM changes, restore focus to the tracked field
     const fieldId = focusedFieldIdRef.current;
     if (fieldId) {

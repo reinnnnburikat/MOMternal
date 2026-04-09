@@ -32,14 +32,24 @@ class AppErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[MOMternal] ErrorBoundary caught:', error, errorInfo);
+    console.error('[MOMternal] ErrorBoundary caught:', error);
+    console.error('[MOMternal] Component stack:', errorInfo.componentStack);
+    // Try to send error details to console for Vercel logging
+    try {
+      console.error('[MOMternal] Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      });
+    } catch { /* ignore */ }
   }
 
   render() {
     if (this.state.hasError) {
+      const err = this.state.error;
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-6">
-          <div className="max-w-md w-full text-center space-y-6">
+          <div className="max-w-lg w-full text-center space-y-6">
             <div className="w-16 h-16 mx-auto rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
               <AlertTriangle className="h-8 w-8 text-red-500" />
             </div>
@@ -48,15 +58,21 @@ class AppErrorBoundary extends Component<
                 Something went wrong
               </h2>
               <p className="text-sm text-muted-foreground mt-2">
-                An unexpected error occurred. This has been logged for review.
-                Please try refreshing the page.
+                An unexpected error occurred. Please try refreshing the page.
               </p>
-              {this.state.error?.message &&
-                process.env.NODE_ENV === 'development' && (
-                  <p className="text-xs text-red-500 mt-2 font-mono bg-red-50 dark:bg-red-950/20 p-2 rounded break-all">
-                    {this.state.error.message}
+              {/* Show error details in ALL environments for debugging */}
+              {err && (
+                <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-left">
+                  <p className="text-xs font-mono text-red-700 dark:text-red-400 break-all">
+                    {err.name}: {err.message}
                   </p>
-                )}
+                  {err.stack && (
+                    <pre className="mt-2 text-[10px] font-mono text-red-600 dark:text-red-500 whitespace-pre-wrap max-h-40 overflow-y-auto">
+                      {err.stack}
+                    </pre>
+                  )}
+                </div>
+              )}
             </div>
             <Button
               onClick={() => {
@@ -77,9 +93,8 @@ class AppErrorBoundary extends Component<
 }
 
 // ---------------------------------------------------------------------------
-// View routing
+// View routing — lazy loaded to prevent SSR issues with heavy components
 // ---------------------------------------------------------------------------
-
 const viewTransition = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
