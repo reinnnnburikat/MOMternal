@@ -46,7 +46,7 @@ export async function POST(
             .join("\n   ");
         }
       } catch {
-        selectedInterventionsText = consultation.selected_interventions;
+        selectedInterventionsText = String(consultation.selected_interventions);
       }
     }
 
@@ -54,7 +54,7 @@ export async function POST(
     let aiRationale = "";
     if (consultation.ai_suggestions) {
       try {
-        const parsed = JSON.parse(consultation.ai_suggestions);
+        const parsed = JSON.parse(String(consultation.ai_suggestions));
         if (parsed.rationale) {
           aiRationale = parsed.rationale;
         }
@@ -84,7 +84,7 @@ export async function POST(
       "-".repeat(40),
       `Patient ID: ${p.patient_patient_id}`,
       `Name: ${p.patient_name}`,
-      `Date of Birth: ${p.patient_date_of_birth ? new Date(p.patient_date_of_birth).toLocaleDateString() : "N/A"}`,
+      `Date of Birth: ${p.patient_date_of_birth ? new Date(String(p.patient_date_of_birth)).toLocaleDateString() : "N/A"}`,
       `Barangay: ${p.patient_barangay || "N/A"}`,
       "",
       "OBSTETRICAL HISTORY",
@@ -128,7 +128,7 @@ export async function POST(
       "",
       "=".repeat(60),
       `Consultation No: ${consultation.consultation_no}`,
-      `Consultation Date: ${new Date(consultation.consultation_date).toLocaleString()}`,
+      `Consultation Date: ${new Date(String(consultation.consultation_date)).toLocaleString()}`,
       `Referral Generated: ${new Date().toLocaleString()}`,
       "=".repeat(60),
     ]

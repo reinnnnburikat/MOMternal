@@ -858,3 +858,40 @@ Stage Summary:
 - Critical: Patient PUT whitelist, NOT NULL protection, consultation field whitelist, TDZ violation
 - All API endpoints tested and working
 - Committed as: fix: comprehensive system audit — 12 bug fixes across API routes and frontend
+
+---
+Task ID: 10
+Agent: Main Agent
+Task: Implement branded PDF download for referral documents
+
+Work Log:
+- Read worklog for project context (MOMternal maternal health app, Supabase + Prisma, 7-step consultation wizard)
+- Analyzed existing referral download: was generating plain .txt blob file, not a proper PDF
+- Installed jspdf@4.2.1 for proper PDF generation
+- Created src/lib/generate-referral-pdf.ts — comprehensive branded PDF generator with:
+  - MOMternal rose-colored branded header banner with heart icon and title
+  - Priority badge (URGENT/SAME DAY/NON-URGENT) displayed in banner
+  - Patient Information section with name (prominent), ID, DOB, barangay, visit type
+  - OB History grid (Gravida, Para, AOG)
+  - Color-coded risk level badge (HIGH=red, MODERATE=amber, LOW=green) with prevention level
+  - Clinical Assessment section: chief complaint, vitals grid (10 vital signs), allergies, medications
+  - Additional Findings section: physical exam, lab results, notes
+  - Diagnosis section: ICD-10 and NANDA-I nursing diagnosis with NANDA code
+  - Nursing Interventions (NIC) section with numbered list, descriptions, per-intervention evaluation status (Met/Partially Met/Unmet with color coding), NOC outcome, and evaluation notes
+  - AI Rationale box with rose-tinted background
+  - Referral Details section: type, priority, facility, evaluation notes
+  - Signature area: Nurse signature + datetime, Receiving physician signature + datetime lines
+  - Page footer with rose accent line, branding text, page numbers, confidentiality disclaimer
+  - Auto page-break handling for long documents
+- Updated consultation-view.tsx: replaced handleDownloadPdf (was txt blob) with async function calling generateReferralPdf, passing all form state data
+- Changed download button label from "Download Document" to "Download PDF"
+- Added loading toast ("Generating PDF...") with success/error feedback
+- Fixed 4 pre-existing TypeScript errors in referral route (String() casts for DB column types)
+- Lint: 0 errors, 0 warnings. Dev server: clean compilation.
+
+Stage Summary:
+- Referral documents now download as properly formatted branded PDF (not plain text)
+- PDF features: MOMternal branding, rose header, patient info, clinical assessment, vitals grid, risk badge, interventions with evaluations, signature lines, page footers
+- Pre-existing TS errors in referral route fixed
+- Files created: src/lib/generate-referral-pdf.ts
+- Files changed: src/components/consultations/consultation-view.tsx, src/app/api/consultations/[id]/referral/route.ts
