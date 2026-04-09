@@ -4,6 +4,11 @@ import { mapConsultationFromDb } from "@/lib/case";
 
 // Step-to-field mapping: determines which step a field belongs to
 const STEP_FIELD_MAP: Record<string, number> = {
+  // Step 0: Health History
+  healthHistory: 0,
+  health_history: 0,
+  healthHistoryRefCode: 0,
+  health_history_ref_code: 0,
   // Step 1: SOAP Subjective
   subjectiveSymptoms: 1,
   subjective_symptoms: 1,
@@ -62,6 +67,8 @@ const STEP_FIELD_MAP: Record<string, number> = {
 
 // Mapping from camelCase to snake_case for consultation fields
 const FIELD_MAPPING: Record<string, string> = {
+  healthHistory: "health_history",
+  healthHistoryRefCode: "health_history_ref_code",
   typeOfVisit: "type_of_visit",
   subjectiveSymptoms: "subjective_symptoms",
   objectiveVitals: "objective_vitals",
@@ -175,6 +182,8 @@ export async function PUT(
 
     // Build update data from allowed fields only
     const allowedFields = [
+      "healthHistory",
+      "healthHistoryRefCode",
       "typeOfVisit",
       "subjectiveSymptoms",
       "objectiveVitals",
