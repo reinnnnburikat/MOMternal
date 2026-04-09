@@ -122,7 +122,9 @@ export const useAppStore = create<AppState>()(
         // re-renders that steal input focus.
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
-        refreshTrigger: state.refreshTrigger,
+        // refreshTrigger is intentionally excluded — it's ephemeral, only used
+        // to trigger re-fetches within the same session. Persisting it causes
+        // unnecessary localStorage writes on every consultation save.
       }),
     }
   )
