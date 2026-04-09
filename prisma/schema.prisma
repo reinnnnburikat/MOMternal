@@ -22,20 +22,50 @@ model Nurse {
 model Patient {
   id              String         @id @default(cuid())
   patientId       String         @unique // e.g. "MOM-2025-001"
-  name            String
+
+  // ── Restructured Name: Surname-First-Initial-Extension ──
+  surname         String
+  firstName       String
+  middleInitial   String?
+  nameExtension   String?        // Jr., Sr., II, III, etc.
+
+  // Computed full name for display (stored for search convenience)
+  name            String         // "Santos, Maria C. Jr."
+
   dateOfBirth     DateTime
+  age             Int?           // Computed age in years
   address         String
+  barangay        String?        // Makati barangay from dropdown
   contactNumber   String?
   emergencyContact String?
   emergencyRelation String?
+
+  // ── Phase 1: New Demographics Fields ──
+  occupation      String?
+  religion        String?        // Catholic, Protestant, Islam, etc.
+  maritalStatus   String?        // Single, Married, Widowed, Separated
+  familyComposition String?      // Number of household members, dependents
+  incomeBracket   String?        // Below minimum, Minimum, Above minimum
+
+  // ── OB History ──
   gravidity       Int            @default(0) // G - number of pregnancies
   parity          Int            @default(0) // P - number of births
   lmp             DateTime?      // Last Menstrual Period
   aog             String?        // Age of Gestation (calculated)
   bloodType       String?
+
+  // ── Phase 1: Health History ──
   allergies       String?
-  medicalHistory  String?
-  barangay        String?
+  medicalHistory  String?        // Previous medical conditions
+  surgicalHistory String?        // Previous surgeries
+  familyHistory   String?        // Family health history (diabetes, hypertension, etc.)
+  obstetricHistory String?       // Previous pregnancy complications
+  immunizationStatus String?     // Tetanus, flu vaccine, etc.
+  currentMedications String?     // Ongoing medications
+  healthPractices String?        // Exercise, diet, smoking, alcohol
+  socialHistory   String?        // Occupation hazards, support system
+  psychosocialHistory String?    // Mental health, coping mechanisms
+
   riskLevel       String         @default("low") // low, moderate, high
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -52,31 +82,49 @@ model Consultation {
   consultationDate DateTime       @default(now())
   stepCompleted   Int             @default(0) // for wizard resume (0-7)
   status          String          @default("in_progress") // in_progress, completed
-  // SOAP Assessment
+
+  // ── Phase 2: Type of Visit ──
+  typeOfVisit     String?         // Prenatal Checkup, Follow-up, Emergency, Postpartum, New Patient
+
+  // ── SOAP Assessment ──
   subjectiveSymptoms String?
-  objectiveVitals   String?       // JSON string of vitals
+  objectiveVitals   String?       // JSON string of vitals (expanded with O2, pain, height)
   fetalHeartRate    String?
   fundalHeight      String?
-  allergies         String?
-  medications       String?
-  // Additional Findings
+  allergies         String?       // Per-visit allergies override
+  medications       String?       // Per-visit medications
+
+  // ── Additional Findings ──
   physicalExam      String?
   labResults        String?
   notes             String?
-  // Diagnosis
+
+  // ── Diagnosis ──
   icd10Diagnosis    String?
-  nandaDiagnosis    String?
-  // Risk
+  nandaDiagnosis    String?       // JSON: {code, name, domain, definition}
+  nandaCode         String?        // NANDA-I code (e.g. "00156")
+  nandaName         String?        // NANDA-I diagnosis name
+
+  // ── Risk ──
   riskLevel         String         @default("low")
-  // AI
+  preventionLevel   String?        // Phase 4: Primary, Secondary, Tertiary
+
+  // ── AI ──
   aiSuggestions     String?        // JSON string of AI suggestions
   selectedInterventions String?    // JSON string of selected interventions
-  // Evaluation
+
+  // ── Evaluation (Phase 4: Per-intervention) ──
   evaluationStatus  String?        // achieved, partially, not_achieved
   evaluationNotes   String?
-  // Referral
-  referralSummary   String?
-  referralStatus    String         @default("none") // none, pending, completed
+  interventionEvaluations String?  // JSON: [{nicCode, status, nocOutcome, notes}]
+
+  // ── Referral (Phase 5: Enhanced) ──
+  referralType     String?        // Refer to Doctor, Refer to Specialist, Transfer
+  referralPriority String?        // No urgency, Non-urgent, Urgent, Same day
+  referralFacility String?        // Facility name and info
+  referralSummary  String?
+  referralStatus   String         @default("none") // none, pending, completed
+
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 }

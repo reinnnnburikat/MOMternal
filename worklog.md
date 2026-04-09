@@ -73,3 +73,22 @@ Stage Summary:
 - AI intervention now reads X-Token from incoming request headers and passes to SDK
 - Dashboard pie chart will always show fresh data (no server or browser caching)
 - Files: src/app/api/consultations/[id]/ai-suggest/route.ts, src/app/api/dashboard/stats/route.ts, src/components/dashboard/dashboard-view.tsx, src/app/api/debug/headers/route.ts
+
+---
+Task ID: 5
+Agent: Main
+Task: Fix map pinpoint accuracy — inconsistent barangay centroids between API and frontend
+
+Work Log:
+- Read all three centroid sources: barangay-centroids.ts (source of truth), map-view.tsx (frontend), route.ts (API)
+- Confirmed barangay-centroids.ts and map-view.tsx have identical OSM Overpass API coordinates for all 33 barangays
+- Found route.ts had GADM-derived centroids that DIFFERED for ALL 33 entries (e.g. Rizal: GADM [14.557, 121.012] vs OSM [14.537, 121.0612] — completely different location)
+- Also found key casing mismatch: route.ts used 'Pio Del Pilar' vs source-of-truth 'Pio del Pilar' (lowercase 'd'), which would cause patient marker lookup failures
+- Replaced the entire in-file BARANGAY_CENTROIDS definition in route.ts with a single import from the shared module
+- Verified map-view.tsx already uses matching data (confirmed identical)
+
+Stage Summary:
+- Patient markers and barangay boundaries now use the SAME centroid coordinates (single source of truth)
+- No more drift risk — both API route and frontend import from @/components/map/barangay-centroids
+- Key casing bug fixed: 'Pio del Pilar' patients now correctly resolve to their centroid
+- File changed: src/app/api/map/data/route.ts

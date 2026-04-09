@@ -45,23 +45,23 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.985 0.002 350);
-  --foreground: oklch(0.195 0.02 350);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.195 0.02 350);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.195 0.02 350);
+  --background: oklch(0.975 0.002 350);
+  --foreground: oklch(0.17 0.02 350);
+  --card: oklch(0.995 0.002 350);
+  --card-foreground: oklch(0.17 0.02 350);
+  --popover: oklch(0.995 0.002 350);
+  --popover-foreground: oklch(0.17 0.02 350);
   --primary: oklch(0.65 0.18 350);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.01 350);
-  --secondary-foreground: oklch(0.35 0.05 350);
-  --muted: oklch(0.955 0.008 350);
-  --muted-foreground: oklch(0.50 0.02 350);
-  --accent: oklch(0.92 0.03 350);
-  --accent-foreground: oklch(0.35 0.05 350);
+  --secondary: oklch(0.94 0.012 350);
+  --secondary-foreground: oklch(0.30 0.04 350);
+  --muted: oklch(0.94 0.01 350);
+  --muted-foreground: oklch(0.44 0.02 350);
+  --accent: oklch(0.91 0.03 350);
+  --accent-foreground: oklch(0.30 0.04 350);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.015 350);
-  --input: oklch(0.91 0.015 350);
+  --border: oklch(0.88 0.015 350);
+  --input: oklch(0.88 0.015 350);
   --ring: oklch(0.65 0.18 350);
   --chart-1: oklch(0.65 0.18 350);
   --chart-2: oklch(0.55 0.15 150);
@@ -88,24 +88,24 @@
 }
 
 .dark {
-  --background: oklch(0.15 0.01 350);
-  --foreground: oklch(0.95 0.01 350);
-  --card: oklch(0.2 0.015 350);
-  --card-foreground: oklch(0.95 0.01 350);
+  --background: oklch(0.14 0.01 350);
+  --foreground: oklch(0.96 0.008 350);
+  --card: oklch(0.19 0.012 350);
+  --card-foreground: oklch(0.96 0.008 350);
   --primary: oklch(0.7 0.18 350);
-  --primary-foreground: oklch(0.15 0.01 350);
-  --secondary: oklch(0.25 0.015 350);
-  --secondary-foreground: oklch(0.9 0.01 350);
-  --muted: oklch(0.25 0.01 350);
-  --muted-foreground: oklch(0.65 0.015 350);
-  --accent: oklch(0.3 0.03 350);
-  --accent-foreground: oklch(0.9 0.01 350);
+  --primary-foreground: oklch(0.14 0.01 350);
+  --secondary: oklch(0.24 0.015 350);
+  --secondary-foreground: oklch(0.92 0.008 350);
+  --muted: oklch(0.24 0.01 350);
+  --muted-foreground: oklch(0.62 0.012 350);
+  --accent: oklch(0.28 0.025 350);
+  --accent-foreground: oklch(0.92 0.008 350);
   --destructive: oklch(0.6 0.25 27);
-  --border: oklch(0.3 0.015 350);
+  --border: oklch(0.28 0.015 350);
   --ring: oklch(0.7 0.18 350);
-  --input: oklch(0.25 0.015 350);
-  --popover: oklch(0.2 0.015 350);
-  --popover-foreground: oklch(0.95 0.01 350);
+  --input: oklch(0.24 0.015 350);
+  --popover: oklch(0.19 0.012 350);
+  --popover-foreground: oklch(0.96 0.008 350);
   --sidebar: oklch(0.17 0.015 350);
   --sidebar-foreground: oklch(0.95 0.01 350);
   --sidebar-primary: oklch(0.7 0.18 350);
@@ -118,13 +118,13 @@
 
 /* Risk level colors */
 .risk-low {
-  @apply bg-emerald-50 text-emerald-700 border-emerald-200;
+  @apply bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800;
 }
 .risk-moderate {
-  @apply bg-amber-50 text-amber-700 border-amber-200;
+  @apply bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800;
 }
 .risk-high {
-  @apply bg-red-50 text-red-700 border-red-200;
+  @apply bg-red-50 text-red-800 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800;
 }
 
 .risk-dot-low {

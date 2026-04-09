@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
+import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { ICD10_MATERNAL_CODES, searchIcd10Codes } from '@/data/icd10-maternal';
+import { NANDA_DIAGNOSES, searchNandaDiagnoses } from '@/data/nanda-diagnoses';
+import { NIC_INTERVENTIONS, searchNicInterventions } from '@/data/nic-interventions';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -105,6 +109,7 @@ interface ConsultationData {
 
 interface AISuggestion {
   interventions: Array<{
+    code?: string | number;
     name: string;
     description: string;
     category: string;
@@ -186,7 +191,7 @@ function parseAI(raw: string | null | undefined): AISuggestion | null {
   }
 }
 
-function parseSelectedInterventions(raw: string | null | undefined): Array<{ name: string; description?: string }> {
+function parseSelectedInterventions(raw: string | null | undefined): Array<{ name: string; description?: string; code?: string }> {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -226,6 +231,8 @@ export function ConsultationView() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [referralLoading, setReferralLoading] = useState(false);
   const [customIntervention, setCustomIntervention] = useState('');
+  const [customNicCode, setCustomNicCode] = useState('');
+  const [customNicName, setCustomNicName] = useState('');
   const isInitialized = useRef(false);
 
   // ── Focus preservation ──
@@ -266,7 +273,7 @@ export function ConsultationView() {
   const [nandaDiagnosis, setNandaDiagnosis] = useState('');
   const [riskLevel, setRiskLevel] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion | null>(null);
-  const [selectedInterventions, setSelectedInterventions] = useState<Array<{ name: string; description?: string }>>([]);
+  const [selectedInterventions, setSelectedInterventions] = useState<Array<{ name: string; description?: string; code?: string }>>([]);
   const [evaluationStatus, setEvaluationStatus] = useState('');
   const [evaluationNotes, setEvaluationNotes] = useState('');
   const [referralSummary, setReferralSummary] = useState('');
@@ -535,11 +542,11 @@ export function ConsultationView() {
 
   // ── HITL Intervention Management ──
   const toggleAiIntervention = useCallback(
-    (intervention: { name: string; description: string }) => {
+    (intervention: { name: string; description: string; code?: string | number }) => {
       setSelectedInterventions((prev) => {
         const exists = prev.some((i) => i.name === intervention.name);
         if (exists) return prev.filter((i) => i.name !== intervention.name);
-        return [...prev, { name: intervention.name, description: intervention.description }];
+        return [...prev, { name: intervention.name, description: intervention.description, code: intervention.code ? String(intervention.code) : undefined }];
       });
     },
     []
@@ -584,6 +591,39 @@ export function ConsultationView() {
   const handleDownloadPdf = useCallback(() => {
     window.print();
   }, []);
+
+  // ── NIC custom intervention helpers (state declared above with other useState) ──
+
+  const handleNicCodeSelect = useCallback((opt: CodeOption | null) => {
+    if (opt) {
+      setCustomNicCode(opt.code);
+      setCustomNicName(opt.name);
+    } else {
+      setCustomNicCode('');
+      setCustomNicName('');
+    }
+  }, []);
+
+  const addCustomInterventionWithCode = useCallback(() => {
+    const trimmed = customIntervention.trim() || customNicName.trim();
+    if (!trimmed) return;
+    // Check for duplicates
+    if (selectedInterventions.some((i) => i.name === trimmed)) {
+      toast.error('This intervention is already selected');
+      return;
+    }
+    setSelectedInterventions((prev) => [
+      ...prev,
+      {
+        name: trimmed,
+        description: '',
+        code: customNicCode || undefined,
+      },
+    ]);
+    setCustomIntervention('');
+    setCustomNicCode('');
+    setCustomNicName('');
+  }, [customIntervention, customNicCode, customNicName, selectedInterventions]);
 
   // ── Render helpers ──
   const canProceed = (): boolean => {
@@ -1003,45 +1043,159 @@ export function ConsultationView() {
     </div>
   );
 
+  // ─── ICD-10 Search Function ─────────────────────────────────────
+  const icd10Options: CodeOption[] = ICD10_MATERNAL_CODES.map((c) => ({
+    code: c.code,
+    name: c.name,
+    description: c.description,
+    category: c.category,
+  }));
+
+  const icd10CategoryColors: Record<string, string> = {
+    hypertensive: '#ef4444',
+    diabetes: '#f59e0b',
+    anemia: '#8b5cf6',
+    hemorrhage: '#dc2626',
+    infection: '#06b6d4',
+    labor: '#3b82f6',
+    fetal: '#ec4899',
+    other: '#6b7280',
+  };
+
+  // ─── NANDA Search Function ──────────────────────────────────────
+  const nandaOptions: CodeOption[] = NANDA_DIAGNOSES.map((d) => ({
+    code: d.code,
+    name: d.name,
+    description: d.definition,
+    category: d.category,
+  }));
+
+  const nandaCategoryColors: Record<string, string> = {
+    physiological: '#22c55e',
+    psychosocial: '#3b82f6',
+    knowledge: '#f59e0b',
+    safety: '#ef4444',
+  };
+
+  // ─── NIC Search Function ────────────────────────────────────────
+  const nicOptions: CodeOption[] = NIC_INTERVENTIONS.map((n) => ({
+    code: n.code,
+    name: n.name,
+    description: n.description,
+    category: n.category,
+  }));
+
+  const nicCategoryColors: Record<string, string> = {
+    Physiological: '#22c55e',
+    Psychosocial: '#3b82f6',
+    Safety: '#ef4444',
+    Educational: '#f59e0b',
+  };
+
+  // Parse stored ICD-10 to extract code for combobox
+  const icd10SelectedCode = (() => {
+    if (!icd10Diagnosis) return '';
+    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
+    return match ? match[1] : '';
+  })();
+
+  // Parse stored NANDA to extract code for combobox
+  const nandaSelectedCode = (() => {
+    if (!nandaDiagnosis) return '';
+    // Try to find a NANDA code pattern at the start
+    const match = nandaDiagnosis.match(/^(\d{5})\b/);
+    return match ? match[1] : '';
+  })();
+
   // ─── Step 2: Diagnosis ──────────────────────────────────────────────────
 
   const StepDiagnosis = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="icd10Diagnosis" className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-rose-500" />
-          ICD-10 Diagnosis
-        </Label>
-        <p className="text-xs text-muted-foreground">
-          International Classification of Diseases — medical diagnosis codes for tracking and
-          reporting.
-        </p>
+        <CodeCombobox
+          label="ICD-10 Diagnosis — Code Search"
+          helperText="ICD-10 Ref: Type the code to find a diagnosis (e.g., 'O' for obstetric codes, 'O14' for preeclampsia). Search by code or keyword."
+          value={icd10SelectedCode}
+          onSelect={(opt) => {
+            if (opt) {
+              setIcd10Diagnosis(`${opt.code} (${opt.name})`);
+            } else {
+              setIcd10Diagnosis('');
+            }
+            markDirty();
+          }}
+          options={icd10Options}
+          searchFn={(query, opts) => searchIcd10Codes(query).map((c) => ({
+            code: c.code,
+            name: c.name,
+            description: c.description,
+            category: c.category,
+          }))}
+          placeholder="Type code (e.g., O14) or keyword (e.g., preeclampsia)..."
+          emptyMessage="No ICD-10 codes found. Check spelling or try a broader term."
+          categoryColors={icd10CategoryColors}
+          infoTooltip="Type first letter/digit to see suggestions"
+          id="icd10Diagnosis-combobox"
+          prominentCode
+        />
+        {/* Additional notes for ICD-10 */}
         <Textarea
-          id="icd10Diagnosis"
-          placeholder="e.g., O10.11 (Pre-existing hypertension with pre-eclampsia, first trimester)"
-          className="min-h-[80px] resize-y"
-          value={icd10Diagnosis}
-          onFocus={() => handleFieldFocus('icd10Diagnosis')}
-          onChange={(e) => { setIcd10Diagnosis(e.target.value); markDirty(); }}
+          id="icd10Diagnosis-notes"
+          placeholder="Additional clinical notes or multiple codes (e.g., O14.1 + O99.0)..."
+          className="min-h-[60px] resize-y mt-2"
+          value={icd10Diagnosis.includes('(') ? '' : icd10Diagnosis}
+          onFocus={() => handleFieldFocus('icd10Diagnosis-notes')}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v.trim() && !icd10SelectedCode) {
+              setIcd10Diagnosis(v);
+            }
+            markDirty();
+          }}
         />
       </div>
       <Separator />
       <div className="space-y-2">
-        <Label htmlFor="nandaDiagnosis" className="flex items-center gap-2">
-          <Brain className="h-4 w-4 text-rose-500" />
-          NANDA-I Nursing Diagnosis
-        </Label>
-        <p className="text-xs text-muted-foreground">
-          North American Nursing Diagnosis Association — clinical judgments about individual,
-          family, or community responses to actual or potential health problems.
-        </p>
+        <CodeCombobox
+          label="NANDA-I Nursing Diagnosis — Code Search"
+          helperText="NANDA Ref: Type the code number to quickly find a diagnosis (e.g., type '0' for codes starting with 0, '00089' for Ineffective Tissue Perfusion). You can also search by keyword."
+          value={nandaSelectedCode}
+          onSelect={(opt) => {
+            if (opt) {
+              setNandaDiagnosis(`${opt.code} — ${opt.name}`);
+            } else {
+              setNandaDiagnosis('');
+            }
+            markDirty();
+          }}
+          options={nandaOptions}
+          searchFn={(query, opts) => searchNandaDiagnoses(query).map((d) => ({
+            code: d.code,
+            name: d.name,
+            description: d.definition,
+            category: d.category,
+          }))}
+          placeholder="Type code number (e.g., 00089) or search by name..."
+          emptyMessage="No NANDA diagnoses found. Try a different code or keyword."
+          categoryColors={nandaCategoryColors}
+          infoTooltip="Type first digit to see suggestions"
+          id="nandaDiagnosis-combobox"
+          prominentCode
+        />
+        {/* Additional notes for NANDA */}
         <Textarea
-          id="nandaDiagnosis"
-          placeholder="e.g., Risk for ineffective peripheral tissue perfusion related to pre-eclampsia"
-          className="min-h-[100px] resize-y"
-          value={nandaDiagnosis}
-          onFocus={() => handleFieldFocus('nandaDiagnosis')}
-          onChange={(e) => { setNandaDiagnosis(e.target.value); markDirty(); }}
+          id="nandaDiagnosis-notes"
+          placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
+          className="min-h-[60px] resize-y mt-2"
+          value={nandaDiagnosis.includes('—') ? '' : nandaDiagnosis}
+          onFocus={() => handleFieldFocus('nandaDiagnosis-notes')}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v.trim() && !nandaSelectedCode) {
+              setNandaDiagnosis(v);
+            }
+            markDirty();
+          }}
         />
       </div>
     </div>
@@ -1258,7 +1412,7 @@ export function ConsultationView() {
         <h3 className="font-semibold mb-1">Human-in-the-Loop Intervention Selection</h3>
         <p className="text-sm text-muted-foreground">
           Review the AI suggestions above and select which interventions to apply. You can also add
-          custom interventions based on your clinical judgment.
+          custom interventions based on your clinical judgment using NIC codes.
         </p>
       </div>
 
@@ -1271,13 +1425,14 @@ export function ConsultationView() {
           <div className="space-y-2">
             {aiSuggestions.interventions.map((intervention, idx) => {
               const isChecked = selectedInterventions.some((i) => i.name === intervention.name);
+              const intCode = intervention.code ? String(intervention.code) : '';
               return (
                 <label
                   key={idx}
                   className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                     isChecked
-                      ? 'border-rose-300 bg-rose-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/20'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <Checkbox
@@ -1286,9 +1441,21 @@ export function ConsultationView() {
                     className="mt-0.5"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{intervention.name}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {intCode && (
+                        <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                          NIC {intCode}
+                        </Badge>
+                      )}
+                      <p className="text-sm font-medium">{intervention.name}</p>
+                    </div>
                     {intervention.description && (
                       <p className="text-xs text-muted-foreground mt-0.5">{intervention.description}</p>
+                    )}
+                    {intervention.category && (
+                      <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
+                        {intervention.category}
+                      </Badge>
                     )}
                   </div>
                 </label>
@@ -1303,39 +1470,81 @@ export function ConsultationView() {
       {/* Custom interventions */}
       <div>
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-          Custom Interventions
+          Add Custom Intervention
         </p>
-        <div className="flex gap-2 mb-3">
-          <Input
-            placeholder="Add a custom intervention..."
-            value={customIntervention}
-            onChange={(e) => setCustomIntervention(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addCustomIntervention();
-              }
-            }}
+        <div className="space-y-3">
+          {/* NIC Code selector */}
+          <CodeCombobox
+            label="NIC Intervention Code (Optional)"
+            helperText="NIC Ref: Search for a standard NIC intervention by code number (e.g., 6680). You can also type a custom name below."
+            value={customNicCode}
+            onSelect={handleNicCodeSelect}
+            options={nicOptions}
+            searchFn={(query) => searchNicInterventions(query).map((n) => ({
+              code: n.code,
+              name: n.name,
+              description: n.description,
+              category: n.category,
+            }))}
+            placeholder="Type NIC code (e.g., 6680) or keyword..."
+            emptyMessage="No NIC interventions found."
+            categoryColors={nicCategoryColors}
+            infoTooltip="Type first digit to see NIC suggestions"
+            id="nic-custom-combobox"
+            prominentCode
           />
-          <Button onClick={addCustomIntervention} disabled={!customIntervention.trim()} size="icon">
-            <Plus className="h-4 w-4" />
-          </Button>
+          {/* Custom name input */}
+          <div className="flex gap-2">
+            <Input
+              placeholder={customNicName ? `Using: ${customNicName}` : 'Or type custom intervention name...'}
+              value={customNicName ? '' : customIntervention}
+              onChange={(e) => {
+                setCustomIntervention(e.target.value);
+                if (e.target.value) {
+                  setCustomNicCode('');
+                  setCustomNicName('');
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addCustomInterventionWithCode();
+                }
+              }}
+              className="flex-1"
+            />
+            <Button
+              onClick={addCustomInterventionWithCode}
+              disabled={!customIntervention.trim() && !customNicCode}
+              size="icon"
+              className="bg-rose-600 hover:bg-rose-700"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Selected / custom interventions list */}
         {selectedInterventions.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-4">
             <p className="text-xs font-medium text-muted-foreground">
               Selected Interventions ({selectedInterventions.length})
             </p>
             {selectedInterventions.map((intervention, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 p-2.5 rounded-lg border border-rose-200 bg-rose-50"
+                className="flex items-center gap-2 p-2.5 rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20"
               >
                 <CheckCircle2 className="h-4 w-4 text-rose-600 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{intervention.name}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {intervention.code && (
+                      <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                        NIC {intervention.code}
+                      </Badge>
+                    )}
+                    <p className="text-sm font-medium truncate">{intervention.name}</p>
+                  </div>
                   {intervention.description && (
                     <p className="text-xs text-muted-foreground truncate">{intervention.description}</p>
                   )}
@@ -1746,7 +1955,7 @@ export function ConsultationView() {
       {ExitConfirmDialog()}
 
       {/* Step Card */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border-gray-200 dark:border-gray-800 shadow-sm">
         <CardHeader className="pb-0">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
@@ -1767,7 +1976,7 @@ export function ConsultationView() {
         </CardContent>
 
         {/* Navigation Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/80">
           <Button
             variant="ghost"
             onClick={handleBack}

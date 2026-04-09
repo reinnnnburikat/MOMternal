@@ -12,6 +12,18 @@ function calculateAOG(lmp: string | Date): string {
   return `${weeks}w ${days}d`;
 }
 
+// Helper: Calculate age from date of birth
+function calculateAge(dob: string | Date): number {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 // Helper: Generate next patient ID
 async function generatePatientId(): Promise<string> {
   const year = new Date().getFullYear();
@@ -37,6 +49,15 @@ async function generatePatientId(): Promise<string> {
   return `${prefix}${String(nextNum).padStart(3, "0")}`;
 }
 
+// Helper: Build display name from structured name fields
+function buildDisplayName(data: Record<string, string>): string {
+  const { surname, firstName, middleInitial, nameExtension } = data;
+  let name = `${surname}, ${firstName}`;
+  if (middleInitial) name += ` ${middleInitial}.`;
+  if (nameExtension) name += ` ${nameExtension}`;
+  return name;
+}
+
 // GET /api/patients — List all patients with search, filter, and consultation stats
 export async function GET(request: NextRequest) {
   try {
@@ -51,7 +72,7 @@ export async function GET(request: NextRequest) {
     let paramIndex = 1;
 
     if (search) {
-      conditions.push(`(name ILIKE $${paramIndex} OR patient_id ILIKE $${paramIndex})`);
+      conditions.push(`(name ILIKE $${paramIndex} OR patient_id ILIKE $${paramIndex} OR surname ILIKE $${paramIndex} OR first_name ILIKE $${paramIndex})`);
       params.push(`%${search}%`);
       paramIndex++;
     }
@@ -110,26 +131,41 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       nurseId,
-      name,
+      surname,
+      firstName,
+      middleInitial,
+      nameExtension,
       dateOfBirth,
       address,
       contactNumber,
       emergencyContact,
       emergencyRelation,
+      barangay,
+      occupation,
+      religion,
+      maritalStatus,
+      familyComposition,
+      incomeBracket,
       gravidity,
       parity,
       lmp,
       bloodType,
       allergies,
       medicalHistory,
-      barangay,
-      riskLevel,
+      surgicalHistory,
+      familyHistory,
+      obstetricHistory,
+      immunizationStatus,
+      currentMedications,
+      healthPractices,
+      socialHistory,
+      psychosocialHistory,
     } = body;
 
     // Validate required fields
-    if (!name || !dateOfBirth || !address) {
+    if (!surname || !firstName || !dateOfBirth || !address) {
       return NextResponse.json(
-        { success: false, error: "Name, date of birth, and address are required" },
+        { success: false, error: "Surname, first name, date of birth, and address are required" },
         { status: 400 }
       );
     }
@@ -159,21 +195,48 @@ export async function POST(request: NextRequest) {
       aog = calculateAOG(lmp);
     }
 
+    // Calculate age
+    const age = calculateAge(dateOfBirth);
+
+    // Build display name
+    const name = buildDisplayName({
+      surname,
+      firstName,
+      middleInitial: middleInitial || "",
+      nameExtension: nameExtension || "",
+    });
+
     // Create patient
     const patientRow = await queryOne(
-      `INSERT INTO patient (patient_id, name, date_of_birth, address, contact_number,
-        emergency_contact, emergency_relation, gravidity, parity, lmp, aog, blood_type,
-        allergies, medical_history, barangay, risk_level)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      `INSERT INTO patient (patient_id, surname, first_name, middle_initial, name_extension, name, date_of_birth, age,
+        address, barangay, contact_number, emergency_contact, emergency_relation,
+        occupation, religion, marital_status, family_composition, income_bracket,
+        gravidity, parity, lmp, aog, blood_type,
+        allergies, medical_history, surgical_history, family_history, obstetric_history,
+        immunization_status, current_medications, health_practices, social_history, psychosocial_history,
+        risk_level)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22,
+        $23, $24, $25, $26, $27, $28, $29, $30, $31, $32)
        RETURNING *`,
       [
         patientId,
+        surname,
+        firstName,
+        middleInitial || null,
+        nameExtension || null,
         name,
         dateOfBirth,
+        age,
         address,
+        barangay || null,
         contactNumber || null,
         emergencyContact || null,
         emergencyRelation || null,
+        occupation || null,
+        religion || null,
+        maritalStatus || null,
+        familyComposition || null,
+        incomeBracket || null,
         gravidity || 0,
         parity || 0,
         lmp ? new Date(lmp) : null,
@@ -181,8 +244,15 @@ export async function POST(request: NextRequest) {
         bloodType || null,
         allergies || null,
         medicalHistory || null,
-        barangay || null,
-        riskLevel || "low",
+        surgicalHistory || null,
+        familyHistory || null,
+        obstetricHistory || null,
+        immunizationStatus || null,
+        currentMedications || null,
+        healthPractices || null,
+        socialHistory || null,
+        psychosocialHistory || null,
+        "low",
       ]
     );
 

@@ -1,49 +1,17 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/supabase";
+import { BARANGAY_CENTROIDS } from "@/components/map/barangay-centroids";
 
 /**
  * GET /api/map/data
  * Returns community risk map data grouped by barangay.
  * - Per-barangay aggregation: patient count and risk distribution
  * - Individual patient markers (patientId + riskLevel only, no names)
+ *
+ * NOTE: BARANGAY_CENTROIDS are imported from the shared source-of-truth module
+ * (src/components/map/barangay-centroids.ts) which uses OSM Overpass API data.
+ * Both the frontend map-view and this API route now use the same centroid coordinates.
  */
-
-// Accurate centroids computed from GADM high-res GeoJSON boundary polygons
-const BARANGAY_CENTROIDS: Record<string, [number, number]> = {
-  'Bangkal': [14.5478, 121.0103],
-  'Bel-Air': [14.5624, 121.0254],
-  'Carmona': [14.5763, 121.0163],
-  'Cembo': [14.5657, 121.0487],
-  'Comembo': [14.5497, 121.0646],
-  'Dasmariñas': [14.5398, 121.0300],
-  'East Rembo': [14.5551, 121.0605],
-  'Forbes Park': [14.5455, 121.0379],
-  'Guadalupe Nuevo': [14.5637, 121.0454],
-  'Guadalupe Viejo': [14.5664, 121.0391],
-  'Kasilawan': [14.5779, 121.0130],
-  'La Paz': [14.5698, 121.0062],
-  'Magallanes': [14.5352, 121.0180],
-  'Olympia': [14.5732, 121.0175],
-  'Palanan': [14.5617, 120.9992],
-  'Pembo': [14.5447, 121.0599],
-  'Pinagkaisahan': [14.5589, 121.0392],
-  'Pio Del Pilar': [14.5542, 121.0086],
-  'Pitogo': [14.5582, 121.0431],
-  'Poblacion': [14.5679, 121.0281],
-  'Post Proper Northside': [14.5532, 121.0531],
-  'Post Proper Southside': [14.5315, 121.0459],
-  'Rizal': [14.5570, 121.0120],
-  'San Antonio': [14.5659, 121.0089],
-  'San Isidro': [14.5552, 121.0034],
-  'San Lorenzo': [14.5563, 121.0179],
-  'Santa Cruz': [14.5681, 121.0158],
-  'Singkamas': [14.5742, 121.0092],
-  'South Cembo': [14.5607, 121.0496],
-  'Tejeros': [14.5740, 121.0115],
-  'Urdaneta': [14.5580, 121.0279],
-  'Valenzuela': [14.5718, 121.0220],
-  'West Rembo': [14.5608, 121.0587],
-};
 
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 

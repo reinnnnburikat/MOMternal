@@ -5,7 +5,12 @@ import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Card,
   CardContent,
@@ -31,19 +36,45 @@ import {
   Stethoscope,
   UserCheck,
   CheckCircle2,
+  Briefcase,
+  Cross,
+  Users,
+  Wallet,
+  Scissors,
+  Syringe,
+  Pill,
+  Leaf,
+  Brain,
+  Tag,
+  Home,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
+// ---------------------------------------------------------------------------
+// Data interfaces
+// ---------------------------------------------------------------------------
+
 interface PatientData {
   id: string;
   patientId: string;
+  surname: string;
+  firstName: string;
+  middleInitial: string | null;
+  nameExtension: string | null;
   name: string;
   dateOfBirth: string;
+  age: number | null;
   address: string;
+  barangay: string | null;
   contactNumber: string | null;
   emergencyContact: string | null;
   emergencyRelation: string | null;
+  occupation: string | null;
+  religion: string | null;
+  maritalStatus: string | null;
+  familyComposition: string | null;
+  incomeBracket: string | null;
   gravidity: number;
   parity: number;
   lmp: string | null;
@@ -51,7 +82,14 @@ interface PatientData {
   bloodType: string | null;
   allergies: string | null;
   medicalHistory: string | null;
-  barangay: string | null;
+  surgicalHistory: string | null;
+  familyHistory: string | null;
+  obstetricHistory: string | null;
+  immunizationStatus: string | null;
+  currentMedications: string | null;
+  healthPractices: string | null;
+  socialHistory: string | null;
+  psychosocialHistory: string | null;
   riskLevel: string;
   consultations: ConsultationData[];
   createdAt: string;
@@ -84,6 +122,10 @@ interface ConsultationData {
   referralSummary?: string | null;
 }
 
+// ---------------------------------------------------------------------------
+// Lookup tables
+// ---------------------------------------------------------------------------
+
 const RISK_LABELS: Record<string, string> = {
   low: 'Low Risk',
   moderate: 'Moderate Risk',
@@ -112,6 +154,10 @@ const STATUS_STYLES: Record<string, string> = {
   completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
 };
 
+// ---------------------------------------------------------------------------
+// Helper components
+// ---------------------------------------------------------------------------
+
 function ProfileSkeleton() {
   return (
     <div className="space-y-6">
@@ -119,14 +165,14 @@ function ProfileSkeleton() {
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-56" />
-          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-5 w-40" />
         </div>
         <Skeleton className="h-7 w-24 rounded-full" />
       </div>
       {/* Cards skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-48 rounded-xl" />
+          <Skeleton key={i} className="h-72 rounded-xl" />
         ))}
       </div>
       <Skeleton className="h-12 rounded-xl" />
@@ -135,29 +181,117 @@ function ProfileSkeleton() {
   );
 }
 
-function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string | null | undefined }) {
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+  valueClassName,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | null | undefined;
+  valueClassName?: string;
+}) {
   return (
     <div className="flex items-start gap-3 py-2">
       <Icon className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium text-foreground">{value || 'Not recorded'}</p>
+        <p
+          className={`text-sm font-medium text-foreground ${
+            valueClassName ?? ''
+          }`}
+        >
+          {value || 'Not recorded'}
+        </p>
       </div>
     </div>
   );
 }
 
+function SectionDivider() {
+  return <div className="border-t border-rose-100/60 my-1" />;
+}
+
+// ---------------------------------------------------------------------------
+// Vitals & Intervention helpers
+// ---------------------------------------------------------------------------
+
+function VitalsDisplay({ raw }: { raw: string }) {
+  const vitals = useMemo(() => {
+    try {
+      return JSON.parse(raw) as Record<string, string>;
+    } catch {
+      return null;
+    }
+  }, [raw]);
+
+  if (!vitals) {
+    return <p className="text-sm text-foreground">{raw}</p>;
+  }
+
+  return (
+    <div className="space-y-1 text-sm">
+      {Object.entries(vitals).map(([key, value]) => (
+        <div key={key} className="flex justify-between">
+          <span className="text-xs text-muted-foreground capitalize">
+            {key.replace(/([A-Z])/g, ' $1')}
+          </span>
+          <span className="font-medium text-foreground">{String(value)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InterventionList({ raw }: { raw: string }) {
+  const items = useMemo(() => {
+    try {
+      const parsed = JSON.parse(raw);
+      const list = Array.isArray(parsed) ? parsed : [parsed];
+      return list.map((item: unknown) =>
+        typeof item === 'string'
+          ? item
+          : (item as Record<string, string>)?.name || JSON.stringify(item),
+      );
+    } catch {
+      return [] as string[];
+    }
+  }, [raw]);
+
+  if (items.length === 0) {
+    return <p className="text-sm text-foreground">{raw}</p>;
+  }
+
+  return (
+    <ul className="space-y-1.5">
+      {items.map((name, i) => (
+        <li key={i} className="flex items-start gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 flex-shrink-0" />
+          <span className="text-sm text-foreground">{name}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
 export function PatientProfileView() {
   const selectedPatientId = useAppStore((s) => s.selectedPatientId);
   const setCurrentView = useAppStore((s) => s.setCurrentView);
-  const setSelectedConsultationId = useAppStore((s) => s.setSelectedConsultationId);
-  const setSelectedPatientId = useAppStore((s) => s.setSelectedPatientId);
+  const setSelectedConsultationId = useAppStore(
+    (s) => s.setSelectedConsultationId,
+  );
   const currentNurse = useAppStore((s) => s.currentNurse);
 
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingConsultation, setIsCreatingConsultation] = useState(false);
-  const [viewingConsultation, setViewingConsultation] = useState<ConsultationData | null>(null);
+  const [viewingConsultation, setViewingConsultation] =
+    useState<ConsultationData | null>(null);
 
   useEffect(() => {
     if (!selectedPatientId) {
@@ -223,6 +357,10 @@ export function PatientProfileView() {
     }
   };
 
+  // ------------------------------------------------------------------
+  // Loading / not-found states
+  // ------------------------------------------------------------------
+
   if (isLoading) {
     return <ProfileSkeleton />;
   }
@@ -242,12 +380,19 @@ export function PatientProfileView() {
     );
   }
 
+  // ------------------------------------------------------------------
+  // Computed helpers
+  // ------------------------------------------------------------------
+
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -256,12 +401,21 @@ export function PatientProfileView() {
   const calculateAOG = (lmp: string) => {
     const lmpDate = new Date(lmp);
     const today = new Date();
-    const totalDays = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+    const totalDays = Math.floor(
+      (today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
     if (totalDays < 0) return 'Invalid LMP';
     const weeks = Math.floor(totalDays / 7);
     const days = totalDays % 7;
     return `${weeks}w ${days}d`;
   };
+
+  const displayAge = patient.age ?? calculateAge(patient.dateOfBirth);
+  const displayDOB = format(new Date(patient.dateOfBirth), 'MMMM d, yyyy');
+
+  // ------------------------------------------------------------------
+  // Render
+  // ------------------------------------------------------------------
 
   return (
     <div className="space-y-6">
@@ -269,7 +423,9 @@ export function PatientProfileView() {
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-xl font-bold text-foreground">{patient.name}</h2>
+            <h2 className="text-xl font-bold text-foreground">
+              {patient.name}
+            </h2>
             <span
               className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
                 RISK_CLASSES[patient.riskLevel] || RISK_CLASSES.low
@@ -278,18 +434,31 @@ export function PatientProfileView() {
               {RISK_LABELS[patient.riskLevel] || 'Low Risk'}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-rose-200 text-rose-600">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <Badge
+              variant="outline"
+              className="text-[10px] font-mono px-1.5 py-0 border-rose-200 text-rose-600"
+            >
               {patient.patientId}
             </Badge>
-            <span>{calculateAge(patient.dateOfBirth)} years old</span>
+            <span>{displayAge} years old</span>
+            <span className="hidden sm:inline">·</span>
+            <span className="hidden sm:inline">
+              {patient.barangay
+                ? `Brgy. ${patient.barangay}`
+                : patient.address}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Patient Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Demographics Card */}
+      {/* ============================================================= */}
+      {/* 3 Info Cards Grid                                              */}
+      {/* ============================================================= */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* ----------------------------------------------------------- */}
+        {/* Card 1: Demographics                                         */}
+        {/* ----------------------------------------------------------- */}
         <Card className="border-rose-100/60">
           <CardHeader className="pb-3 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -298,13 +467,48 @@ export function PatientProfileView() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-0">
-            <InfoRow icon={Calendar} label="Date of Birth" value={format(new Date(patient.dateOfBirth), 'MMMM d, yyyy')} />
-            <InfoRow icon={MapPin} label="Address" value={patient.barangay ? `${patient.address} — Brgy. ${patient.barangay}` : patient.address} />
-            <InfoRow icon={Phone} label="Contact Number" value={patient.contactNumber} />
+            <InfoRow
+              icon={User}
+              label="Full Name"
+              value={patient.name}
+              valueClassName="font-semibold text-foreground"
+            />
+
+            <InfoRow
+              icon={Tag}
+              label="Patient ID"
+              value={patient.patientId}
+            />
+
+            <InfoRow
+              icon={Calendar}
+              label="Date of Birth"
+              value={`${displayDOB} (${displayAge} yrs)`}
+            />
+
+            <InfoRow
+              icon={Home}
+              label="Address"
+              value={
+                patient.barangay
+                  ? `${patient.address} — Brgy. ${patient.barangay}`
+                  : patient.address
+              }
+            />
+
+            <InfoRow
+              icon={Phone}
+              label="Contact Number"
+              value={patient.contactNumber}
+            />
+
+            {/* Emergency Contact — custom rendering for relation */}
             <div className="flex items-start gap-3 py-2">
               <ShieldCheck className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Emergency Contact</p>
+                <p className="text-xs text-muted-foreground">
+                  Emergency Contact
+                </p>
                 <p className="text-sm font-medium text-foreground">
                   {patient.emergencyContact
                     ? `${patient.emergencyContact}${patient.emergencyRelation ? ` (${patient.emergencyRelation})` : ''}`
@@ -312,10 +516,44 @@ export function PatientProfileView() {
                 </p>
               </div>
             </div>
+
+            <SectionDivider />
+
+            <InfoRow
+              icon={Briefcase}
+              label="Occupation"
+              value={patient.occupation}
+            />
+
+            <InfoRow
+              icon={Cross}
+              label="Religion"
+              value={patient.religion}
+            />
+
+            <InfoRow
+              icon={Heart}
+              label="Marital Status"
+              value={patient.maritalStatus}
+            />
+
+            <InfoRow
+              icon={Users}
+              label="Family Composition"
+              value={patient.familyComposition}
+            />
+
+            <InfoRow
+              icon={Wallet}
+              label="Income Bracket"
+              value={patient.incomeBracket}
+            />
           </CardContent>
         </Card>
 
-        {/* OB History Card */}
+        {/* ----------------------------------------------------------- */}
+        {/* Card 2: OB History                                            */}
+        {/* ----------------------------------------------------------- */}
         <Card className="border-rose-100/60">
           <CardHeader className="pb-3 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -324,61 +562,170 @@ export function PatientProfileView() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-0">
+            {/* Gravidity / Parity */}
             <div className="flex items-start gap-3 py-2">
               <Activity className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Gravidity / Parity</p>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-xs text-muted-foreground">
+                  Gravidity / Parity
+                </p>
+                <p className="text-lg font-bold text-foreground leading-tight mt-0.5">
                   G<sub>{patient.gravidity}</sub> P<sub>{patient.parity}</sub>
                 </p>
               </div>
             </div>
-            <InfoRow icon={Calendar} label="Last Menstrual Period" value={patient.lmp ? format(new Date(patient.lmp), 'MMMM d, yyyy') : null} />
+
+            {/* LMP */}
+            <InfoRow
+              icon={Calendar}
+              label="Last Menstrual Period"
+              value={
+                patient.lmp
+                  ? format(new Date(patient.lmp), 'MMMM d, yyyy')
+                  : null
+              }
+            />
+
+            {/* Age of Gestation */}
             <div className="flex items-start gap-3 py-2">
-              <Heart className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+              <Clock className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Age of Gestation</p>
-                <p className={`text-sm font-bold ${patient.aog || patient.lmp ? 'text-rose-600' : 'text-muted-foreground'}`}>
-                  {patient.aog || (patient.lmp ? calculateAOG(patient.lmp) : 'Not available')}
+                <p className="text-xs text-muted-foreground">
+                  Age of Gestation
+                </p>
+                <p
+                  className={`text-sm font-bold ${
+                    patient.aog || patient.lmp
+                      ? 'text-rose-600'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {patient.aog ||
+                    (patient.lmp ? calculateAOG(patient.lmp) : 'Not available')}
                 </p>
               </div>
             </div>
-            <InfoRow icon={Droplets} label="Blood Type" value={patient.bloodType} />
+
+            {/* Blood Type */}
+            <InfoRow
+              icon={Droplets}
+              label="Blood Type"
+              value={patient.bloodType}
+            />
+
+            <SectionDivider />
+
+            {/* Risk Level — prominent badge */}
+            <div className="flex items-start gap-3 py-2">
+              <AlertTriangle className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Risk Level</p>
+                <span
+                  className={`inline-flex items-center mt-0.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                    RISK_CLASSES[patient.riskLevel] || RISK_CLASSES.low
+                  }`}
+                >
+                  {RISK_LABELS[patient.riskLevel] || 'Low Risk'}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Medical Card */}
+        {/* ----------------------------------------------------------- */}
+        {/* Card 3: Health History                                        */}
+        {/* ----------------------------------------------------------- */}
         <Card className="border-rose-100/60">
           <CardHeader className="pb-3 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="h-4 w-4 text-rose-500" />
-              Medical Info
+              Health History
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-0">
+          <CardContent className="px-4 pb-4 space-y-0 max-h-[520px] overflow-y-auto custom-scrollbar">
+            {/* Allergies — red when present */}
             <div className="flex items-start gap-3 py-2">
               <AlertTriangle className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">Allergies</p>
-                <p className={`text-sm font-medium ${patient.allergies ? 'text-red-600' : 'text-muted-foreground'}`}>
+                <p
+                  className={`text-sm font-medium ${
+                    patient.allergies
+                      ? 'text-red-600 font-semibold'
+                      : 'text-muted-foreground'
+                  }`}
+                >
                   {patient.allergies || 'None recorded'}
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 py-2">
-              <ClipboardList className="h-4 w-4 text-rose-400 mt-0.5 flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Medical History</p>
-                <p className="text-sm font-medium text-foreground whitespace-pre-wrap">
-                  {patient.medicalHistory || 'None recorded'}
-                </p>
-              </div>
-            </div>
+
+            <SectionDivider />
+
+            <InfoRow
+              icon={Stethoscope}
+              label="Medical History"
+              value={patient.medicalHistory}
+            />
+
+            <InfoRow
+              icon={Scissors}
+              label="Surgical History"
+              value={patient.surgicalHistory}
+            />
+
+            <InfoRow
+              icon={Users}
+              label="Family Health History"
+              value={patient.familyHistory}
+            />
+
+            <InfoRow
+              icon={Baby}
+              label="Obstetric History"
+              value={patient.obstetricHistory}
+            />
+
+            <SectionDivider />
+
+            <InfoRow
+              icon={Syringe}
+              label="Immunization Status"
+              value={patient.immunizationStatus}
+            />
+
+            <InfoRow
+              icon={Pill}
+              label="Current Medications"
+              value={patient.currentMedications}
+            />
+
+            <SectionDivider />
+
+            <InfoRow
+              icon={Leaf}
+              label="Health Practices"
+              value={patient.healthPractices}
+            />
+
+            <InfoRow
+              icon={Users}
+              label="Social History"
+              value={patient.socialHistory}
+            />
+
+            <InfoRow
+              icon={Brain}
+              label="Psychosocial History"
+              value={patient.psychosocialHistory}
+            />
           </CardContent>
         </Card>
       </div>
 
-      {/* Consultation History */}
+      {/* ============================================================= */}
+      {/* Card 4: Consultation History                                   */}
+      {/* ============================================================= */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold text-foreground">
@@ -427,7 +774,10 @@ export function PatientProfileView() {
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">
             {patient.consultations.map((consultation) => (
-              <Card key={consultation.id} className="border-rose-100/60 hover:shadow-sm transition-shadow">
+              <Card
+                key={consultation.id}
+                className="border-rose-100/60 hover:shadow-sm transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0 space-y-2">
@@ -438,7 +788,10 @@ export function PatientProfileView() {
                         </span>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {format(new Date(consultation.consultationDate), 'MMM d, yyyy')}
+                          {format(
+                            new Date(consultation.consultationDate),
+                            'MMM d, yyyy',
+                          )}
                         </span>
                       </div>
 
@@ -446,17 +799,21 @@ export function PatientProfileView() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                            RISK_CLASSES[consultation.riskLevel] || RISK_CLASSES.low
+                            RISK_CLASSES[consultation.riskLevel] ||
+                            RISK_CLASSES.low
                           }`}
                         >
                           {RISK_LABELS[consultation.riskLevel] || 'Low Risk'}
                         </span>
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                            STATUS_STYLES[consultation.status] || STATUS_STYLES.in_progress
+                            STATUS_STYLES[consultation.status] ||
+                            STATUS_STYLES.in_progress
                           }`}
                         >
-                          {consultation.status === 'completed' ? 'Completed' : 'In Progress'}
+                          {consultation.status === 'completed'
+                            ? 'Completed'
+                            : 'In Progress'}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
                           {consultation.stepCompleted >= 7
@@ -466,12 +823,13 @@ export function PatientProfileView() {
                       </div>
 
                       {/* Referral info */}
-                      {consultation.referralStatus && consultation.referralStatus !== 'none' && (
-                        <p className="text-xs text-amber-600 flex items-center gap-1">
-                          <AlertTriangle className="h-3 w-3" />
-                          Referral: {consultation.referralStatus}
-                        </p>
-                      )}
+                      {consultation.referralStatus &&
+                        consultation.referralStatus !== 'none' && (
+                          <p className="text-xs text-amber-600 flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Referral: {consultation.referralStatus}
+                          </p>
+                        )}
                     </div>
 
                     {/* View button */}
@@ -492,28 +850,44 @@ export function PatientProfileView() {
         )}
       </div>
 
-      {/* Consultation Detail Dialog */}
-      <Dialog open={!!viewingConsultation} onOpenChange={(open) => !open && setViewingConsultation(null)}>
+      {/* ============================================================= */}
+      {/* Consultation Detail Dialog                                     */}
+      {/* ============================================================= */}
+      <Dialog
+        open={!!viewingConsultation}
+        onOpenChange={(open) => !open && setViewingConsultation(null)}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <span className="font-mono text-sm text-rose-600">{viewingConsultation?.consultationNo}</span>
+              <span className="font-mono text-sm text-rose-600">
+                {viewingConsultation?.consultationNo}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {viewingConsultation && format(new Date(viewingConsultation.consultationDate), 'MMMM d, yyyy')}
+                {viewingConsultation &&
+                  format(
+                    new Date(viewingConsultation.consultationDate),
+                    'MMMM d, yyyy',
+                  )}
               </span>
             </DialogTitle>
           </DialogHeader>
           {viewingConsultation && (
             <div className="space-y-4 mt-2">
               <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${RISK_CLASSES[viewingConsultation.riskLevel] || RISK_CLASSES.low}`}>
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+                    RISK_CLASSES[viewingConsultation.riskLevel] ||
+                    RISK_CLASSES.low
+                  }`}
+                >
                   {RISK_LABELS[viewingConsultation.riskLevel] || 'Low Risk'}
                 </span>
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-50 text-emerald-700 border-emerald-200">
                   Completed
                 </span>
                 {viewingConsultation.referralStatus === 'completed' && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-rose-50 text-rose-700 border-rose-200">
                     Referred
                   </span>
                 )}
@@ -521,14 +895,20 @@ export function PatientProfileView() {
 
               {viewingConsultation.subjectiveSymptoms && (
                 <div className="rounded-lg border border-rose-100 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><Stethoscope className="h-3 w-3" /> Subjective (Symptoms)</p>
-                  <p className="text-sm text-foreground">{viewingConsultation.subjectiveSymptoms}</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                    <Stethoscope className="h-3 w-3" /> Subjective (Symptoms)
+                  </p>
+                  <p className="text-sm text-foreground">
+                    {viewingConsultation.subjectiveSymptoms}
+                  </p>
                 </div>
               )}
 
               {viewingConsultation.objectiveVitals && (
                 <div className="rounded-lg border border-rose-100 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><Activity className="h-3 w-3" /> Objective (Vitals)</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                    <Activity className="h-3 w-3" /> Objective (Vitals)
+                  </p>
                   <VitalsDisplay raw={viewingConsultation.objectiveVitals} />
                 </div>
               )}
@@ -536,48 +916,76 @@ export function PatientProfileView() {
               <div className="grid grid-cols-2 gap-3">
                 {viewingConsultation.fetalHeartRate && (
                   <div className="rounded-lg border border-rose-100 p-3">
-                    <p className="text-xs text-muted-foreground">Fetal Heart Rate</p>
-                    <p className="text-sm font-semibold text-foreground">{viewingConsultation.fetalHeartRate}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Fetal Heart Rate
+                    </p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {viewingConsultation.fetalHeartRate}
+                    </p>
                   </div>
                 )}
                 {viewingConsultation.fundalHeight && (
                   <div className="rounded-lg border border-rose-100 p-3">
-                    <p className="text-xs text-muted-foreground">Fundal Height</p>
-                    <p className="text-sm font-semibold text-foreground">{viewingConsultation.fundalHeight}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Fundal Height
+                    </p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {viewingConsultation.fundalHeight}
+                    </p>
                   </div>
                 )}
               </div>
 
-              {(viewingConsultation.physicalExam || viewingConsultation.labResults) && (
+              {(
+                viewingConsultation.physicalExam ||
+                viewingConsultation.labResults
+              ) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {viewingConsultation.physicalExam && (
                     <div className="rounded-lg border border-rose-100 p-3">
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Physical Exam</p>
-                      <p className="text-sm text-foreground">{viewingConsultation.physicalExam}</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">
+                        Physical Exam
+                      </p>
+                      <p className="text-sm text-foreground">
+                        {viewingConsultation.physicalExam}
+                      </p>
                     </div>
                   )}
                   {viewingConsultation.labResults && (
                     <div className="rounded-lg border border-rose-100 p-3">
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Lab Results</p>
-                      <p className="text-sm text-foreground">{viewingConsultation.labResults}</p>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">
+                        Lab Results
+                      </p>
+                      <p className="text-sm text-foreground">
+                        {viewingConsultation.labResults}
+                      </p>
                     </div>
                   )}
                 </div>
               )}
 
-              {(viewingConsultation.icd10Diagnosis || viewingConsultation.nandaDiagnosis) && (
+              {(
+                viewingConsultation.icd10Diagnosis ||
+                viewingConsultation.nandaDiagnosis
+              ) && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold text-muted-foreground">Diagnosis</h4>
+                  <h4 className="text-xs font-semibold text-muted-foreground">
+                    Diagnosis
+                  </h4>
                   {viewingConsultation.icd10Diagnosis && (
                     <div className="rounded-lg border border-rose-100 p-3">
                       <p className="text-xs text-muted-foreground">ICD-10</p>
-                      <p className="text-sm text-foreground">{viewingConsultation.icd10Diagnosis}</p>
+                      <p className="text-sm text-foreground">
+                        {viewingConsultation.icd10Diagnosis}
+                      </p>
                     </div>
                   )}
                   {viewingConsultation.nandaDiagnosis && (
                     <div className="rounded-lg border border-rose-100 p-3">
                       <p className="text-xs text-muted-foreground">NANDA-I</p>
-                      <p className="text-sm text-foreground">{viewingConsultation.nandaDiagnosis}</p>
+                      <p className="text-sm text-foreground">
+                        {viewingConsultation.nandaDiagnosis}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -585,96 +993,66 @@ export function PatientProfileView() {
 
               {viewingConsultation.selectedInterventions && (
                 <div className="rounded-lg border border-rose-100 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1"><UserCheck className="h-3 w-3" /> Selected Interventions</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1">
+                    <UserCheck className="h-3 w-3" /> Selected Interventions
+                  </p>
                   <InterventionList raw={viewingConsultation.selectedInterventions} />
                 </div>
               )}
 
               {viewingConsultation.evaluationStatus && (
                 <div className="rounded-lg border border-rose-100 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Evaluation (NOC)</p>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
-                    viewingConsultation.evaluationStatus === 'achieved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                    viewingConsultation.evaluationStatus === 'partially' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                    'bg-red-50 text-red-700 border-red-200'
-                  }`}>
-                    {viewingConsultation.evaluationStatus === 'achieved' ? 'Achieved' :
-                     viewingConsultation.evaluationStatus === 'partially' ? 'Partially Achieved' : 'Not Achieved'}
+                  <p className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" /> Evaluation (NOC)
+                  </p>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                      viewingConsultation.evaluationStatus === 'achieved'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : viewingConsultation.evaluationStatus === 'partially'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-red-50 text-red-700 border-red-200'
+                    }`}
+                  >
+                    {viewingConsultation.evaluationStatus === 'achieved'
+                      ? 'Achieved'
+                      : viewingConsultation.evaluationStatus === 'partially'
+                        ? 'Partially Achieved'
+                        : 'Not Achieved'}
                   </span>
                   {viewingConsultation.evaluationNotes && (
-                    <p className="text-sm text-muted-foreground mt-2">{viewingConsultation.evaluationNotes}</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {viewingConsultation.evaluationNotes}
+                    </p>
                   )}
                 </div>
               )}
 
               {viewingConsultation.referralSummary && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-                  <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Referral Summary</p>
-                  <p className="text-sm text-foreground whitespace-pre-wrap">{viewingConsultation.referralSummary}</p>
+                  <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Referral Summary
+                  </p>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                    {viewingConsultation.referralSummary}
+                  </p>
                 </div>
               )}
 
               <div className="flex gap-2 pt-2 border-t">
-                <Button size="sm" variant="outline" className="border-rose-200" onClick={() => setViewingConsultation(null)}>Close</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-rose-200"
+                  onClick={() => setViewingConsultation(null)}
+                >
+                  Close
+                </Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function VitalsDisplay({ raw }: { raw: string }) {
-  const vitals = useMemo(() => {
-    try {
-      return JSON.parse(raw) as Record<string, string>;
-    } catch {
-      return null;
-    }
-  }, [raw]);
-
-  if (!vitals) {
-    return <p className="text-sm text-foreground">{raw}</p>;
-  }
-
-  return (
-    <div className="space-y-1 text-sm">
-      {Object.entries(vitals).map(([key, value]) => (
-        <div key={key} className="flex justify-between">
-          <span className="text-xs text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-          <span className="font-medium text-foreground">{String(value)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function InterventionList({ raw }: { raw: string }) {
-  const items = useMemo(() => {
-    try {
-      const parsed = JSON.parse(raw);
-      const list = Array.isArray(parsed) ? parsed : [parsed];
-      return list.map((item: unknown) =>
-        typeof item === 'string' ? item : (item as Record<string, string>)?.name || JSON.stringify(item)
-      );
-    } catch {
-      return [] as string[];
-    }
-  }, [raw]);
-
-  if (items.length === 0) {
-    return <p className="text-sm text-foreground">{raw}</p>;
-  }
-
-  return (
-    <ul className="space-y-1.5">
-      {items.map((name, i) => (
-        <li key={i} className="flex items-start gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 flex-shrink-0" />
-          <span className="text-sm text-foreground">{name}</span>
-        </li>
-      ))}
-    </ul>
   );
 }

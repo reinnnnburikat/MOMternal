@@ -64,7 +64,7 @@ export async function POST(
       // Read X-Token from incoming request headers (injected by outer gateway)
       const gatewayToken = request.headers.get("x-token");
       if (gatewayToken) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK config requires dynamic token injection
         (zai as any).config.token = gatewayToken;
       }
 

@@ -15,6 +15,7 @@ const STEP_FIELD_MAP: Record<string, number> = {
   fundalHeight: 2,
   fundal_height: 2,
   allergies: 2,
+  medications: 2,
   // Step 3: Findings
   physicalExam: 3,
   physical_exam: 3,
@@ -26,9 +27,15 @@ const STEP_FIELD_MAP: Record<string, number> = {
   icd10_diagnosis: 4,
   nandaDiagnosis: 4,
   nanda_diagnosis: 4,
+  nandaCode: 4,
+  nanda_code: 4,
+  nandaName: 4,
+  nanda_name: 4,
   // Step 5: Risk
   riskLevel: 5,
   risk_level: 5,
+  preventionLevel: 5,
+  prevention_level: 5,
   // Step 6: AI
   aiSuggestions: 6,
   ai_suggestions: 6,
@@ -39,6 +46,14 @@ const STEP_FIELD_MAP: Record<string, number> = {
   evaluation_status: 7,
   evaluationNotes: 7,
   evaluation_notes: 7,
+  interventionEvaluations: 7,
+  intervention_evaluations: 7,
+  referralType: 7,
+  referral_type: 7,
+  referralPriority: 7,
+  referral_priority: 7,
+  referralFacility: 7,
+  referral_facility: 7,
   referralSummary: 7,
   referral_summary: 7,
   referralStatus: 7,
@@ -47,6 +62,7 @@ const STEP_FIELD_MAP: Record<string, number> = {
 
 // Mapping from camelCase to snake_case for consultation fields
 const FIELD_MAPPING: Record<string, string> = {
+  typeOfVisit: "type_of_visit",
   subjectiveSymptoms: "subjective_symptoms",
   objectiveVitals: "objective_vitals",
   fetalHeartRate: "fetal_heart_rate",
@@ -58,11 +74,18 @@ const FIELD_MAPPING: Record<string, string> = {
   notes: "notes",
   icd10Diagnosis: "icd10_diagnosis",
   nandaDiagnosis: "nanda_diagnosis",
+  nandaCode: "nanda_code",
+  nandaName: "nanda_name",
   riskLevel: "risk_level",
+  preventionLevel: "prevention_level",
   aiSuggestions: "ai_suggestions",
   selectedInterventions: "selected_interventions",
+  interventionEvaluations: "intervention_evaluations",
   evaluationStatus: "evaluation_status",
   evaluationNotes: "evaluation_notes",
+  referralType: "referral_type",
+  referralPriority: "referral_priority",
+  referralFacility: "referral_facility",
   referralSummary: "referral_summary",
   referralStatus: "referral_status",
 };
@@ -152,6 +175,7 @@ export async function PUT(
 
     // Build update data from allowed fields only
     const allowedFields = [
+      "typeOfVisit",
       "subjectiveSymptoms",
       "objectiveVitals",
       "fetalHeartRate",
@@ -163,11 +187,18 @@ export async function PUT(
       "notes",
       "icd10Diagnosis",
       "nandaDiagnosis",
+      "nandaCode",
+      "nandaName",
       "riskLevel",
+      "preventionLevel",
       "aiSuggestions",
       "selectedInterventions",
+      "interventionEvaluations",
       "evaluationStatus",
       "evaluationNotes",
+      "referralType",
+      "referralPriority",
+      "referralFacility",
       "referralSummary",
       "referralStatus",
     ] as const;
