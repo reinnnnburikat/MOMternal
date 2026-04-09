@@ -410,6 +410,19 @@ export function ConsultationView() {
     };
   }, []);
 
+  // ── Computed values (must be declared before callbacks that reference them) ──
+  const nandaSelectedCode = (() => {
+    if (!nandaDiagnosis) return '';
+    const match = nandaDiagnosis.match(/^(\d{5})\b/);
+    return match ? match[1] : '';
+  })();
+
+  const icd10SelectedCode = (() => {
+    if (!icd10Diagnosis) return '';
+    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
+    return match ? match[1] : '';
+  })();
+
   // ── Save function ──
   const buildSavePayload = useCallback(
     (step: number): Record<string, unknown> => {
@@ -1348,20 +1361,7 @@ export function ConsultationView() {
     Educational: '#f59e0b',
   };
 
-  // Parse stored ICD-10 to extract code for combobox
-  const icd10SelectedCode = (() => {
-    if (!icd10Diagnosis) return '';
-    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
-    return match ? match[1] : '';
-  })();
-
-  // Parse stored NANDA to extract code for combobox
-  const nandaSelectedCode = (() => {
-    if (!nandaDiagnosis) return '';
-    // Try to find a NANDA code pattern at the start
-    const match = nandaDiagnosis.match(/^(\d{5})\b/);
-    return match ? match[1] : '';
-  })();
+  // (icd10SelectedCode and nandaSelectedCode moved earlier — before buildSavePayload — to avoid TDZ)
 
   // ─── Step 2: Diagnosis ──────────────────────────────────────────────────
 

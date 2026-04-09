@@ -38,7 +38,7 @@ export async function POST(
     let selectedInterventionsText = "None selected";
     if (consultation.selected_interventions) {
       try {
-        const interventions = JSON.parse(consultation.selected_interventions);
+        const interventions = JSON.parse(consultation.selected_interventions as string);
         if (Array.isArray(interventions)) {
           selectedInterventionsText = interventions
             .map((intv: { name?: string; description?: string }, i: number) =>
