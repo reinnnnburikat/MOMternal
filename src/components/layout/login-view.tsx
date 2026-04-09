@@ -83,8 +83,8 @@ export function LoginView() {
           </div>
         </div>
 
-        <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/40">
-          Made with R.N.
+        <p className="absolute bottom-6 left-0 right-0 text-center text-sm font-medium text-white/70">
+          Made with <span className="text-rose-400">R.N.</span>
         </p>
       </div>
 
