@@ -498,9 +498,9 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-rose-900 dark:text-rose-100">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+      <div className="rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-700 dark:to-pink-700 px-6 py-5 shadow-lg">
+        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        <p className="text-sm text-rose-100 mt-1">
           Overview of your maternal health outreach
         </p>
       </div>
@@ -513,7 +513,7 @@ export function DashboardView() {
           {statsCards.map((card, idx) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="dark:bg-gray-900 dark:border-gray-800 h-full">
+              <Card key={card.label} className="dark:bg-gray-900 dark:border-gray-800 h-full shadow-md hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-800">
                 <CardContent className="p-5 flex flex-col h-full">
                   <div className="flex items-center justify-between">
                     <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-lg`}>
@@ -527,7 +527,7 @@ export function DashboardView() {
                     )}
                   </div>
                   <div className="mt-3 flex-1 flex flex-col justify-end">
-                    <p className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                    <p className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
                       {card.value}
                     </p>
                     {/* Sparkline */}
@@ -551,9 +551,9 @@ export function DashboardView() {
       ) : stats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
-          <Card className="dark:bg-gray-900 dark:border-gray-800">
+          <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
                 <PieChartIcon className="h-5 w-5 text-rose-600" />
                 Risk Distribution
               </CardTitle>
@@ -613,9 +613,9 @@ export function DashboardView() {
           {/* Right column: Quick Actions + Consultation Trends */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card className="dark:bg-gray-900 dark:border-gray-800">
+            <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
               <CardHeader>
-                <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Quick Actions</CardTitle>
+                <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-3">
                 <Button
@@ -643,9 +643,9 @@ export function DashboardView() {
             </Card>
 
             {/* Consultation Trends Line Chart */}
-            <Card className="dark:bg-gray-900 dark:border-gray-800">
+            <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
                   <TrendingUp className="h-5 w-5 text-rose-600" />
                   Consultation Trends
                 </CardTitle>
@@ -703,9 +703,9 @@ export function DashboardView() {
       {isLoadingPaused ? (
         <PausedSkeleton />
       ) : (
-        <Card className="dark:bg-gray-900 dark:border-gray-800">
+        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Paused Assessments</CardTitle>
+            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Paused Assessments</CardTitle>
             <CardDescription className="dark:text-gray-400">
               Resume in-progress consultations
             </CardDescription>
@@ -778,9 +778,9 @@ export function DashboardView() {
       {isLoadingStats ? (
         <RecentTableSkeleton />
       ) : stats && stats.recentConsultations.length > 0 ? (
-        <Card className="dark:bg-gray-900 dark:border-gray-800">
+        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Recent Consultations</CardTitle>
+            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
             <CardDescription className="dark:text-gray-400">
               Last {stats.recentConsultations.length} consultations
             </CardDescription>
@@ -829,9 +829,9 @@ export function DashboardView() {
           </CardContent>
         </Card>
       ) : stats ? (
-        <Card className="dark:bg-gray-900 dark:border-gray-800">
+        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
           <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Recent Consultations</CardTitle>
+            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center py-12">

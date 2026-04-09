@@ -436,7 +436,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <BreadcrumbBar />
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 bg-gray-50 dark:bg-gray-950">
           {children}
         </main>
 

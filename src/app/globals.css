@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.975 0.002 350);
+  --background: oklch(0.955 0.004 350);
   --foreground: oklch(0.17 0.02 350);
   --card: oklch(0.995 0.002 350);
   --card-foreground: oklch(0.17 0.02 350);
@@ -116,15 +116,15 @@
   --sidebar-ring: oklch(0.7 0.18 350);
 }
 
-/* Risk level colors */
+/* Risk level colors — WCAG AA compliant contrast */
 .risk-low {
-  @apply bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800;
+  @apply bg-emerald-100 text-emerald-900 border-2 border-emerald-300 font-semibold dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-700;
 }
 .risk-moderate {
-  @apply bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800;
+  @apply bg-amber-100 text-amber-900 border-2 border-amber-300 font-semibold dark:bg-amber-950/50 dark:text-amber-200 dark:border-amber-700;
 }
 .risk-high {
-  @apply bg-red-50 text-red-800 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800;
+  @apply bg-red-100 text-red-900 border-2 border-red-300 font-semibold dark:bg-red-950/50 dark:text-red-200 dark:border-red-700;
 }
 
 .risk-dot-low {

@@ -55,6 +55,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ICD10_MATERNAL_CODES, searchIcd10Codes } from '@/data/icd10-maternal';
 import { NANDA_DIAGNOSES, searchNandaDiagnoses } from '@/data/nanda-diagnoses';
 import { NIC_INTERVENTIONS, searchNicInterventions } from '@/data/nic-interventions';
@@ -80,6 +87,8 @@ interface ConsultationData {
   stepCompleted: number;
   status: string;
   patient: PatientInfo;
+  // Visit type
+  typeOfVisit?: string | null;
   // SOAP Assessment
   subjectiveSymptoms?: string | null;
   objectiveVitals?: string | null;
@@ -94,15 +103,22 @@ interface ConsultationData {
   // Diagnosis
   icd10Diagnosis?: string | null;
   nandaDiagnosis?: string | null;
+  nandaCode?: string | null;
+  nandaName?: string | null;
   // Risk
   riskLevel?: string;
+  preventionLevel?: string | null;
   // AI
   aiSuggestions?: string | null;
   selectedInterventions?: string | null;
   // Evaluation
   evaluationStatus?: string | null;
   evaluationNotes?: string | null;
+  interventionEvaluations?: string | null;
   // Referral
+  referralType?: string | null;
+  referralPriority?: string | null;
+  referralFacility?: string | null;
   referralSummary?: string | null;
   referralStatus?: string;
 }
@@ -126,6 +142,9 @@ interface VitalsForm {
   temperature: string;
   weight: string;
   respiratoryRate: string;
+  oxygenSat: string;
+  painScale: string;
+  height: string;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -165,6 +184,9 @@ const DEFAULT_VITALS: VitalsForm = {
   temperature: '',
   weight: '',
   respiratoryRate: '',
+  oxygenSat: '',
+  painScale: '',
+  height: '',
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -260,6 +282,7 @@ export function ConsultationView() {
   });
 
   // ── Form fields ──
+  const [typeOfVisit, setTypeOfVisit] = useState('');
   const [subjectiveSymptoms, setSubjectiveSymptoms] = useState('');
   const [vitals, setVitals] = useState<VitalsForm>({ ...DEFAULT_VITALS });
   const [fetalHeartRate, setFetalHeartRate] = useState('');
@@ -279,6 +302,43 @@ export function ConsultationView() {
   const [referralSummary, setReferralSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [preventionLevel, setPreventionLevel] = useState('');
+  const [referralType, setReferralType] = useState('');
+  const [referralPriority, setReferralPriority] = useState('');
+  const [referralFacility, setReferralFacility] = useState('');
+  const [interventionEvals, setInterventionEvals] = useState<Array<{nicCode: string; status: string; nocOutcome: string; notes: string}>>([]);
+
+  // ── BMI Calculation ──
+  const calculatedBMI = useMemo(() => {
+    const w = parseFloat(vitals.weight);
+    const h = parseFloat(vitals.height);
+    if (isNaN(w) || isNaN(h) || h <= 0 || w <= 0) return null;
+    const heightM = h / 100;
+    const bmi = w / (heightM * heightM);
+    return Math.round(bmi * 10) / 10;
+  }, [vitals.weight, vitals.height]);
+
+  const bmiCategory = useMemo(() => {
+    if (!calculatedBMI) return null;
+    if (calculatedBMI < 18.5) return { label: 'Underweight', color: 'text-blue-600', bg: 'bg-blue-50' };
+    if (calculatedBMI < 25) return { label: 'Normal', color: 'text-green-600', bg: 'bg-green-50' };
+    if (calculatedBMI < 30) return { label: 'Overweight', color: 'text-amber-600', bg: 'bg-amber-50' };
+    return { label: 'Obese', color: 'text-red-600', bg: 'bg-red-50' };
+  }, [calculatedBMI]);
+
+  // ── Per-intervention eval update ──
+  const updateInterventionEval = useCallback((index: number, field: 'status' | 'nocOutcome' | 'notes', value: string) => {
+    setInterventionEvals((prev) => {
+      const updated = [...prev];
+      if (!updated[index]) {
+        const intervention = selectedInterventions[index];
+        updated[index] = { nicCode: intervention?.code || '', status: '', nocOutcome: '', notes: '' };
+      }
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+    markDirty();
+  }, [selectedInterventions]);
 
   // ── Dirty state tracking ──
   const markDirty = useCallback(() => setIsDirty(true), []);
@@ -315,6 +375,17 @@ export function ConsultationView() {
         setEvaluationStatus(data.evaluationStatus || '');
         setEvaluationNotes(data.evaluationNotes || '');
         setReferralSummary(data.referralSummary || '');
+        setTypeOfVisit(data.typeOfVisit || '');
+        setPreventionLevel(data.preventionLevel || '');
+        setReferralType(data.referralType || '');
+        setReferralPriority(data.referralPriority || '');
+        setReferralFacility(data.referralFacility || '');
+        // Parse intervention evaluations
+        if (data.interventionEvaluations) {
+          try {
+            setInterventionEvals(JSON.parse(data.interventionEvaluations));
+          } catch { setInterventionEvals([]); }
+        }
 
         // Set current step from stepCompleted
         const startStep = resolveStartStep(data.stepCompleted);
@@ -347,6 +418,7 @@ export function ConsultationView() {
       const payload: Record<string, unknown> = {};
       switch (step) {
         case 0:
+          if (typeOfVisit) payload.typeOfVisit = typeOfVisit;
           if (subjectiveSymptoms) payload.subjectiveSymptoms = subjectiveSymptoms;
           payload.objectiveVitals = stringifyVitals(vitals);
           if (fetalHeartRate) payload.fetalHeartRate = fetalHeartRate;
@@ -362,9 +434,15 @@ export function ConsultationView() {
         case 2:
           if (icd10Diagnosis) payload.icd10Diagnosis = icd10Diagnosis;
           if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
+          // Save NANDA code and name separately for structured data
+          if (nandaSelectedCode) payload.nandaCode = nandaSelectedCode;
+          if (nandaDiagnosis.includes('—')) {
+            payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
+          }
           break;
         case 3:
           if (riskLevel) payload.riskLevel = riskLevel;
+          if (preventionLevel) payload.preventionLevel = preventionLevel;
           break;
         case 4:
           // AI suggestions are saved by the AI endpoint
@@ -375,14 +453,21 @@ export function ConsultationView() {
         case 6:
           if (evaluationStatus) payload.evaluationStatus = evaluationStatus;
           if (evaluationNotes) payload.evaluationNotes = evaluationNotes;
+          if (interventionEvals.length > 0) {
+            payload.interventionEvaluations = JSON.stringify(interventionEvals);
+          }
           break;
         case 7:
-          // Referral is saved by the referral endpoint
+          if (referralType) payload.referralType = referralType;
+          if (referralPriority) payload.referralPriority = referralPriority;
+          if (referralFacility) payload.referralFacility = referralFacility;
+          // Referral summary is saved by the referral endpoint
           break;
       }
       return payload;
     },
     [
+      typeOfVisit,
       subjectiveSymptoms,
       vitals,
       fetalHeartRate,
@@ -394,10 +479,16 @@ export function ConsultationView() {
       notes,
       icd10Diagnosis,
       nandaDiagnosis,
+      nandaSelectedCode,
       riskLevel,
+      preventionLevel,
       selectedInterventions,
       evaluationStatus,
       evaluationNotes,
+      interventionEvals,
+      referralType,
+      referralPriority,
+      referralFacility,
     ]
   );
 
@@ -839,10 +930,80 @@ export function ConsultationView() {
     </div>
   );
 
-  // ─── Step 0: Assessment (SOAP) ──────────────────────────────────────────
+  // ─── Vital sign color coding ────────────────────────────────────────
+  const getVitalColor = (field: string, value: string): string => {
+    if (!value) return '';
+    const num = parseFloat(value.replace(/[^\d.]/g, ''));
+    if (isNaN(num)) return '';
+    switch (field) {
+      case 'temperature':
+        return num > 37.5 || num < 36.0 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
+      case 'heartRate': {
+        const hr = num;
+        return hr > 100 || hr < 60 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
+      }
+      case 'respiratoryRate':
+        return num > 20 || num < 12 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
+      case 'oxygenSat':
+        return num < 95 ? 'border-red-300 bg-red-50 dark:border-red-700' : num >= 98 ? 'border-green-200 bg-green-50 dark:border-green-800' : '';
+      case 'painScale':
+        return num >= 7 ? 'border-red-300 bg-red-50 dark:border-red-700' : num >= 4 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : num > 0 ? 'border-green-200 bg-green-50 dark:border-green-800' : '';
+      default:
+        return '';
+    }
+  };
+
+  const TYPE_OF_VISIT_OPTIONS = [
+    'Prenatal Checkup',
+    'Follow-up',
+    'Emergency',
+    'Postpartum',
+    'New Patient Screening',
+  ];
+
+  const PREVENTION_LEVEL_OPTIONS = [
+    { value: 'primary', label: 'Primary Prevention', description: 'Prevent disease/risk before it occurs' },
+    { value: 'secondary', label: 'Secondary Prevention', description: 'Early detection and treatment' },
+    { value: 'tertiary', label: 'Tertiary Prevention', description: 'Reduce complications and disability' },
+  ];
+
+  const REFERRAL_TYPE_OPTIONS = [
+    'Refer to Doctor',
+    'Refer to Specialist (OB-GYN)',
+    'Refer to Hospital',
+    'Transfer to Higher Facility',
+    'Refer to Laboratory',
+  ];
+
+  const REFERRAL_PRIORITY_OPTIONS = [
+    { value: 'routine', label: 'Routine', description: 'Within 1-2 weeks' },
+    { value: 'non_urgent', label: 'Non-urgent', description: 'Within 3-5 days' },
+    { value: 'urgent', label: 'Urgent', description: 'Within 24 hours' },
+    { value: 'same_day', label: 'Same Day', description: 'Immediate attention needed' },
+  ];
 
   const StepAssessment = () => (
     <div className="space-y-6">
+      {/* Type of Visit */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <ClipboardList className="h-3.5 w-3.5 text-muted-foreground" />
+          Type of Visit
+        </Label>
+        <Select value={typeOfVisit} onValueChange={(v) => { setTypeOfVisit(v); markDirty(); }}>
+          <SelectTrigger className="w-full sm:w-80">
+            <SelectValue placeholder="Select visit type" />
+          </SelectTrigger>
+          <SelectContent>
+            {TYPE_OF_VISIT_OPTIONS.map((opt) => (
+              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator />
+
       {/* Subjective */}
       <div>
         <div className="flex items-center gap-2 mb-3">
@@ -893,6 +1054,7 @@ export function ConsultationView() {
               id="heartRate"
               placeholder="e.g. 72 bpm"
               value={vitals.heartRate}
+              className={getVitalColor('heartRate', vitals.heartRate)}
               onFocus={() => handleFieldFocus('heartRate')}
               onChange={(e) => { setVitals((v) => ({ ...v, heartRate: e.target.value })); markDirty(); }}
             />
@@ -906,6 +1068,7 @@ export function ConsultationView() {
               id="temperature"
               placeholder="e.g. 36.8°C"
               value={vitals.temperature}
+              className={getVitalColor('temperature', vitals.temperature)}
               onFocus={() => handleFieldFocus('temperature')}
               onChange={(e) => { setVitals((v) => ({ ...v, temperature: e.target.value })); markDirty(); }}
             />
@@ -913,7 +1076,7 @@ export function ConsultationView() {
           <div className="space-y-1.5">
             <Label htmlFor="weight" className="flex items-center gap-1.5">
               <Weight className="h-3.5 w-3.5 text-muted-foreground" />
-              Weight
+              Weight (kg)
             </Label>
             <Input
               id="weight"
@@ -921,6 +1084,19 @@ export function ConsultationView() {
               value={vitals.weight}
               onFocus={() => handleFieldFocus('weight')}
               onChange={(e) => { setVitals((v) => ({ ...v, weight: e.target.value })); markDirty(); }}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="height" className="flex items-center gap-1.5">
+              <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+              Height (cm)
+            </Label>
+            <Input
+              id="height"
+              placeholder="e.g. 158 cm"
+              value={vitals.height}
+              onFocus={() => handleFieldFocus('height')}
+              onChange={(e) => { setVitals((v) => ({ ...v, height: e.target.value })); markDirty(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -932,11 +1108,51 @@ export function ConsultationView() {
               id="respiratoryRate"
               placeholder="e.g. 18 cpm"
               value={vitals.respiratoryRate}
+              className={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
               onFocus={() => handleFieldFocus('respiratoryRate')}
               onChange={(e) => { setVitals((v) => ({ ...v, respiratoryRate: e.target.value })); markDirty(); }}
             />
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="oxygenSat" className="flex items-center gap-1.5">
+              <Wind className="h-3.5 w-3.5 text-muted-foreground" />
+              O₂ Saturation (%)
+            </Label>
+            <Input
+              id="oxygenSat"
+              placeholder="e.g. 98%"
+              value={vitals.oxygenSat}
+              className={getVitalColor('oxygenSat', vitals.oxygenSat)}
+              onFocus={() => handleFieldFocus('oxygenSat')}
+              onChange={(e) => { setVitals((v) => ({ ...v, oxygenSat: e.target.value })); markDirty(); }}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="painScale" className="flex items-center gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
+              Pain Scale (0-10)
+            </Label>
+            <Input
+              id="painScale"
+              placeholder="e.g. 3"
+              type="number"
+              min="0"
+              max="10"
+              value={vitals.painScale}
+              className={getVitalColor('painScale', vitals.painScale)}
+              onFocus={() => handleFieldFocus('painScale')}
+              onChange={(e) => { setVitals((v) => ({ ...v, painScale: e.target.value })); markDirty(); }}
+            />
+          </div>
         </div>
+
+        {/* BMI Display */}
+        {calculatedBMI && bmiCategory && (
+          <div className={`flex items-center gap-2 p-3 rounded-lg border ${bmiCategory.bg}`}>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">BMI: <strong className={bmiCategory.color}>{calculatedBMI}</strong> — <span className={bmiCategory.color}>{bmiCategory.label}</span></span>
+          </div>
+        )}
       </div>
 
       <Separator />
@@ -1237,7 +1453,7 @@ export function ConsultationView() {
   ] as const;
 
   const StepRisk = () => (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Classify the patient&apos;s current risk level based on the assessment and findings.
       </p>
@@ -1270,6 +1486,41 @@ export function ConsultationView() {
             </button>
           );
         })}
+      </div>
+
+      {/* Prevention Level */}
+      <Separator />
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <Shield className="h-3.5 w-3.5 text-rose-500" />
+          Prevention Level
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          Classify the level of prevention based on the patient&apos;s current condition and risk factors.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {PREVENTION_LEVEL_OPTIONS.map((opt) => {
+            const isSelected = preventionLevel === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { setPreventionLevel(opt.value); markDirty(); }}
+                className={`
+                  flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all duration-200
+                  ${isSelected
+                    ? 'border-purple-400 bg-purple-50 shadow-sm dark:bg-purple-950/20 dark:border-purple-700'
+                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
+                `}
+              >
+                <p className={`text-sm font-semibold ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-foreground'}`}>
+                  {opt.label}
+                </p>
+                <p className="text-xs text-muted-foreground">{opt.description}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -1641,8 +1892,71 @@ export function ConsultationView() {
         })}
       </div>
 
+      {/* Per-Intervention Evaluation */}
+      {selectedInterventions.length > 0 && (
+        <>
+          <Separator />
+          <div>
+            <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-rose-500" />
+              Per-Intervention Evaluation ({selectedInterventions.length})
+            </h4>
+            <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {selectedInterventions.map((intervention, idx) => {
+                const eval_ = interventionEvals[idx] || { nicCode: intervention.code || '', status: '', nocOutcome: '', notes: '' };
+                return (
+                  <div key={idx} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      {intervention.code && (
+                        <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                          NIC {intervention.code}
+                        </Badge>
+                      )}
+                      <span className="text-sm font-medium truncate">{intervention.name}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Evaluation Status</Label>
+                        <Select value={eval_.status} onValueChange={(v) => updateInterventionEval(idx, 'status', v)}>
+                          <SelectTrigger className="h-9 text-xs">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="achieved">Achieved</SelectItem>
+                            <SelectItem value="partially">Partially Achieved</SelectItem>
+                            <SelectItem value="not_achieved">Not Achieved</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">NOC Outcome</Label>
+                        <Input
+                          placeholder="e.g., Patient reports reduced pain"
+                          className="h-9 text-xs"
+                          value={eval_.nocOutcome}
+                          onChange={(e) => updateInterventionEval(idx, 'nocOutcome', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Notes</Label>
+                      <Textarea
+                        placeholder="Evaluation notes for this intervention..."
+                        className="min-h-[60px] resize-none text-xs"
+                        value={eval_.notes}
+                        onChange={(e) => updateInterventionEval(idx, 'notes', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+
       <div className="space-y-2">
-        <Label htmlFor="evaluationNotes">Evaluation Notes</Label>
+        <Label htmlFor="evaluationNotes">Overall Evaluation Notes</Label>
         <Textarea
           id="evaluationNotes"
           placeholder="Document the evaluation findings, patient response, and follow-up plan..."
@@ -1677,23 +1991,82 @@ export function ConsultationView() {
 
   const StepReferral = () => (
     <div className="space-y-4">
-      {/* Generate referral button */}
+      {/* Referral Options — shown before generating */}
       {!referralSummary && !referralLoading && (
-        <div className="text-center py-8">
-          <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
-          <h3 className="font-semibold text-lg mb-1">Generate Referral Summary</h3>
-          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-            Compile all assessment data, diagnoses, interventions, and evaluation into a structured
-            referral document.
-          </p>
-          <Button
-            onClick={handleGenerateReferral}
-            size="lg"
-            className="gap-2 bg-rose-600 hover:bg-rose-700"
-          >
-            <FileText className="h-4.5 w-4.5" />
-            Generate Referral
-          </Button>
+        <div className="space-y-6">
+          <div className="text-center py-4">
+            <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
+            <h3 className="font-semibold text-lg mb-1">Referral Details</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Configure the referral details before generating the referral summary document.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-xl mx-auto">
+            {/* Type of Referral */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <FileOutput className="h-3.5 w-3.5 text-muted-foreground" />
+                Type of Referral
+              </Label>
+              <Select value={referralType} onValueChange={(v) => { setReferralType(v); markDirty(); }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select referral type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REFERRAL_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Referral Priority */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground" />
+                Referral Priority
+              </Label>
+              <Select value={referralPriority} onValueChange={(v) => { setReferralPriority(v); markDirty(); }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select priority level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REFERRAL_PRIORITY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label} — {opt.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Facility Info */}
+            <div className="space-y-2">
+              <Label htmlFor="referralFacility" className="flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                Referral Facility
+              </Label>
+              <Textarea
+                id="referralFacility"
+                placeholder="Facility name, address, contact information..."
+                className="min-h-[80px] resize-y"
+                value={referralFacility}
+                onFocus={() => handleFieldFocus('referralFacility')}
+                onChange={(e) => { setReferralFacility(e.target.value); markDirty(); }}
+              />
+            </div>
+
+            {/* Generate button */}
+            <Button
+              onClick={handleGenerateReferral}
+              size="lg"
+              className="w-full gap-2 bg-rose-600 hover:bg-rose-700"
+            >
+              <FileText className="h-4.5 w-4.5" />
+              Generate Referral Summary
+            </Button>
+          </div>
         </div>
       )}
 
