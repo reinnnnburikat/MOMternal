@@ -72,8 +72,8 @@ function SidebarContent({ onNavigate, currentView }: {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-rose-100 dark:border-gray-800">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <img src="/momternal_logo.png" alt="MOMternal" className="w-full h-full object-contain p-1" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-rose-300/40 dark:ring-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.25)] dark:shadow-[0_0_16px_rgba(244,63,94,0.3)]">
+          <img src="/momternal_logo.png" alt="MOMternal" className="w-full h-full object-contain p-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
         </div>
         <div className="min-w-0">
           <h1 className="text-lg font-bold text-rose-900 dark:text-rose-100 tracking-tight">MOMternal</h1>

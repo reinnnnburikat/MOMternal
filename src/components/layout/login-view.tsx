@@ -65,7 +65,7 @@ export function LoginView() {
           <img
             src="/momternal_logo.png"
             alt="MOMternal Logo"
-            className="mb-4 max-w-[800px] w-full object-contain"
+            className="mb-4 max-w-[800px] w-full object-contain drop-shadow-[0_0_24px_rgba(255,255,255,0.5)]"
           />
           <p className="text-white/70 text-sm font-medium">
             Mobilized Outreach Maternal Support
@@ -93,11 +93,11 @@ export function LoginView() {
         <div className="w-full max-w-md">
           {/* Mobile logo (shown only below md) */}
           <div className="mb-8 flex md:hidden flex-col items-center">
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 p-1.5">
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 p-1.5 ring-2 ring-rose-300/40 dark:ring-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.25)] dark:shadow-[0_0_16px_rgba(244,63,94,0.3)]">
               <img
                 src="/momternal_logo.png"
                 alt="MOMternal Logo"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
               />
             </div>
             <span className="mt-2 text-lg font-bold text-rose-900 dark:text-rose-300">

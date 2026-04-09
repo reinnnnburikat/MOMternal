@@ -265,3 +265,23 @@ Stage Summary:
 - All 9 consultation wizard steps now save successfully
 - Files changed: src/app/api/consultations/[id]/route.ts, src/lib/case.ts
 - Pushed commit 39025a4
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Make the MOMternal logo more visible/pop against the background
+
+Work Log:
+- Investigated all 3 logo instances in the codebase (sidebar, login desktop, login mobile)
+- Identified that the logo blends with similar rose/pink background tones
+- Applied glow effects to all 3 logo locations:
+  - **Sidebar logo** (app-shell.tsx): Added `ring-2 ring-rose-300/40`, rose glow `shadow-[0_0_12px_rgba(244,63,94,0.25)]`, and drop-shadow on img
+  - **Login desktop logo** (login-view.tsx): Added white glow `drop-shadow-[0_0_24px_rgba(255,255,255,0.5)]` to separate from rose gradient
+  - **Login mobile logo** (login-view.tsx): Same treatment as sidebar (ring + glow + drop-shadow)
+- Ran lint — clean, no errors
+- Verified dev server is running and serving correctly
+
+Stage Summary:
+- Logo visibility enhanced with ring borders, rose glow shadows, and drop-shadows
+- Dark mode also gets enhanced glow (`dark:shadow-[0_0_16px_rgba(244,63,94,0.3)]`)
+- No code errors, lint passes clean
