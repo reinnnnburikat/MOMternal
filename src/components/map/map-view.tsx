@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MapPin, AlertTriangle, ShieldCheck, ShieldAlert, Filter, Layers, Loader2 } from 'lucide-react';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/components/ui/command';
+import {
+  MapPin,
+  AlertTriangle,
+  ShieldCheck,
+  ShieldAlert,
+  Filter,
+  Layers,
+  Loader2,
+  Search,
+  X,
+} from 'lucide-react';
+import { useAppStore } from '@/store/app-store';
 
 // --- Types ---
 interface RiskDistribution {
@@ -29,6 +54,7 @@ interface BarangayData {
 }
 
 interface MarkerData {
+  id: string;
   patientId: string;
   riskLevel: string;
   barangay: string;
@@ -64,33 +90,203 @@ const DEFAULT_ZOOM = 14;
 // All 33 Makati barangays with full boundary polygons from live OSM data
 let BARANGAY_BOUNDARIES: any[] = [];
 
+// Flat list of all barangay names for the search input
+const BARANGAY_NAMES = Object.keys(BARANGAY_CENTROIDS).sort();
+
 export function MapView() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const dataLayersRef = useRef<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const highlightLayerRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [riskFilter, setRiskFilter] = useState<string>('all');
-  const [mapData, setMapData] = useState<MapApiResponse | null>(null);
 
-  // Fetch map data (separate from map init)
-  const fetchMapData = useCallback(async () => {
-    try {
-      setLoading(true);
+  // ── TanStack Query: Map data ──
+  const {
+    data: mapData,
+    isLoading: loading,
+    error: mapError,
+    refetch: refetchMapData,
+  } = useQuery<MapApiResponse | null>({
+    queryKey: ['map-data'],
+    queryFn: async () => {
       const res = await fetch('/api/map/data');
       if (!res.ok) throw new Error('Failed to fetch map data');
       const data: MapApiResponse = await res.json();
-      setMapData(data);
-      setError(null);
       return data;
-    } catch (err) {
-      console.error('Error fetching map data:', err);
-      setError('Unable to load patient data. Map is still viewable.');
+    },
+    enabled: mapReady,
+  });
+
+  const error = mapError ? 'Unable to load patient data. Map is still viewable.' : null;
+
+  // D3: Barangay search state
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedBarangay, setSelectedBarangay] = useState<string | null>(null);
+
+  // Map data is now fetched via useQuery above (enabled: mapReady)
+  const fetchMapData = useCallback(async (): Promise<MapApiResponse | null> => {
+    try {
+      await refetchMapData();
+      return mapData ?? null;
+    } catch {
       return null;
-    } finally {
-      setLoading(false);
     }
+  }, [refetchMapData, mapData]);
+
+  // D3: Handle barangay selection from search
+  const handleBarangaySelect = useCallback((barangayName: string) => {
+    setSelectedBarangay(barangayName);
+    setSearchOpen(false);
+
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Import leaflet dynamically
+    import('leaflet').then((L) => {
+      const defaultL = L.default;
+
+      // Remove previous highlight layer
+      if (highlightLayerRef.current) {
+        map.removeLayer(highlightLayerRef.current);
+        highlightLayerRef.current = null;
+      }
+
+      // Find the boundary for the selected barangay
+      const boundary = BARANGAY_BOUNDARIES.find(
+        (f) => f.properties.name.toLowerCase() === barangayName.toLowerCase()
+      );
+      const centroid = BARANGAY_CENTROIDS[barangayName] ||
+        BARANGAY_CENTROIDS[Object.keys(BARANGAY_CENTROIDS).find(
+          (k) => k.toLowerCase() === barangayName.toLowerCase()
+        ) || ''];
+
+      if (centroid) {
+        // Zoom to the barangay centroid
+        map.flyTo([centroid[0], centroid[1]], 16, { duration: 0.8 });
+      }
+
+      if (boundary) {
+        // Create highlight layer with higher opacity
+        const riskLevel = mapData?.barangayData.find(
+          (b) => b.barangay.toLowerCase() === barangayName.toLowerCase()
+        )?.latestRiskLevel || 'low';
+
+        const highlightColor = RISK_COLORS[riskLevel] || RISK_COLORS.low;
+
+        const highlightLayer = defaultL.geoJSON(boundary, {
+          style: {
+            color: highlightColor,
+            weight: 3.5,
+            opacity: 1,
+            fillColor: highlightColor,
+            fillOpacity: 0.4,
+          },
+          onEachFeature: (_feature: any, layer: any) => {
+            const bd = mapData?.barangayData.find(
+              (b) => b.barangay.toLowerCase() === barangayName.toLowerCase()
+            );
+            if (bd) {
+              const popup = `
+                <div style="padding:14px 16px;min-width:220px;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#fff1f2,#ffe4e6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-weight:600;font-size:14px;color:#1a1a2e;line-height:1.3;">${bd.barangay}</div>
+                      <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Barangay</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f4;border-radius:8px;margin-bottom:10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span style="font-size:12px;font-weight:500;color:#e11d48;">${bd.patientCount} patient${bd.patientCount !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div style="display:flex;gap:6px;">
+                    <div style="flex:1;text-align:center;padding:6px 4px;background:#f0fdf4;border-radius:8px;">
+                      <div style="font-size:15px;font-weight:700;color:#15803d;line-height:1;">${bd.riskDistribution.low}</div>
+                      <div style="font-size:10px;color:#4ade80;margin-top:3px;font-weight:500;letter-spacing:0.02em;">LOW</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:6px 4px;background:#fffbeb;border-radius:8px;">
+                      <div style="font-size:15px;font-weight:700;color:#b45309;line-height:1;">${bd.riskDistribution.moderate}</div>
+                      <div style="font-size:10px;color:#fbbf24;margin-top:3px;font-weight:500;letter-spacing:0.02em;">MODERATE</div>
+                    </div>
+                    <div style="flex:1;text-align:center;padding:6px 4px;background:#fef2f2;border-radius:8px;">
+                      <div style="font-size:15px;font-weight:700;color:#dc2626;line-height:1;">${bd.riskDistribution.high}</div>
+                      <div style="font-size:10px;color:#f87171;margin-top:3px;font-weight:500;letter-spacing:0.02em;">HIGH</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              layer.bindPopup(popup);
+              // Open popup after a small delay to let the flyTo animation complete
+              setTimeout(() => {
+                layer.openPopup();
+              }, 900);
+            }
+          },
+        });
+        highlightLayer.addTo(map);
+        highlightLayerRef.current = highlightLayer;
+      }
+    });
+  }, [mapData]);
+
+  // D3: Clear search and reset map view
+  const handleClearSearch = useCallback(() => {
+    setSelectedBarangay(null);
+    setSearchOpen(false);
+
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Remove highlight layer
+    if (highlightLayerRef.current) {
+      map.removeLayer(highlightLayerRef.current);
+      highlightLayerRef.current = null;
+    }
+
+    // Zoom back to full view
+    if (BARANGAY_BOUNDARIES.length > 0) {
+      import('leaflet').then((L) => {
+        const defaultL = L.default;
+        const geoData = { type: 'FeatureCollection', features: BARANGAY_BOUNDARIES };
+        const allBounds = defaultL.geoJSON(geoData).getBounds();
+        if (allBounds.isValid()) {
+          map.flyToBounds(allBounds, { padding: [30, 30], maxZoom: DEFAULT_ZOOM, duration: 0.8 });
+        }
+      });
+    } else {
+      map.flyTo(MAKATI_CENTER, DEFAULT_ZOOM, { duration: 0.8 });
+    }
+  }, []);
+
+  // B6: Delegated click handler for "View Patient" buttons in Leaflet popups
+  useEffect(() => {
+    const mapContainer = mapRef.current;
+    if (!mapContainer) return;
+
+    const handlePopupClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.view-patient-btn') as HTMLElement | null;
+      if (!btn) return;
+
+      const patientDbId = btn.dataset.patientDbId;
+      if (!patientDbId) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      useAppStore.getState().setSelectedPatientId(patientDbId);
+      useAppStore.getState().setCurrentView('patient-profile');
+    };
+
+    // Use capture phase so it fires before Leaflet's own handlers
+    mapContainer.addEventListener('click', handlePopupClick, true);
+
+    return () => {
+      mapContainer.removeEventListener('click', handlePopupClick, true);
+    };
   }, []);
 
   // Render data layers on top of the base map
@@ -190,6 +386,8 @@ export function MapView() {
         fillOpacity: 0.85,
       });
       circleMarker.addTo(map);
+
+      // B6: Include "View Patient" button with data-patient-db-id attribute
       circleMarker.bindPopup(`
         <div style="padding:14px 16px;min-width:220px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
@@ -212,6 +410,10 @@ export function MapView() {
             </span>
             ${bd ? `<span style="font-size:11px;color:#9ca3af;">${bd.patientCount} in area</span>` : ''}
           </div>
+          <button class="view-patient-btn" data-patient-db-id="${marker.id}" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;padding:8px 12px;background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s ease;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            View Patient Profile
+          </button>
         </div>
       `);
       newLayers.push(circleMarker);
@@ -353,25 +555,27 @@ export function MapView() {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+      if (highlightLayerRef.current) {
+        highlightLayerRef.current = null;
+      }
       dataLayersRef.current = [];
       setMapReady(false);
     };
   }, []);
 
-  // Fetch data after map is ready
+  // Fetch data after map is ready — useQuery handles fetching when mapReady becomes true
   useEffect(() => {
-    if (!mapReady) return;
+    if (!mapReady || !mapData || !mapInstanceRef.current) return;
 
-    const loadData = async () => {
+    const renderLayers = async () => {
       const L = (await import('leaflet')).default;
-      const data = await fetchMapData();
-      if (data && mapInstanceRef.current) {
-        renderDataLayers(mapInstanceRef.current, L, data, riskFilter);
+      if (mapInstanceRef.current) {
+        renderDataLayers(mapInstanceRef.current, L, mapData, riskFilter);
       }
     };
 
-    loadData();
-  }, [mapReady]);
+    renderLayers();
+  }, [mapReady, mapData]);
 
   // Re-render data layers when filter changes
   useEffect(() => {
@@ -458,6 +662,69 @@ export function MapView() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              {/* D3: Barangay Search */}
+              <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={searchOpen}
+                    className="w-[220px] justify-between h-8 text-xs font-normal"
+                  >
+                    {selectedBarangay ? (
+                      <span className="flex items-center gap-1.5 truncate">
+                        <MapPin className="h-3.5 w-3.5 text-rose-500 flex-shrink-0" />
+                        {selectedBarangay}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <Search className="h-3.5 w-3.5 flex-shrink-0" />
+                        Search barangay...
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Type barangay name..." />
+                    <CommandList>
+                      <CommandEmpty>No barangay found.</CommandEmpty>
+                      <CommandGroup>
+                        {BARANGAY_NAMES
+                          .filter((name) => name.toLowerCase().includes(''))
+                          .map((name) => (
+                            <CommandItem
+                              key={name}
+                              value={name}
+                              onSelect={() => handleBarangaySelect(name)}
+                              className="text-xs"
+                            >
+                              <MapPin className="h-3.5 w-3.5 text-rose-400 mr-1.5" />
+                              {name}
+                              {name === selectedBarangay && (
+                                <span className="ml-auto text-rose-500 text-[10px] font-semibold">Selected</span>
+                              )}
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              {/* D3: Clear search button */}
+              {selectedBarangay && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600"
+                  onClick={handleClearSearch}
+                  title="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              )}
+
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={riskFilter} onValueChange={setRiskFilter}>
                 <SelectTrigger className="w-[140px] h-8 text-xs">
@@ -514,7 +781,7 @@ export function MapView() {
                   variant="ghost"
                   size="sm"
                   className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900"
-                  onClick={fetchMapData}
+                  onClick={() => refetchMapData()}
                 >
                   Retry
                 </Button>
@@ -567,7 +834,8 @@ export function MapView() {
                   {mapData.barangayData.map((bd) => (
                     <tr
                       key={bd.barangay}
-                      className="border-b border-rose-50 hover:bg-rose-50/50 transition-colors"
+                      className="border-b border-rose-50 hover:bg-rose-50/50 transition-colors cursor-pointer"
+                      onClick={() => handleBarangaySelect(bd.barangay)}
                     >
                       <td className="px-4 py-2.5 font-medium text-foreground">{bd.barangay}</td>
                       <td className="text-center px-4 py-2.5">{bd.patientCount}</td>

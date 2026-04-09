@@ -41,6 +41,12 @@ interface AppState {
   selectedConsultationId: string | null;
   setSelectedConsultationId: (id: string | null) => void;
 
+  // Filter state (for cross-view navigation)
+  filterRisk: string;
+  setFilterRisk: (risk: string) => void;
+  filterReferralPending: boolean;
+  setFilterReferralPending: (pending: boolean) => void;
+
   // Hydration state — true once client-side zustand persist has rehydrated
   _hasHydrated: boolean;
   _setHasHydrated: () => void;
@@ -108,6 +114,12 @@ export const useAppStore = create<AppState>()(
       selectedConsultationId: null,
       setSelectedConsultationId: (id) => set({ selectedConsultationId: id }),
 
+      // Filter state
+      filterRisk: 'all',
+      setFilterRisk: (risk) => set({ filterRisk: risk }),
+      filterReferralPending: false,
+      setFilterReferralPending: (pending) => set({ filterReferralPending: pending }),
+
       // Hydration
       _hasHydrated: false,
       _setHasHydrated: () => set({ _hasHydrated: true }),
@@ -122,6 +134,8 @@ export const useAppStore = create<AppState>()(
         // lastActivity intentionally excluded — changes frequently
         selectedPatientId: state.selectedPatientId,
         selectedConsultationId: state.selectedConsultationId,
+        filterRisk: state.filterRisk,
+        filterReferralPending: state.filterReferralPending,
       }),
       // Ensure _hasHydrated is never overwritten by persisted state
       merge: (persisted, current) => ({

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +50,21 @@ import {
   Ruler,
   Weight,
   Thermometer,
+  TrendingUp,
+  Info,
+  Pencil,
 } from 'lucide-react';
+import { EditPatientDialog } from './edit-patient-dialog';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -381,6 +396,258 @@ function InterventionList({ raw }: { raw: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Vitals Trend Chart
+// ---------------------------------------------------------------------------
+
+interface VitalsTrendDataPoint {
+  date: string;
+  label: string;
+  systolic: number | null;
+  diastolic: number | null;
+  weight: number | null;
+}
+
+function VitalsTrendCard({
+  consultations,
+  isDark,
+}: {
+  consultations: ConsultationData[];
+  isDark: boolean;
+}) {
+  const chartData = useMemo<VitalsTrendDataPoint[]>(() => {
+    // Only use completed consultations with vitals data
+    const completed = consultations
+      .filter(
+        (c) =>
+          c.status === 'completed' &&
+          (c.objectiveVitals || c.weight),
+      )
+      .map((c) => {
+        let systolic: number | null = null;
+        let diastolic: number | null = null;
+        let weight: number | null = null;
+
+        // Parse objectiveVitals JSON
+        if (c.objectiveVitals) {
+          try {
+            const vitals = JSON.parse(c.objectiveVitals) as Record<
+              string,
+              string
+            >;
+            // Parse bloodPressure like "120/80"
+            if (vitals.bloodPressure) {
+              const bpParts = vitals.bloodPressure
+                .trim()
+                .split('/')
+                .map(Number);
+              if (bpParts.length === 2 && !isNaN(bpParts[0]) && !isNaN(bpParts[1])) {
+                systolic = bpParts[0];
+                diastolic = bpParts[1];
+              }
+            }
+            // Parse weight from vitals if available
+            if (vitals.weight) {
+              const w = parseFloat(vitals.weight);
+              if (!isNaN(w)) weight = w;
+            }
+          } catch {
+            // ignore parse errors
+          }
+        }
+
+        // Fall back to top-level weight field
+        if (weight === null && c.weight) {
+          const w = parseFloat(c.weight);
+          if (!isNaN(w)) weight = w;
+        }
+
+        return { consultation: c, systolic, diastolic, weight };
+      })
+      .filter(
+        (d) =>
+          d.systolic !== null || d.diastolic !== null || d.weight !== null,
+      );
+
+    // Sort by date ascending for chart
+    const sorted = [...completed].sort(
+      (a, b) =>
+        new Date(a.consultation.consultationDate).getTime() -
+        new Date(b.consultation.consultationDate).getTime(),
+    );
+
+    return sorted.map((d) => ({
+      date: d.consultation.consultationDate,
+      label: format(new Date(d.consultation.consultationDate), 'MMM d'),
+      systolic: d.systolic,
+      diastolic: d.diastolic,
+      weight: d.weight,
+    }));
+  }, [consultations]);
+
+  // Show info message if not enough data
+  if (chartData.length < 2) {
+    return (
+      <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+        <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-rose-500" />
+            Vitals Trend
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 py-8">
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center">
+              <Info className="h-5 w-5 text-rose-300" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              At least 2 completed consultations with vitals data needed to show
+              trends
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+      <CardHeader className="pb-2 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-rose-500" />
+          Vitals Trend
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="px-2 pb-3 pt-2">
+        <div style={{ width: '100%', height: 220 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={chartData}
+              margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={isDark ? '#374151' : '#e5e7eb'}
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: isDark ? '#9ca3af' : '#6b7280' }}
+                tickLine={false}
+                axisLine={false}
+              />
+              {/* Left Y-axis for Blood Pressure */}
+              <YAxis
+                yAxisId="bp"
+                domain={[40, 200]}
+                tick={{ fontSize: 11, fill: isDark ? '#9ca3af' : '#6b7280' }}
+                tickLine={false}
+                axisLine={false}
+                label={{
+                  value: 'BP (mmHg)',
+                  angle: -90,
+                  position: 'insideLeft',
+                  offset: -2,
+                  style: {
+                    fontSize: 10,
+                    fill: isDark ? '#9ca3af' : '#9ca3af',
+                  },
+                }}
+              />
+              {/* Right Y-axis for Weight */}
+              <YAxis
+                yAxisId="weight"
+                orientation="right"
+                domain={[30, 150]}
+                tick={{ fontSize: 11, fill: isDark ? '#9ca3af' : '#6b7280' }}
+                tickLine={false}
+                axisLine={false}
+                label={{
+                  value: 'Wt (kg)',
+                  angle: 90,
+                  position: 'insideRight',
+                  offset: -2,
+                  style: {
+                    fontSize: 10,
+                    fill: isDark ? '#9ca3af' : '#9ca3af',
+                  },
+                }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                  border: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  color: isDark ? '#f3f4f6' : '#111827',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                }}
+                formatter={(value: number | null, name: string) => {
+                  if (value === null) return ['N/A', name];
+                  return [value, name];
+                }}
+                labelFormatter={(_label: string, payload: Array<{ payload: VitalsTrendDataPoint }>) => {
+                  if (payload && payload.length > 0) {
+                    return format(new Date(payload[0].payload.date), 'MMMM d, yyyy');
+                  }
+                  return _label;
+                }}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={28}
+                wrapperStyle={{ fontSize: '11px', paddingTop: '4px' }}
+                formatter={(value: string) => (
+                  <span style={{ color: isDark ? '#d1d5db' : '#374151' }}>
+                    {value}
+                  </span>
+                )}
+              />
+              {/* Systolic BP — red line */}
+              <Line
+                yAxisId="bp"
+                type="monotone"
+                dataKey="systolic"
+                name="Systolic BP"
+                stroke="#ef4444"
+                strokeWidth={2}
+                dot={{ r: 3, fill: '#ef4444' }}
+                activeDot={{ r: 5 }}
+                connectNulls={false}
+              />
+              {/* Diastolic BP — rose/lighter line */}
+              <Line
+                yAxisId="bp"
+                type="monotone"
+                dataKey="diastolic"
+                name="Diastolic BP"
+                stroke="#fb7185"
+                strokeWidth={2}
+                dot={{ r: 3, fill: '#fb7185' }}
+                activeDot={{ r: 5 }}
+                connectNulls={false}
+              />
+              {/* Weight — green line on secondary axis */}
+              <Line
+                yAxisId="weight"
+                type="monotone"
+                dataKey="weight"
+                name="Weight (kg)"
+                stroke="#22c55e"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                dot={{ r: 3, fill: '#22c55e' }}
+                activeDot={{ r: 5 }}
+                connectNulls={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -392,40 +659,59 @@ export function PatientProfileView() {
   );
   const currentNurse = useAppStore((s) => s.currentNurse);
 
-  const [patient, setPatient] = useState<PatientData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
   const [isCreatingConsultation, setIsCreatingConsultation] = useState(false);
   const [viewingConsultation, setViewingConsultation] =
     useState<ConsultationData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
 
+  // Detect dark mode for chart colors
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Redirect if no patient selected
   useEffect(() => {
     if (!selectedPatientId) {
       setCurrentView('patients');
-      return;
     }
-
-    async function fetchPatient() {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/patients/${selectedPatientId}`);
-        const data = await res.json();
-
-        if (data.success) {
-          setPatient(data.data);
-        } else {
-          toast.error(data.error || 'Failed to fetch patient');
-          setCurrentView('patients');
-        }
-      } catch {
-        toast.error('Connection error. Please try again.');
-        setCurrentView('patients');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchPatient();
   }, [selectedPatientId, setCurrentView]);
+
+  // ── TanStack Query: Patient data ──
+  const {
+    data: patient,
+    isLoading,
+    error: patientError,
+  } = useQuery<PatientData>({
+    queryKey: ['patient', selectedPatientId],
+    queryFn: async () => {
+      if (!selectedPatientId) throw new Error('No patient ID');
+      const res = await fetch(`/api/patients/${selectedPatientId}`);
+      const data = await res.json();
+      if (data.success) return data.data;
+      throw new Error(data.error || 'Failed to fetch patient');
+    },
+    enabled: !!selectedPatientId,
+  });
+
+  // Handle errors from useQuery
+  useEffect(() => {
+    if (patientError) {
+      toast.error(patientError.message || 'Connection error. Please try again.');
+      setCurrentView('patients');
+    }
+  }, [patientError, setCurrentView]);
 
   const handleNewConsultation = async () => {
     if (!patient || !currentNurse) return;
@@ -465,6 +751,10 @@ export function PatientProfileView() {
   const handleUpdateEvaluation = (consultation: ConsultationData) => {
     setSelectedConsultationId(consultation.id);
     setCurrentView('consultation');
+  };
+
+  const handleEditSaved = () => {
+    queryClient.invalidateQueries({ queryKey: ['patient', selectedPatientId] });
   };
 
   // ------------------------------------------------------------------
@@ -552,6 +842,15 @@ export function PatientProfileView() {
                 : patient.address}
             </span>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-rose-200 hover:bg-rose-50 text-rose-600 gap-1.5 flex-shrink-0"
+            onClick={() => setIsEditDialogOpen(true)}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit Patient
+          </Button>
         </div>
       </div>
 
@@ -931,6 +1230,14 @@ export function PatientProfileView() {
       </div>
 
       {/* ============================================================= */}
+      {/* Vitals Trend Chart                                             */}
+      {/* ============================================================= */}
+      <VitalsTrendCard
+        consultations={patient.consultations}
+        isDark={isDark}
+      />
+
+      {/* ============================================================= */}
       {/* Card 4: Consultation History                                   */}
       {/* ============================================================= */}
       <div>
@@ -1069,6 +1376,17 @@ export function PatientProfileView() {
           </div>
         )}
       </div>
+
+      {/* ============================================================= */}
+      {/* Edit Patient Dialog                                            */}
+      {patient && (
+        <EditPatientDialog
+          patient={patient}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSaved={handleEditSaved}
+        />
+      )}
 
       {/* ============================================================= */}
       {/* Consultation Detail Dialog                                     */}

@@ -2,13 +2,14 @@
 
 import { useEffect, useState, Component, type ReactNode, type ErrorInfo, lazy, Suspense } from 'react';
 import { useAppStore, AppView } from '@/store/app-store';
+import { QueryProvider } from '@/lib/query-provider';
 import { LoginView } from '@/components/layout/login-view';
 import { AppShell } from '@/components/layout/app-shell';
 import { DashboardView } from '@/components/dashboard/dashboard-view';
 import { PatientListView } from '@/components/patients/patient-list-view';
 import { PatientProfileView } from '@/components/patients/patient-profile-view';
 import { NewPatientView } from '@/components/patients/new-patient-view';
-import { ConsultationView } from '@/components/consultations/consultation-view';
+// Lazy loaded below with MapView
 import { AuditView } from '@/components/audit/audit-view';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 
 // Lazy load heavy components to reduce initial bundle size
 const MapView = lazy(() => import('@/components/map/map-view').then(m => ({ default: m.MapView })));
+const ConsultationView = lazy(() => import('@/components/consultations/consultation-view').then(m => ({ default: m.ConsultationView })));
 
 // ---------------------------------------------------------------------------
 // Global Error Boundary — catches client-side exceptions on Vercel
@@ -146,7 +148,7 @@ function switchView(currentView: AppView) {
     case 'patient-new':
       return <NewPatientView />;
     case 'consultation':
-      return <ConsultationView />;
+      return <Suspense fallback={<ViewFallback />}><ConsultationView /></Suspense>;
     case 'map':
       return <Suspense fallback={<ViewFallback />}><MapView /></Suspense>;
     case 'audit':
@@ -249,7 +251,9 @@ function AppContent() {
 export default function Home() {
   return (
     <AppErrorBoundary>
-      <AppContent />
+      <QueryProvider>
+        <AppContent />
+      </QueryProvider>
     </AppErrorBoundary>
   );
 }

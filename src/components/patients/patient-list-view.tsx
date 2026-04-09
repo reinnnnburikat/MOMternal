@@ -85,6 +85,21 @@ export function PatientListView() {
   const setSelectedPatientId = useAppStore((s) => s.setSelectedPatientId);
   const setSelectedConsultationId = useAppStore((s) => s.setSelectedConsultationId);
   const currentNurse = useAppStore((s) => s.currentNurse);
+  const storeFilterRisk = useAppStore((s) => s.filterRisk);
+  const setStoreFilterRisk = useAppStore((s) => s.setFilterRisk);
+  const filterReferralPending = useAppStore((s) => s.filterReferralPending);
+  const setFilterReferralPending = useAppStore((s) => s.setFilterReferralPending);
+
+  // Sync filter from store on mount (when dashboard navigates here with a filter)
+  useEffect(() => {
+    if (storeFilterRisk !== 'all') {
+      setRiskFilter(storeFilterRisk);
+      setStoreFilterRisk('all');
+    }
+    if (filterReferralPending) {
+      setFilterReferralPending(false);
+    }
+  }, []);
 
   const fetchPatients = useCallback(async () => {
     setIsLoading(true);

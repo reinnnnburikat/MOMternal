@@ -30,7 +30,7 @@ export async function GET() {
   try {
     // Fetch all patients with their latest consultation risk level
     const patients = await query(
-      `SELECT p.patient_id, p.barangay, p.risk_level AS patient_risk_level,
+      `SELECT p.id, p.patient_id, p.barangay, p.risk_level AS patient_risk_level,
               (SELECT c.risk_level FROM consultation c
                WHERE c.patient_id = p.id
                ORDER BY c.consultation_date DESC
@@ -42,6 +42,7 @@ export async function GET() {
     const patientRiskData = patients.rows.map((p: Record<string, unknown>) => {
       const latestRisk = p.latest_consultation_risk || p.patient_risk_level || 'low';
       return {
+        id: p.id,
         patientId: p.patient_id,
         barangay: p.barangay || "Unknown",
         riskLevel: latestRisk,
@@ -98,6 +99,7 @@ export async function GET() {
     const markers = patientRiskData.map((pr) => {
       const centroid = lookupCentroid(pr.barangay);
       return {
+        id: pr.id,
         patientId: pr.patientId,
         barangay: pr.barangay,
         riskLevel: pr.riskLevel,

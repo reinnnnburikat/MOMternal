@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/store/app-store';
 import {
   Card,
@@ -44,6 +45,7 @@ import {
   TrendingUp,
   ShieldCheck,
   PieChart as PieChartIcon,
+  RefreshCw,
 } from 'lucide-react';
 
 // ---------- types ----------
@@ -134,18 +136,21 @@ function getStatusBadge(status: string) {
   }
 }
 
-/** Generate 7 sparkline data points around a base value */
-function generateSparklineData(baseValue: number, variance = 0.3): number[] {
-  const data: number[] = [];
-  let current = baseValue * (0.6 + Math.random() * 0.4);
-  for (let i = 0; i < 7; i++) {
-    const delta = (Math.random() - 0.4) * baseValue * variance;
-    current = Math.max(0, current + delta);
-    data.push(Math.round(current));
+/** Generate 7 sparkline data points from monthly trend, scaling proportionally */
+function deriveSparklineFromTrend(
+  monthlyTrend: { month: string; count: number }[],
+  targetRatio: number
+): number[] {
+  if (!monthlyTrend || monthlyTrend.length === 0) {
+    return [0, 0, 0, 0, 0, 0, 0];
   }
-  // Ensure the last point is near the base value for visual consistency
-  data[6] = baseValue;
-  return data;
+  // Take up to 7 data points from the monthly trend
+  const raw = monthlyTrend.slice(-7);
+  // Pad with zeros if fewer than 7 points
+  while (raw.length < 7) {
+    raw.unshift({ month: '', count: 0 });
+  }
+  return raw.map((m) => Math.round(m.count * targetRatio));
 }
 
 /** Generate last 6 month names from current date */
@@ -158,17 +163,6 @@ function getLast6MonthNames(): string[] {
     result.push(months[d.getMonth()]);
   }
   return result;
-}
-
-/** Generate mock monthly trend data that sums close to a target total */
-function generateMonthlyTrendData(totalConsultations: number): { month: string; count: number }[] {
-  const months = getLast6MonthNames();
-  // If we have real monthlyTrend data from the API, use it (up to 6 months)
-  // Otherwise generate mock data
-  const raw = months.map(() => Math.random());
-  const sum = raw.reduce((a, b) => a + b, 0);
-  const scaled = raw.map((v) => Math.max(1, Math.round((v / sum) * totalConsultations)));
-  return months.map((month, i) => ({ month, count: scaled[i] }));
 }
 
 // ---------- chart sub-components ----------
@@ -325,54 +319,87 @@ function RecentTableSkeleton() {
 // ---------- main component ----------
 
 export function DashboardView() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [pausedConsultations, setPausedConsultations] = useState<
-    PausedConsultation[]
-  >([]);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-  const [isLoadingPaused, setIsLoadingPaused] = useState(true);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
 
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const setSelectedConsultationId = useAppStore(
     (s) => s.setSelectedConsultationId
   );
+  const setFilterRisk = useAppStore((s) => s.setFilterRisk);
+  const setFilterReferralPending = useAppStore((s) => s.setFilterReferralPending);
 
-  const fetchStats = useCallback(async () => {
-    setIsLoadingStats(true);
-    try {
+  // ── TanStack Query: Dashboard stats ──
+  const {
+    data: stats,
+    isLoading: isLoadingStats,
+    error: statsError,
+    refetch: refetchStats,
+  } = useQuery<DashboardStats>({
+    queryKey: ['dashboard-stats'],
+    queryFn: async () => {
       const res = await fetch('/api/dashboard/stats', { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        setStats(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch dashboard stats:', err);
-    } finally {
-      setIsLoadingStats(false);
-    }
-  }, []);
+      if (!res.ok) throw new Error('Failed to fetch dashboard stats');
+      return res.json();
+    },
+  });
 
-  const fetchPaused = useCallback(async () => {
-    setIsLoadingPaused(true);
-    try {
+  // ── TanStack Query: Paused consultations ──
+  const {
+    data: pausedConsultations = [],
+    isLoading: isLoadingPaused,
+  } = useQuery<PausedConsultation[]>({
+    queryKey: ['paused-consultations'],
+    queryFn: async () => {
       const res = await fetch('/api/dashboard/resume');
-      if (res.ok) {
-        const data = await res.json();
-        setPausedConsultations(data.consultations ?? []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch paused consultations:', err);
-    } finally {
-      setIsLoadingPaused(false);
-    }
-  }, []);
+      if (!res.ok) throw new Error('Failed to fetch paused consultations');
+      const data = await res.json();
+      return data.consultations ?? [];
+    },
+  });
 
+  // Detect dark mode for chart axis colors
   useEffect(() => {
-    fetchStats();
-    fetchPaused();
-  }, [fetchStats, fetchPaused]);
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // --- handlers ---
+
+  const handleStatCardClick = (cardLabel: string) => {
+    switch (cardLabel) {
+      case 'Total Patients':
+        setFilterRisk('all');
+        setCurrentView('patients');
+        break;
+      case 'Low Risk':
+        setFilterRisk('low');
+        setCurrentView('patients');
+        break;
+      case 'High Risk Patients':
+        setFilterRisk('high');
+        setCurrentView('patients');
+        break;
+      case 'Pending Referrals':
+        setFilterRisk('all');
+        setFilterReferralPending(true);
+        setCurrentView('patients');
+        break;
+      case 'Recent Consultations':
+        setFilterRisk('all');
+        setCurrentView('patients');
+        break;
+      default:
+        setCurrentView('patients');
+    }
+  };
 
   const handleResume = (consultation: PausedConsultation) => {
     setSelectedConsultationId(consultation.id);
@@ -480,15 +507,31 @@ export function DashboardView() {
       ]
     : [];
 
-  // Generate sparkline data for each card (memoized to avoid re-renders)
+  // Generate sparkline data from real monthly trend (memoized to avoid re-renders)
   const sparklineData = useMemo(() => {
-    if (!stats) return {};
+    if (!stats || !stats.monthlyTrend || stats.monthlyTrend.length === 0) {
+      return {
+        0: [0, 0, 0, 0, 0, 0, 0],
+        1: [0, 0, 0, 0, 0, 0, 0],
+        2: [0, 0, 0, 0, 0, 0, 0],
+        3: [0, 0, 0, 0, 0, 0, 0],
+        4: [0, 0, 0, 0, 0, 0, 0],
+      };
+    }
+    // Calculate ratios based on current stats vs trend totals
+    const totalTrend = stats.monthlyTrend.reduce((sum, m) => sum + m.count, 0);
+    const totalRatio = totalTrend > 0 ? stats.totalPatients / totalTrend : 1;
+    const lowRatio = totalTrend > 0 ? lowRiskPatients / totalTrend : 1;
+    const highRatio = totalTrend > 0 ? stats.highRiskPatients / totalTrend : 1;
+    const pendingRatio = totalTrend > 0 ? stats.pendingReferrals / totalTrend : 1;
+    const recentRatio = totalTrend > 0 ? stats.recentConsultations.length / totalTrend : 1;
+
     return {
-      0: generateSparklineData(stats.totalPatients, 0.2),
-      1: generateSparklineData(lowRiskPatients, 0.25),
-      2: generateSparklineData(stats.highRiskPatients, 0.35),
-      3: generateSparklineData(stats.pendingReferrals, 0.4),
-      4: generateSparklineData(stats.recentConsultations.length, 0.3),
+      0: deriveSparklineFromTrend(stats.monthlyTrend, totalRatio),
+      1: deriveSparklineFromTrend(stats.monthlyTrend, lowRatio),
+      2: deriveSparklineFromTrend(stats.monthlyTrend, highRatio),
+      3: deriveSparklineFromTrend(stats.monthlyTrend, pendingRatio),
+      4: deriveSparklineFromTrend(stats.monthlyTrend, recentRatio),
     };
   }, [stats, lowRiskPatients]);
 
@@ -507,6 +550,20 @@ export function DashboardView() {
         </div>
       </div>
 
+      {/* Error Banner */}
+      {statsError && (
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-4">
+          <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-800 dark:text-red-200">Failed to load dashboard data</p>
+            <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">Check your connection and try again.</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => refetchStats()} className="border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40">
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+          </Button>
+        </div>
+      )}
+
       {/* Stats Cards */}
       {isLoadingStats ? (
         <StatsCardsSkeleton />
@@ -515,7 +572,7 @@ export function DashboardView() {
           {statsCards.map((card, idx) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="group h-full shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
+              <Card key={card.label} className="group h-full shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 cursor-pointer" onClick={() => handleStatCardClick(card.label)}>
                 <CardContent className="p-5 flex flex-col h-full">
                   <div className="flex items-center justify-between">
                     <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-xl shadow-sm`}>                      
@@ -664,18 +721,17 @@ export function DashboardView() {
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="#e5e7eb"
-                        className="dark:stroke-gray-700"
+                        stroke={isDark ? '#374151' : '#e5e7eb'}
                         vertical={false}
                       />
                       <XAxis
                         dataKey="month"
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tick={{ fontSize: 12, fill: isDark ? '#9ca3af' : '#6b7280' }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tick={{ fontSize: 12, fill: isDark ? '#9ca3af' : '#6b7280' }}
                         axisLine={false}
                         tickLine={false}
                         allowDecimals={false}

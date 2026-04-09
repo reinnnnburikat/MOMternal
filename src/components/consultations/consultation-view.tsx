@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
+import { validateStep } from '@/lib/consultation-validation';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -336,6 +337,7 @@ export function ConsultationView() {
   const [referralSummary, setReferralSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [preventionLevel, setPreventionLevel] = useState('');
   const [referralPriority, setReferralPriority] = useState('');
   const [referralFacility, setReferralFacility] = useState('');
@@ -602,8 +604,23 @@ export function ConsultationView() {
   }, [currentStep, saveStep, updateActivity]);
 
   const handleNext = useCallback(async () => {
+    // Run step-level validation before navigating
+    const formData: Record<string, unknown> = {
+      typeOfVisit,
+      chiefComplaint,
+      nandaDiagnosis,
+      aiSuggestions,
+      aiError,
+      selectedInterventions,
+      referralPriority,
+    };
+    const validationError = validateStep(currentStep, formData);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
     if (currentStep < TOTAL_STEPS - 1) await goToStep(currentStep + 1);
-  }, [currentStep, goToStep]);
+  }, [currentStep, goToStep, typeOfVisit, chiefComplaint, nandaDiagnosis, aiSuggestions, aiError, selectedInterventions, referralPriority]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) goToStep(currentStep - 1);
@@ -622,7 +639,12 @@ export function ConsultationView() {
     else goBack();
   }, [currentStep, isDirty, goToStep, goBack]);
 
-  const handleComplete = useCallback(async () => {
+  const handleComplete = useCallback(() => {
+    setShowCompleteDialog(true);
+  }, []);
+
+  const confirmComplete = useCallback(async () => {
+    setShowCompleteDialog(false);
     await saveStep(currentStep);
     goBack();
     toast.success('Consultation completed!');
@@ -782,8 +804,16 @@ export function ConsultationView() {
   };
 
   const canProceed = (): boolean => {
-    if (currentStep === 4) return aiSuggestions !== null || aiError !== null;
-    return true;
+    const formData: Record<string, unknown> = {
+      typeOfVisit,
+      chiefComplaint,
+      nandaDiagnosis,
+      aiSuggestions,
+      aiError,
+      selectedInterventions,
+      referralPriority,
+    };
+    return validateStep(currentStep, formData) === null;
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -836,31 +866,31 @@ export function ConsultationView() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           <VitalInput id="bloodPressure" label="Blood Pressure" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 120/80" value={vitals.bloodPressure} colorClass={getVitalColor('bloodPressure', vitals.bloodPressure)}
-            onChange={v => setVitals(p => ({ ...p, bloodPressure: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, bloodPressure: v })); markDirty(); }} />
           <VitalInput id="heartRate" label="Heart Rate" icon={<Heart className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 72 bpm" value={vitals.heartRate} colorClass={getVitalColor('heartRate', vitals.heartRate)}
-            onChange={v => setVitals(p => ({ ...p, heartRate: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, heartRate: v })); markDirty(); }} />
           <VitalInput id="temperature" label="Temperature" icon={<Thermometer className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 36.8°C" value={vitals.temperature} colorClass={getVitalColor('temperature', vitals.temperature)}
-            onChange={v => setVitals(p => ({ ...p, temperature: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, temperature: v })); markDirty(); }} />
           <VitalInput id="respiratoryRate" label="Resp. Rate" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
-            onChange={v => setVitals(p => ({ ...p, respiratoryRate: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, respiratoryRate: v })); markDirty(); }} />
           <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)}
-            onChange={v => setVitals(p => ({ ...p, oxygenSat: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, oxygenSat: v })); markDirty(); }} />
           <VitalInput id="painScale" label="Pain Scale (0-10)" icon={<AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
-            onChange={v => setVitals(p => ({ ...p, painScale: v }))} />
+            onChange={v => { setVitals(p => ({ ...p, painScale: v })); markDirty(); }} />
           <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 140 bpm" value={fetalHeartRate} colorClass={getVitalColor('fetalHeartRate', fetalHeartRate)}
-            onChange={v => setFetalHeartRate(v)} />
+            onChange={v => { setFetalHeartRate(v); markDirty(); }} />
           <VitalInput id="fundalHeight" label="Fundal Height" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => setFundalHeight(v)} />
+            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => { setFundalHeight(v); markDirty(); }} />
           <VitalInput id="weight" label="Weight (kg)" icon={<Weight className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => setVitals(p => ({ ...p, weight: v }))} />
+            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => { setVitals(p => ({ ...p, weight: v })); markDirty(); }} />
           <VitalInput id="height" label="Height (cm)" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => setVitals(p => ({ ...p, height: v }))} />
+            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => { setVitals(p => ({ ...p, height: v })); markDirty(); }} />
         </div>
         {/* BMI */}
         {calculatedBMI && bmiCategory && (
@@ -1682,8 +1712,8 @@ export function ConsultationView() {
         </div>
       )}
 
-      {/* Step Progress */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm p-4 mb-4">
+      {/* Step Progress Bar — Sticky */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm p-3 sm:p-4 mb-4">
         <div className="flex items-center">
           {STEP_META.map((step, idx) => {
             const Icon = step.icon;
@@ -1693,20 +1723,22 @@ export function ConsultationView() {
             return (
               <div key={idx} className="flex items-center flex-1 last:flex-initial">
                 <button onClick={() => { if (idx <= currentStep) goToStep(idx); }} disabled={idx > currentStep}
-                  className="flex flex-col items-center gap-1 min-w-0">
-                  <div className={`flex items-center justify-center rounded-full transition-all duration-200 h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm font-semibold
+                  className="flex flex-col items-center gap-1 min-w-0" aria-label={`Step ${idx + 1}: ${step.label}`}
+                  title={step.label}>
+                  <div className={`flex items-center justify-center rounded-full transition-all duration-200 h-8 w-8 sm:h-9 sm:w-9
                     ${isCompleted ? 'bg-rose-600 text-white shadow-sm shadow-rose-200' : ''}
                     ${isCurrent ? 'bg-rose-600 text-white ring-4 ring-rose-100 dark:ring-rose-900 shadow-sm shadow-rose-200 scale-110' : ''}
-                    ${isFuture ? 'bg-gray-100 dark:bg-gray-800 text-gray-400' : ''}
+                    ${isFuture ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500' : ''}
                     ${idx <= currentStep ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed'}`}>
-                    {isCompleted ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> : <span>{idx + 1}</span>}
+                    {isCompleted
+                      ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                      : <Icon className={`h-4 w-4 sm:h-4.5 ${isCurrent ? 'text-white' : isFuture ? 'text-gray-400 dark:text-gray-500' : ''}`} />}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] lg:text-xs text-center leading-tight truncate max-w-[56px] lg:max-w-[72px]
+                  <span className={`hidden sm:block text-[10px] lg:text-xs text-center leading-tight truncate max-w-[56px] lg:max-w-[80px]
                     ${isCurrent ? 'text-rose-700 font-semibold dark:text-rose-300' : ''}
                     ${isCompleted ? 'text-rose-600 font-medium dark:text-rose-400' : ''}
                     ${isFuture ? 'text-gray-400' : ''}`}>
-                    <span className="hidden sm:inline">{step.label}</span>
-                    <span className="sm:hidden">{step.shortLabel}</span>
+                    {step.label}
                   </span>
                 </button>
                 {idx < TOTAL_STEPS - 1 && (
@@ -1730,6 +1762,27 @@ export function ConsultationView() {
           <AlertDialogFooter>
             <AlertDialogCancel>Stay</AlertDialogCancel>
             <AlertDialogAction onClick={handleExitWizard} className="bg-red-600 hover:bg-red-700 text-white">Leave</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Complete Confirmation Dialog */}
+      <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle2 className="h-5 w-5 text-rose-600" />
+              <AlertDialogTitle>Complete Consultation?</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              This will mark the consultation as completed. You can still update evaluations later from the patient profile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmComplete} disabled={saving} className="bg-rose-600 hover:bg-rose-700 text-white">
+              {saving ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Saving...</> : 'Complete'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1766,7 +1819,7 @@ export function ConsultationView() {
               Next <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleComplete} disabled={saving} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={handleComplete} disabled={saving} className="gap-2 bg-rose-600 hover:bg-rose-700">
               <CheckCircle2 className="h-4 w-4" /> Complete
             </Button>
           )}

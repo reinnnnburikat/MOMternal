@@ -551,3 +551,255 @@ Stage Summary:
 - NOC database completed with missing Comfort Level code
 - Lint: 0 errors. Dev server: clean compilation, HTTP 200
 - Files changed: dashboard-view.tsx, patient-profile-view.tsx, consultation-view.tsx (full rewrite), patients/[id]/route.ts, patients/route.ts, consultations/[id]/route.ts, consultations/[id]/ai-suggest/route.ts, consultations/[id]/referral/route.ts, patients/[id]/consultations/route.ts, case.ts, noc-outcomes.ts
+---
+Task ID: C2-C4-C6-D5
+Agent: Polish Agent
+Task: Dark mode flash, chart colors, lazy load
+
+Work Log:
+- C2: Checked layout.tsx — dark mode inline script already present as first child of <head> (reads localStorage 'momternal-theme', sets .dark class before React hydrates). No changes needed.
+- C6: Checked app-shell.tsx footer (line 482) — already uses inline SVG heart icon (<svg> with fill="#e11d48"), not an emoji. No changes needed.
+- C4: Fixed hardcoded chart axis colors in dashboard-view.tsx:
+  - Added `isDark` state + MutationObserver to reactively detect dark mode class changes on <html>
+  - CartesianGrid stroke: hardcoded `#e5e7eb` → conditional `isDark ? '#374151' : '#e5e7eb'`
+  - XAxis tick fill: hardcoded `#6b7280` → conditional `isDark ? '#9ca3af' : '#6b7280'`
+  - YAxis tick fill: hardcoded `#6b7280` → conditional `isDark ? '#9ca3af' : '#6b7280'`
+  - Removed ineffective `className="dark:stroke-gray-700"` from CartesianGrid (inline stroke takes precedence)
+- D5: Lazy loaded ConsultationView in page.tsx:
+  - Changed from static import to `lazy(() => import(...).then(m => ({ default: m.ConsultationView })))`
+  - Wrapped consultation case in `switchView` with `<Suspense fallback={<ViewFallback />}>`
+- Lint: 0 errors. Dev server: clean compilation.
+
+Stage Summary:
+- C2 and C6 were already implemented in prior sessions — confirmed and skipped
+- C4: Dashboard chart axes now use dark-mode-aware colors with reactive MutationObserver (no page refresh needed when toggling theme)
+- D5: ConsultationView is now lazy-loaded alongside MapView, reducing initial bundle size
+- Files changed: src/components/dashboard/dashboard-view.tsx, src/app/page.tsx
+---
+Task ID: B2
+Agent: Patient Edit Agent
+Task: Patient edit functionality (edit dialog + form)
+
+Work Log:
+- Read worklog.md and understood codebase context (TanStack Query, Supabase backend, field mappings)
+- Read patient-profile-view.tsx (1710 lines) — uses TanStack Query for data fetching, has Vitals Trend chart
+- Read new-patient-view.tsx for field options and form patterns (occupation, marital status, health history constants)
+- Verified PUT handler exists at `/api/patients/[id]/route.ts` — accepts body fields, maps via `mapPatientToDb`, supports audit logging
+- Verified `mapPatientToDb` in case.ts maps camelCase to snake_case via `patientFieldMap`
+- Confirmed `MAKATI_BARANGAYS` data file has 22 barangays
+
+- Created `src/components/patients/edit-patient-dialog.tsx` (~620 lines):
+  - Dialog component with max-w-3xl and scrollable content
+  - All same fields as new-patient-view.tsx (Personal Info + Health History)
+  - Uses simple useState for form management (no react-hook-form needed)
+  - Initializes form state from patient data on dialog open via `useEffect`
+  - Parses JSON health history fields from DB (medicalHistory, surgicalHistory, familyHistory, socialHistory) to pre-fill checkboxes/dropdowns
+  - Falls back to empty state for non-JSON (plain text) data
+  - Builds healthHistory JSON on submit and distributes to correct DB columns (medicalHistory, surgicalHistory, familyHistory, socialHistory)
+  - Sends PUT to `/api/patients/{id}` with `nurseId` for audit logging
+  - Loading state with Loader2 spinner, success/error toasts
+  - Same styling patterns as new-patient form (rose-tinted card headers, consistent spacing)
+
+- Modified `src/components/patients/patient-profile-view.tsx`:
+  - Added `Pencil` icon import from lucide-react
+  - Added `EditPatientDialog` component import
+  - Added `useQueryClient` from TanStack Query for query invalidation
+  - Added `isEditDialogOpen` state
+  - Added `handleEditSaved` callback that invalidates the patient query
+  - Added "Edit Patient" button (Pencil icon) in the patient header area
+  - Added `EditPatientDialog` component at the end of the JSX
+
+- Lint: 0 errors, 0 warnings
+- Dev server: clean compilation
+
+Stage Summary:
+- Edit Patient feature fully implemented with Dialog containing pre-filled form
+- All demographic and health history fields editable (same as new patient form)
+- Health history data distributed to correct DB columns on save
+- TanStack Query invalidation ensures profile view refreshes after edit
+- Files created: src/components/patients/edit-patient-dialog.tsx
+- Files changed: src/components/patients/patient-profile-view.tsx
+---
+Task ID: B4-B5
+Agent: UI Enhancement Agent
+Task: Step progress bar + completion confirmation dialog
+
+Work Log:
+- Read worklog.md and consultation-view.tsx (1778 lines) to understand context
+- Analyzed existing step progress bar (lines 1686-1721) — already had step indicators but used numeric labels instead of icons, and was not sticky
+- **B4 — Enhanced Step Progress Bar:**
+  - Made progress bar sticky with `sticky top-0 z-10` to stay visible while scrolling step content
+  - Replaced numeric step indicators (1-7) with actual STEP_META icons (ClipboardList, FileHeart, Search, Stethoscope, Sparkles, UserCheck, FileOutput)
+  - Completed steps: show CheckCircle2 checkmark icon with rose-600 background
+  - Current step: shows its STEP_META icon in white with rose-600 ring + scale animation
+  - Future steps: show STEP_META icon in muted gray
+  - Desktop (sm+): shows icon + full label text; Mobile: icon only with `title` tooltip for accessibility
+  - Added `aria-label` and `title` attributes for screen reader support
+  - Responsive padding: `p-3` on mobile, `p-4` on desktop
+  - Dark mode: improved future step text contrast with `dark:text-gray-500`
+- **B5 — Completion Confirmation Dialog:**
+  - Added `showCompleteDialog` state variable
+  - Modified `handleComplete` to open dialog instead of immediately saving/navigating
+  - Created `confirmComplete` callback that performs actual save + navigate + toast
+  - Added AlertDialog with CheckCircle2 icon, title "Complete Consultation?", and descriptive text about post-completion editing
+  - Dialog has Cancel and Complete buttons; Complete button shows loading spinner during save
+  - Changed Complete button color from emerald-600 to rose-600 for consistent app theming
+- Lint: 0 errors, 1 pre-existing warning (patient-list-view.tsx unused eslint-disable)
+- Dev server: clean compilation (272ms)
+
+Stage Summary:
+- Step progress bar is now sticky, uses STEP_META icons, responsive (icon+label desktop, icon-only mobile), accessible
+- Completion now requires confirmation via AlertDialog to prevent accidental premature completion
+- File changed: src/components/consultations/consultation-view.tsx
+---
+Task ID: B1-C1-C5
+Agent: Dashboard Enhancement Agent
+Task: Dashboard stat cards clickable, real sparklines, error states
+
+Work Log:
+- **B1: Clickable Stat Cards**
+  - Added `filterRisk` (string, default 'all') and `filterReferralPending` (boolean, default false) to Zustand app store with setters
+  - Both new states are persisted via zustand/persist
+  - Updated patient-list-view.tsx: added `useEffect` on mount to read store filter and apply to local `riskFilter` state, then reset store
+  - Added `handleStatCardClick` handler in dashboard-view.tsx with switch logic for all 5 cards
+  - Added `cursor-pointer` class and enhanced `hover:shadow-lg` to stat card elements
+- **C1: Real Historical Sparkline Data**
+  - Replaced `generateSparklineData()` (Math.random-based) with `deriveSparklineFromTrend()` function
+  - New function takes real `monthlyTrend` data and a `targetRatio` to scale values proportionally
+  - Each card's sparkline derived from actual monthly trend: totalRatio, lowRatio, highRatio, pendingRatio, recentRatio
+  - Properly memoized with `useMemo` — sparklines stable across re-renders
+  - Removed unused `generateMonthlyTrendData()` function that relied on Math.random()
+- **C5: Loading/Error States**
+  - Added `statsError` state boolean to DashboardView
+  - `fetchStats` sets `statsError=true` on both HTTP errors (!res.ok) and network excep
+---
+Task ID: D4
+Agent: Vitals Timeline Agent
+Task: Patient vitals timeline chart
+
+Work Log:
+- Read worklog.md for project context and data structures
+- Read patient-profile-view.tsx to understand current layout and consultation data flow
+- Read consultations API route to verify objectiveVitals field mapping and data format
+- Analyzed consultation-view.tsx VitalsForm structure: bloodPressure ("120/80"), heartRate, temperature, weight, respiratoryRate, oxygenSat, painScale, height
+- Analyzed dashboard-view.tsx isDark pattern with MutationObserver
+- Added VitalsTrendCard component to patient-profile-view.tsx (~250 lines):
+  - Parses objectiveVitals JSON from completed consultations to extract systolic/diastolic BP
+  - Falls back to top-level weight field if not in vitals JSON
+  - Sorts consultations by date ascending for chart
+  - Filters to only completed consultations with vitals data
+  - Shows info message when < 2 data points: "At least 2 completed consultations with vitals data needed to show trends"
+  - Recharts LineChart with dual Y-axes: left for BP (mmHg), right for Weight (kg)
+  - Systolic BP: red solid line (#ef4444), Diastolic BP: rose line (#fb7185), Weight: green dashed line (#22c55e)
+  - Dark mode compatible: isDark state with MutationObserver pattern
+  - Tooltips with full date format (MMMM d, yyyy) and all values
+  - Legend at bottom with dark mode text colors
+  - Card matches existing styling pattern (rose header, border-gray-200/80)
+- Placed VitalsTrendCard between 3-card info grid and Consultation History section
+- Fixed pre-existing lint error in dashboard-view.tsx: moved synchronous setIsDark() call from useEffect body to useState initializer (react-hooks/set-state-in-effect rule)
+- Applied same fix pattern in patient-profile-view.tsx for consistency
+
+Stage Summary:
+- Vitals Trend chart added to patient profile showing BP and weight trends across consultations
+- Dual Y-axis LineChart with Recharts: BP (left, mmHg) and Weight (right, kg)
+- Graceful handling: info message when < 2 data points, null value support, JSON parse error handling
+- Dark mode fully compatible via MutationObserver pattern
+- Fixed pre-existing lint error in dashboard-view.tsx (set-state-in-effect)
+- Lint: 0 errors, 0 warnings. Dev server: clean compilation
+- Files changed: src/components/patients/patient-profile-view.tsx, src/components/dashboard/dashboard-view.tsx
+---
+Task ID: B1-C1-C5 (continued)
+Agent: Dashboard Enhancement Agent
+
+Work Log (continued):
+  - `fetchStats` sets `statsError=true` on both HTTP errors (!res.ok) and network exceptions (catch)
+  - Error state cleared when retry begins (`setStatsError(false)`)
+  - Added error banner between header and stats cards with AlertTriangle icon, descriptive text, and Retry button
+
+Stage Summary:
+- All 5 dashboard stat cards are now clickable, navigating to Patients view with appropriate risk filter
+- Sparklines display real historical data from the API's monthlyTrend, no more random data on each render
+- Dashboard shows a user-friendly error banner with retry capability when stats fail to load
+- Files changed: src/store/app-store.ts, src/components/patients/patient-list-view.tsx, src/components/dashboard/dashboard-view.tsx
+- Lint: 0 errors, 0 warnings. Dev server: clean compilation.
+---
+Task ID: B6-D3
+Agent: Map Enhancement Agent
+Task: Map patient links + barangay search
+
+Work Log:
+- Read worklog.md and analyzed existing map-view.tsx (610 lines), barangay-centroids.ts, app-store.ts, and map data API route
+- **B6 — Map Markers → Link to Patient Profiles:**
+  - Modified `/api/map/data/route.ts` to include `p.id` (database UUID) in the SQL query and marker response alongside `patientId` (code)
+  - Added `id: string` field to `MarkerData` interface in map-view.tsx
+  - Added "View Patient Profile" button (class `view-patient-btn`) to patient marker popup HTML with `data-patient-db-id` attribute carrying the patient's database UUID
+  - Button styled with rose gradient (linear-gradient 135deg, #e11d48 → #f43f5e) and user icon, consistent with MOMternal theme
+  - Implemented delegated event listener on map container ref (capture phase) that detects clicks on `.view-patient-btn` elements
+  - On click: calls `useAppStore.getState().setSelectedPatientId(dbId)` then `setCurrentView('patient-profile')` to navigate to patient profile
+- **D3 — Barangay Search on Map:**
+  - Added Popover + Command (cmdk) combobox search input in the map card header, next to the risk filter dropdown
+  - Search uses BARANGAY_NAMES sorted list from BARANGAY_CENTROIDS keys (33 barangays)
+  - cmdk's built-in filtering provides case-insensitive autocomplete as user types
+  - Selected barangay shows with MapPin icon and "Selected" label
+  - Added `handleBarangaySelect` callback: zooms map to centroid (flyTo zoom 16), creates highlight GeoJSON layer with increased opacity (fillOpacity 0.4, weight 3.5, opacity 1), and opens popup showing barangay stats
+  - Added `handleClearSearch` callback: removes highlight layer, resets selected barangay state, and flies back to full view (fitBounds with maxZoom)
+  - Added `highlightLayerRef` to manage the overlay highlight layer lifecycle
+  - Clear button (X icon) appears only when a barangay is selected
+  - Barangay Overview table rows are now clickable — clicking a row also triggers `handleBarangaySelect` for that barangay
+- Removed unused `UserRound` import
+- Lint: 0 errors. Dev server: clean compilation, HTTP 200
+
+Stage Summary:
+- Patient markers now have a "View Patient Profile" button that navigates to the patient profile view using Zustand store
+- Map API returns both database UUID (`id`) and patient code (`patientId`) for each marker
+- Barangay search with cmdk-powered autocomplete added to map card header
+- Selecting a barangay highlights its boundary with increased opacity and zooms to it
+- Clear button resets search and zooms back to full view
+- Table rows in barangay overview are clickable for quick map navigation
+- Files changed: src/app/api/map/data/route.ts, src/components/map/map-view.tsx
+
+---
+Task ID: D1-D2
+Agent: Architecture Agent
+Task: TanStack Query adoption + Zod step validation
+
+Work Log:
+- Created `/src/lib/query-provider.tsx` — QueryClientProvider wrapper with 1-minute staleTime, 1 retry, no refetchOnWindowFocus
+- Wrapped `AppContent` in `QueryProvider` inside the error boundary in `page.tsx`
+- Converted `dashboard-view.tsx` from manual fetch+useState+useCallback to two useQuery hooks:
+  - `queryKey: ['dashboard-stats']` for stats endpoint
+  - `queryKey: ['paused-consultations']` for paused consultations
+  - Removed `useState` for stats/pausedConsultations/isLoadingStats/isLoadingPaused/statsError
+  - Removed `useCallback` for fetchStats/fetchPaused
+  - Removed the `useEffect` that called both fetch functions
+  - Updated error banner to use TanStack Query's `error` (Error object) and `refetch`
+- Converted `map-view.tsx` from manual fetch+useState to useQuery:
+  - `queryKey: ['map-data']` with `enabled: mapReady` to only fetch after Leaflet initializes
+  - Replaced manual `loading`/`error`/`mapData` state with useQuery destructured values
+  - Updated Retry button to call `refetchMapData()`
+  - Render layers useEffect now depends on `mapData` from useQuery
+- Converted `patient-profile-view.tsx` from manual fetch+useState to useQuery:
+  - `queryKey: ['patient', selectedPatientId]` with `enabled: !!selectedPatientId`
+  - Removed `useState` for patient/isLoading
+  - Moved error handling to a separate useEffect on `patientError`
+  - Created `/src/lib/consultation-validation.ts` with `validateStep()` function for all 7 steps:
+  - Step 0 (Assessment): typeOfVisit + chiefComplaint required
+  - Step 1 (Health History): no validation (optional)
+  - Step 2 (Findings): no validation (optional)
+  - Step 3 (Diagnosis): nandaDiagnosis required
+  - Step 4 (AI Summary): aiSuggestions or aiError required
+  - Step 5 (Care Plan): at least one selectedIntervention required
+  - Step 6 (Referral): referralPriority required
+- Updated `canProceed()` in `consultation-view.tsx` to call `validateStep` for ALL steps (was only checking step 4)
+- Updated `handleNext()` in `consultation-view.tsx` to run validation before navigation, showing toast error if validation fails
+- Lint: 0 errors, 0 warnings. Dev server: clean compilation.
+
+Stage Summary:
+- TanStack Query adopted across 3 views (Dashboard, Map, Patient Profile)
+- Query Provider wraps the app inside the error boundary
+- Dashboard stats and paused consultations use dedicated query keys with auto-deduplication
+- Map data fetch is gated by `enabled: mapReady` to avoid fetching before Leaflet initializes
+- Patient profile query invalidates automatically when `selectedPatientId` changes
+- Consultation wizard now validates all 7 steps before allowing navigation to next step
+- Toast messages guide the user when required fields are missing
+- Files changed: src/lib/query-provider.tsx (new), src/app/page.tsx, src/components/dashboard/dashboard-view.tsx, src/components/map/map-view.tsx, src/components/patients/patient-profile-view.tsx, src/lib/consultation-validation.ts (new), src/components/consultations/consultation-view.tsx
