@@ -64,7 +64,7 @@ import {
 } from '@/components/ui/select';
 import { ICD10_MATERNAL_CODES, searchIcd10Codes } from '@/data/icd10-maternal';
 import { NANDA_DIAGNOSES, searchNandaDiagnoses } from '@/data/nanda-diagnoses';
-import { NIC_INTERVENTIONS, searchNicInterventions } from '@/data/nic-interventions';
+import { NIC_INTERVENTIONS, searchNicInterventions, getNicByDomain } from '@/data/nic-interventions';
 import { NOC_OUTCOMES, searchNocOutcomes } from '@/data/noc-outcomes';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -84,9 +84,7 @@ interface ConsultationData {
   stepCompleted: number;
   status: string;
   patient: PatientInfo;
-  // Visit type
   typeOfVisit?: string | null;
-  // OB fields (moved from Patient)
   gravidity?: number | null;
   parity?: number | null;
   lmp?: string | null;
@@ -94,38 +92,34 @@ interface ConsultationData {
   height?: string | null;
   weight?: string | null;
   bmi?: string | null;
-  // SOAP Assessment
   subjectiveSymptoms?: string | null;
+  chiefComplaint?: string | null;
   objectiveVitals?: string | null;
   fetalHeartRate?: string | null;
   fundalHeight?: string | null;
   allergies?: string | null;
   medications?: string | null;
-  // Additional Findings
   physicalExam?: string | null;
   labResults?: string | null;
   notes?: string | null;
-  // Diagnosis
   icd10Diagnosis?: string | null;
   nandaDiagnosis?: string | null;
   nandaCode?: string | null;
   nandaName?: string | null;
-  // Risk
   riskLevel?: string;
   preventionLevel?: string | null;
-  // AI
   aiSuggestions?: string | null;
   selectedInterventions?: string | null;
-  // Evaluation
   evaluationStatus?: string | null;
   evaluationNotes?: string | null;
   interventionEvaluations?: string | null;
-  // Referral
   referralType?: string | null;
   referralPriority?: string | null;
   referralFacility?: string | null;
   referralSummary?: string | null;
   referralStatus?: string;
+  healthHistory?: string | null;
+  healthHistoryRefCode?: string | null;
 }
 
 interface AISuggestion {
@@ -134,10 +128,19 @@ interface AISuggestion {
     name: string;
     description: string;
     category: string;
+    relatedNanda?: string;
+    relatedNoc?: string;
+    priority?: string;
   }>;
   priorityIntervention: string;
+  priorityCode?: number;
   rationale: string;
   preventionLevel: string;
+  riskIndicators?: string[];
+  nursingConsiderations?: string[];
+  referralNeeded?: boolean;
+  referralReason?: string;
+  followUpSchedule?: string;
   rawResponse?: string;
 }
 
@@ -155,32 +158,23 @@ interface VitalsForm {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const STEP_META = [
+  { label: 'Assessment', shortLabel: 'Assess', icon: ClipboardList },
   { label: 'Health History', shortLabel: 'History', icon: FileHeart },
-  { label: 'Assessment', shortLabel: 'SOAP', icon: ClipboardList },
   { label: 'Findings', shortLabel: 'Findings', icon: Search },
   { label: 'Diagnosis', shortLabel: 'Dx', icon: Stethoscope },
-  { label: 'Risk Level', shortLabel: 'Risk', icon: ShieldAlert },
-  { label: 'AI Suggest', shortLabel: 'AI', icon: Sparkles },
-  { label: 'Nurse Select', shortLabel: 'HITL', icon: UserCheck },
-  { label: 'Evaluation', shortLabel: 'Eval', icon: CheckCircle2 },
+  { label: 'AI Summary', shortLabel: 'AI', icon: Sparkles },
+  { label: 'Care Plan', shortLabel: 'Plan', icon: UserCheck },
   { label: 'Referral', shortLabel: 'Refer', icon: FileOutput },
 ] as const;
 
-// Step color accents (border-l colors for step cards)
 const STEP_BORDER_COLORS: Record<number, string> = {
-  0: 'border-l-teal-400',    // Health History
-  1: 'border-l-rose-400',    // Assessment
-  2: 'border-l-rose-400',    // Findings
-  3: 'border-l-purple-400',  // Diagnosis
-  4: 'border-l-rose-400',    // Risk Level (dynamic based on risk)
-  5: 'border-l-rose-500',    // AI Suggest
-  6: 'border-l-blue-400',    // Nurse Select
-  7: 'border-l-emerald-400', // Evaluation
-  8: 'border-l-amber-400',   // Referral
-};
-
-const STEP_GLOW_CLASSES: Record<number, string> = {
-  5: 'shadow-rose-100/50 dark:shadow-rose-950/30',
+  0: 'border-l-rose-400',
+  1: 'border-l-teal-400',
+  2: 'border-l-rose-400',
+  3: 'border-l-purple-400',
+  4: 'border-l-rose-500',
+  5: 'border-l-blue-400',
+  6: 'border-l-amber-400',
 };
 
 const TOTAL_STEPS = STEP_META.length;
@@ -196,15 +190,58 @@ const DEFAULT_VITALS: VitalsForm = {
   height: '',
 };
 
+const TYPE_OF_VISIT_OPTIONS = [
+  'Routine Prenatal Check-up',
+  'Follow-up',
+  'Emergency Consultation',
+  'Referral',
+];
+
+const REFERRAL_PRIORITY_OPTIONS = [
+  { value: 'none', label: 'No referral', description: 'No referral needed' },
+  { value: 'urgent', label: 'Urgent referral', description: 'Immediate referral required' },
+  { value: 'non_urgent', label: 'Non-urgent', description: 'Routine referral' },
+  { value: 'same_day', label: 'Same day referral', description: 'Referral within the day' },
+];
+
+// Code-to-color category maps
+const NIC_CATEGORY_COLORS: Record<string, string> = {
+  Physiological: '#22c55e',
+  Psychosocial: '#3b82f6',
+  Safety: '#ef4444',
+  Educational: '#f59e0b',
+};
+
+const NOC_CATEGORY_COLORS: Record<string, string> = {
+  physiological: '#22c55e',
+  psychosocial: '#3b82f6',
+  knowledge: '#f59e0b',
+  safety: '#ef4444',
+};
+
+const NANDA_CATEGORY_COLORS: Record<string, string> = {
+  physiological: '#22c55e',
+  psychosocial: '#3b82f6',
+  knowledge: '#f59e0b',
+  safety: '#ef4444',
+};
+
+const ICD10_CATEGORY_COLORS: Record<string, string> = {
+  hypertensive: '#ef4444',
+  diabetes: '#f59e0b',
+  anemia: '#8b5cf6',
+  hemorrhage: '#dc2626',
+  infection: '#06b6d4',
+  labor: '#3b82f6',
+  fetal: '#ec4899',
+  other: '#6b7280',
+};
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function parseVitals(raw: string | null | undefined): VitalsForm {
   if (!raw) return { ...DEFAULT_VITALS };
-  try {
-    return { ...DEFAULT_VITALS, ...JSON.parse(raw) };
-  } catch {
-    return { ...DEFAULT_VITALS };
-  }
+  try { return { ...DEFAULT_VITALS, ...JSON.parse(raw) }; } catch { return { ...DEFAULT_VITALS }; }
 }
 
 function stringifyVitals(v: VitalsForm): string {
@@ -213,34 +250,31 @@ function stringifyVitals(v: VitalsForm): string {
 
 function parseAI(raw: string | null | undefined): AISuggestion | null {
   if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
 function parseSelectedInterventions(raw: string | null | undefined): Array<{ name: string; description?: string; code?: string }> {
   if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+  try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+}
+
+function resolveStartStep(backendStep: number): number {
+  if (backendStep < 0) return 0;
+  if (backendStep >= 6) return 6;
+  return backendStep;
+}
+
+function preventionToRisk(level: string): string {
+  switch (level) {
+    case 'primary': return 'low';
+    case 'secondary': return 'moderate';
+    case 'tertiary': return 'high';
+    default: return 'low';
   }
 }
 
-// Map backend stepCompleted to frontend step index
-// FE step 0 = Health History, step 1 = Assessment (SOAP), etc.
-function resolveStartStep(backendStep: number): number {
-  if (backendStep <= 0) return 0; // Health History
-  // Backend step 1-2 = SOAP assessment → start at FE step 2 (Findings)
-  if (backendStep <= 2) return 2;
-  if (backendStep <= 3) return 3;
-  if (backendStep <= 4) return 4;
-  if (backendStep <= 5) return 5;
-  if (backendStep <= 6) return 6;
-  return 8;
+function riskLabel(risk: string): string {
+  return risk.charAt(0).toUpperCase() + risk.slice(1);
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
@@ -264,20 +298,12 @@ export function ConsultationView() {
   const isInitialized = useRef(false);
 
   // ── Focus preservation ──
-  // Tracks which form field is focused by element ID (not reference),
-  // and restores focus after every render using that ID.
-  // This is more robust than element-reference tracking because it
-  // survives DOM recreation (e.g., from conditional rendering or
-  // AnimatePresence transitions).
   const focusedFieldIdRef = useRef<string | null>(null);
-
-  // Update tracked ID whenever focus moves to a form field
   const handleFieldFocus = useCallback((fieldId: string) => {
     focusedFieldIdRef.current = fieldId;
   }, []);
 
   useEffect(() => {
-    // After React commits DOM changes, restore focus to the tracked field
     const fieldId = focusedFieldIdRef.current;
     if (fieldId) {
       const el = document.getElementById(fieldId);
@@ -289,13 +315,12 @@ export function ConsultationView() {
 
   // ── Form fields ──
   const [typeOfVisit, setTypeOfVisit] = useState('');
-  const [subjectiveSymptoms, setSubjectiveSymptoms] = useState('');
+  const [chiefComplaint, setChiefComplaint] = useState('');
   const [vitals, setVitals] = useState<VitalsForm>({ ...DEFAULT_VITALS });
   const [fetalHeartRate, setFetalHeartRate] = useState('');
   const [fundalHeight, setFundalHeight] = useState('');
   const [allergies, setAllergies] = useState('');
   const [medications, setMedications] = useState('');
-  // ── OB fields (moved from Patient to Consultation) ──
   const [gravidity, setGravidity] = useState('');
   const [parity, setParity] = useState('');
   const [lmp, setLmp] = useState('');
@@ -307,57 +332,44 @@ export function ConsultationView() {
   const [riskLevel, setRiskLevel] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion | null>(null);
   const [selectedInterventions, setSelectedInterventions] = useState<Array<{ name: string; description?: string; code?: string }>>([]);
-  const [evaluationStatus, setEvaluationStatus] = useState('');
   const [evaluationNotes, setEvaluationNotes] = useState('');
   const [referralSummary, setReferralSummary] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [preventionLevel, setPreventionLevel] = useState('');
-  const [referralType, setReferralType] = useState('');
   const [referralPriority, setReferralPriority] = useState('');
   const [referralFacility, setReferralFacility] = useState('');
-  const [interventionEvals, setInterventionEvals] = useState<Array<{nicCode: string; status: string; nocOutcome: string; nocOutcomeCode: string; notes: string}>>([]);
+  const [interventionEvals, setInterventionEvals] = useState<Array<{
+    nicCode: string; status: string; nocOutcome: string; nocOutcomeCode: string; notes: string;
+  }>>([]);
 
   // ── Health History state ──
-  const [healthHistoryData, setHealthHistoryData] = useState<{
-    pastMedicalHistory: string;
-    previousSurgery: string;
-    historyOfTrauma: string;
-    historyOfBloodTransfusion: string;
-    familyHistoryPaternal: string;
-    familyHistoryMaternal: string;
-    smokingHistory: string;
-    alcoholIntake: string;
-    drugUse: string;
-    dietaryPattern: string;
-    physicalActivity: string;
-    sleepPattern: string;
-    allergies: string;
-    currentMedications: string;
-    immunizationStatus: string;
-    mentalHealthHistory: string;
-  }>({
-    pastMedicalHistory: '',
-    previousSurgery: '',
-    historyOfTrauma: '',
-    historyOfBloodTransfusion: '',
-    familyHistoryPaternal: '',
-    familyHistoryMaternal: '',
-    smokingHistory: '',
-    alcoholIntake: '',
-    drugUse: '',
-    dietaryPattern: '',
-    physicalActivity: '',
-    sleepPattern: '',
-    allergies: '',
-    currentMedications: '',
-    immunizationStatus: '',
-    mentalHealthHistory: '',
+  const [healthHistoryData, setHealthHistoryData] = useState({
+    pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '',
+    historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '',
+    smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '',
+    physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '',
+    immunizationStatus: '', mentalHealthHistory: '',
   });
   const [healthHistoryRefCode, setHealthHistoryRefCode] = useState('');
   const [healthHistoryExisting, setHealthHistoryExisting] = useState<string | null>(null);
   const [healthHistorySearchQuery, setHealthHistorySearchQuery] = useState('');
-  const [healthHistorySearchResults, setHealthHistorySearchResults] = useState<Array<{id: string; referenceCode: string; createdAt: string}>>([]);
+  const [healthHistorySearchResults, setHealthHistorySearchResults] = useState<Array<{
+    id: string; referenceCode: string; createdAt: string;
+  }>>([]);
+
+  // ── Computed values (declared before callbacks that reference them) ──
+  const nandaSelectedCode = (() => {
+    if (!nandaDiagnosis) return '';
+    const match = nandaDiagnosis.match(/^(\d{5})\b/);
+    return match ? match[1] : '';
+  })();
+
+  const icd10SelectedCode = (() => {
+    if (!icd10Diagnosis) return '';
+    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
+    return match ? match[1] : '';
+  })();
 
   // ── BMI Calculation ──
   const calculatedBMI = useMemo(() => {
@@ -369,7 +381,15 @@ export function ConsultationView() {
     return Math.round(bmi * 10) / 10;
   }, [vitals.weight, vitals.height]);
 
-  // ── AOG Calculation from LMP ──
+  const bmiCategory = useMemo(() => {
+    if (!calculatedBMI) return null;
+    if (calculatedBMI < 18.5) return { label: 'Underweight', color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-950/20' };
+    if (calculatedBMI < 25) return { label: 'Normal', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-950/20' };
+    if (calculatedBMI < 30) return { label: 'Overweight', color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20' };
+    return { label: 'Obese', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/20' };
+  }, [calculatedBMI]);
+
+  // ── AOG Calculation ──
   const consultationAOG = useMemo(() => {
     if (!lmp) return null;
     try {
@@ -380,18 +400,25 @@ export function ConsultationView() {
       const weeks = Math.floor(totalDays / 7);
       const days = totalDays % 7;
       return `${weeks}w ${days}d`;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   }, [lmp]);
 
-  const bmiCategory = useMemo(() => {
-    if (!calculatedBMI) return null;
-    if (calculatedBMI < 18.5) return { label: 'Underweight', color: 'text-blue-600', bg: 'bg-blue-50' };
-    if (calculatedBMI < 25) return { label: 'Normal', color: 'text-green-600', bg: 'bg-green-50' };
-    if (calculatedBMI < 30) return { label: 'Overweight', color: 'text-amber-600', bg: 'bg-amber-50' };
-    return { label: 'Obese', color: 'text-red-600', bg: 'bg-red-50' };
-  }, [calculatedBMI]);
+  // ── NANDA domain for NIC filtering ──
+  const selectedNandaDomain = useMemo(() => {
+    if (!nandaSelectedCode) return null;
+    const found = NANDA_DIAGNOSES.find(d => d.code === nandaSelectedCode);
+    return found ? found.domain : null;
+  }, [nandaSelectedCode]);
+
+  const filteredNicOptions = useMemo(() => {
+    const base = selectedNandaDomain ? getNicByDomain(selectedNandaDomain) : NIC_INTERVENTIONS;
+    return base.map(n => ({
+      code: n.code,
+      name: n.name,
+      description: n.description,
+      category: n.category,
+    }));
+  }, [selectedNandaDomain]);
 
   // ── Per-intervention eval update ──
   const updateInterventionEval = useCallback((index: number, field: 'status' | 'nocOutcome' | 'nocOutcomeCode' | 'notes', value: string) => {
@@ -407,25 +434,19 @@ export function ConsultationView() {
     markDirty();
   }, [selectedInterventions]);
 
-  // ── Dirty state tracking ──
+  // ── Dirty state ──
   const markDirty = useCallback(() => setIsDirty(true), []);
 
-  // ── Fetch consultation on mount ──
+  // ── Fetch consultation ──
   useEffect(() => {
-    if (!selectedConsultationId) {
-      setLoading(false);
-      return;
-    }
-
+    if (!selectedConsultationId) { setLoading(false); return; }
     async function fetchConsultation() {
       try {
         const res = await fetch(`/api/consultations/${selectedConsultationId}`);
-        if (!res.ok) throw new Error('Failed to fetch consultation');
+        if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         setConsultation(data);
-
-        // Populate form fields from existing data
-        setSubjectiveSymptoms(data.subjectiveSymptoms || '');
+        setChiefComplaint(data.chiefComplaint || data.subjectiveSymptoms || '');
         setVitals(parseVitals(data.objectiveVitals));
         setFetalHeartRate(data.fetalHeartRate || '');
         setFundalHeight(data.fundalHeight || '');
@@ -439,91 +460,67 @@ export function ConsultationView() {
         setRiskLevel(data.riskLevel || '');
         setAiSuggestions(parseAI(data.aiSuggestions));
         setSelectedInterventions(parseSelectedInterventions(data.selectedInterventions));
-        setEvaluationStatus(data.evaluationStatus || '');
         setEvaluationNotes(data.evaluationNotes || '');
         setReferralSummary(data.referralSummary || '');
         setTypeOfVisit(data.typeOfVisit || '');
-        // OB fields (now on Consultation)
         setGravidity(data.gravidity != null ? String(data.gravidity) : '');
         setParity(data.parity != null ? String(data.parity) : '');
         setLmp(data.lmp ? (typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
-        if (data.height) setVitals((v) => ({ ...v, height: data.height }));
-        if (data.weight) setVitals((v) => ({ ...v, weight: data.weight }));
+        if (data.height) setVitals(v => ({ ...v, height: data.height }));
+        if (data.weight) setVitals(v => ({ ...v, weight: data.weight }));
         setPreventionLevel(data.preventionLevel || '');
-        setReferralType(data.referralType || '');
         setReferralPriority(data.referralPriority || '');
         setReferralFacility(data.referralFacility || '');
-        // Parse intervention evaluations
         if (data.interventionEvaluations) {
-          try {
-            setInterventionEvals(JSON.parse(data.interventionEvaluations));
-          } catch { setInterventionEvals([]); }
+          try { setInterventionEvals(JSON.parse(data.interventionEvaluations)); } catch { setInterventionEvals([]); }
         }
-
-        // Set current step from stepCompleted
-        const startStep = resolveStartStep(data.stepCompleted);
-        setCurrentStep(startStep);
+        if (data.healthHistory) {
+          try { setHealthHistoryData(prev => ({ ...prev, ...JSON.parse(data.healthHistory) })); } catch { /* ignore */ }
+        }
+        setHealthHistoryRefCode(data.healthHistoryRefCode || '');
+        setCurrentStep(resolveStartStep(data.stepCompleted));
         isInitialized.current = true;
       } catch (err) {
         console.error('Error fetching consultation:', err);
         toast.error('Failed to load consultation');
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     }
-
     fetchConsultation();
   }, [selectedConsultationId]);
 
-  // ── Auto-save on unmount / navigate away ──
+  // ── Auto-save on unmount ──
   useEffect(() => {
     return () => {
-      // Only save if initialized
-      if (isInitialized.current && selectedConsultationId) {
-        saveCurrentStepSilent();
-      }
+      if (isInitialized.current && selectedConsultationId) saveCurrentStepSilent();
     };
   }, []);
 
-  // ── Computed values (must be declared before callbacks that reference them) ──
-  const nandaSelectedCode = (() => {
-    if (!nandaDiagnosis) return '';
-    const match = nandaDiagnosis.match(/^(\d{5})\b/);
-    return match ? match[1] : '';
-  })();
-
-  const icd10SelectedCode = (() => {
-    if (!icd10Diagnosis) return '';
-    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
-    return match ? match[1] : '';
-  })();
-
-  // ── Save function ──
+  // ── Save payload builder ──
   const buildSavePayload = useCallback(
     (step: number): Record<string, unknown> => {
       const payload: Record<string, unknown> = {};
       switch (step) {
-        case 0: // Health History
-          payload.healthHistory = JSON.stringify(healthHistoryData);
-          if (healthHistoryRefCode) payload.healthHistoryRefCode = healthHistoryRefCode;
-          break;
-        case 1: // Assessment (SOAP)
+        case 0: // Assessment
           if (typeOfVisit) payload.typeOfVisit = typeOfVisit;
-          if (subjectiveSymptoms) payload.subjectiveSymptoms = subjectiveSymptoms;
+          if (chiefComplaint) { payload.chiefComplaint = chiefComplaint; payload.subjectiveSymptoms = chiefComplaint; }
           payload.objectiveVitals = stringifyVitals(vitals);
           if (fetalHeartRate) payload.fetalHeartRate = fetalHeartRate;
           if (fundalHeight) payload.fundalHeight = fundalHeight;
           if (allergies) payload.allergies = allergies;
           if (medications) payload.medications = medications;
-          // OB fields
           if (gravidity) payload.gravidity = parseInt(gravidity, 10) || 0;
           if (parity) payload.parity = parseInt(parity, 10) || 0;
           if (lmp) payload.lmp = lmp;
           if (vitals.height) payload.height = vitals.height;
           if (vitals.weight) payload.weight = vitals.weight;
           if (calculatedBMI) payload.bmi = String(calculatedBMI);
+          if (consultationAOG) payload.aog = consultationAOG;
           break;
-        case 2: // Findings
+        case 1: // Health History
+          payload.healthHistory = JSON.stringify(healthHistoryData);
+          if (healthHistoryRefCode) payload.healthHistoryRefCode = healthHistoryRefCode;
+          break;
+        case 2: // Additional Findings
           if (physicalExam) payload.physicalExam = physicalExam;
           if (labResults) payload.labResults = labResults;
           if (notes) payload.notes = notes;
@@ -531,98 +528,58 @@ export function ConsultationView() {
         case 3: // Diagnosis
           if (icd10Diagnosis) payload.icd10Diagnosis = icd10Diagnosis;
           if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
-          // Save NANDA code and name separately for structured data
           if (nandaSelectedCode) payload.nandaCode = nandaSelectedCode;
-          if (nandaDiagnosis.includes('—')) {
-            payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
-          }
+          if (nandaDiagnosis.includes('—')) payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
           break;
-        case 4: // Risk Level
+        case 4: // AI Summary
           if (riskLevel) payload.riskLevel = riskLevel;
           if (preventionLevel) payload.preventionLevel = preventionLevel;
+          // aiSuggestions saved by the AI endpoint
           break;
-        case 5: // AI Suggest
-          // AI suggestions are saved by the AI endpoint
-          break;
-        case 6: // Nurse Select (HITL)
+        case 5: // Care Plan
           payload.selectedInterventions = JSON.stringify(selectedInterventions);
-          break;
-        case 7: // Evaluation
-          if (evaluationStatus) payload.evaluationStatus = evaluationStatus;
+          if (interventionEvals.length > 0) payload.interventionEvaluations = JSON.stringify(interventionEvals);
           if (evaluationNotes) payload.evaluationNotes = evaluationNotes;
-          if (interventionEvals.length > 0) {
-            payload.interventionEvaluations = JSON.stringify(interventionEvals);
-          }
           break;
-        case 8: // Referral
-          if (referralType) payload.referralType = referralType;
+        case 6: // Referral
+          payload.referralType = 'Refer to Doctor';
           if (referralPriority) payload.referralPriority = referralPriority;
           if (referralFacility) payload.referralFacility = referralFacility;
-          // Referral summary is saved by the referral endpoint
+          // referralSummary saved by the referral endpoint
           break;
       }
       return payload;
     },
-    [
-      healthHistoryData,
-      healthHistoryRefCode,
-      typeOfVisit,
-      subjectiveSymptoms,
-      vitals,
-      fetalHeartRate,
-      fundalHeight,
-      allergies,
-      medications,
-      gravidity,
-      parity,
-      lmp,
-      calculatedBMI,
-      physicalExam,
-      labResults,
-      notes,
-      icd10Diagnosis,
-      nandaDiagnosis,
-      nandaSelectedCode,
-      riskLevel,
-      preventionLevel,
-      selectedInterventions,
-      evaluationStatus,
-      evaluationNotes,
-      interventionEvals,
-      referralType,
-      referralPriority,
-      referralFacility,
+    [typeOfVisit, chiefComplaint, vitals, fetalHeartRate, fundalHeight, allergies, medications,
+      gravidity, parity, lmp, calculatedBMI, consultationAOG, healthHistoryData, healthHistoryRefCode,
+      physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode,
+      riskLevel, preventionLevel, selectedInterventions, interventionEvals, evaluationNotes,
+      referralPriority, referralFacility,
     ]
   );
 
-  const saveStep = useCallback(
-    async (step: number): Promise<boolean> => {
-      if (!selectedConsultationId) return false;
-      const payload = buildSavePayload(step);
-      if (Object.keys(payload).length === 0) return true;
-
-      setSaving(true);
-      try {
-        const res = await fetch(`/api/consultations/${selectedConsultationId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error('Save failed');
-        const updated = await res.json();
-        setConsultation(updated);
-        toast.success('Progress saved');
-        updateActivity();
-        return true;
-      } catch {
-        toast.error('Failed to save progress');
-        return false;
-      } finally {
-        setSaving(false);
-      }
-    },
-    [selectedConsultationId, buildSavePayload, updateActivity]
-  );
+  const saveStep = useCallback(async (step: number): Promise<boolean> => {
+    if (!selectedConsultationId) return false;
+    const payload = buildSavePayload(step);
+    if (Object.keys(payload).length === 0) return true;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/consultations/${selectedConsultationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      const updated = await res.json();
+      setConsultation(updated);
+      toast.success('Progress saved');
+      updateActivity();
+      return true;
+    } catch {
+      toast.error('Failed to save progress');
+      return false;
+    } finally { setSaving(false); }
+  }, [selectedConsultationId, buildSavePayload, updateActivity]);
 
   const saveCurrentStepSilent = useCallback(async () => {
     if (!selectedConsultationId) return;
@@ -634,32 +591,22 @@ export function ConsultationView() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-    } catch {
-      // Silent save — don't show errors
-    }
+    } catch { /* silent */ }
   }, [selectedConsultationId, buildSavePayload, currentStep]);
 
   // ── Navigation ──
-  const goToStep = useCallback(
-    async (targetStep: number) => {
-      // Save current step before navigating
-      await saveStep(currentStep);
-      setCurrentStep(targetStep);
-      updateActivity();
-    },
-    [currentStep, saveStep, updateActivity]
-  );
+  const goToStep = useCallback(async (targetStep: number) => {
+    await saveStep(currentStep);
+    setCurrentStep(targetStep);
+    updateActivity();
+  }, [currentStep, saveStep, updateActivity]);
 
   const handleNext = useCallback(async () => {
-    if (currentStep < TOTAL_STEPS - 1) {
-      await goToStep(currentStep + 1);
-    }
+    if (currentStep < TOTAL_STEPS - 1) await goToStep(currentStep + 1);
   }, [currentStep, goToStep]);
 
   const handleBack = useCallback(() => {
-    if (currentStep > 0) {
-      goToStep(currentStep - 1);
-    }
+    if (currentStep > 0) goToStep(currentStep - 1);
   }, [currentStep, goToStep]);
 
   const handleExitWizard = useCallback(() => {
@@ -670,13 +617,9 @@ export function ConsultationView() {
   }, [goBack, saveCurrentStepSilent]);
 
   const handleBackClick = useCallback(() => {
-    if (currentStep === 0 && isDirty) {
-      setShowExitDialog(true);
-    } else if (currentStep > 0) {
-      goToStep(currentStep - 1);
-    } else {
-      goBack();
-    }
+    if (currentStep === 0 && isDirty) setShowExitDialog(true);
+    else if (currentStep > 0) goToStep(currentStep - 1);
+    else goBack();
   }, [currentStep, isDirty, goToStep, goBack]);
 
   const handleComplete = useCallback(async () => {
@@ -691,389 +634,117 @@ export function ConsultationView() {
     setAiLoading(true);
     setAiError(null);
     try {
-      const res = await fetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, {
-        method: 'POST',
-      });
+      // Save assessment data first so AI has latest data
+      await saveStep(currentStep);
+      const res = await fetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) {
         setAiError(data.error || data.details || 'AI suggestion failed');
         throw new Error(data.error || 'AI suggestion failed');
       }
       setAiSuggestions(data.aiSuggestions);
-      setAiError(null);
-      toast.success('AI suggestions generated');
+      // Derive risk level from prevention level
+      if (data.aiSuggestions?.preventionLevel) {
+        const pl = data.aiSuggestions.preventionLevel;
+        setPreventionLevel(pl);
+        setRiskLevel(preventionToRisk(pl));
+        // Save risk level and prevention level
+        try {
+          await fetch(`/api/consultations/${selectedConsultationId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              riskLevel: preventionToRisk(pl),
+              preventionLevel: pl,
+            }),
+          });
+        } catch { /* non-critical */ }
+      }
+      toast.success('AI summary generated');
       updateActivity();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to generate AI suggestions';
+      const msg = err instanceof Error ? err.message : 'Failed to generate AI summary';
       if (!aiError) setAiError(msg);
       toast.error(msg, { duration: 5000 });
-    } finally {
-      setAiLoading(false);
-    }
-  }, [selectedConsultationId, updateActivity, aiError]);
+    } finally { setAiLoading(false); }
+  }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep]);
 
   // ── Generate Referral ──
   const handleGenerateReferral = useCallback(async () => {
     if (!selectedConsultationId) return;
     setReferralLoading(true);
     try {
-      // Save evaluation first
       await saveStep(currentStep);
-      const res = await fetch(`/api/consultations/${selectedConsultationId}/referral`, {
-        method: 'POST',
-      });
+      const res = await fetch(`/api/consultations/${selectedConsultationId}/referral`, { method: 'POST' });
       if (!res.ok) throw new Error('Referral generation failed');
       const data = await res.json();
       setReferralSummary(data.referralSummary);
       toast.success('Referral generated');
       updateActivity();
-    } catch {
-      toast.error('Failed to generate referral');
-    } finally {
-      setReferralLoading(false);
-    }
+    } catch { toast.error('Failed to generate referral'); }
+    finally { setReferralLoading(false); }
   }, [selectedConsultationId, currentStep, saveStep, updateActivity]);
 
-  // ── HITL Intervention Management ──
-  const toggleAiIntervention = useCallback(
-    (intervention: { name: string; description: string; code?: string | number }) => {
-      setSelectedInterventions((prev) => {
-        const exists = prev.some((i) => i.name === intervention.name);
-        if (exists) return prev.filter((i) => i.name !== intervention.name);
-        return [...prev, { name: intervention.name, description: intervention.description, code: intervention.code ? String(intervention.code) : undefined }];
-      });
-    },
-    []
-  );
-
-  const addCustomIntervention = useCallback(() => {
-    const trimmed = customIntervention.trim();
-    if (!trimmed) return;
-    setSelectedInterventions((prev) => [...prev, { name: trimmed }]);
-    setCustomIntervention('');
-  }, [customIntervention]);
-
-  const removeIntervention = useCallback((name: string) => {
-    setSelectedInterventions((prev) => prev.filter((i) => i.name !== name));
-  }, []);
-
-  // ── Clipboard & Download ──
-  const handleCopyToClipboard = useCallback(async () => {
-    if (!referralSummary) return;
-    try {
-      await navigator.clipboard.writeText(referralSummary);
-      toast.success('Copied to clipboard');
-    } catch {
-      toast.error('Failed to copy');
-    }
-  }, [referralSummary]);
-
-  const handleDownloadTxt = useCallback(() => {
-    if (!referralSummary) return;
-    const blob = new Blob([referralSummary], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `referral-${consultation?.consultationNo || 'consultation'}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Downloaded');
-  }, [referralSummary, consultation]);
-
-  const handleDownloadPdf = useCallback(() => {
-    if (!referralSummary || !consultation) return;
-
-    try {
-      // Build a structured text document for the referral
-      const lines: string[] = [];
-      const separator = '─'.repeat(60);
-
-      lines.push('MOMTERNAL MATERNAL HEALTH SYSTEM');
-      lines.push('REFERRAL DOCUMENT');
-      lines.push(separator);
-      lines.push('');
-      lines.push(`Consultation No: ${consultation.consultationNo}`);
-      lines.push(`Date: ${new Date(consultation.consultationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`);
-      lines.push(`Patient: ${consultation.patient?.name || 'N/A'}`);
-      lines.push(`Patient ID: ${consultation.patient?.patientId || 'N/A'}`);
-      if (consultation.patient?.aog) lines.push(`AOG: ${consultation.patient.aog}`);
-      if (consultation.patient?.riskLevel) lines.push(`Risk Level: ${consultation.patient.riskLevel}`);
-      lines.push('');
-      lines.push('─'.repeat(30) + ' REFERRAL DETAILS ' + '─'.repeat(30));
-      lines.push('');
-      lines.push(referralSummary);
-      lines.push('');
-      lines.push(separator);
-      lines.push(`Generated on: ${new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`);
-      lines.push('This document was generated by MOMternal Maternal Health System.');
-
-      const content = lines.join('\n');
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const dateStr = new Date().toISOString().slice(0, 10);
-      a.download = `referral-${consultation.consultationNo}-${dateStr}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success('Referral document downloaded');
-    } catch (err) {
-      console.error('Document generation error:', err);
-      toast.error('Failed to generate document.');
-    }
-  }, [referralSummary, consultation]);
-
-  // ── NIC custom intervention helpers (state declared above with other useState) ──
-
-  const handleNicCodeSelect = useCallback((opt: CodeOption | null) => {
-    if (opt) {
-      setCustomNicCode(opt.code);
-      setCustomNicName(opt.name);
-    } else {
-      setCustomNicCode('');
-      setCustomNicName('');
-    }
+  // ── Intervention Management ──
+  const toggleAiIntervention = useCallback((intervention: { name: string; description: string; code?: string | number }) => {
+    setSelectedInterventions((prev) => {
+      const exists = prev.some(i => i.name === intervention.name);
+      if (exists) return prev.filter(i => i.name !== intervention.name);
+      return [...prev, { name: intervention.name, description: intervention.description, code: intervention.code ? String(intervention.code) : undefined }];
+    });
   }, []);
 
   const addCustomInterventionWithCode = useCallback(() => {
     const trimmed = customIntervention.trim() || customNicName.trim();
     if (!trimmed) return;
-    // Check for duplicates
-    if (selectedInterventions.some((i) => i.name === trimmed)) {
-      toast.error('This intervention is already selected');
-      return;
-    }
-    setSelectedInterventions((prev) => [
-      ...prev,
-      {
-        name: trimmed,
-        description: '',
-        code: customNicCode || undefined,
-      },
-    ]);
+    if (selectedInterventions.some(i => i.name === trimmed)) { toast.error('Already selected'); return; }
+    setSelectedInterventions(prev => [...prev, { name: trimmed, description: '', code: customNicCode || undefined }]);
     setCustomIntervention('');
     setCustomNicCode('');
     setCustomNicName('');
   }, [customIntervention, customNicCode, customNicName, selectedInterventions]);
 
-  // ── Render helpers ──
-  const canProceed = (): boolean => {
-    switch (currentStep) {
-      case 4:
-        return riskLevel.length > 0;
-      case 5:
-        // Allow proceeding if AI suggestions were generated OR if AI failed (user can add manual interventions)
-        return aiSuggestions !== null || aiError !== null;
-      default:
-        return true;
-    }
-  };
+  const removeIntervention = useCallback((name: string) => {
+    setSelectedInterventions(prev => prev.filter(i => i.name !== name));
+  }, []);
 
-  // ─── Loading State ──────────────────────────────────────────────────────
+  const handleNicCodeSelect = useCallback((opt: CodeOption | null) => {
+    if (opt) { setCustomNicCode(opt.code); setCustomNicName(opt.name); }
+    else { setCustomNicCode(''); setCustomNicName(''); }
+  }, []);
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-4 w-72" />
-          </div>
-        </div>
-        <Skeleton className="h-16 w-full rounded-xl" />
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-4 w-60" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // ── Clipboard & Download ──
+  const handleCopyToClipboard = useCallback(async () => {
+    if (!referralSummary) return;
+    try { await navigator.clipboard.writeText(referralSummary); toast.success('Copied to clipboard'); }
+    catch { toast.error('Failed to copy'); }
+  }, [referralSummary]);
 
-  if (!consultation) {
-    return (
-      <Card className="border-amber-200 bg-amber-50">
-        <CardContent className="py-12 text-center">
-          <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
-          <p className="text-amber-800 font-medium">No consultation selected</p>
-          <p className="text-amber-600 text-sm mt-1">Please select a consultation to continue.</p>
-          <Button variant="outline" className="mt-4" onClick={goBack}>
-            Go Back
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ─── Step Progress Indicator ─────────────────────────────────────────────
-
-  // ─── Exit Confirmation Dialog ──────────────────────────────────────
-
-  const ExitConfirmDialog = () => (
-    <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Leave Consultation?</AlertDialogTitle>
-          <AlertDialogDescription>
-            You have unsaved progress. Are you sure you want to leave?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Stay</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleExitWizard}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            Leave
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-
-  // ─── Step Progress Indicator ─────────────────────────────────────────────
-
-  const StepProgress = () => (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-rose-100 dark:border-gray-800 shadow-sm p-4 mb-4">
-      <div className="flex items-center">
-        {STEP_META.map((step, idx) => {
-          const Icon = step.icon;
-          const isCompleted = idx < currentStep;
-          const isCurrent = idx === currentStep;
-          const isFuture = idx > currentStep;
-
-          return (
-            <div key={idx} className="flex items-center flex-1 last:flex-initial">
-              {/* Step circle + label */}
-              <button
-                onClick={() => {
-                  if (idx <= currentStep) goToStep(idx);
-                }}
-                disabled={idx > currentStep}
-                className="flex flex-col items-center gap-1 min-w-0"
-              >
-                <div
-                  className={`
-                    flex items-center justify-center rounded-full transition-all duration-200
-                    ${isCompleted ? 'bg-rose-600 text-white shadow-sm shadow-rose-200' : ''}
-                    ${isCurrent ? 'bg-rose-600 text-white ring-4 ring-rose-100 shadow-sm shadow-rose-200 scale-110' : ''}
-                    ${isFuture ? 'bg-gray-100 text-gray-400' : ''}
-                    ${idx <= currentStep ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed'}
-                    h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm font-semibold
-                  `}
-                >
-                  {isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                  ) : (
-                    <span>{idx + 1}</span>
-                  )}
-                </div>
-                {/* Label: hidden on very small screens, short on mobile, full on desktop */}
-                <span
-                  className={`
-                    text-[9px] sm:text-[10px] lg:text-xs text-center leading-tight truncate max-w-[56px] lg:max-w-[72px]
-                    ${isCurrent ? 'text-rose-700 font-semibold' : ''}
-                    ${isCompleted ? 'text-rose-600 font-medium' : ''}
-                    ${isFuture ? 'text-gray-400' : ''}
-                  `}
-                >
-                  <span className="hidden sm:inline">{step.label}</span>
-                  <span className="sm:hidden">{step.shortLabel}</span>
-                </span>
-              </button>
-
-              {/* Connector line */}
-              {idx < TOTAL_STEPS - 1 && (
-                <div className="flex-1 mx-1 sm:mx-2 h-0.5 min-w-[8px] sm:min-w-[16px]">
-                  <div
-                    className={`h-full rounded-full transition-colors duration-200 ${
-                      idx < currentStep ? 'bg-rose-400' : 'bg-gray-200'
-                    }`}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  // ─── Resume Banner ──────────────────────────────────────────────────────
-
-  const ResumeBanner = () => {
-    const sc = consultation.stepCompleted;
-    if (sc <= 0 || sc >= 8) return null;
-    const lastStepMeta = STEP_META[sc] || STEP_META[1];
-    return (
-      <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
-        <Info className="h-5 w-5 flex-shrink-0" />
-        <p className="text-sm">
-          <span className="font-semibold">Assessment Paused</span> — Last Activity: Step {sc} (
-          {lastStepMeta.label})
-        </p>
-      </div>
-    );
-  };
-
-  // ─── Patient Header ─────────────────────────────────────────────────────
-
-  const PatientHeader = () => (
-    <div className="flex items-center gap-3 mb-4">
-      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-200 to-pink-200 flex items-center justify-center flex-shrink-0">
-        <Baby className="h-6 w-6 text-rose-700" />
-      </div>
-      <div className="min-w-0">
-        <h2 className="text-lg font-semibold text-foreground truncate">
-          {consultation.patient.name}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {consultation.patient.patientId}
-          {consultation.patient.aog && (
-            <span className="ml-2">
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                {consultation.patient.aog}
-              </Badge>
-            </span>
-          )}
-          {consultation.patient.riskLevel && (
-            <span className="ml-1">
-              <Badge
-                variant="outline"
-                className={`text-[10px] px-1.5 py-0 ${
-                  consultation.patient.riskLevel === 'high'
-                    ? 'border-red-300 text-red-600 bg-red-50'
-                    : consultation.patient.riskLevel === 'moderate'
-                      ? 'border-yellow-300 text-yellow-600 bg-yellow-50'
-                      : 'border-green-300 text-green-600 bg-green-50'
-                }`}
-              >
-                {consultation.patient.riskLevel} risk
-              </Badge>
-            </span>
-          )}
-        </p>
-      </div>
-      <div className="ml-auto text-right hidden sm:block">
-        <p className="text-xs text-muted-foreground">{consultation.consultationNo}</p>
-        <p className="text-xs text-muted-foreground">
-          {new Date(consultation.consultationDate).toLocaleDateString()}
-        </p>
-      </div>
-    </div>
-  );
+  const handleDownloadPdf = useCallback(() => {
+    if (!referralSummary || !consultation) return;
+    try {
+      const lines: string[] = [];
+      const sep = '─'.repeat(60);
+      lines.push('MOMTERNAL MATERNAL HEALTH SYSTEM', 'REFERRAL DOCUMENT', sep, '',
+        `Consultation No: ${consultation.consultationNo}`,
+        `Date: ${new Date(consultation.consultationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+        `Patient: ${consultation.patient?.name || 'N/A'}`,
+        `Patient ID: ${consultation.patient?.patientId || 'N/A'}`,
+        ...(consultationAOG ? [`AOG: ${consultationAOG}`] : []),
+        ...(riskLevel ? [`Risk Level: ${riskLabel(riskLevel)}`] : []),
+        '', '─'.repeat(30) + ' REFERRAL DETAILS ' + '─'.repeat(30), '', referralSummary, '', sep,
+        `Generated on: ${new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
+        'This document was generated by MOMternal Maternal Health System.');
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `referral-${consultation.consultationNo}-${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('Referral document downloaded');
+    } catch { toast.error('Failed to generate document.'); }
+  }, [referralSummary, consultation, consultationAOG, riskLevel]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {
@@ -1081,528 +752,127 @@ export function ConsultationView() {
     const num = parseFloat(value.replace(/[^\d.]/g, ''));
     if (isNaN(num)) return '';
     switch (field) {
+      case 'heartRate':
+        return (num > 100 || num < 60) ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/20' : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';
       case 'temperature':
-        return num > 37.5 || num < 36.0 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
-      case 'heartRate': {
-        const hr = num;
-        return hr > 100 || hr < 60 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
-      }
+        return num > 37.5 ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20'
+          : num < 36.5 ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/20'
+          : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';
       case 'respiratoryRate':
-        return num > 20 || num < 12 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : 'border-green-200 bg-green-50 dark:border-green-800';
+        return (num > 20 || num < 12) ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/20' : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';
       case 'oxygenSat':
-        return num < 95 ? 'border-red-300 bg-red-50 dark:border-red-700' : num >= 98 ? 'border-green-200 bg-green-50 dark:border-green-800' : '';
+        return num < 95 ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20' : num >= 98 ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20' : '';
       case 'painScale':
-        return num >= 7 ? 'border-red-300 bg-red-50 dark:border-red-700' : num >= 4 ? 'border-amber-300 bg-amber-50 dark:border-amber-700' : num > 0 ? 'border-green-200 bg-green-50 dark:border-green-800' : '';
-      default:
-        return '';
+        return num >= 7 ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20'
+          : num >= 4 ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/20'
+          : num > 0 ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20' : '';
+      case 'fetalHeartRate':
+        return (num < 110 || num > 160) ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20'
+          : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';
+      case 'bloodPressure': {
+        const parts = value.split('/').map(Number);
+        if (parts.length !== 2 || parts.some(isNaN)) return '';
+        const [sys, dia] = parts;
+        return (sys > 120 || dia > 80) ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20'
+          : (sys < 90 || dia < 60) ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/20'
+          : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20';
+      }
+      default: return '';
     }
   };
 
-  const TYPE_OF_VISIT_OPTIONS = [
-    'Routine Prenatal Check-up',
-    'Follow-up',
-    'Emergency Consultation',
-    'Referral',
-  ];
+  const canProceed = (): boolean => {
+    if (currentStep === 4) return aiSuggestions !== null || aiError !== null;
+    return true;
+  };
 
-  const PREVENTION_LEVEL_OPTIONS = [
-    { value: 'primary', label: 'Primary Prevention', description: 'Prevent disease/risk before it occurs' },
-    { value: 'secondary', label: 'Secondary Prevention', description: 'Early detection and treatment' },
-    { value: 'tertiary', label: 'Tertiary Prevention', description: 'Reduce complications and disability' },
-  ];
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STEP RENDERERS
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  const REFERRAL_TYPE_OPTIONS = [
-    'Refer to Doctor',
-  ];
-
-  const REFERRAL_PRIORITY_OPTIONS = [
-    { value: 'none', label: 'No referral', description: 'No referral needed' },
-    { value: 'urgent', label: 'Urgent referral', description: 'Immediate referral required' },
-    { value: 'non_urgent', label: 'Non-urgent', description: 'Routine referral' },
-    { value: 'same_day', label: 'Same day referral', description: 'Referral within the day' },
-  ];
-
-  // ─── Step 0: Health History ──────────────────────────────────────────
-
-  const StepHealthHistory = () => (
-    <div className="space-y-6">
-      {/* Reference Code */}
-      <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-teal-800">HEALTH HISTORY</h3>
-            {healthHistoryRefCode && (
-              <p className="text-xs text-teal-600 font-mono mt-0.5">Ref: {healthHistoryRefCode}</p>
-            )}
-          </div>
-          {healthHistoryExisting && (
-            <Badge variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">
-              Loaded from record
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Search existing health history */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-1.5">
-          <Search className="h-3.5 w-3.5 text-muted-foreground" />
-          Search Existing Health History
-        </Label>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Enter reference code (e.g., HH-20260409-001)..."
-            value={healthHistorySearchQuery}
-            onChange={(e) => setHealthHistorySearchQuery(e.target.value)}
-            className="flex-1"
-          />
-          <Button
-            variant="outline"
-            onClick={async () => {
-              if (!healthHistorySearchQuery.trim()) return;
-              try {
-                const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
-                if (res.ok) {
-                  const data = await res.json();
-                  setHealthHistorySearchResults(data || []);
-                }
-              } catch { /* ignore */ }
-            }}
-          >
-            <Search className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setHealthHistorySearchQuery('');
-              setHealthHistorySearchResults([]);
-              setHealthHistoryData({ pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '', historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '', smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '', physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '', immunizationStatus: '', mentalHealthHistory: '' });
-              setHealthHistoryRefCode('');
-              setHealthHistoryExisting(null);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            New
-          </Button>
-        </div>
-        {healthHistorySearchResults.length > 0 && (
-          <div className="border rounded-lg max-h-40 overflow-y-auto">
-            {healthHistorySearchResults.map((r) => (
-              <button
-                key={r.id}
-                className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-0 flex justify-between items-center"
-                onClick={async () => {
-                  try {
-                    const res = await fetch(`/api/health-history/${r.id}`);
-                    if (res.ok) {
-                      const data = await res.json();
-                      setHealthHistoryData({
-                        pastMedicalHistory: data.pastMedicalHistory || '',
-                        previousSurgery: data.previousSurgery || '',
-                        historyOfTrauma: data.historyOfTrauma || '',
-                        historyOfBloodTransfusion: data.historyOfBloodTransfusion || '',
-                        familyHistoryPaternal: data.familyHistoryPaternal || '',
-                        familyHistoryMaternal: data.familyHistoryMaternal || '',
-                        smokingHistory: data.smokingHistory || '',
-                        alcoholIntake: data.alcoholIntake || '',
-                        drugUse: data.drugUse || '',
-                        dietaryPattern: data.dietaryPattern || '',
-                        physicalActivity: data.physicalActivity || '',
-                        sleepPattern: data.sleepPattern || '',
-                        allergies: data.allergies || '',
-                        currentMedications: data.currentMedications || '',
-                        immunizationStatus: data.immunizationStatus || '',
-                        mentalHealthHistory: data.mentalHealthHistory || '',
-                      });
-                      setHealthHistoryRefCode(data.referenceCode);
-                      setHealthHistoryExisting(r.id);
-                      setHealthHistorySearchResults([]);
-                      setHealthHistorySearchQuery('');
-                    }
-                  } catch { /* ignore */ }
-                }}
-              >
-                <span className="font-mono font-medium">{r.referenceCode}</span>
-                <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <Separator />
-
-      {/* Past Medical History */}
-      <div className="space-y-4">
-        <div>
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-teal-600" />
-            Past Medical History
-          </h4>
-          <p className="text-xs text-muted-foreground mb-2">Previous medical conditions (diabetes, hypertension, heart disease, etc.)</p>
-          <Textarea
-            placeholder="List previous medical conditions..."
-            value={healthHistoryData.pastMedicalHistory}
-            onChange={(e) => { setHealthHistoryData(p => ({...p, pastMedicalHistory: e.target.value})); markDirty(); }}
-            className="min-h-[80px]"
-          />
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-teal-600" />
-            Previous Surgery
-          </h4>
-          <p className="text-xs text-muted-foreground mb-2">Previous surgical procedures with dates if known</p>
-          <Textarea
-            placeholder="List previous surgeries..."
-            value={healthHistoryData.previousSurgery}
-            onChange={(e) => { setHealthHistoryData(p => ({...p, previousSurgery: e.target.value})); markDirty(); }}
-            className="min-h-[80px]"
-          />
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-teal-600" />
-            History of Trauma
-          </h4>
-          <Textarea
-            placeholder="Any history of physical trauma..."
-            value={healthHistoryData.historyOfTrauma}
-            onChange={(e) => { setHealthHistoryData(p => ({...p, historyOfTrauma: e.target.value})); markDirty(); }}
-            className="min-h-[60px]"
-          />
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-teal-600" />
-            History of Blood Transfusion
-          </h4>
-          <Textarea
-            placeholder="Any previous blood transfusions..."
-            value={healthHistoryData.historyOfBloodTransfusion}
-            onChange={(e) => { setHealthHistoryData(p => ({...p, historyOfBloodTransfusion: e.target.value})); markDirty(); }}
-            className="min-h-[60px]"
-          />
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Family History */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5 text-teal-600" />
-          Family History
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-xs">Paternal Side</Label>
-            <Textarea
-              placeholder="Health conditions on father's side..."
-              value={healthHistoryData.familyHistoryPaternal}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, familyHistoryPaternal: e.target.value})); markDirty(); }}
-              className="min-h-[80px]"
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Maternal Side</Label>
-            <Textarea
-              placeholder="Health conditions on mother's side..."
-              value={healthHistoryData.familyHistoryMaternal}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, familyHistoryMaternal: e.target.value})); markDirty(); }}
-              className="min-h-[80px]"
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Personal and Social History */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-          <Heart className="h-3.5 w-3.5 text-teal-600" />
-          Personal and Social History
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-xs">Smoking</Label>
-            <Input
-              placeholder="Smoker/Non-smoker, pack-years..."
-              value={healthHistoryData.smokingHistory}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, smokingHistory: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Alcohol Intake</Label>
-            <Input
-              placeholder="None/Occasional/Regular..."
-              value={healthHistoryData.alcoholIntake}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, alcoholIntake: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Drug Use</Label>
-            <Input
-              placeholder="Any substance use..."
-              value={healthHistoryData.drugUse}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, drugUse: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Dietary Pattern</Label>
-            <Input
-              placeholder="Diet description..."
-              value={healthHistoryData.dietaryPattern}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, dietaryPattern: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Physical Activity</Label>
-            <Input
-              placeholder="Sedentary/Moderate/Active..."
-              value={healthHistoryData.physicalActivity}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, physicalActivity: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Sleep Pattern</Label>
-            <Input
-              placeholder="Hours per night, quality..."
-              value={healthHistoryData.sleepPattern}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, sleepPattern: e.target.value})); markDirty(); }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Additional */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-          <Shield className="h-3.5 w-3.5 text-teal-600" />
-          Additional Information
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-xs">Allergies</Label>
-            <Input
-              placeholder="Known allergies..."
-              value={healthHistoryData.allergies}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, allergies: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Current Medications</Label>
-            <Input
-              placeholder="Ongoing medications..."
-              value={healthHistoryData.currentMedications}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, currentMedications: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Immunization Status</Label>
-            <Input
-              placeholder="Tetanus, flu vaccine, etc."
-              value={healthHistoryData.immunizationStatus}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, immunizationStatus: e.target.value})); markDirty(); }}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Mental Health History</Label>
-            <Input
-              placeholder="Any mental health conditions..."
-              value={healthHistoryData.mentalHealthHistory}
-              onChange={(e) => { setHealthHistoryData(p => ({...p, mentalHealthHistory: e.target.value})); markDirty(); }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ─── Step 1: Assessment (SOAP) ──────────────────────────────────────────
-
+  // ─── Step 0: Assessment ─────────────────────────────────────────────
   const StepAssessment = () => (
     <div className="space-y-6">
       {/* Type of Visit */}
       <div className="space-y-2">
-        <Label className="flex items-center gap-1.5">
-          <ClipboardList className="h-3.5 w-3.5 text-muted-foreground" />
-          Type of Visit
-        </Label>
-        <Select value={typeOfVisit} onValueChange={(v) => { setTypeOfVisit(v); markDirty(); }}>
-          <SelectTrigger className="w-full sm:w-80">
-            <SelectValue placeholder="Select visit type" />
-          </SelectTrigger>
-          <SelectContent>
-            {TYPE_OF_VISIT_OPTIONS.map((opt) => (
-              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-            ))}
-          </SelectContent>
+        <Label className="flex items-center gap-1.5"><ClipboardList className="h-3.5 w-3.5 text-muted-foreground" /> Type of Visit</Label>
+        <Select value={typeOfVisit || undefined} onValueChange={v => { setTypeOfVisit(v); markDirty(); }}>
+          <SelectTrigger className="w-full sm:w-80"><SelectValue placeholder="Select visit type" /></SelectTrigger>
+          <SelectContent>{TYPE_OF_VISIT_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
         </Select>
       </div>
-
       <Separator />
 
-      {/* Subjective */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Heart className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground dark:text-gray-100">Subjective</h3>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="subjectiveSymptoms">Symptoms / Chief Complaint</Label>
-          <Textarea
-            id="subjectiveSymptoms"
-            placeholder="Patient reports: e.g., headache, nausea, swelling..."
-            className="min-h-[100px] resize-y"
-            value={subjectiveSymptoms}
-            onFocus={() => handleFieldFocus('subjectiveSymptoms')}
-            onChange={(e) => { setSubjectiveSymptoms(e.target.value); markDirty(); }}
-          />
-        </div>
+      {/* Chief Complaint */}
+      <div className="space-y-2">
+        <Label htmlFor="chiefComplaint" className="flex items-center gap-1.5">
+          <Heart className="h-3.5 w-3.5 text-rose-500" /> Chief Complaint
+        </Label>
+        <Textarea id="chiefComplaint" placeholder="Patient reports: e.g., headache, nausea, swelling..." className="min-h-[80px] resize-y"
+          value={chiefComplaint} onFocus={() => handleFieldFocus('chiefComplaint')} onChange={e => { setChiefComplaint(e.target.value); markDirty(); }} />
       </div>
 
+      {/* Allergies & Medications */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="allergies" className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-muted-foreground" /> Allergies</Label>
+          <Input id="allergies" placeholder="e.g. Penicillin, Sulfa drugs" value={allergies}
+            onFocus={() => handleFieldFocus('allergies')} onChange={e => { setAllergies(e.target.value); markDirty(); }} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="medications">Current Medications</Label>
+          <Textarea id="medications" placeholder="List current medications..." className="min-h-[60px] resize-y"
+            value={medications} onFocus={() => handleFieldFocus('medications')} onChange={e => { setMedications(e.target.value); markDirty(); }} />
+        </div>
+      </div>
       <Separator />
 
-      {/* Objective */}
+      {/* Vital Signs */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Stethoscope className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground dark:text-gray-100">Objective — Vital Signs</h3>
+          <h3 className="font-semibold text-foreground dark:text-gray-100">Vital Signs</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="bloodPressure" className="flex items-center gap-1.5">
-              <Activity className="h-3.5 w-3.5 text-muted-foreground" />
-              Blood Pressure
-            </Label>
-            <Input
-              id="bloodPressure"
-              placeholder="e.g. 120/80 mmHg"
-              value={vitals.bloodPressure}
-              onFocus={() => handleFieldFocus('bloodPressure')}
-              onChange={(e) => { setVitals((v) => ({ ...v, bloodPressure: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="heartRate" className="flex items-center gap-1.5">
-              <Heart className="h-3.5 w-3.5 text-muted-foreground" />
-              Heart Rate
-            </Label>
-            <Input
-              id="heartRate"
-              placeholder="e.g. 72 bpm"
-              value={vitals.heartRate}
-              className={getVitalColor('heartRate', vitals.heartRate)}
-              onFocus={() => handleFieldFocus('heartRate')}
-              onChange={(e) => { setVitals((v) => ({ ...v, heartRate: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="temperature" className="flex items-center gap-1.5">
-              <Thermometer className="h-3.5 w-3.5 text-muted-foreground" />
-              Temperature
-            </Label>
-            <Input
-              id="temperature"
-              placeholder="e.g. 36.8°C"
-              value={vitals.temperature}
-              className={getVitalColor('temperature', vitals.temperature)}
-              onFocus={() => handleFieldFocus('temperature')}
-              onChange={(e) => { setVitals((v) => ({ ...v, temperature: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="weight" className="flex items-center gap-1.5">
-              <Weight className="h-3.5 w-3.5 text-muted-foreground" />
-              Weight (kg)
-            </Label>
-            <Input
-              id="weight"
-              placeholder="e.g. 65 kg"
-              value={vitals.weight}
-              onFocus={() => handleFieldFocus('weight')}
-              onChange={(e) => { setVitals((v) => ({ ...v, weight: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="height" className="flex items-center gap-1.5">
-              <Activity className="h-3.5 w-3.5 text-muted-foreground" />
-              Height (cm)
-            </Label>
-            <Input
-              id="height"
-              placeholder="e.g. 158 cm"
-              value={vitals.height}
-              onFocus={() => handleFieldFocus('height')}
-              onChange={(e) => { setVitals((v) => ({ ...v, height: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="respiratoryRate" className="flex items-center gap-1.5">
-              <Wind className="h-3.5 w-3.5 text-muted-foreground" />
-              Respiratory Rate
-            </Label>
-            <Input
-              id="respiratoryRate"
-              placeholder="e.g. 18 cpm"
-              value={vitals.respiratoryRate}
-              className={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
-              onFocus={() => handleFieldFocus('respiratoryRate')}
-              onChange={(e) => { setVitals((v) => ({ ...v, respiratoryRate: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="oxygenSat" className="flex items-center gap-1.5">
-              <Wind className="h-3.5 w-3.5 text-muted-foreground" />
-              O₂ Saturation (%)
-            </Label>
-            <Input
-              id="oxygenSat"
-              placeholder="e.g. 98%"
-              value={vitals.oxygenSat}
-              className={getVitalColor('oxygenSat', vitals.oxygenSat)}
-              onFocus={() => handleFieldFocus('oxygenSat')}
-              onChange={(e) => { setVitals((v) => ({ ...v, oxygenSat: e.target.value })); markDirty(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="painScale" className="flex items-center gap-1.5">
-              <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
-              Pain Scale (0-10)
-            </Label>
-            <Input
-              id="painScale"
-              placeholder="e.g. 3"
-              type="number"
-              min="0"
-              max="10"
-              value={vitals.painScale}
-              className={getVitalColor('painScale', vitals.painScale)}
-              onFocus={() => handleFieldFocus('painScale')}
-              onChange={(e) => { setVitals((v) => ({ ...v, painScale: e.target.value })); markDirty(); }}
-            />
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <VitalInput id="bloodPressure" label="Blood Pressure" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 120/80" value={vitals.bloodPressure} colorClass={getVitalColor('bloodPressure', vitals.bloodPressure)}
+            onChange={v => setVitals(p => ({ ...p, bloodPressure: v }))} />
+          <VitalInput id="heartRate" label="Heart Rate" icon={<Heart className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 72 bpm" value={vitals.heartRate} colorClass={getVitalColor('heartRate', vitals.heartRate)}
+            onChange={v => setVitals(p => ({ ...p, heartRate: v }))} />
+          <VitalInput id="temperature" label="Temperature" icon={<Thermometer className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 36.8°C" value={vitals.temperature} colorClass={getVitalColor('temperature', vitals.temperature)}
+            onChange={v => setVitals(p => ({ ...p, temperature: v }))} />
+          <VitalInput id="respiratoryRate" label="Resp. Rate" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
+            onChange={v => setVitals(p => ({ ...p, respiratoryRate: v }))} />
+          <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)}
+            onChange={v => setVitals(p => ({ ...p, oxygenSat: v }))} />
+          <VitalInput id="painScale" label="Pain Scale (0-10)" icon={<AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
+            onChange={v => setVitals(p => ({ ...p, painScale: v }))} />
+          <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 140 bpm" value={fetalHeartRate} colorClass={getVitalColor('fetalHeartRate', fetalHeartRate)}
+            onChange={v => setFetalHeartRate(v)} />
+          <VitalInput id="fundalHeight" label="Fundal Height" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => setFundalHeight(v)} />
+          <VitalInput id="weight" label="Weight (kg)" icon={<Weight className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => setVitals(p => ({ ...p, weight: v }))} />
+          <VitalInput id="height" label="Height (cm)" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
+            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => setVitals(p => ({ ...p, height: v }))} />
         </div>
-
-        {/* BMI Display */}
+        {/* BMI */}
         {calculatedBMI && bmiCategory && (
-          <div className={`flex items-center gap-2 p-3 rounded-lg border ${bmiCategory.bg}`}>
+          <div className={`flex items-center gap-2 p-3 rounded-lg border mt-3 ${bmiCategory.bg}`}>
             <Activity className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">BMI: <strong className={bmiCategory.color}>{calculatedBMI}</strong> — <span className={bmiCategory.color}>{bmiCategory.label}</span></span>
           </div>
         )}
       </div>
-
       <Separator />
 
-      {/* OB History — Gravidity, Parity, LMP, AOG */}
+      {/* OB History */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Baby className="h-4.5 w-4.5 text-rose-500" />
@@ -1611,42 +881,22 @@ export function ConsultationView() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="gravidity">Gravidity (G)</Label>
-            <Input
-              id="gravidity"
-              type="number"
-              min="0"
-              max="20"
-              placeholder="0"
-              value={gravidity}
+            <Input id="gravidity" type="number" min="0" max="20" placeholder="0" value={gravidity}
               onFocus={() => handleFieldFocus('gravidity')}
-              onChange={(e) => { const v = parseInt(e.target.value, 10); setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }}
-            />
+              onChange={e => { const v = parseInt(e.target.value, 10); setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
             <p className="text-[11px] text-muted-foreground">No. of pregnancies</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="parity">Parity (P)</Label>
-            <Input
-              id="parity"
-              type="number"
-              min="0"
-              max="20"
-              placeholder="0"
-              value={parity}
+            <Input id="parity" type="number" min="0" max="20" placeholder="0" value={parity}
               onFocus={() => handleFieldFocus('parity')}
-              onChange={(e) => { const v = parseInt(e.target.value, 10); setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }}
-            />
+              onChange={e => { const v = parseInt(e.target.value, 10); setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
             <p className="text-[11px] text-muted-foreground">No. of births</p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="lmp">LMP (Last Menstrual Period)</Label>
-            <Input
-              id="lmp"
-              type="date"
-              value={lmp}
-              max={new Date().toISOString().slice(0, 10)}
-              onFocus={() => handleFieldFocus('lmp')}
-              onChange={(e) => { setLmp(e.target.value); markDirty(); }}
-            />
+            <Label htmlFor="lmp">LMP</Label>
+            <Input id="lmp" type="date" value={lmp} max={new Date().toISOString().slice(0, 10)}
+              onFocus={() => handleFieldFocus('lmp')} onChange={e => { setLmp(e.target.value); markDirty(); }} />
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
@@ -1657,547 +907,359 @@ export function ConsultationView() {
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      <Separator />
-
-      {/* Obstetric-specific */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Baby className="h-4.5 w-4.5 text-rose-500" />
-          <h3 className="font-semibold text-foreground dark:text-gray-100">Obstetric Assessment</h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="fetalHeartRate">Fetal Heart Rate</Label>
-            <Input
-              id="fetalHeartRate"
-              placeholder="e.g. 140 bpm"
-              value={fetalHeartRate}
-              onFocus={() => handleFieldFocus('fetalHeartRate')}
-              onChange={(e) => { setFetalHeartRate(e.target.value); markDirty(); }}
-            />
+  // ─── Step 1: Health History ────────────────────────────────────────
+  const StepHealthHistory = () => (
+    <div className="space-y-6">
+      {/* Reference Code header */}
+      <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-teal-800">HEALTH HISTORY</h3>
+            {healthHistoryRefCode && <p className="text-xs text-teal-600 font-mono mt-0.5">Ref: {healthHistoryRefCode}</p>}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="fundalHeight">Fundal Height</Label>
-            <Input
-              id="fundalHeight"
-              placeholder="e.g. 24 cm"
-              value={fundalHeight}
-              onFocus={() => handleFieldFocus('fundalHeight')}
-              onChange={(e) => { setFundalHeight(e.target.value); markDirty(); }}
-            />
-          </div>
+          {healthHistoryExisting && <Badge variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">Loaded from record</Badge>}
         </div>
       </div>
 
+      {/* Search existing health history */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5"><Search className="h-3.5 w-3.5 text-muted-foreground" /> Search Existing Health History</Label>
+        <div className="flex gap-2">
+          <Input placeholder="Enter reference code (e.g., HH-20260409-001)..." value={healthHistorySearchQuery}
+            onChange={e => setHealthHistorySearchQuery(e.target.value)} className="flex-1" />
+          <Button variant="outline" onClick={async () => {
+            if (!healthHistorySearchQuery.trim()) return;
+            try {
+              const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
+              if (res.ok) setHealthHistorySearchResults((await res.json()) || []);
+            } catch { /* ignore */ }
+          }}><Search className="h-4 w-4" /></Button>
+          <Button variant="outline" onClick={() => {
+            setHealthHistorySearchQuery(''); setHealthHistorySearchResults([]);
+            setHealthHistoryData({ pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '', historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '', smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '', physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '', immunizationStatus: '', mentalHealthHistory: '' });
+            setHealthHistoryRefCode(''); setHealthHistoryExisting(null);
+          }}><Plus className="h-4 w-4" /> New</Button>
+        </div>
+        {healthHistorySearchResults.length > 0 && (
+          <div className="border rounded-lg max-h-40 overflow-y-auto">
+            {healthHistorySearchResults.map(r => (
+              <button key={r.id} className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-0 flex justify-between items-center"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/health-history/${r.id}`);
+                    if (res.ok) {
+                      const data = await res.json();
+                      setHealthHistoryData(prev => ({ ...prev, pastMedicalHistory: data.pastMedicalHistory || '', previousSurgery: data.previousSurgery || '', historyOfTrauma: data.historyOfTrauma || '', historyOfBloodTransfusion: data.historyOfBloodTransfusion || '', familyHistoryPaternal: data.familyHistoryPaternal || '', familyHistoryMaternal: data.familyHistoryMaternal || '', smokingHistory: data.smokingHistory || '', alcoholIntake: data.alcoholIntake || '', drugUse: data.drugUse || '', dietaryPattern: data.dietaryPattern || '', physicalActivity: data.physicalActivity || '', sleepPattern: data.sleepPattern || '', allergies: data.allergies || '', currentMedications: data.currentMedications || '', immunizationStatus: data.immunizationStatus || '', mentalHealthHistory: data.mentalHealthHistory || '' }));
+                      setHealthHistoryRefCode(data.referenceCode); setHealthHistoryExisting(r.id);
+                      setHealthHistorySearchResults([]); setHealthHistorySearchQuery('');
+                    }
+                  } catch { /* ignore */ }
+                }}>
+                <span className="font-mono font-medium">{r.referenceCode}</span>
+                <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <Separator />
 
-      {/* Allergies & Medications */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="allergies" className="flex items-center gap-1.5">
-            <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-            Allergies
-          </Label>
-          <Input
-            id="allergies"
-            placeholder="e.g. Penicillin, Sulfa drugs"
-            value={allergies}
-            onFocus={() => handleFieldFocus('allergies')}
-            onChange={(e) => { setAllergies(e.target.value); markDirty(); }}
-          />
+      {/* Past Medical History & Previous Surgery */}
+      <div className="space-y-4">
+        <HealthTextarea id="hh-pastMedical" label="Past Medical History" placeholder="Previous medical conditions (diabetes, hypertension, heart disease, etc.)"
+          value={healthHistoryData.pastMedicalHistory} onChange={v => setHealthHistoryData(p => ({ ...p, pastMedicalHistory: v }))} />
+        <HealthTextarea id="hh-surgery" label="Previous Surgery" placeholder="Previous surgical procedures with dates if known"
+          value={healthHistoryData.previousSurgery} onChange={v => setHealthHistoryData(p => ({ ...p, previousSurgery: v }))} />
+        <HealthInput id="hh-trauma" label="History of Trauma" placeholder="Any history of physical trauma..."
+          value={healthHistoryData.historyOfTrauma} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfTrauma: v }))} />
+        <HealthInput id="hh-transfusion" label="History of Blood Transfusion" placeholder="Any previous blood transfusions..."
+          value={healthHistoryData.historyOfBloodTransfusion} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfBloodTransfusion: v }))} />
+      </div>
+      <Separator />
+
+      {/* Family History */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-teal-600" /> Family History</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <HealthTextarea id="hh-familyPat" label="Paternal Side" placeholder="Health conditions on father's side..."
+            value={healthHistoryData.familyHistoryPaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryPaternal: v }))} />
+          <HealthTextarea id="hh-familyMat" label="Maternal Side" placeholder="Health conditions on mother's side..."
+            value={healthHistoryData.familyHistoryMaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryMaternal: v }))} />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="medications">Current Medications</Label>
-          <Textarea
-            id="medications"
-            placeholder="List current medications..."
-            className="min-h-[60px] resize-y"
-            value={medications}
-            onFocus={() => handleFieldFocus('medications')}
-            onChange={(e) => { setMedications(e.target.value); markDirty(); }}
-          />
+      </div>
+      <Separator />
+
+      {/* Personal and Social History */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-teal-600" /> Personal and Social History</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <HealthInput id="hh-smoking" label="Smoking" placeholder="Smoker/Non-smoker, pack-years..."
+            value={healthHistoryData.smokingHistory} onChange={v => setHealthHistoryData(p => ({ ...p, smokingHistory: v }))} />
+          <HealthInput id="hh-alcohol" label="Alcohol Intake" placeholder="None/Occasional/Regular..."
+            value={healthHistoryData.alcoholIntake} onChange={v => setHealthHistoryData(p => ({ ...p, alcoholIntake: v }))} />
+          <HealthInput id="hh-drugs" label="Drug Use" placeholder="Any substance use..."
+            value={healthHistoryData.drugUse} onChange={v => setHealthHistoryData(p => ({ ...p, drugUse: v }))} />
+          <HealthInput id="hh-diet" label="Dietary Pattern" placeholder="Diet description..."
+            value={healthHistoryData.dietaryPattern} onChange={v => setHealthHistoryData(p => ({ ...p, dietaryPattern: v }))} />
+          <HealthInput id="hh-activity" label="Physical Activity" placeholder="Sedentary/Moderate/Active..."
+            value={healthHistoryData.physicalActivity} onChange={v => setHealthHistoryData(p => ({ ...p, physicalActivity: v }))} />
+          <HealthInput id="hh-sleep" label="Sleep Pattern" placeholder="Hours per night, quality..."
+            value={healthHistoryData.sleepPattern} onChange={v => setHealthHistoryData(p => ({ ...p, sleepPattern: v }))} />
+        </div>
+      </div>
+      <Separator />
+
+      {/* Additional Info */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-teal-600" /> Additional Information</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <HealthInput id="hh-allergies" label="Allergies" placeholder="Known allergies..."
+            value={healthHistoryData.allergies} onChange={v => setHealthHistoryData(p => ({ ...p, allergies: v }))} />
+          <HealthInput id="hh-meds" label="Current Medications" placeholder="Ongoing medications..."
+            value={healthHistoryData.currentMedications} onChange={v => setHealthHistoryData(p => ({ ...p, currentMedications: v }))} />
+          <HealthInput id="hh-immuno" label="Immunization Status" placeholder="Tetanus, flu vaccine, etc."
+            value={healthHistoryData.immunizationStatus} onChange={v => setHealthHistoryData(p => ({ ...p, immunizationStatus: v }))} />
+          <HealthInput id="hh-mental" label="Mental Health History" placeholder="Any mental health conditions..."
+            value={healthHistoryData.mentalHealthHistory} onChange={v => setHealthHistoryData(p => ({ ...p, mentalHealthHistory: v }))} />
         </div>
       </div>
     </div>
   );
 
-  // ─── Step 1: Additional Findings ────────────────────────────────────────
-
+  // ─── Step 2: Additional Findings ──────────────────────────────────
   const StepFindings = () => (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
-        <Textarea
-          id="physicalExam"
-          placeholder="General appearance, fundal assessment, edema, etc."
-          className="min-h-[100px] resize-y"
-          value={physicalExam}
-          onFocus={() => handleFieldFocus('physicalExam')}
-          onChange={(e) => { setPhysicalExam(e.target.value); markDirty(); }}
-        />
+        <Textarea id="physicalExam" placeholder="General appearance, fundal assessment, edema, etc." className="min-h-[100px] resize-y"
+          value={physicalExam} onFocus={() => handleFieldFocus('physicalExam')} onChange={e => { setPhysicalExam(e.target.value); markDirty(); }} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="labResults">Laboratory Results</Label>
-        <Textarea
-          id="labResults"
-          placeholder="CBC, Urinalysis, Blood typing, etc."
-          className="min-h-[100px] resize-y"
-          value={labResults}
-          onFocus={() => handleFieldFocus('labResults')}
-          onChange={(e) => { setLabResults(e.target.value); markDirty(); }}
-        />
+        <Textarea id="labResults" placeholder="CBC, Urinalysis, Blood typing, etc." className="min-h-[100px] resize-y"
+          value={labResults} onFocus={() => handleFieldFocus('labResults')} onChange={e => { setLabResults(e.target.value); markDirty(); }} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Additional Notes</Label>
-        <Textarea
-          id="notes"
-          placeholder="Any additional observations or notes..."
-          className="min-h-[80px] resize-y"
-          value={notes}
-          onFocus={() => handleFieldFocus('notes')}
-          onChange={(e) => { setNotes(e.target.value); markDirty(); }}
-        />
+        <Textarea id="notes" placeholder="Any additional observations or notes..." className="min-h-[80px] resize-y"
+          value={notes} onFocus={() => handleFieldFocus('notes')} onChange={e => { setNotes(e.target.value); markDirty(); }} />
       </div>
     </div>
   );
 
-  // ─── ICD-10 Search Function ─────────────────────────────────────
-  const icd10Options: CodeOption[] = ICD10_MATERNAL_CODES.map((c) => ({
-    code: c.code,
-    name: c.name,
-    description: c.description,
-    category: c.category,
-  }));
-
-  const icd10CategoryColors: Record<string, string> = {
-    hypertensive: '#ef4444',
-    diabetes: '#f59e0b',
-    anemia: '#8b5cf6',
-    hemorrhage: '#dc2626',
-    infection: '#06b6d4',
-    labor: '#3b82f6',
-    fetal: '#ec4899',
-    other: '#6b7280',
-  };
-
-  // ─── NANDA Search Function ──────────────────────────────────────
-  const nandaOptions: CodeOption[] = NANDA_DIAGNOSES.map((d) => ({
-    code: d.code,
-    name: d.name,
-    description: d.definition,
-    category: d.category,
-  }));
-
-  const nandaCategoryColors: Record<string, string> = {
-    physiological: '#22c55e',
-    psychosocial: '#3b82f6',
-    knowledge: '#f59e0b',
-    safety: '#ef4444',
-  };
-
-  // ─── NIC Search Function ────────────────────────────────────────
-  const nicOptions: CodeOption[] = NIC_INTERVENTIONS.map((n) => ({
-    code: n.code,
-    name: n.name,
-    description: n.description,
-    category: n.category,
-  }));
-
-  const nicCategoryColors: Record<string, string> = {
-    Physiological: '#22c55e',
-    Psychosocial: '#3b82f6',
-    Safety: '#ef4444',
-    Educational: '#f59e0b',
-  };
-
-  // (icd10SelectedCode and nandaSelectedCode moved earlier — before buildSavePayload — to avoid TDZ)
-
-  // ─── Step 2: Diagnosis ──────────────────────────────────────────────────
+  // ─── Step 3: Diagnosis ─────────────────────────────────────────────
+  const icd10Options: CodeOption[] = ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }));
+  const nandaOptions: CodeOption[] = NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }));
 
   const StepDiagnosis = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <CodeCombobox
-          label="ICD-10 Diagnosis — Code Search"
-          helperText="ICD-10 Ref: Type the code to find a diagnosis (e.g., 'O' for obstetric codes, 'O14' for preeclampsia). Search by code or keyword."
-          value={icd10SelectedCode}
-          onSelect={(opt) => {
-            if (opt) {
-              setIcd10Diagnosis(`${opt.code} (${opt.name})`);
-            } else {
-              setIcd10Diagnosis('');
-            }
-            markDirty();
-          }}
-          options={icd10Options}
-          searchFn={(query, opts) => searchIcd10Codes(query).map((c) => ({
-            code: c.code,
-            name: c.name,
-            description: c.description,
-            category: c.category,
-          }))}
-          placeholder="Type code (e.g., O14) or keyword (e.g., preeclampsia)..."
-          emptyMessage="No ICD-10 codes found. Check spelling or try a broader term."
-          categoryColors={icd10CategoryColors}
-          infoTooltip="Type first letter/digit to see suggestions"
-          id="icd10Diagnosis-combobox"
-          prominentCode
-        />
-        {/* Additional notes for ICD-10 */}
-        <Textarea
-          id="icd10Diagnosis-notes"
-          placeholder="Additional clinical notes or multiple codes (e.g., O14.1 + O99.0)..."
-          className="min-h-[60px] resize-y mt-2"
-          value={icd10Diagnosis.includes('(') ? '' : icd10Diagnosis}
-          onFocus={() => handleFieldFocus('icd10Diagnosis-notes')}
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v.trim() && !icd10SelectedCode) {
-              setIcd10Diagnosis(v);
-            }
-            markDirty();
-          }}
-        />
-      </div>
-      <Separator />
-      <div className="space-y-2">
-        <CodeCombobox
-          label="NANDA-I Nursing Diagnosis — Code Search"
-          helperText="NANDA Ref: Type the code number to quickly find a diagnosis (e.g., type '0' for codes starting with 0, '00089' for Ineffective Tissue Perfusion). You can also search by keyword."
+        <CodeCombobox label="NANDA-I Nursing Diagnosis" helperText="Search by code number (e.g., 00089) or keyword."
           value={nandaSelectedCode}
-          onSelect={(opt) => {
-            if (opt) {
-              setNandaDiagnosis(`${opt.code} — ${opt.name}`);
-            } else {
-              setNandaDiagnosis('');
-            }
-            markDirty();
-          }}
+          onSelect={opt => { if (opt) setNandaDiagnosis(`${opt.code} — ${opt.name}`); else setNandaDiagnosis(''); markDirty(); }}
           options={nandaOptions}
-          searchFn={(query, opts) => searchNandaDiagnoses(query).map((d) => ({
-            code: d.code,
-            name: d.name,
-            description: d.definition,
-            category: d.category,
-          }))}
-          placeholder="Type code number (e.g., 00089) or search by name..."
-          emptyMessage="No NANDA diagnoses found. Try a different code or keyword."
-          categoryColors={nandaCategoryColors}
-          infoTooltip="Type first digit to see suggestions"
-          id="nandaDiagnosis-combobox"
-          prominentCode
-        />
-        {/* Additional notes for NANDA */}
-        <Textarea
-          id="nandaDiagnosis-notes"
-          placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
-          className="min-h-[60px] resize-y mt-2"
-          value={nandaDiagnosis.includes('—') ? '' : nandaDiagnosis}
+          searchFn={(q) => searchNandaDiagnoses(q).map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }))}
+          placeholder="Type NANDA code or keyword..." emptyMessage="No NANDA diagnoses found."
+          categoryColors={NANDA_CATEGORY_COLORS} id="nandaDiagnosis-combobox" prominentCode />
+        <Textarea id="nandaDiagnosis-notes" placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
+          className="min-h-[60px] resize-y mt-2" value={nandaDiagnosis.includes('—') ? '' : nandaDiagnosis}
           onFocus={() => handleFieldFocus('nandaDiagnosis-notes')}
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v.trim() && !nandaSelectedCode) {
-              setNandaDiagnosis(v);
-            }
-            markDirty();
-          }}
-        />
+          onChange={e => { const v = e.target.value; if (v.trim() && !nandaSelectedCode) setNandaDiagnosis(v); markDirty(); }} />
       </div>
-    </div>
-  );
-
-  // ─── Step 3: Risk Classification ────────────────────────────────────────
-
-  const riskOptions = [
-    {
-      value: 'low',
-      label: 'Low Risk',
-      description: 'Uncomplicated pregnancy, normal vitals, no red flags',
-      color: 'green',
-      border: 'border-green-400',
-      bg: 'bg-green-50',
-      text: 'text-green-800',
-      icon: CheckCircle2,
-    },
-    {
-      value: 'moderate',
-      label: 'Moderate Risk',
-      description: 'Some risk factors present, closer monitoring needed',
-      color: 'yellow',
-      border: 'border-yellow-400',
-      bg: 'bg-yellow-50',
-      text: 'text-yellow-800',
-      icon: AlertTriangle,
-    },
-    {
-      value: 'high',
-      label: 'High Risk',
-      description: 'Significant risk factors, urgent referral may be required',
-      color: 'red',
-      border: 'border-red-400',
-      bg: 'bg-red-50',
-      text: 'text-red-800',
-      icon: ShieldAlert,
-    },
-  ] as const;
-
-  const StepRisk = () => (
-    <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Classify the patient&apos;s current risk level based on the assessment and findings.
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {riskOptions.map((opt) => {
-          const isSelected = riskLevel === opt.value;
-          const Icon = opt.icon;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => { setRiskLevel(opt.value); markDirty(); }}
-              className={`
-                relative flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all duration-200
-                ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
-              `}
-            >
-              {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-rose-600" />
-                </div>
-              )}
-              <Icon className={`h-8 w-8 ${isSelected ? opt.text : 'text-gray-400'}`} />
-              <div className="text-center">
-                <p className={`font-semibold text-sm ${isSelected ? opt.text : 'text-foreground'}`}>
-                  {opt.label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">{opt.description}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Prevention Level */}
       <Separator />
       <div className="space-y-2">
-        <Label className="flex items-center gap-1.5">
-          <Shield className="h-3.5 w-3.5 text-rose-500" />
-          Prevention Level
-        </Label>
-        <p className="text-xs text-muted-foreground">
-          Classify the level of prevention based on the patient&apos;s current condition and risk factors.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {PREVENTION_LEVEL_OPTIONS.map((opt) => {
-            const isSelected = preventionLevel === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => { setPreventionLevel(opt.value); markDirty(); }}
-                className={`
-                  flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all duration-200
-                  ${isSelected
-                    ? 'border-purple-400 bg-purple-50 shadow-sm dark:bg-purple-950/20 dark:border-purple-700'
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
-                `}
-              >
-                <p className={`text-sm font-semibold ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-foreground'}`}>
-                  {opt.label}
-                </p>
-                <p className="text-xs text-muted-foreground">{opt.description}</p>
-              </button>
-            );
-          })}
-        </div>
+        <CodeCombobox label="ICD-10 Diagnosis" helperText="ICD-10 Maternal codes (e.g., O14 for preeclampsia)."
+          value={icd10SelectedCode}
+          onSelect={opt => { if (opt) setIcd10Diagnosis(`${opt.code} (${opt.name})`); else setIcd10Diagnosis(''); markDirty(); }}
+          options={icd10Options}
+          searchFn={(q) => searchIcd10Codes(q).map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }))}
+          placeholder="Type ICD-10 code or keyword..." emptyMessage="No ICD-10 codes found."
+          categoryColors={ICD10_CATEGORY_COLORS} id="icd10Diagnosis-combobox" prominentCode />
+        <Textarea id="icd10Diagnosis-notes" placeholder="Additional notes or multiple codes (e.g., O14.1 + O99.0)..."
+          className="min-h-[60px] resize-y mt-2" value={icd10Diagnosis.includes('(') ? '' : icd10Diagnosis}
+          onFocus={() => handleFieldFocus('icd10Diagnosis-notes')}
+          onChange={e => { const v = e.target.value; if (v.trim() && !icd10SelectedCode) setIcd10Diagnosis(v); markDirty(); }} />
       </div>
     </div>
   );
 
-  // ─── Step 4: AI Intervention Suggestion ─────────────────────────────────
+  // ─── Step 4: AI Summary ───────────────────────────────────────────
+  const StepAiSummary = () => {
+    // Auto-trigger AI when entering this step (if no data yet)
+    useEffect(() => {
+      if (!aiSuggestions && !aiLoading && !aiError) {
+        // Auto-trigger after a short delay to let the UI render
+        const timer = setTimeout(() => handleAiSuggest(), 500);
+        return () => clearTimeout(timer);
+      }
+    }, []);
 
-  const StepAiSuggest = () => (
-    <div className="space-y-4">
-      {/* Generate button */}
-      {!aiSuggestions && !aiLoading && (
-        <div className="text-center py-8">
-          <Sparkles className="h-12 w-12 text-rose-300 mx-auto mb-4" />
-          <h3 className="font-semibold text-lg mb-1">AI-Assisted Interventions</h3>
-          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-            Based on the assessment data, our AI can suggest nursing interventions using the NIC
-            (Nursing Interventions Classification) framework.
-          </p>
-          <Button onClick={handleAiSuggest} size="lg" className="gap-2 bg-rose-600 hover:bg-rose-700">
-            <Sparkles className="h-4.5 w-4.5" />
-            Suggest Interventions
-          </Button>
-          <p className="text-[11px] text-muted-foreground mt-4 flex items-center justify-center gap-1">
-            <Shield className="h-3 w-3" />
-            AI only receives clinical data, no patient identifiers
-          </p>
-        </div>
-      )}
+    const riskColorMap: Record<string, { border: string; bg: string; text: string; icon: typeof CheckCircle2 }> = {
+      low: { border: 'border-green-400', bg: 'bg-green-50 dark:bg-green-950/20', text: 'text-green-800 dark:text-green-200', icon: CheckCircle2 },
+      moderate: { border: 'border-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-950/20', text: 'text-yellow-800 dark:text-yellow-200', icon: AlertTriangle },
+      high: { border: 'border-red-400', bg: 'bg-red-50 dark:bg-red-950/20', text: 'text-red-800 dark:text-red-200', icon: ShieldAlert },
+    };
 
-      {/* Loading state */}
-      {aiLoading && (
-        <div className="text-center py-12">
-          <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground font-medium">
-            AI is analyzing assessment data...
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">This may take a few moments</p>
-        </div>
-      )}
-
-      {/* Error state */}
-      {aiError && !aiLoading && !aiSuggestions && (
-        <div className="text-center py-8">
-          <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-amber-500" />
+    return (
+      <div className="space-y-4">
+        {/* Loading */}
+        {aiLoading && (
+          <div className="text-center py-12">
+            <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground font-medium">AI is analyzing assessment data...</p>
+            <p className="text-xs text-muted-foreground mt-1">This may take a few moments</p>
           </div>
-          <h3 className="font-semibold text-base mb-2">Unable to Generate AI Suggestions</h3>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
-            {aiError}
-          </p>
-          <Button onClick={handleAiSuggest} variant="outline" className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Try Again
-          </Button>
-        </div>
-      )}
+        )}
 
-      {/* AI Results */}
-      {aiSuggestions && !aiLoading && (
-        <div className="space-y-4">
-          {/* Priority intervention */}
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <ShieldAlert className="h-4 w-4 text-rose-600" />
-              <span className="font-semibold text-sm text-rose-800">Priority Intervention</span>
+        {/* Error */}
+        {aiError && !aiLoading && !aiSuggestions && (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="h-8 w-8 text-amber-500" />
             </div>
-            <p className="font-medium text-rose-900">{aiSuggestions.priorityIntervention || 'N/A'}</p>
-            <p className="text-sm text-rose-700 mt-1">{aiSuggestions.rationale || 'No rationale provided'}</p>
-            {aiSuggestions.preventionLevel && (
-              <Badge
-                variant="secondary"
-                className="mt-2 bg-rose-100 text-rose-700 hover:bg-rose-100 text-xs"
-              >
-                Prevention: {aiSuggestions.preventionLevel}
-              </Badge>
+            <h3 className="font-semibold text-base mb-2">Unable to Generate AI Summary</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">{aiError}</p>
+            <Button onClick={handleAiSuggest} variant="outline" className="gap-2"><RefreshCw className="h-4 w-4" /> Try Again</Button>
+          </div>
+        )}
+
+        {/* AI Results — read-only display */}
+        {aiSuggestions && !aiLoading && (
+          <div className="space-y-4">
+            {/* Risk Classification */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <RiskBadgeCard label="Risk Classification" value={riskLabel(riskLevel || preventionToRisk(aiSuggestions.preventionLevel))}
+                colors={riskColorMap[riskLevel || 'low'] || riskColorMap.low} />
+              <RiskBadgeCard label="Prevention Level" value={aiSuggestions.preventionLevel === 'primary' ? 'Primary Prevention'
+                : aiSuggestions.preventionLevel === 'secondary' ? 'Secondary Prevention' : 'Tertiary Prevention'}
+                colors={{
+                  border: 'border-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/20',
+                  text: 'text-purple-800 dark:text-purple-200', icon: Shield,
+                }} />
+            </div>
+
+            {/* Risk Indicators */}
+            {aiSuggestions.riskIndicators && aiSuggestions.riskIndicators.length > 0 && (
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500" /> Risk Indicators</h4>
+                <ul className="space-y-1">
+                  {aiSuggestions.riskIndicators.map((ind, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-amber-500 mt-0.5">•</span> {ind}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-          </div>
 
-          {/* Suggested interventions list */}
-          <div>
-            <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-rose-500" />
-              Suggested NIC Interventions
-            </h4>
-            <div className="space-y-2">
-              {aiSuggestions.interventions?.map((intervention, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-white hover:border-rose-200 transition-colors"
-                >
-                  <div className="mt-0.5 flex-shrink-0">
-                    <Checkbox
-                      checked={selectedInterventions.some((i) => i.name === intervention.name)}
-                      onCheckedChange={() => toggleAiIntervention(intervention)}
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm">{intervention.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {intervention.description}
-                    </p>
-                    {intervention.category && (
-                      <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
-                        {intervention.category}
-                      </Badge>
-                    )}
-                  </div>
+            {/* Rationale */}
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+              <h4 className="text-sm font-semibold flex items-center gap-2"><Brain className="h-4 w-4 text-rose-500" /> Rationale</h4>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{aiSuggestions.rationale}</p>
+            </div>
+
+            {/* Suggested Interventions */}
+            {aiSuggestions.interventions && aiSuggestions.interventions.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2"><ClipboardList className="h-4 w-4 text-rose-500" /> Suggested Interventions ({aiSuggestions.interventions.length})</h4>
+                <div className="space-y-2 max-h-[320px] overflow-y-auto">
+                  {aiSuggestions.interventions.map((intervention, idx) => (
+                    <div key={idx} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {intervention.code && (
+                          <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                            NIC {String(intervention.code)}
+                          </Badge>
+                        )}
+                        <span className="text-sm font-medium">{intervention.name}</span>
+                        {intervention.priority && (
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${intervention.priority === 'high' ? 'border-red-300 text-red-600' : intervention.priority === 'medium' ? 'border-amber-300 text-amber-600' : 'border-green-300 text-green-600'}`}>
+                            {intervention.priority}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{intervention.description}</p>
+                      {intervention.relatedNanda && <p className="text-xs text-muted-foreground"><span className="font-medium">NANDA:</span> {intervention.relatedNanda}</p>}
+                      {intervention.relatedNoc && <p className="text-xs text-muted-foreground"><span className="font-medium">NOC:</span> {intervention.relatedNoc}</p>}
+                    </div>
+                  ))}
                 </div>
-              ))}
-              {(!aiSuggestions.interventions || aiSuggestions.interventions.length === 0) && (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  No interventions were generated. Try regenerating.
-                </p>
-              )}
+              </div>
+            )}
+
+            {/* Priority Intervention */}
+            {aiSuggestions.priorityIntervention && (
+              <div className="rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 p-4">
+                <div className="flex items-center gap-2 mb-1"><ShieldAlert className="h-4 w-4 text-rose-600" /><span className="font-semibold text-sm text-rose-800 dark:text-rose-200">Priority Intervention</span></div>
+                <p className="font-medium text-rose-900 dark:text-rose-100">{aiSuggestions.priorityIntervention}</p>
+              </div>
+            )}
+
+            {/* Nursing Considerations */}
+            {aiSuggestions.nursingConsiderations && aiSuggestions.nursingConsiderations.length > 0 && (
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+                <h4 className="text-sm font-semibold">Nursing Considerations</h4>
+                <ul className="space-y-1">{aiSuggestions.nursingConsiderations.map((c, i) => <li key={i} className="text-sm text-muted-foreground flex items-start gap-2"><span className="text-teal-500 mt-0.5">•</span>{c}</li>)}</ul>
+              </div>
+            )}
+
+            {/* Follow-up Schedule */}
+            {aiSuggestions.followUpSchedule && (
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+                <p className="text-xs font-medium text-muted-foreground">Follow-up: <span className="text-foreground">{aiSuggestions.followUpSchedule}</span></p>
+              </div>
+            )}
+
+            {/* Reassess Button */}
+            <div className="flex justify-center pt-2">
+              <Button onClick={handleAiSuggest} disabled={aiLoading} size="lg" variant="outline" className="gap-2 border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/20">
+                <RefreshCw className={`h-4.5 w-4.5 ${aiLoading ? 'animate-spin' : ''}`} /> Reassess
+              </Button>
+            </div>
+
+            {/* Privacy notice */}
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+              <Shield className="h-3 w-3" /> AI only receives clinical data, no patient identifiers
             </div>
           </div>
+        )}
+      </div>
+    );
+  };
 
-          {/* Regenerate */}
-          <div className="flex justify-center">
-            <Button variant="outline" onClick={handleAiSuggest} disabled={aiLoading} className="gap-2">
-              <RefreshCw className={`h-3.5 w-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
-              Regenerate Suggestions
-            </Button>
-          </div>
+  // ─── Step 5: Care Plan ────────────────────────────────────────────
+  const nocOptions: CodeOption[] = NOC_OUTCOMES.map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category }));
 
-          {/* Privacy notice */}
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-            <Shield className="h-3 w-3" />
-            AI only receives clinical data, no patient identifiers
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  // ─── Step 5: Nurse Selection (HITL) ─────────────────────────────────────
-
-  const StepHITL = () => (
+  const StepCarePlan = () => (
     <div className="space-y-4">
       <div>
-        <h3 className="font-semibold mb-1">Human-in-the-Loop Intervention Selection</h3>
+        <h3 className="font-semibold mb-1">Nursing Care Plan</h3>
         <p className="text-sm text-muted-foreground">
-          Review the AI suggestions above and select which interventions to apply. You can also add
-          custom interventions based on your clinical judgment using NIC codes.
+          Select NIC interventions for the patient. {selectedNandaDomain && <span className="text-rose-600">Filtered by NANDA domain {selectedNandaDomain}.</span>}
         </p>
       </div>
 
       {/* AI suggestions as checkboxes */}
       {aiSuggestions && aiSuggestions.interventions && aiSuggestions.interventions.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-            AI-Suggested Interventions
-          </p>
-          <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">AI-Suggested Interventions</p>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto">
             {aiSuggestions.interventions.map((intervention, idx) => {
-              const isChecked = selectedInterventions.some((i) => i.name === intervention.name);
+              const isChecked = selectedInterventions.some(i => i.name === intervention.name);
               const intCode = intervention.code ? String(intervention.code) : '';
               return (
-                <label
-                  key={idx}
-                  className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                    isChecked
-                      ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/20'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <Checkbox
-                    checked={isChecked}
-                    onCheckedChange={() => toggleAiIntervention(intervention)}
-                    className="mt-0.5"
-                  />
+                <label key={idx} className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  isChecked ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/20' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300'}`}>
+                  <Checkbox checked={isChecked} onCheckedChange={() => toggleAiIntervention(intervention)} className="mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      {intCode && (
-                        <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                          NIC {intCode}
-                        </Badge>
-                      )}
+                      {intCode && <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">NIC {intCode}</Badge>}
                       <p className="text-sm font-medium">{intervention.name}</p>
                     </div>
-                    {intervention.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{intervention.description}</p>
-                    )}
-                    {intervention.category && (
-                      <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
-                        {intervention.category}
-                      </Badge>
-                    )}
+                    {intervention.description && <p className="text-xs text-muted-foreground mt-0.5">{intervention.description}</p>}
                   </div>
                 </label>
               );
@@ -2208,730 +1270,504 @@ export function ConsultationView() {
 
       <Separator />
 
-      {/* Custom interventions */}
+      {/* Add Custom NIC Intervention */}
       <div>
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-          Add Custom Intervention
-        </p>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Add Custom Intervention</p>
         <div className="space-y-3">
-          {/* NIC Code selector */}
           <CodeCombobox
             label="NIC Intervention Code (Optional)"
-            helperText="NIC Ref: Search for a standard NIC intervention by code number (e.g., 6680). You can also type a custom name below."
-            value={customNicCode}
-            onSelect={handleNicCodeSelect}
-            options={nicOptions}
-            searchFn={(query) => searchNicInterventions(query).map((n) => ({
-              code: n.code,
-              name: n.name,
-              description: n.description,
-              category: n.category,
-            }))}
-            placeholder="Type NIC code (e.g., 6680) or keyword..."
-            emptyMessage="No NIC interventions found."
-            categoryColors={nicCategoryColors}
-            infoTooltip="Type first digit to see NIC suggestions"
-            id="nic-custom-combobox"
-            prominentCode
-          />
-          {/* Custom name input */}
+            helperText={`Search NIC interventions${selectedNandaDomain ? ` (filtered by NANDA domain ${selectedNandaDomain})` : ''}`}
+            value={customNicCode} onSelect={handleNicCodeSelect}
+            options={filteredNicOptions}
+            searchFn={(query) => searchNicInterventions(query).map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category }))}
+            placeholder="Type NIC code or keyword..." emptyMessage="No NIC interventions found."
+            categoryColors={NIC_CATEGORY_COLORS} id="nic-custom-combobox" prominentCode />
           <div className="flex gap-2">
-            <Input
-              placeholder={customNicName ? `Using: ${customNicName}` : 'Or type custom intervention name...'}
-              value={customNicName ? '' : customIntervention}
-              onChange={(e) => {
+            <Input placeholder={customNicName ? `Using: ${customNicName}` : 'Or type custom intervention name...'}
+              value={customNicName ? '' : customIntervention} onChange={e => {
                 setCustomIntervention(e.target.value);
-                if (e.target.value) {
-                  setCustomNicCode('');
-                  setCustomNicName('');
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addCustomInterventionWithCode();
-                }
-              }}
-              className="flex-1"
-            />
-            <Button
-              onClick={addCustomInterventionWithCode}
-              disabled={!customIntervention.trim() && !customNicCode}
-              size="icon"
-              className="bg-rose-600 hover:bg-rose-700"
-            >
+                if (e.target.value) { setCustomNicCode(''); setCustomNicName(''); }
+              }} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomInterventionWithCode(); } }} className="flex-1" />
+            <Button onClick={addCustomInterventionWithCode} disabled={!customIntervention.trim() && !customNicCode} size="icon" className="bg-rose-600 hover:bg-rose-700">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
         </div>
-
-        {/* Selected / custom interventions list */}
-        {selectedInterventions.length > 0 && (
-          <div className="space-y-2 mt-4">
-            <p className="text-xs font-medium text-muted-foreground">
-              Selected Interventions ({selectedInterventions.length})
-            </p>
-            {selectedInterventions.map((intervention, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 p-2.5 rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20"
-              >
-                <CheckCircle2 className="h-4 w-4 text-rose-600 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {intervention.code && (
-                      <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                        NIC {intervention.code}
-                      </Badge>
-                    )}
-                    <p className="text-sm font-medium truncate">{intervention.name}</p>
-                  </div>
-                  {intervention.description && (
-                    <p className="text-xs text-muted-foreground truncate">{intervention.description}</p>
-                  )}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-red-600"
-                  onClick={() => removeIntervention(intervention.name)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {selectedInterventions.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No interventions selected yet. Select from AI suggestions or add custom ones above.
-          </p>
-        )}
-      </div>
-    </div>
-  );
-
-  // ─── Step 6: Evaluation (NOC) ───────────────────────────────────────────
-
-  const evalOptions = [
-    {
-      value: 'achieved',
-      label: 'Achieved',
-      description: 'Goals fully met, patient stabilized',
-      color: 'green',
-      border: 'border-green-400',
-      bg: 'bg-green-50',
-      text: 'text-green-800',
-    },
-    {
-      value: 'partially',
-      label: 'Partially Achieved',
-      description: 'Some improvement, goals partially met',
-      color: 'yellow',
-      border: 'border-yellow-400',
-      bg: 'bg-yellow-50',
-      text: 'text-yellow-800',
-    },
-    {
-      value: 'not_achieved',
-      label: 'Not Achieved',
-      description: 'No improvement or condition worsened',
-      color: 'red',
-      border: 'border-red-400',
-      bg: 'bg-red-50',
-      text: 'text-red-800',
-    },
-  ] as const;
-
-  const StepEvaluation = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="font-semibold mb-1">NOC Evaluation Status</h3>
-        <p className="text-sm text-muted-foreground">
-          Assess whether the nursing outcomes criteria have been met.
-        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {evalOptions.map((opt) => {
-          const isSelected = evaluationStatus === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => { setEvaluationStatus(opt.value); markDirty(); }}
-              className={`
-                relative flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all duration-200
-                ${isSelected ? `${opt.border} ${opt.bg} shadow-md scale-[1.02]` : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'}
-              `}
-            >
-              {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-rose-600" />
-                </div>
-              )}
-              <div className={`text-center`}>
-                <p className={`font-semibold text-sm ${isSelected ? opt.text : 'text-foreground'}`}>
-                  {opt.label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">{opt.description}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Per-Intervention Evaluation */}
+      {/* Selected interventions with inline evaluation */}
       {selectedInterventions.length > 0 && (
-        <>
-          <Separator />
-          <div>
-            <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-rose-500" />
-              Per-Intervention Evaluation ({selectedInterventions.length})
-            </h4>
-            <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-              {selectedInterventions.map((intervention, idx) => {
-                const eval_ = interventionEvals[idx] || { nicCode: intervention.code || '', status: '', nocOutcome: '', notes: '' };
-                return (
-                  <div key={idx} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      {intervention.code && (
-                        <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                          NIC {intervention.code}
-                        </Badge>
-                      )}
+        <div className="space-y-3">
+          <p className="text-xs font-medium text-muted-foreground">Selected Interventions ({selectedInterventions.length})</p>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+            {selectedInterventions.map((intervention, idx) => {
+              const eval_ = interventionEvals[idx] || { nicCode: intervention.code || '', status: '', nocOutcome: '', nocOutcomeCode: '', notes: '' };
+              return (
+                <div key={idx} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {intervention.code && <Badge variant="secondary" className="font-mono text-[10px] px-1.5 py-0 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">NIC {intervention.code}</Badge>}
                       <span className="text-sm font-medium truncate">{intervention.name}</span>
                     </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label className="text-xs">Evaluation Status</Label>
-                          <Select value={eval_.status} onValueChange={(v) => updateInterventionEval(idx, 'status', v)}>
-                            <SelectTrigger className="h-9 text-xs">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="achieved">Achieved</SelectItem>
-                              <SelectItem value="partially">Partially Achieved</SelectItem>
-                              <SelectItem value="not_achieved">Not Achieved</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs">NOC Outcome (Free Text)</Label>
-                          <Input
-                            placeholder="e.g., Patient reports reduced pain"
-                            className="h-9 text-xs"
-                            value={eval_.nocOutcome}
-                            onChange={(e) => updateInterventionEval(idx, 'nocOutcome', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">NOC Outcome Code (Optional)</Label>
-                        <CodeCombobox
-                          placeholder="Search NOC code (e.g., 2102) or keyword..."
-                          emptyMessage="No NOC outcomes found."
-                          value={eval_.nocOutcomeCode || ''}
-                          onSelect={(opt) => {
-                            if (opt) {
-                              updateInterventionEval(idx, 'nocOutcomeCode', opt.code);
-                              // Also set the name as nocOutcome if not already set
-                              if (!eval_.nocOutcome) {
-                                updateInterventionEval(idx, 'nocOutcome', opt.name);
-                              }
-                            } else {
-                              updateInterventionEval(idx, 'nocOutcomeCode', '');
-                            }
-                          }}
-                          options={nocOptions}
-                          searchFn={(query) => searchNocOutcomes(query).map((n) => ({
-                            code: n.code,
-                            name: n.name,
-                            description: n.description,
-                            category: n.category,
-                          }))}
-                          categoryColors={nocCategoryColors}
-                          infoTooltip="Type NOC code or keyword to find outcomes"
-                          prominentCode
-                        />
-                      </div>
-                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-red-600 flex-shrink-0"
+                      onClick={() => removeIntervention(intervention.name)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </div>
+                  {/* Inline evaluation + NOC */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Notes</Label>
-                      <Textarea
-                        placeholder="Evaluation notes for this intervention..."
-                        className="min-h-[60px] resize-none text-xs"
-                        value={eval_.notes}
-                        onChange={(e) => updateInterventionEval(idx, 'notes', e.target.value)}
-                      />
+                      <Label className="text-xs">Evaluation</Label>
+                      <Select value={eval_.status || undefined} onValueChange={v => updateInterventionEval(idx, 'status', v)}>
+                        <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Select..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="met">Met</SelectItem>
+                          <SelectItem value="partially_met">Partially Met</SelectItem>
+                          <SelectItem value="unmet">Unmet</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs">NOC Outcome</Label>
+                      <CodeCombobox
+                        value={eval_.nocOutcomeCode || ''} onSelect={opt => {
+                          if (opt) { updateInterventionEval(idx, 'nocOutcomeCode', opt.code); if (!eval_.nocOutcome) updateInterventionEval(idx, 'nocOutcome', opt.name); }
+                          else updateInterventionEval(idx, 'nocOutcomeCode', '');
+                        }} options={nocOptions}
+                        searchFn={(query) => searchNocOutcomes(query).map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category }))}
+                        placeholder="Search NOC code or keyword..." emptyMessage="No NOC outcomes found."
+                        categoryColors={NOC_CATEGORY_COLORS} />
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  {/* Notes per intervention */}
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Notes</Label>
+                    <Input placeholder="Notes for this intervention..." className="h-9 text-xs"
+                      value={eval_.notes} onChange={e => updateInterventionEval(idx, 'notes', e.target.value)} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </>
+        </div>
       )}
 
+      {selectedInterventions.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-4">No interventions selected yet. Select from AI suggestions or add custom ones above.</p>
+      )}
+
+      {/* Free-text Outcome Panel */}
       <div className="space-y-2">
-        <Label htmlFor="evaluationNotes">Overall Evaluation Notes</Label>
-        <Textarea
-          id="evaluationNotes"
-          placeholder="Document the evaluation findings, patient response, and follow-up plan..."
-          className="min-h-[100px] resize-y"
-          value={evaluationNotes}
-          onFocus={() => handleFieldFocus('evaluationNotes')}
-          onChange={(e) => { setEvaluationNotes(e.target.value); markDirty(); }}
-        />
+        <Label htmlFor="evaluationNotes">Outcome Summary</Label>
+        <Textarea id="evaluationNotes" placeholder="Document the overall outcomes, patient response, and follow-up plan..."
+          className="min-h-[80px] resize-y" value={evaluationNotes}
+          onFocus={() => handleFieldFocus('evaluationNotes')} onChange={e => { setEvaluationNotes(e.target.value); markDirty(); }} />
       </div>
     </div>
   );
 
-  // ─── Referral Helper Components ──────────────────────────────────────
+  // ─── Step 6: Referral ─────────────────────────────────────────────
+  const StepReferral = () => {
+    const ReferralSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+      <div><h5 className="text-sm font-semibold text-rose-700 dark:text-rose-300 border-b border-rose-100 dark:border-rose-800 pb-1 mb-2">{title}</h5><div className="space-y-1.5 pl-1">{children}</div></div>
+    );
+    const ReferralRow = ({ label, value }: { label: string; value: string }) => (
+      <div><span className="text-xs font-medium text-muted-foreground">{label}</span><p className="text-sm whitespace-pre-wrap">{value}</p></div>
+    );
 
-  const ReferralSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div>
-      <h5 className="text-sm font-semibold text-rose-700 border-b border-rose-100 pb-1 mb-2 print:text-rose-800 print:border-rose-200">
-        {title}
-      </h5>
-      <div className="space-y-1.5 pl-1">{children}</div>
-    </div>
-  );
-
-  const ReferralRow = ({ label, value }: { label: string; value: string }) => (
-    <div>
-      <span className="referral-label">{label}</span>
-      <p className="referral-value whitespace-pre-wrap">{value}</p>
-    </div>
-  );
-
-  // ─── Step 7: Referral ───────────────────────────────────────────────────
-
-  const StepReferral = () => (
-    <div className="space-y-4">
-      {/* Referral Options — shown before generating */}
-      {!referralSummary && !referralLoading && (
-        <div className="space-y-6">
-          <div className="text-center py-4">
-            <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-1">Referral Details</h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Configure the referral details before generating the referral summary document.
-            </p>
-          </div>
-
-          <div className="space-y-4 max-w-xl mx-auto">
-            {/* Type of Referral */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5">
-                <FileOutput className="h-3.5 w-3.5 text-muted-foreground" />
-                Type of Referral
-              </Label>
-              <Select value={referralType} onValueChange={(v) => { setReferralType(v); markDirty(); }}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select referral type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {REFERRAL_TYPE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    return (
+      <div className="space-y-4">
+        {!referralSummary && !referralLoading && (
+          <div className="space-y-6">
+            <div className="text-center py-4">
+              <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-1">Referral Details</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">Configure the referral details before generating the referral summary document.</p>
             </div>
-
-            {/* Referral Priority */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5">
-                <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground" />
-                Referral Priority
-              </Label>
-              <Select value={referralPriority} onValueChange={(v) => { setReferralPriority(v); markDirty(); }}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select priority level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {REFERRAL_PRIORITY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label} — {opt.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Facility Info */}
-            <div className="space-y-2">
-              <Label htmlFor="referralFacility" className="flex items-center gap-1.5">
-                <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                Referral Facility
-              </Label>
-              <Textarea
-                id="referralFacility"
-                placeholder="Facility name, address, contact information..."
-                className="min-h-[80px] resize-y"
-                value={referralFacility}
-                onFocus={() => handleFieldFocus('referralFacility')}
-                onChange={(e) => { setReferralFacility(e.target.value); markDirty(); }}
-              />
-            </div>
-
-            {/* Generate button */}
-            <Button
-              onClick={handleGenerateReferral}
-              size="lg"
-              className="w-full gap-2 bg-rose-600 hover:bg-rose-700"
-            >
-              <FileText className="h-4.5 w-4.5" />
-              Generate Referral Summary
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Loading */}
-      {referralLoading && (
-        <div className="text-center py-12">
-          <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground font-medium">Generating referral summary...</p>
-        </div>
-      )}
-
-      {/* Referral content */}
-      {referralSummary && !referralLoading && (
-        <div className="space-y-4">
-          {/* Action buttons */}
-          <div className="flex flex-wrap gap-2 justify-center">
-            <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2">
-              <Copy className="h-3.5 w-3.5" />
-              Copy to Clipboard
-            </Button>
-            <Button variant="outline" onClick={handleDownloadPdf} className="gap-2">
-              <FileOutput className="h-3.5 w-3.5" />
-              Download PDF
-            </Button>
-            <Button variant="outline" onClick={handleGenerateReferral} className="gap-2">
-              <RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} />
-              Regenerate
-            </Button>
-          </div>
-
-          {/* Formatted Referral Card */}
-          <div className="referral-card rounded-xl border border-gray-200 overflow-hidden bg-white">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-rose-600 to-rose-500 text-white px-6 py-4 print:bg-rose-600">
-              <div className="flex items-center gap-3">
-                <Baby className="h-6 w-6" />
-                <div>
-                  <h4 className="font-bold text-base tracking-wide">MOMTERNAL</h4>
-                  <p className="text-rose-100 text-xs">Maternal Health Referral Summary</p>
+            <div className="space-y-4 max-w-xl mx-auto">
+              {/* Fixed Referral Type */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><FileOutput className="h-3.5 w-3.5 text-muted-foreground" /> Type of Referral</Label>
+                <div className="h-9 rounded-md border border-gray-200 dark:border-gray-700 bg-muted px-3 flex items-center text-sm font-medium">
+                  Refer to Doctor
                 </div>
               </div>
+              {/* Priority */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><AlertTriangle className="h-3.5 w-3.5 text-muted-foreground" /> Referral Priority</Label>
+                <Select value={referralPriority || undefined} onValueChange={v => { setReferralPriority(v); markDirty(); }}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Select priority level" /></SelectTrigger>
+                  <SelectContent>
+                    {REFERRAL_PRIORITY_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label} — {opt.description}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Facility */}
+              <div className="space-y-2">
+                <Label htmlFor="referralFacility" className="flex items-center gap-1.5"><Info className="h-3.5 w-3.5 text-muted-foreground" /> Referral Facility</Label>
+                <Textarea id="referralFacility" placeholder="Facility name, address, contact information..."
+                  className="min-h-[80px] resize-y" value={referralFacility}
+                  onFocus={() => handleFieldFocus('referralFacility')} onChange={e => { setReferralFacility(e.target.value); markDirty(); }} />
+              </div>
+              {/* Pre-filled notes from assessment */}
+              {(chiefComplaint || vitals.bloodPressure || riskLevel) && (
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assessment Summary (Pre-filled)</h4>
+                  {chiefComplaint && <p className="text-sm"><span className="font-medium">Chief Complaint:</span> {chiefComplaint}</p>}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {vitals.bloodPressure && <span><strong>BP:</strong> {vitals.bloodPressure}</span>}
+                    {vitals.heartRate && <span><strong>HR:</strong> {vitals.heartRate}</span>}
+                    {vitals.temperature && <span><strong>Temp:</strong> {vitals.temperature}</span>}
+                    {fetalHeartRate && <span><strong>FHR:</strong> {fetalHeartRate}</span>}
+                    {riskLevel && <span><strong>Risk:</strong> {riskLabel(riskLevel)}</span>}
+                    {consultationAOG && <span><strong>AOG:</strong> {consultationAOG}</span>}
+                  </div>
+                </div>
+              )}
+              <Button onClick={handleGenerateReferral} size="lg" className="w-full gap-2 bg-rose-600 hover:bg-rose-700">
+                <FileText className="h-4.5 w-4.5" /> Generate Referral Summary
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {referralLoading && (
+          <div className="text-center py-12"><Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" /><p className="text-sm text-muted-foreground font-medium">Generating referral summary...</p></div>
+        )}
+
+        {referralSummary && !referralLoading && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2"><Copy className="h-3.5 w-3.5" /> Copy to Clipboard</Button>
+              <Button variant="outline" onClick={handleDownloadPdf} className="gap-2"><FileOutput className="h-3.5 w-3.5" /> Download PDF</Button>
+              <Button variant="outline" onClick={handleGenerateReferral} className="gap-2"><RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} /> Regenerate</Button>
             </div>
 
-            <div className="p-6 space-y-5 print:p-4 print:space-y-3">
-              {/* Patient Information */}
-              <ReferralSection title="Patient Information">
-                <ReferralRow label="Name" value={consultation.patient.name} />
-                <ReferralRow label="Patient ID" value={consultation.patient.patientId} />
-                {consultation.patient.dateOfBirth && (
-                  <ReferralRow label="Date of Birth" value={consultation.patient.dateOfBirth} />
-                )}
-                {consultation.patient.bloodType && (
-                  <ReferralRow label="Blood Type" value={consultation.patient.bloodType} />
-                )}
-                {consultation.patient.aog && (
-                  <ReferralRow label="Age of Gestation" value={consultation.patient.aog} />
-                )}
-                {consultation.patient.gravidity !== undefined && (
-                  <ReferralRow label="Gravidity" value={String(consultation.patient.gravidity)} />
-                )}
-                {consultation.patient.parity !== undefined && (
-                  <ReferralRow label="Parity" value={String(consultation.patient.parity)} />
-                )}
-                {riskLevel && (
-                  <ReferralRow
-                    label="Risk Level"
-                    value={riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
-                  />
-                )}
-              </ReferralSection>
+            {/* Formatted Referral Card */}
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
+              <div className="bg-gradient-to-r from-rose-600 to-rose-500 text-white px-6 py-4">
+                <div className="flex items-center gap-3"><Baby className="h-6 w-6" /><div><h4 className="font-bold text-base tracking-wide">MOMTERNAL</h4><p className="text-rose-100 text-xs">Maternal Health Referral Summary</p></div></div>
+              </div>
+              <div className="p-6 space-y-5">
+                <ReferralSection title="Patient Information">
+                  <ReferralRow label="Name" value={consultation.patient.name} />
+                  <ReferralRow label="Patient ID" value={consultation.patient.patientId} />
+                  {consultation.patient.dateOfBirth && <ReferralRow label="Date of Birth" value={consultation.patient.dateOfBirth} />}
+                  {consultationAOG && <ReferralRow label="Age of Gestation" value={consultationAOG} />}
+                  {gravidity && <ReferralRow label="Gravidity" value={gravidity} />}
+                  {parity && <ReferralRow label="Parity" value={parity} />}
+                  {riskLevel && <ReferralRow label="Risk Level" value={riskLabel(riskLevel)} />}
+                </ReferralSection>
 
-              {/* Clinical Assessment (SOAP) */}
-              <ReferralSection title="Clinical Assessment (SOAP)">
-                {subjectiveSymptoms && (
+                <ReferralSection title="Clinical Assessment">
+                  {chiefComplaint && <ReferralRow label="Chief Complaint" value={chiefComplaint} />}
                   <div>
-                    <span className="referral-label">Subjective — Symptoms / Chief Complaint</span>
-                    <p className="referral-value whitespace-pre-wrap">{subjectiveSymptoms}</p>
-                  </div>
-                )}
-                <div>
-                  <span className="referral-label">Objective — Vital Signs</span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 mt-1">
-                    {vitals.bloodPressure && (
-                      <span className="referral-value text-xs"><strong>BP:</strong> {vitals.bloodPressure}</span>
-                    )}
-                    {vitals.heartRate && (
-                      <span className="referral-value text-xs"><strong>HR:</strong> {vitals.heartRate}</span>
-                    )}
-                    {vitals.temperature && (
-                      <span className="referral-value text-xs"><strong>Temp:</strong> {vitals.temperature}</span>
-                    )}
-                    {vitals.weight && (
-                      <span className="referral-value text-xs"><strong>Weight:</strong> {vitals.weight}</span>
-                    )}
-                    {vitals.respiratoryRate && (
-                      <span className="referral-value text-xs"><strong>RR:</strong> {vitals.respiratoryRate}</span>
-                    )}
-                  </div>
-                  {(fetalHeartRate || fundalHeight) && (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
-                      {fetalHeartRate && (
-                        <span className="referral-value text-xs"><strong>FHR:</strong> {fetalHeartRate}</span>
-                      )}
-                      {fundalHeight && (
-                        <span className="referral-value text-xs"><strong>Fundal Height:</strong> {fundalHeight}</span>
-                      )}
+                    <span className="text-xs font-medium text-muted-foreground">Vital Signs</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 mt-1">
+                      {vitals.bloodPressure && <span className="text-xs"><strong>BP:</strong> {vitals.bloodPressure}</span>}
+                      {vitals.heartRate && <span className="text-xs"><strong>HR:</strong> {vitals.heartRate}</span>}
+                      {vitals.temperature && <span className="text-xs"><strong>Temp:</strong> {vitals.temperature}</span>}
+                      {vitals.weight && <span className="text-xs"><strong>Weight:</strong> {vitals.weight}</span>}
+                      {vitals.respiratoryRate && <span className="text-xs"><strong>RR:</strong> {vitals.respiratoryRate}</span>}
+                      {fetalHeartRate && <span className="text-xs"><strong>FHR:</strong> {fetalHeartRate}</span>}
+                      {fundalHeight && <span className="text-xs"><strong>Fundal Height:</strong> {fundalHeight}</span>}
+                      {calculatedBMI && <span className="text-xs"><strong>BMI:</strong> {calculatedBMI}</span>}
                     </div>
-                  )}
-                </div>
-                {allergies && (
-                  <ReferralRow label="Allergies" value={allergies} />
+                  </div>
+                  {allergies && <ReferralRow label="Allergies" value={allergies} />}
+                  {medications && <ReferralRow label="Current Medications" value={medications} />}
+                </ReferralSection>
+
+                {(physicalExam || labResults || notes) && (
+                  <ReferralSection title="Additional Findings">
+                    {physicalExam && <ReferralRow label="Physical Examination" value={physicalExam} />}
+                    {labResults && <ReferralRow label="Laboratory Results" value={labResults} />}
+                    {notes && <ReferralRow label="Additional Notes" value={notes} />}
+                  </ReferralSection>
                 )}
-                {medications && (
-                  <ReferralRow label="Current Medications" value={medications} />
+
+                {(icd10Diagnosis || nandaDiagnosis) && (
+                  <ReferralSection title="Diagnosis">
+                    {icd10Diagnosis && <ReferralRow label="ICD-10 Diagnosis" value={icd10Diagnosis} />}
+                    {nandaDiagnosis && <ReferralRow label="NANDA-I Nursing Diagnosis" value={nandaDiagnosis} />}
+                  </ReferralSection>
                 )}
-              </ReferralSection>
 
-              {/* Findings */}
-              {(physicalExam || labResults || notes) && (
-                <ReferralSection title="Additional Findings">
-                  {physicalExam && (
-                    <ReferralRow label="Physical Examination" value={physicalExam} />
-                  )}
-                  {labResults && (
-                    <ReferralRow label="Laboratory Results" value={labResults} />
-                  )}
-                  {notes && (
-                    <ReferralRow label="Additional Notes" value={notes} />
-                  )}
-                </ReferralSection>
-              )}
+                {selectedInterventions.length > 0 && (
+                  <ReferralSection title="Nursing Interventions (NIC)">
+                    <ul className="list-disc list-inside space-y-1">
+                      {selectedInterventions.map((intervention, idx) => (
+                        <li key={idx} className="text-sm">{intervention.name}
+                          {intervention.description && <span className="text-muted-foreground"> — {intervention.description}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                    {aiSuggestions?.priorityIntervention && (
+                      <div className="mt-2 p-2 bg-rose-50 dark:bg-rose-950/20 rounded-lg border border-rose-100 dark:border-rose-800">
+                        <span className="text-xs font-semibold text-rose-700 dark:text-rose-300">Priority: </span>
+                        <span className="text-xs text-rose-800 dark:text-rose-200">{aiSuggestions.priorityIntervention}</span>
+                      </div>
+                    )}
+                  </ReferralSection>
+                )}
 
-              {/* Diagnosis */}
-              {(icd10Diagnosis || nandaDiagnosis) && (
-                <ReferralSection title="Diagnosis">
-                  {icd10Diagnosis && (
-                    <ReferralRow label="ICD-10 Diagnosis" value={icd10Diagnosis} />
-                  )}
-                  {nandaDiagnosis && (
-                    <ReferralRow label="NANDA-I Nursing Diagnosis" value={nandaDiagnosis} />
-                  )}
-                </ReferralSection>
-              )}
-
-              {/* AI Interventions */}
-              {selectedInterventions.length > 0 && (
-                <ReferralSection title="AI-Suggested Interventions (NIC)">
-                  <ul className="list-disc list-inside space-y-1">
-                    {selectedInterventions.map((intervention, idx) => (
-                      <li key={idx} className="referral-value text-sm">
-                        {intervention.name}
-                        {intervention.description && (
-                          <span className="text-muted-foreground"> — {intervention.description}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                  {aiSuggestions?.priorityIntervention && (
-                    <div className="mt-2 p-2 bg-rose-50 rounded-lg border border-rose-100 print:bg-rose-50 print:border-rose-200">
-                      <span className="text-xs font-semibold text-rose-700">Priority: </span>
-                      <span className="text-xs text-rose-800">{aiSuggestions.priorityIntervention}</span>
-                    </div>
-                  )}
-                </ReferralSection>
-              )}
-
-              {/* Evaluation */}
-              {evaluationStatus && (
-                <ReferralSection title="Evaluation (NOC)">
-                  <ReferralRow
-                    label="Status"
-                    value={evaluationStatus === 'achieved'
-                      ? 'Achieved'
-                      : evaluationStatus === 'partially'
-                        ? 'Partially Achieved'
-                        : 'Not Achieved'}
-                  />
-                  {evaluationNotes && (
-                    <ReferralRow label="Notes" value={evaluationNotes} />
-                  )}
-                </ReferralSection>
-              )}
-
-              {/* Footer */}
-              <div className="border-t border-gray-200 pt-3 mt-4 print:border-gray-300">
-                <div className="flex flex-wrap justify-between gap-2 text-[11px] text-muted-foreground">
-                  <span>Consultation: {consultation.consultationNo}</span>
-                  <span>Date: {new Date(consultation.consultationDate).toLocaleDateString()}</span>
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-1">
-                  Generated by MOMternal — Maternal Health Nursing Assessment System
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-4">
+                  <div className="flex flex-wrap justify-between gap-2 text-[11px] text-muted-foreground">
+                    <span>Consultation: {consultation.consultationNo}</span>
+                    <span>Date: {new Date(consultation.consultationDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1">Generated by MOMternal — Maternal Health Nursing Assessment System</div>
                 </div>
               </div>
             </div>
+
+            {/* Complete button */}
+            <div className="flex justify-center pt-4">
+              <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8" onClick={handleComplete}>
+                <CheckCircle2 className="h-4.5 w-4.5" /> Complete Consultation
+              </Button>
+            </div>
           </div>
-
-          {/* Complete button */}
-          <div className="flex justify-center pt-4">
-            <Button
-              size="lg"
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8"
-              onClick={handleComplete}
-            >
-              <CheckCircle2 className="h-4.5 w-4.5" />
-              Complete Consultation
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  // ─── NOC search helpers ───────────────────────────────────────────
-  const nocOptions: CodeOption[] = NOC_OUTCOMES.map((n) => ({
-    code: n.code,
-    name: n.name,
-    description: n.description,
-    category: n.category,
-  }));
-
-  const nocCategoryColors: Record<string, string> = {
-    physiological: '#22c55e',
-    psychosocial: '#3b82f6',
-    knowledge: '#f59e0b',
-    safety: '#ef4444',
+        )}
+      </div>
+    );
   };
 
-  // ─── Step Renderer ──────────────────────────────────────────────────────
-
-  const stepMeta = STEP_META[currentStep];
-  const StepIcon = stepMeta.icon;
-
+  // ─── Step Renderer ──────────────────────────────────────────────────
   const renderStep = () => {
     switch (currentStep) {
-      case 0:
-        return StepHealthHistory();
-      case 1:
-        return StepAssessment();
-      case 2:
-        return StepFindings();
-      case 3:
-        return StepDiagnosis();
-      case 4:
-        return StepRisk();
-      case 5:
-        return StepAiSuggest();
-      case 6:
-        return StepHITL();
-      case 7:
-        return StepEvaluation();
-      case 8:
-        return StepReferral();
-      default:
-        return null;
+      case 0: return <StepAssessment />;
+      case 1: return <StepHealthHistory />;
+      case 2: return <StepFindings />;
+      case 3: return <StepDiagnosis />;
+      case 4: return <StepAiSummary />;
+      case 5: return <StepCarePlan />;
+      case 6: return <StepReferral />;
+      default: return null;
     }
   };
 
   const stepDescriptions: Record<number, string> = {
-    0: 'Document the patient\'s past medical, surgical, family, and social history.',
-    1: 'Document the patient\'s subjective symptoms and objective vital signs using the SOAP format.',
+    0: 'Document the type of visit, chief complaint, vitals, OB history, and anthropometric measurements.',
+    1: "Document the patient's past medical, surgical, family, and social history.",
     2: 'Record physical examination findings, laboratory results, and additional notes.',
-    3: 'Enter ICD-10 medical diagnosis and NANDA-I nursing diagnosis.',
-    4: 'Classify the patient\'s current risk level based on the assessment data.',
-    5: 'Generate AI-assisted NIC nursing intervention suggestions.',
-    6: 'Review and select interventions to apply (Human-in-the-Loop).',
-    7: 'Evaluate the nursing outcomes using NOC criteria.',
-    8: 'Generate and finalize the referral summary document.',
+    3: 'Enter NANDA-I nursing diagnosis and ICD-10 medical diagnosis codes.',
+    4: 'AI-generated risk classification, prevention level, rationale, and suggested interventions.',
+    5: 'Select NIC interventions, evaluate outcomes, and document the care plan.',
+    6: 'Generate and finalize the referral summary document.',
   };
 
-  // ─── Main Render ────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SUB-COMPONENTS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ─── Vital Input ───────────────────────────────────────────────────
+  const VitalInput = ({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange }: {
+    id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
+    colorClass?: string; type?: string; min?: number | string; max?: number | string;
+    onChange: (v: string) => void;
+  }) => (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="flex items-center gap-1.5">{icon} {label}</Label>
+      <Input id={id} type={type} min={min} max={max} placeholder={placeholder} value={value}
+        className={colorClass || ''} onFocus={() => handleFieldFocus(id)}
+        onChange={e => { onChange(e.target.value); markDirty(); }} />
+    </div>
+  );
+
+  // ─── Health History Field Helpers ─────────────────────────────────
+  const HealthInput = ({ id, label, placeholder, value, onChange }: {
+    id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
+  }) => (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Input id={id} placeholder={placeholder} value={value}
+        onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
+    </div>
+  );
+
+  const HealthTextarea = ({ id, label, placeholder, value, onChange }: {
+    id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
+  }) => (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Textarea id={id} placeholder={placeholder} className="min-h-[60px] resize-y"
+        value={value} onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
+    </div>
+  );
+
+  // ─── Risk Badge Card ───────────────────────────────────────────────
+  const RiskBadgeCard = ({ label, value, colors }: {
+    label: string; value: string;
+    colors: { border: string; bg: string; text: string; icon: typeof CheckCircle2 };
+  }) => {
+    const Icon = colors.icon;
+    return (
+      <div className={`rounded-xl border-2 p-4 ${colors.border} ${colors.bg} flex items-center gap-3`}>
+        <Icon className={`h-6 w-6 ${colors.text} flex-shrink-0`} />
+        <div>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+          <p className={`font-semibold text-sm ${colors.text}`}>{value}</p>
+        </div>
+      </div>
+    );
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LOADING / EMPTY STATES
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3"><Skeleton className="h-10 w-10 rounded-full" /><div className="space-y-2"><Skeleton className="h-5 w-48" /><Skeleton className="h-4 w-72" /></div></div>
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Card><CardHeader><Skeleton className="h-6 w-40" /><Skeleton className="h-4 w-60" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-24 w-full" /></CardContent></Card>
+      </div>
+    );
+  }
+
+  if (!consultation) {
+    return (
+      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+        <CardContent className="py-12 text-center">
+          <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+          <p className="text-amber-800 dark:text-amber-200 font-medium">No consultation selected</p>
+          <p className="text-amber-600 text-sm mt-1">Please select a consultation to continue.</p>
+          <Button variant="outline" className="mt-4" onClick={goBack}>Go Back</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MAIN RENDER
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const stepMeta = STEP_META[currentStep];
+  const StepIcon = stepMeta.icon;
 
   return (
     <div className="space-y-0">
-      {PatientHeader()}
-      {ResumeBanner()}
-      {StepProgress()}
-      {ExitConfirmDialog()}
+      {/* Patient Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-200 to-pink-200 flex items-center justify-center flex-shrink-0">
+          <Baby className="h-6 w-6 text-rose-700" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-foreground truncate">{consultation.patient.name}</h2>
+          <p className="text-sm text-muted-foreground">
+            {consultation.patient.patientId}
+            {consultationAOG && <span className="ml-2"><Badge variant="secondary" className="text-[10px] px-1.5 py-0">{consultationAOG}</Badge></span>}
+            {riskLevel && (
+              <span className="ml-1">
+                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
+                  riskLevel === 'high' ? 'border-red-300 text-red-600 bg-red-50 dark:bg-red-950/20' :
+                  riskLevel === 'moderate' ? 'border-yellow-300 text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20' :
+                  'border-green-300 text-green-600 bg-green-50 dark:bg-green-950/20'
+                }`}>{riskLevel} risk</Badge>
+              </span>
+            )}
+          </p>
+        </div>
+        <div className="ml-auto text-right hidden sm:block">
+          <p className="text-xs text-muted-foreground">{consultation.consultationNo}</p>
+          <p className="text-xs text-muted-foreground">{new Date(consultation.consultationDate).toLocaleDateString()}</p>
+        </div>
+      </div>
+
+      {/* Resume Banner */}
+      {consultation.stepCompleted > 0 && consultation.stepCompleted < 6 && (
+        <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">
+          <Info className="h-5 w-5 flex-shrink-0" />
+          <p className="text-sm"><span className="font-semibold">Assessment Paused</span> — Last Activity: Step {consultation.stepCompleted} ({STEP_META[consultation.stepCompleted]?.label})</p>
+        </div>
+      )}
+
+      {/* Step Progress */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm p-4 mb-4">
+        <div className="flex items-center">
+          {STEP_META.map((step, idx) => {
+            const Icon = step.icon;
+            const isCompleted = idx < currentStep;
+            const isCurrent = idx === currentStep;
+            const isFuture = idx > currentStep;
+            return (
+              <div key={idx} className="flex items-center flex-1 last:flex-initial">
+                <button onClick={() => { if (idx <= currentStep) goToStep(idx); }} disabled={idx > currentStep}
+                  className="flex flex-col items-center gap-1 min-w-0">
+                  <div className={`flex items-center justify-center rounded-full transition-all duration-200 h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm font-semibold
+                    ${isCompleted ? 'bg-rose-600 text-white shadow-sm shadow-rose-200' : ''}
+                    ${isCurrent ? 'bg-rose-600 text-white ring-4 ring-rose-100 dark:ring-rose-900 shadow-sm shadow-rose-200 scale-110' : ''}
+                    ${isFuture ? 'bg-gray-100 dark:bg-gray-800 text-gray-400' : ''}
+                    ${idx <= currentStep ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed'}`}>
+                    {isCompleted ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> : <span>{idx + 1}</span>}
+                  </div>
+                  <span className={`text-[9px] sm:text-[10px] lg:text-xs text-center leading-tight truncate max-w-[56px] lg:max-w-[72px]
+                    ${isCurrent ? 'text-rose-700 font-semibold dark:text-rose-300' : ''}
+                    ${isCompleted ? 'text-rose-600 font-medium dark:text-rose-400' : ''}
+                    ${isFuture ? 'text-gray-400' : ''}`}>
+                    <span className="hidden sm:inline">{step.label}</span>
+                    <span className="sm:hidden">{step.shortLabel}</span>
+                  </span>
+                </button>
+                {idx < TOTAL_STEPS - 1 && (
+                  <div className="flex-1 mx-1 sm:mx-2 h-0.5 min-w-[8px] sm:min-w-[16px]">
+                    <div className={`h-full rounded-full transition-colors duration-200 ${idx < currentStep ? 'bg-rose-400' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Exit Dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave Consultation?</AlertDialogTitle>
+            <AlertDialogDescription>You have unsaved progress. Are you sure you want to leave?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay</AlertDialogCancel>
+            <AlertDialogAction onClick={handleExitWizard} className="bg-red-600 hover:bg-red-700 text-white">Leave</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Step Card */}
-      <Card className="overflow-hidden border-gray-200 dark:border-gray-800 shadow-sm">
+      <Card className="overflow-hidden border-gray-200/80 dark:border-gray-700/60 shadow-sm">
         <CardHeader className="pb-0">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-              <StepIcon className="h-4.5 w-4.5 text-rose-600" />
+            <div className="h-8 w-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
+              <StepIcon className="h-4.5 w-4.5 text-rose-600 dark:text-rose-400" />
             </div>
             <div>
-              <CardTitle className="text-base">
-                Step {currentStep + 1}: {stepMeta.label}
-              </CardTitle>
+              <CardTitle className="text-base">Step {currentStep + 1}: {stepMeta.label}</CardTitle>
               <CardDescription>{stepDescriptions[currentStep]}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="max-h-[calc(100vh-340px)] overflow-y-auto custom-scrollbar py-2">
-            {renderStep()}
-          </div>
+          <div className="max-h-[calc(100vh-340px)] overflow-y-auto custom-scrollbar py-2">{renderStep()}</div>
         </CardContent>
 
         {/* Navigation Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/80">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            disabled={currentStep === 0 || saving}
-            className="gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back
+          <Button variant="ghost" onClick={handleBackClick} disabled={currentStep === 0 || saving}
+            className="gap-2 text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="h-4 w-4" /> Back
           </Button>
-
           <div className="flex items-center gap-2">
-            {saving && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span>Saving...</span>
-              </div>
-            )}
-            {!saving && isInitialized.current && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Save className="h-3 w-3" />
-                <span>Auto-saved</span>
-              </div>
-            )}
+            {saving && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /><span>Saving...</span></div>}
+            {!saving && isInitialized.current && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Save className="h-3 w-3" /><span>Auto-saved</span></div>}
           </div>
-
           {currentStep < TOTAL_STEPS - 1 ? (
-            <Button
-              onClick={handleNext}
-              disabled={saving || !canProceed()}
-              className="gap-2 bg-rose-600 hover:bg-rose-700"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
+            <Button onClick={handleNext} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700">
+              Next <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              onClick={handleComplete}
-              disabled={saving}
-              variant="default"
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              Complete
+            <Button onClick={handleComplete} disabled={saving} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+              <CheckCircle2 className="h-4 w-4" /> Complete
             </Button>
           )}
         </div>

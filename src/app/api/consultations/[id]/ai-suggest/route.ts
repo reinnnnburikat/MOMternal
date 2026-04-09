@@ -19,9 +19,8 @@ export async function POST(
     const consultation = await queryOne(
       `SELECT c.*,
               p.id AS patient_db_id,
-              p.gravidity AS patient_gravidity, p.parity AS patient_parity,
-              p.aog AS patient_aog, p.blood_type AS patient_blood_type,
-              p.risk_level AS patient_risk_level
+              p.risk_level AS patient_risk_level,
+              p.barangay AS patient_barangay
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.id = $1`,
@@ -45,11 +44,12 @@ export async function POST(
       icd10Diagnosis: consultation.icd10_diagnosis as string | null | undefined,
       nandaDiagnosis: consultation.nanda_diagnosis as string | null | undefined,
       clinicalContext: {
-        gravidity: consultation.patient_gravidity as number | null | undefined,
-        parity: consultation.patient_parity as number | null | undefined,
-        aog: consultation.patient_aog as string | null | undefined,
-        bloodType: consultation.patient_blood_type as string | null | undefined,
+        gravidity: consultation.gravidity as number | null | undefined,
+        parity: consultation.parity as number | null | undefined,
+        aog: consultation.aog as string | null | undefined,
+        bloodType: consultation.blood_type as string | null | undefined,
         riskLevel: consultation.patient_risk_level as string | null | undefined,
+        barangay: consultation.patient_barangay as string | null | undefined,
       },
     };
 
@@ -71,7 +71,7 @@ export async function POST(
 
       const completion = await zai.chat.completions.create({
         messages: [
-          { role: "assistant", content: MATERNAL_AI_SYSTEM_PROMPT },
+          { role: "system", content: MATERNAL_AI_SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
         thinking: { type: "disabled" },
@@ -115,9 +115,18 @@ export async function POST(
 
     const aiSuggestionsJson = JSON.stringify(aiSuggestions);
     const updated = await queryOne(
-      `UPDATE consultation SET ai_suggestions = $1, updated_at = now() WHERE id = $2 RETURNING id, step_completed`,
+      `UPDATE consultation SET ai_suggestions = $1, updated_at = now() WHERE id = $2 RETURNING id, step_completed, patient_id, nurse_id`,
       [aiSuggestionsJson, id]
     );
+
+    // Fire-and-forget audit log for AI suggestion generation
+    if (updated?.patient_id && updated?.nurse_id) {
+      query(
+        `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [updated.nurse_id, "ai_suggest", "consultation", id, JSON.stringify({ usedFallback, riskLevel: aiSuggestions.riskClassification })]
+      ).catch(() => {});
+    }
 
     return NextResponse.json({
       success: true,

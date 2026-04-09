@@ -4,78 +4,77 @@ import { mapConsultationFromDb } from "@/lib/case";
 
 // Step-to-field mapping: determines which step a field belongs to
 const STEP_FIELD_MAP: Record<string, number> = {
-  // Step 0: Health History
-  healthHistory: 0,
-  health_history: 0,
-  healthHistoryRefCode: 0,
-  health_history_ref_code: 0,
-  // Step 1: SOAP Subjective
-  subjectiveSymptoms: 1,
-  subjective_symptoms: 1,
-  typeOfVisit: 1,
-  type_of_visit: 1,
-  chiefComplaint: 1,
-  chief_complaint: 1,
-  gravidity: 1,
-  parity: 1,
-  lmp: 1,
-  aog: 1,
-  bloodType: 1,
-  blood_type: 1,
-  height: 1,
-  weight: 1,
-  bmi: 1,
-  // Step 2: SOAP Objective
-  objectiveVitals: 2,
-  objective_vitals: 2,
-  fetalHeartRate: 2,
-  fetal_heart_rate: 2,
-  fundalHeight: 2,
-  fundal_height: 2,
-  allergies: 2,
-  medications: 2,
-  // Step 3: Findings
-  physicalExam: 3,
-  physical_exam: 3,
-  labResults: 3,
-  lab_results: 3,
-  notes: 3,
-  // Step 4: Diagnosis
-  icd10Diagnosis: 4,
-  icd10_diagnosis: 4,
-  nandaDiagnosis: 4,
-  nanda_diagnosis: 4,
-  nandaCode: 4,
-  nanda_code: 4,
-  nandaName: 4,
-  nanda_name: 4,
-  // Step 5: Risk
-  riskLevel: 5,
-  risk_level: 5,
-  preventionLevel: 5,
-  prevention_level: 5,
-  // Step 6: AI
-  aiSuggestions: 6,
-  ai_suggestions: 6,
-  selectedInterventions: 6,
-  selected_interventions: 6,
-  // Step 7: Evaluation & Referral
-  evaluationStatus: 7,
-  evaluation_status: 7,
-  evaluationNotes: 7,
-  evaluation_notes: 7,
-  interventionEvaluations: 7,
-  intervention_evaluations: 7,
-  referralType: 7,
-  referral_type: 7,
-  referralPriority: 7,
-  referral_priority: 7,
-  referralFacility: 7,
-  referral_facility: 7,
-  referralSummary: 7,
-  referral_summary: 7,
-  referralStatus: 7,
-  referral_status: 7,
+  // Step 0: Assessment
+  typeOfVisit: 0,
+  type_of_visit: 0,
+  subjectiveSymptoms: 0,
+  subjective_symptoms: 0,
+  chiefComplaint: 0,
+  chief_complaint: 0,
+  gravidity: 0,
+  parity: 0,
+  lmp: 0,
+  aog: 0,
+  bloodType: 0,
+  blood_type: 0,
+  height: 0,
+  weight: 0,
+  bmi: 0,
+  objectiveVitals: 0,
+  objective_vitals: 0,
+  fetalHeartRate: 0,
+  fetal_heart_rate: 0,
+  fundalHeight: 0,
+  fundal_height: 0,
+  allergies: 0,
+  medications: 0,
+  // Step 1: Health History
+  healthHistory: 1,
+  health_history: 1,
+  healthHistoryRefCode: 1,
+  health_history_ref_code: 1,
+  // Step 2: Additional Findings
+  physicalExam: 2,
+  physical_exam: 2,
+  labResults: 2,
+  lab_results: 2,
+  notes: 2,
+  // Step 3: Diagnosis
+  icd10Diagnosis: 3,
+  icd10_diagnosis: 3,
+  nandaDiagnosis: 3,
+  nanda_diagnosis: 3,
+  nandaCode: 3,
+  nanda_code: 3,
+  nandaName: 3,
+  nanda_name: 3,
+  // Step 4: AI Summary
+  riskLevel: 4,
+  risk_level: 4,
+  preventionLevel: 4,
+  prevention_level: 4,
+  aiSuggestions: 4,
+  ai_suggestions: 4,
+  // Step 5: Care Plan (NIC/NOC/Evaluation)
+  selectedInterventions: 5,
+  selected_interventions: 5,
+  evaluationStatus: 5,
+  evaluation_status: 5,
+  evaluationNotes: 5,
+  evaluation_notes: 5,
+  interventionEvaluations: 5,
+  intervention_evaluations: 5,
+  // Step 6: Referral
+  referralType: 6,
+  referral_type: 6,
+  referralPriority: 6,
+  referral_priority: 6,
+  referralFacility: 6,
+  referral_facility: 6,
+  referralSummary: 6,
+  referral_summary: 6,
+  referralStatus: 6,
+  referral_status: 6,
 };
 
 // Mapping from camelCase to snake_case for consultation fields
@@ -278,8 +277,8 @@ export async function PUT(
     values.push(maxStep);
     paramIdx++;
 
-    // When step 7 is completed, set status to "completed"
-    if (maxStep >= 7) {
+    // When step 6 (Referral, the last step) is completed, set status to "completed"
+    if (maxStep >= 6) {
       setClauses.push(`"status" = $${paramIdx}`);
       values.push("completed");
       paramIdx++;
@@ -300,6 +299,18 @@ export async function PUT(
         `UPDATE patient SET risk_level = $1, updated_at = now() WHERE id = $2`,
         [body.riskLevel, existing.patient_id]
       );
+    }
+
+    // Fire-and-forget audit log for consultation update
+    if (existing.patient_id) {
+      const nurseId = body.nurseId || null;
+      if (nurseId) {
+        query(
+          `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [nurseId, "update", "consultation", id, JSON.stringify({ stepCompleted: maxStep, fields: Object.keys(body) })]
+        ).catch(() => {});
+      }
     }
 
     // Fetch with patient relation

@@ -744,6 +744,25 @@ export const NOC_OUTCOMES: NocOutcome[] = [
     nandaDomains: [12],
     category: 'physiological',
   },
+  {
+    code: '2300',
+    name: 'Comfort Level',
+    domain: 'Functional Health',
+    domainNumber: 6,
+    className: 'Comfort',
+    description: 'Degree of physical and psychological ease',
+    scale: '1-5 scale',
+    indicators: [
+      'Reports comfortable',
+      'Reports absence of distress',
+      'Demonstrates relaxed body posture',
+      'Reports adequate pain relief',
+      'Reports environmental comfort',
+    ],
+    relatedNic: ['1400', '2210', '5270'],
+    nandaDomains: [12],
+    category: 'physiological',
+  },
 
   // ── Domain 13: Growth and Development ────────────────────────────
   {

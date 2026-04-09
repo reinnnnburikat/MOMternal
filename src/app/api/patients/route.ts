@@ -213,8 +213,25 @@ export async function POST(request: NextRequest) {
       nameExtension: nameExtension || "",
     });
 
+    // Parse healthHistory JSON blob if provided — distribute sections to appropriate DB columns
+    let parsedHH: Record<string, unknown> | null = null;
+    if (healthHistory) {
+      try {
+        parsedHH = typeof healthHistory === 'string' ? JSON.parse(healthHistory) : healthHistory;
+      } catch { /* keep as-is */ }
+    }
+
+    const dbMedicalHistory = parsedHH?.pastMedicalHistory
+      ? JSON.stringify(parsedHH.pastMedicalHistory)
+      : (medicalHistory || healthHistory || null);
+    const dbSurgicalHistory = parsedHH?.previousSurgery
+      ? JSON.stringify(parsedHH.previousSurgery)
+      : (surgicalHistory || null);
+    const dbFamilyHistory = parsedHH?.familyHistory
+      ? JSON.stringify(parsedHH.familyHistory)
+      : (familyHistory || null);
+
     // Create patient
-    // Note: healthHistory JSON is stored as-is in medical_history
     const patientRow = await queryOne(
       `INSERT INTO patient (patient_id, surname, first_name, middle_initial, name_extension, name, date_of_birth, age,
         address, block_lot_street, barangay, contact_number, emergency_contact, emergency_relation,
@@ -246,9 +263,9 @@ export async function POST(request: NextRequest) {
         familyComposition || null,
         incomeBracket || null,
         allergies || null,
-        healthHistory || null,
-        surgicalHistory || null,
-        familyHistory || null,
+        dbMedicalHistory,
+        dbSurgicalHistory,
+        dbFamilyHistory,
         obstetricHistory || null,
         immunizationStatus || null,
         currentMedications || null,

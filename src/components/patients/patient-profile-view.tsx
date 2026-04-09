@@ -150,15 +150,13 @@ const RISK_CLASSES: Record<string, string> = {
 };
 
 const STEP_LABELS: Record<number, string> = {
-  0: 'Health History',
-  1: 'Assessment (SOAP)',
+  0: 'Assessment',
+  1: 'Health History',
   2: 'Additional Findings',
   3: 'Diagnosis',
-  4: 'Risk Classification',
-  5: 'AI Suggestions',
-  6: 'Nurse Selection',
-  7: 'Evaluation',
-  8: 'Referral',
+  4: 'AI Summary',
+  5: 'Care Plan',
+  6: 'Referral',
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -245,10 +243,11 @@ function formatJsonValue(val: unknown): string {
   if (Array.isArray(val)) return val.join(', ') || 'None';
   if (typeof val === 'object') {
     const obj = val as Record<string, unknown>;
-    // Pattern: { selected: string[], othersSpecify: string }
+    // Pattern: { selected: string[], othersSpecify/othersText: string }
     if (Array.isArray(obj.selected)) {
       const parts = obj.selected.filter(Boolean);
-      if (obj.othersSpecify) parts.push(String(obj.othersSpecify));
+      const othersVal = obj.othersSpecify || obj.othersText;
+      if (othersVal) parts.push(String(othersVal));
       return parts.join(', ') || 'None';
     }
     // Pattern: { answer: string, ...details }
@@ -1024,9 +1023,9 @@ export function PatientProfileView() {
                             : 'In Progress'}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {consultation.stepCompleted >= 8
+                          {consultation.stepCompleted >= 6
                             ? 'All steps completed'
-                            : `Step ${consultation.stepCompleted + 1} of 9 — ${STEP_LABELS[consultation.stepCompleted + 1] || 'In Progress'}`}
+                            : `Step ${consultation.stepCompleted + 1} of 7 — ${STEP_LABELS[consultation.stepCompleted + 1] || 'In Progress'}`}
                         </span>
                       </div>
 

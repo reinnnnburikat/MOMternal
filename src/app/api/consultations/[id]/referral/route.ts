@@ -16,8 +16,7 @@ export async function POST(
     const consultation = await queryOne(
       `SELECT c.*,
               p.name AS patient_name, p.patient_id AS patient_patient_id,
-              p.date_of_birth AS patient_date_of_birth, p.gravidity AS patient_gravidity,
-              p.parity AS patient_parity, p.aog AS patient_aog, p.blood_type AS patient_blood_type,
+              p.date_of_birth AS patient_date_of_birth,
               p.risk_level AS patient_risk_level, p.barangay AS patient_barangay
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
@@ -90,10 +89,10 @@ export async function POST(
       "",
       "OBSTETRICAL HISTORY",
       "-".repeat(40),
-      `Gravidity: ${p.patient_gravidity}`,
-      `Parity: ${p.patient_parity}`,
-      `Age of Gestation: ${p.patient_aog || "Not calculated"}`,
-      `Blood Type: ${p.patient_blood_type || "Unknown"}`,
+      `Gravidity: ${consultation.gravidity || "N/A"}`,
+      `Parity: ${consultation.parity || "N/A"}`,
+      `Age of Gestation: ${consultation.aog || "Not calculated"}`,
+      `Blood Type: ${consultation.blood_type || "Unknown"}`,
       `Risk Level: ${riskLabel}`,
       "",
       "CLINICAL ASSESSMENT",

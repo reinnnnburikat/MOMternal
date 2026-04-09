@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query, queryOne } from "@/lib/supabase";
-import { mapPatientFromDb, mapConsultationFromDb } from "@/lib/case";
+import { mapPatientFromDb, mapConsultationFromDb, mapPatientToDb } from "@/lib/case";
 
 // GET /api/patients/[id] — Get single patient with all consultations
 export async function GET(

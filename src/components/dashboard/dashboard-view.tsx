@@ -92,14 +92,13 @@ const RISK_COLORS = [CHART_COLORS.green, CHART_COLORS.gold, CHART_COLORS.red];
 // ---------- helpers ----------
 
 const STEP_LABELS: Record<number, string> = {
-  0: 'Assessment (SOAP)',
-  1: 'Additional Findings',
-  2: 'Diagnosis',
-  3: 'Risk Classification',
-  4: 'AI Suggestions',
-  5: 'Nurse Selection (HITL)',
-  6: 'Evaluation (NOC)',
-  7: 'Referral',
+  0: 'Assessment',
+  1: 'Health History',
+  2: 'Additional Findings',
+  3: 'Diagnosis',
+  4: 'AI Summary',
+  5: 'Care Plan',
+  6: 'Referral',
 };
 
 function getRiskBadgeClass(riskLevel: string) {

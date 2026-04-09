@@ -21,7 +21,7 @@ async function generateConsultationNo(): Promise<string> {
     }
   }
 
-  return `${prefix}${String(nextNum).padStart(3, "0")}`;
+  return `${prefix}${String(nextNum).padStart(4, "0")}`;
 }
 
 // POST /api/patients/[id]/consultations — Create a new consultation

@@ -495,3 +495,59 @@ Stage Summary:
 - Health history fields handle both plain text (old data) and JSON (new structured data) formats
 - Consultation dialog enhanced with Visit Overview showing per-visit clinical measurements
 - File changed: src/components/patients/patient-profile-view.tsx
+---
+Task ID: 1
+Agent: Main Agent
+Task: Clear all patient and consultation data from Supabase + Full system enhancement (Phase 1-4)
+
+Work Log:
+- Cleared Supabase production database: 4 patients, 10 consultations, 14 audit logs deleted (nurse accounts preserved)
+- Local SQLite was already empty
+
+**Phase 1 — Critical Bug Fixes (A1-A7):**
+- A1: Fixed health history data flow — patient POST API now parses healthHistory JSON and distributes sections (pastMedicalHistory→medical_history, previousSurgery→surgical_history, familyHistory→family_history) to correct DB columns
+- A2: Fixed dashboard STEP_LABELS off-by-one — updated from 8-step (0-7) to 7-step (0-6) matching new wizard
+- A3: Fixed patient PUT route crash — added missing `mapPatientToDb` import
+- A4: Fixed consultation resume step skipping — resolved by complete wizard rewrite with correct step numbering
+- A5: Fixed formatJsonValue key mismatch — added `othersText` as alias for `othersSpecify` in patient profile
+- A6: Fixed AI suggest wrong role — changed from "assistant" to "system" 
+- A7: Fixed consultation step field mapping — restructured STEP_FIELD_MAP to match new 7-step wizard (0=Assessment, 1=Health History, 2=Findings, 3=Diagnosis, 4=AI Summary, 5=Care Plan, 6=Referral)
+
+**Phase 2 — Spec Compliance (B1-B6):**
+- B1: Completely rewrote consultation wizard from 9 steps to 7 steps per MOMTERNAL.docx spec
+- B2: AI Summary step rebuilt — auto-generated risk classification, prevention level, rationale, suggested interventions. No manual inputs. Reassess button.
+- B3: Care Plan step combines old HITL + Evaluation into single step with NIC dropdown filtered by NANDA domain, inline evaluation (Met/Partially Met/Unmet), NOC outcome per intervention
+- B4: Type of Visit dropdown updated to 4 options: Routine Prenatal Check-up, Follow-up, Emergency Consultation, Referral
+- B5: Referral Type fixed to "Refer to Doctor" (constant, not dropdown)
+- B6: NANDA/NIC/NOC databases verified against spec: 74 NANDA, 43 NIC, 39 NOC (added missing "Comfort Level" NOC for Domain 12)
+
+**Phase 3 — Structural Improvements (C1-C6):**
+- C1: consultation-view.tsx reduced from ~2941 lines to ~1395 lines (wizard rewrite)
+- C2: API response formats aligned
+- C3: Audit logging added to consultation PUT, AI suggest, and referral routes
+- C4: Added missing OB fields (gravidity, parity, lmp, aog, bloodType, height, weight, bmi, chiefComplaint) to mapConsultationFromDb and consultationFieldMap
+- C5: Consultation number padding increased from 3 to 4 digits (supports up to 9999)
+- C6: Dashboard sparklines kept using real data trends
+
+**Phase 4 — New Features (D1-D5):**
+- D1: AI Summary step auto-generates risk classification, prevention level, rationale, suggested interventions
+- D2: Care Plan combines NIC selection + NOC evaluation in single step per spec
+- D3: Referral PDF download retained
+- D4: BP color coding implemented (parses sys/dia separately)
+- D5: Vital sign color coding for all measurements
+
+**API Route Fixes:**
+- Fixed AI suggest route: reads OB fields from consultation table (not patient table)
+- Fixed referral route: reads G/P/AOG/BT from consultation table (not patient table)
+- Updated completion threshold: stepCompleted >= 6 sets status to "completed"
+- Updated patient profile STEP_LABELS and step display to 7-step format
+
+Stage Summary:
+- All data cleared from Supabase (4 patients, 10 consultations, 14 audit logs)
+- All 26 enhancement items implemented (A1-A7, B1-B6, C1-C6, D1-D5)
+- Consultation wizard restructured from 9 to 7 steps per MOMTERNAL.docx spec
+- All API routes updated for new step structure and field locations
+- Audit logging added to consultation updates and AI suggestions
+- NOC database completed with missing Comfort Level code
+- Lint: 0 errors. Dev server: clean compilation, HTTP 200
+- Files changed: dashboard-view.tsx, patient-profile-view.tsx, consultation-view.tsx (full rewrite), patients/[id]/route.ts, patients/route.ts, consultations/[id]/route.ts, consultations/[id]/ai-suggest/route.ts, consultations/[id]/referral/route.ts, patients/[id]/consultations/route.ts, case.ts, noc-outcomes.ts
