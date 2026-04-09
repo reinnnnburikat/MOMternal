@@ -71,12 +71,34 @@ export async function PUT(
       );
     }
 
+    // Whitelist: only allow known patient columns to reach the DB
+    const ALLOWED_FIELDS = [
+      'surname', 'firstName', 'middleInitial', 'nameExtension',
+      'dateOfBirth', 'age', 'address', 'blockLotStreet', 'barangay',
+      'contactNumber', 'emergencyContact', 'emergencyRelation',
+      'occupation', 'religion', 'maritalStatus', 'familyComposition',
+      'incomeBracket', 'allergies', 'medicalHistory', 'surgicalHistory',
+      'familyHistory', 'obstetricHistory', 'immunizationStatus',
+      'currentMedications', 'healthPractices', 'socialHistory',
+      'psychosocialHistory', 'riskLevel',
+    ];
+    const filteredUpdate: Record<string, unknown> = {};
+    for (const key of Object.keys(updateData)) {
+      if (ALLOWED_FIELDS.includes(key)) filteredUpdate[key] = updateData[key];
+    }
+
     // Map camelCase to snake_case and build update
-    const mapped = mapPatientToDb(updateData);
+    const mapped = mapPatientToDb(filteredUpdate);
 
     // Parse date fields
     if (mapped.date_of_birth) {
       mapped.date_of_birth = new Date(mapped.date_of_birth as string);
+    }
+
+    // Protect NOT NULL and system columns from being overwritten
+    const PROTECTED_COLUMNS = ['id', 'patient_id', 'name', 'date_of_birth', 'created_at', 'updated_at'];
+    for (const col of PROTECTED_COLUMNS) {
+      delete mapped[col];
     }
 
     // Prevent setting address to null (NOT NULL constraint)

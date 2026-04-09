@@ -12,7 +12,6 @@ import {
   User,
   Calendar,
   MapPin,
-  Baby,
   Filter,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -26,12 +25,7 @@ interface PatientListItem {
   address: string;
   contactNumber: string | null;
   barangay: string | null;
-  gravidity: number;
-  parity: number;
-  lmp: string | null;
-  aog: string | null;
-  bloodType: string | null;
-  riskLevel: string;
+ riskLevel: string;
   consultationCount: number;
   latestConsultationDate: string | null;
   createdAt: string;
@@ -145,13 +139,9 @@ export function PatientListView() {
   }, [barangays]);
 
   const filteredPatients = useMemo(() => {
-    // Server already filters, but client-side filter for barangay if not server-filtered
-    let result = patients;
-    if (barangayFilter !== 'all') {
-      result = result.filter((p) => p.barangay === barangayFilter);
-    }
-    return result;
-  }, [patients, barangayFilter]);
+    // Server already handles all filtering (search, risk, barangay)
+    return patients;
+  }, [patients]);
 
   const handleViewProfile = (patientId: string, patientDbId: string) => {
     setSelectedPatientId(patientDbId);
@@ -189,17 +179,6 @@ export function PatientListView() {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return 'N/A';
     return format(new Date(dateStr), 'MMM d, yyyy');
-  };
-
-  const calculateAOG = (lmp: string | null) => {
-    if (!lmp) return '';
-    const lmpDate = new Date(lmp);
-    const today = new Date();
-    const totalDays = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
-    if (totalDays < 0) return '';
-    const weeks = Math.floor(totalDays / 7);
-    const days = totalDays % 7;
-    return `${weeks}w ${days}d`;
   };
 
   return (
@@ -357,30 +336,17 @@ export function PatientListView() {
                 </span>
               </div>
 
-              {/* OB info row */}
+              {/* Info row */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Baby className="h-3 w-3 text-rose-400" />
-                  <span>
-                    G<sub>{patient.gravidity}</sub> P<sub>{patient.parity}</sub>
-                  </span>
-                </div>
-                {patient.lmp && (
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-rose-400" />
-                    <span>LMP: {formatDate(patient.lmp)}</span>
-                  </div>
-                )}
-                {(patient.aog || patient.lmp) && (
-                  <span className="font-medium text-rose-600">
-                    AOG: {patient.aog || calculateAOG(patient.lmp)}
-                  </span>
-                )}
                 {patient.latestConsultationDate && (
                   <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3 text-rose-400" />
                     <span>Last visit: {formatDate(patient.latestConsultationDate)}</span>
                   </div>
                 )}
+                <span className="text-muted-foreground">
+                  {patient.consultationCount} consultation{patient.consultationCount !== 1 ? 's' : ''}
+                </span>
               </div>
 
               {/* Actions */}

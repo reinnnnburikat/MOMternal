@@ -490,14 +490,19 @@ export function ConsultationView() {
     fetchConsultation();
   }, [selectedConsultationId]);
 
-  // ── Auto-save on unmount (use ref to avoid stale closure) ──
-  const saveRef = useRef(saveCurrentStepSilent);
-  saveRef.current = saveCurrentStepSilent;
+  // ── Auto-save on unmount placeholder (saveRef initialized after saveCurrentStepSilent) ──
+  const saveRef = useRef<() => Promise<void>>(async () => {});
+  useEffect(() => {
+    saveRef.current = saveCurrentStepSilent;
+  });
   useEffect(() => {
     return () => {
       if (isInitialized.current && selectedConsultationId) saveRef.current();
     };
   }, []);
+
+  // Move saveRef.current assignment here — AFTER saveCurrentStepSilent is defined
+  // (done via the effect above to avoid TDZ violation)
 
   // ── Save payload builder ──
   const buildSavePayload = useCallback(
@@ -585,6 +590,7 @@ export function ConsultationView() {
     } finally { setSaving(false); }
   }, [selectedConsultationId, buildSavePayload, updateActivity]);
 
+  // ── Silent save (no toast) for auto-save ──
   const saveCurrentStepSilent = useCallback(async () => {
     if (!selectedConsultationId) return;
     const payload = buildSavePayload(currentStep);
@@ -647,9 +653,11 @@ export function ConsultationView() {
 
   const confirmComplete = useCallback(async () => {
     setShowCompleteDialog(false);
-    await saveStep(currentStep);
+    const success = await saveStep(currentStep);
+    if (success) {
+      toast.success('Consultation completed!');
+    }
     goBack();
-    toast.success('Consultation completed!');
   }, [currentStep, saveStep, goBack]);
 
   // ── AI Suggest ──

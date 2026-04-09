@@ -169,9 +169,16 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields (barangay or address must be present)
-    if (!surname || !firstName || !dateOfBirth) {
+    if (!surname || !firstName) {
       return NextResponse.json(
-        { success: false, error: "Surname, first name, and date of birth are required" },
+        { success: false, error: "Surname and first name are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!dateOfBirth || isNaN(new Date(dateOfBirth).getTime())) {
+      return NextResponse.json(
+        { success: false, error: "A valid date of birth is required" },
         { status: 400 }
       );
     }

@@ -690,9 +690,7 @@ export function MapView() {
                     <CommandList>
                       <CommandEmpty>No barangay found.</CommandEmpty>
                       <CommandGroup>
-                        {BARANGAY_NAMES
-                          .filter((name) => name.toLowerCase().includes(''))
-                          .map((name) => (
+                        {BARANGAY_NAMES.map((name) => (
                             <CommandItem
                               key={name}
                               value={name}

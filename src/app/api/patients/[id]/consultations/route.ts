@@ -140,7 +140,8 @@ export async function POST(
       let paramIdx = 1;
 
       for (const [camelKey, value] of Object.entries(optionalFields)) {
-        const snakeKey = fieldMapping[camelKey] || camelKey;
+        const snakeKey = fieldMapping[camelKey];
+        if (!snakeKey) continue; // skip unknown fields
         setClauses.push(`"${snakeKey}" = $${paramIdx}`);
         values.push(value);
         paramIdx++;
