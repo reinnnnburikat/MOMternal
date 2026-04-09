@@ -189,3 +189,30 @@ Stage Summary:
 - 3 unused packages removed (smaller bundle, fewer potential issues)
 - All lint checks pass, dev server returns 200 OK
 - Pushed to GitHub — Vercel should auto-deploy
+---
+Task ID: 8
+Agent: Main Agent
+Task: Health History feature — database schema + API routes
+
+Work Log:
+- Read worklog to understand codebase patterns (Supabase PostgreSQL via `@/lib/supabase`, snake_case DB columns, camelCase API responses)
+- Examined existing API routes (patients, consultations) for patterns: `query`/`queryOne` helpers, `mapXxxFromDb` mappers, audit logging, error handling
+- Updated `prisma/schema.prisma`: Added HealthHistory model with 17 clinical fields, added relations to Patient and Nurse models
+- Ran `bun run db:push` to sync local SQLite schema (success)
+- Created `health_history` table in Supabase PostgreSQL (UUID PKs, FKs to patient and nurse)
+- Added `healthHistoryFieldMap` and `mapHealthHistoryFromDb` to `src/lib/case.ts`
+- Created API routes:
+  - `POST /api/health-history` — creates record with auto-generated `HH-YYYYMMDD-XXX` reference code
+  - `GET /api/health-history?patientId=xxx` — lists patient's health histories (DESC by created_at)
+  - `GET /api/health-history/[id]` — single record with patient/nurse name joins
+  - `GET /api/health-history/search?q=xxx` — searches by reference_code prefix, patient_id, patient name
+  - `PUT /api/health-history/[id]` — partial update with audit logging
+- All routes use `export const dynamic = "force-dynamic"`, proper try/catch, audit log fire-and-forget
+- ESLint: 0 errors, dev server running with HTTP 200
+
+Stage Summary:
+- HealthHistory model added to Prisma schema with full field set (past medical, family history, social history, etc.)
+- Supabase PostgreSQL table created with UUID PK, FKs to patient/nurse
+- 5 API routes created following existing codebase patterns
+- All field mappings and DB-to-API conversion functions added to case.ts
+- Files changed: prisma/schema.prisma, src/lib/case.ts, src/app/api/health-history/route.ts, src/app/api/health-history/[id]/route.ts, src/app/api/health-history/search/route.ts

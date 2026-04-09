@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   FileOutput,
   FileText,
+  FileHeart,
   ChevronRight,
   ChevronLeft,
   Save,
@@ -42,6 +43,7 @@ import {
   Shield,
   Info,
   AlertCircle,
+  Users,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -63,6 +65,7 @@ import {
 import { ICD10_MATERNAL_CODES, searchIcd10Codes } from '@/data/icd10-maternal';
 import { NANDA_DIAGNOSES, searchNandaDiagnoses } from '@/data/nanda-diagnoses';
 import { NIC_INTERVENTIONS, searchNicInterventions } from '@/data/nic-interventions';
+import { NOC_OUTCOMES, searchNocOutcomes } from '@/data/noc-outcomes';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -148,6 +151,7 @@ interface VitalsForm {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const STEP_META = [
+  { label: 'Health History', shortLabel: 'History', icon: FileHeart },
   { label: 'Assessment', shortLabel: 'SOAP', icon: ClipboardList },
   { label: 'Findings', shortLabel: 'Findings', icon: Search },
   { label: 'Diagnosis', shortLabel: 'Dx', icon: Stethoscope },
@@ -160,18 +164,19 @@ const STEP_META = [
 
 // Step color accents (border-l colors for step cards)
 const STEP_BORDER_COLORS: Record<number, string> = {
-  0: 'border-l-rose-400',
-  1: 'border-l-rose-400',
-  2: 'border-l-purple-400',
-  3: 'border-l-rose-400', // Dynamic based on risk
-  4: 'border-l-rose-500',
-  5: 'border-l-blue-400',
-  6: 'border-l-emerald-400',
-  7: 'border-l-amber-400',
+  0: 'border-l-teal-400',    // Health History
+  1: 'border-l-rose-400',    // Assessment
+  2: 'border-l-rose-400',    // Findings
+  3: 'border-l-purple-400',  // Diagnosis
+  4: 'border-l-rose-400',    // Risk Level (dynamic based on risk)
+  5: 'border-l-rose-500',    // AI Suggest
+  6: 'border-l-blue-400',    // Nurse Select
+  7: 'border-l-emerald-400', // Evaluation
+  8: 'border-l-amber-400',   // Referral
 };
 
 const STEP_GLOW_CLASSES: Record<number, string> = {
-  4: 'shadow-rose-100/50 dark:shadow-rose-950/30',
+  5: 'shadow-rose-100/50 dark:shadow-rose-950/30',
 };
 
 const TOTAL_STEPS = STEP_META.length;
@@ -222,17 +227,16 @@ function parseSelectedInterventions(raw: string | null | undefined): Array<{ nam
 }
 
 // Map backend stepCompleted to frontend step index
+// FE step 0 = Health History, step 1 = Assessment (SOAP), etc.
 function resolveStartStep(backendStep: number): number {
-  if (backendStep <= 0) return 0;
-  // The backend step 1=subjective, 2=objective (both part of FE step 0)
-  // Backend step 3=findings (FE step 1), etc.
-  // When backend step is 1 or 2, user finished SOAP → start at FE step 1
-  if (backendStep <= 2) return 1;
-  if (backendStep <= 3) return 2;
-  if (backendStep <= 4) return 3;
-  if (backendStep <= 5) return 4;
-  if (backendStep <= 6) return 5;
-  return 7;
+  if (backendStep <= 0) return 0; // Health History
+  // Backend step 1-2 = SOAP assessment → start at FE step 2 (Findings)
+  if (backendStep <= 2) return 2;
+  if (backendStep <= 3) return 3;
+  if (backendStep <= 4) return 4;
+  if (backendStep <= 5) return 5;
+  if (backendStep <= 6) return 6;
+  return 8;
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
@@ -304,7 +308,48 @@ export function ConsultationView() {
   const [referralType, setReferralType] = useState('');
   const [referralPriority, setReferralPriority] = useState('');
   const [referralFacility, setReferralFacility] = useState('');
-  const [interventionEvals, setInterventionEvals] = useState<Array<{nicCode: string; status: string; nocOutcome: string; notes: string}>>([]);
+  const [interventionEvals, setInterventionEvals] = useState<Array<{nicCode: string; status: string; nocOutcome: string; nocOutcomeCode: string; notes: string}>>([]);
+
+  // ── Health History state ──
+  const [healthHistoryData, setHealthHistoryData] = useState<{
+    pastMedicalHistory: string;
+    previousSurgery: string;
+    historyOfTrauma: string;
+    historyOfBloodTransfusion: string;
+    familyHistoryPaternal: string;
+    familyHistoryMaternal: string;
+    smokingHistory: string;
+    alcoholIntake: string;
+    drugUse: string;
+    dietaryPattern: string;
+    physicalActivity: string;
+    sleepPattern: string;
+    allergies: string;
+    currentMedications: string;
+    immunizationStatus: string;
+    mentalHealthHistory: string;
+  }>({
+    pastMedicalHistory: '',
+    previousSurgery: '',
+    historyOfTrauma: '',
+    historyOfBloodTransfusion: '',
+    familyHistoryPaternal: '',
+    familyHistoryMaternal: '',
+    smokingHistory: '',
+    alcoholIntake: '',
+    drugUse: '',
+    dietaryPattern: '',
+    physicalActivity: '',
+    sleepPattern: '',
+    allergies: '',
+    currentMedications: '',
+    immunizationStatus: '',
+    mentalHealthHistory: '',
+  });
+  const [healthHistoryRefCode, setHealthHistoryRefCode] = useState('');
+  const [healthHistoryExisting, setHealthHistoryExisting] = useState<string | null>(null);
+  const [healthHistorySearchQuery, setHealthHistorySearchQuery] = useState('');
+  const [healthHistorySearchResults, setHealthHistorySearchResults] = useState<Array<{id: string; referenceCode: string; createdAt: string}>>([]);
 
   // ── BMI Calculation ──
   const calculatedBMI = useMemo(() => {
@@ -325,12 +370,12 @@ export function ConsultationView() {
   }, [calculatedBMI]);
 
   // ── Per-intervention eval update ──
-  const updateInterventionEval = useCallback((index: number, field: 'status' | 'nocOutcome' | 'notes', value: string) => {
+  const updateInterventionEval = useCallback((index: number, field: 'status' | 'nocOutcome' | 'nocOutcomeCode' | 'notes', value: string) => {
     setInterventionEvals((prev) => {
       const updated = [...prev];
       if (!updated[index]) {
         const intervention = selectedInterventions[index];
-        updated[index] = { nicCode: intervention?.code || '', status: '', nocOutcome: '', notes: '' };
+        updated[index] = { nicCode: intervention?.code || '', status: '', nocOutcome: '', nocOutcomeCode: '', notes: '' };
       }
       updated[index] = { ...updated[index], [field]: value };
       return updated;
@@ -428,7 +473,11 @@ export function ConsultationView() {
     (step: number): Record<string, unknown> => {
       const payload: Record<string, unknown> = {};
       switch (step) {
-        case 0:
+        case 0: // Health History
+          payload.healthHistory = JSON.stringify(healthHistoryData);
+          if (healthHistoryRefCode) payload.healthHistoryRefCode = healthHistoryRefCode;
+          break;
+        case 1: // Assessment (SOAP)
           if (typeOfVisit) payload.typeOfVisit = typeOfVisit;
           if (subjectiveSymptoms) payload.subjectiveSymptoms = subjectiveSymptoms;
           payload.objectiveVitals = stringifyVitals(vitals);
@@ -437,12 +486,12 @@ export function ConsultationView() {
           if (allergies) payload.allergies = allergies;
           if (medications) payload.medications = medications;
           break;
-        case 1:
+        case 2: // Findings
           if (physicalExam) payload.physicalExam = physicalExam;
           if (labResults) payload.labResults = labResults;
           if (notes) payload.notes = notes;
           break;
-        case 2:
+        case 3: // Diagnosis
           if (icd10Diagnosis) payload.icd10Diagnosis = icd10Diagnosis;
           if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
           // Save NANDA code and name separately for structured data
@@ -451,24 +500,24 @@ export function ConsultationView() {
             payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
           }
           break;
-        case 3:
+        case 4: // Risk Level
           if (riskLevel) payload.riskLevel = riskLevel;
           if (preventionLevel) payload.preventionLevel = preventionLevel;
           break;
-        case 4:
+        case 5: // AI Suggest
           // AI suggestions are saved by the AI endpoint
           break;
-        case 5:
+        case 6: // Nurse Select (HITL)
           payload.selectedInterventions = JSON.stringify(selectedInterventions);
           break;
-        case 6:
+        case 7: // Evaluation
           if (evaluationStatus) payload.evaluationStatus = evaluationStatus;
           if (evaluationNotes) payload.evaluationNotes = evaluationNotes;
           if (interventionEvals.length > 0) {
             payload.interventionEvaluations = JSON.stringify(interventionEvals);
           }
           break;
-        case 7:
+        case 8: // Referral
           if (referralType) payload.referralType = referralType;
           if (referralPriority) payload.referralPriority = referralPriority;
           if (referralFacility) payload.referralFacility = referralFacility;
@@ -478,6 +527,8 @@ export function ConsultationView() {
       return payload;
     },
     [
+      healthHistoryData,
+      healthHistoryRefCode,
       typeOfVisit,
       subjectiveSymptoms,
       vitals,
@@ -772,9 +823,9 @@ export function ConsultationView() {
   // ── Render helpers ──
   const canProceed = (): boolean => {
     switch (currentStep) {
-      case 3:
-        return riskLevel.length > 0;
       case 4:
+        return riskLevel.length > 0;
+      case 5:
         // Allow proceeding if AI suggestions were generated OR if AI failed (user can add manual interventions)
         return aiSuggestions !== null || aiError !== null;
       default:
@@ -923,8 +974,8 @@ export function ConsultationView() {
 
   const ResumeBanner = () => {
     const sc = consultation.stepCompleted;
-    if (sc <= 0 || sc >= 7) return null;
-    const lastStepMeta = STEP_META[sc] || STEP_META[0];
+    if (sc <= 0 || sc >= 8) return null;
+    const lastStepMeta = STEP_META[sc] || STEP_META[1];
     return (
       <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
         <Info className="h-5 w-5 flex-shrink-0" />
@@ -1034,6 +1085,311 @@ export function ConsultationView() {
     { value: 'urgent', label: 'Urgent', description: 'Within 24 hours' },
     { value: 'same_day', label: 'Same Day', description: 'Immediate attention needed' },
   ];
+
+  // ─── Step 0: Health History ──────────────────────────────────────────
+
+  const StepHealthHistory = () => (
+    <div className="space-y-6">
+      {/* Reference Code */}
+      <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-teal-800">HEALTH HISTORY</h3>
+            {healthHistoryRefCode && (
+              <p className="text-xs text-teal-600 font-mono mt-0.5">Ref: {healthHistoryRefCode}</p>
+            )}
+          </div>
+          {healthHistoryExisting && (
+            <Badge variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">
+              Loaded from record
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Search existing health history */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+          Search Existing Health History
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Enter reference code (e.g., HH-20260409-001)..."
+            value={healthHistorySearchQuery}
+            onChange={(e) => setHealthHistorySearchQuery(e.target.value)}
+            className="flex-1"
+          />
+          <Button
+            variant="outline"
+            onClick={async () => {
+              if (!healthHistorySearchQuery.trim()) return;
+              try {
+                const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
+                if (res.ok) {
+                  const data = await res.json();
+                  setHealthHistorySearchResults(data || []);
+                }
+              } catch { /* ignore */ }
+            }}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setHealthHistorySearchQuery('');
+              setHealthHistorySearchResults([]);
+              setHealthHistoryData({ pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '', historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '', smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '', physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '', immunizationStatus: '', mentalHealthHistory: '' });
+              setHealthHistoryRefCode('');
+              setHealthHistoryExisting(null);
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New
+          </Button>
+        </div>
+        {healthHistorySearchResults.length > 0 && (
+          <div className="border rounded-lg max-h-40 overflow-y-auto">
+            {healthHistorySearchResults.map((r) => (
+              <button
+                key={r.id}
+                className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-0 flex justify-between items-center"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/health-history/${r.id}`);
+                    if (res.ok) {
+                      const data = await res.json();
+                      setHealthHistoryData({
+                        pastMedicalHistory: data.pastMedicalHistory || '',
+                        previousSurgery: data.previousSurgery || '',
+                        historyOfTrauma: data.historyOfTrauma || '',
+                        historyOfBloodTransfusion: data.historyOfBloodTransfusion || '',
+                        familyHistoryPaternal: data.familyHistoryPaternal || '',
+                        familyHistoryMaternal: data.familyHistoryMaternal || '',
+                        smokingHistory: data.smokingHistory || '',
+                        alcoholIntake: data.alcoholIntake || '',
+                        drugUse: data.drugUse || '',
+                        dietaryPattern: data.dietaryPattern || '',
+                        physicalActivity: data.physicalActivity || '',
+                        sleepPattern: data.sleepPattern || '',
+                        allergies: data.allergies || '',
+                        currentMedications: data.currentMedications || '',
+                        immunizationStatus: data.immunizationStatus || '',
+                        mentalHealthHistory: data.mentalHealthHistory || '',
+                      });
+                      setHealthHistoryRefCode(data.referenceCode);
+                      setHealthHistoryExisting(r.id);
+                      setHealthHistorySearchResults([]);
+                      setHealthHistorySearchQuery('');
+                    }
+                  } catch { /* ignore */ }
+                }}
+              >
+                <span className="font-mono font-medium">{r.referenceCode}</span>
+                <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Past Medical History */}
+      <div className="space-y-4">
+        <div>
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-teal-600" />
+            Past Medical History
+          </h4>
+          <p className="text-xs text-muted-foreground mb-2">Previous medical conditions (diabetes, hypertension, heart disease, etc.)</p>
+          <Textarea
+            placeholder="List previous medical conditions..."
+            value={healthHistoryData.pastMedicalHistory}
+            onChange={(e) => { setHealthHistoryData(p => ({...p, pastMedicalHistory: e.target.value})); markDirty(); }}
+            className="min-h-[80px]"
+          />
+        </div>
+
+        <div>
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-teal-600" />
+            Previous Surgery
+          </h4>
+          <p className="text-xs text-muted-foreground mb-2">Previous surgical procedures with dates if known</p>
+          <Textarea
+            placeholder="List previous surgeries..."
+            value={healthHistoryData.previousSurgery}
+            onChange={(e) => { setHealthHistoryData(p => ({...p, previousSurgery: e.target.value})); markDirty(); }}
+            className="min-h-[80px]"
+          />
+        </div>
+
+        <div>
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-teal-600" />
+            History of Trauma
+          </h4>
+          <Textarea
+            placeholder="Any history of physical trauma..."
+            value={healthHistoryData.historyOfTrauma}
+            onChange={(e) => { setHealthHistoryData(p => ({...p, historyOfTrauma: e.target.value})); markDirty(); }}
+            className="min-h-[60px]"
+          />
+        </div>
+
+        <div>
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-teal-600" />
+            History of Blood Transfusion
+          </h4>
+          <Textarea
+            placeholder="Any previous blood transfusions..."
+            value={healthHistoryData.historyOfBloodTransfusion}
+            onChange={(e) => { setHealthHistoryData(p => ({...p, historyOfBloodTransfusion: e.target.value})); markDirty(); }}
+            className="min-h-[60px]"
+          />
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Family History */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+          <Users className="h-3.5 w-3.5 text-teal-600" />
+          Family History
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-xs">Paternal Side</Label>
+            <Textarea
+              placeholder="Health conditions on father's side..."
+              value={healthHistoryData.familyHistoryPaternal}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, familyHistoryPaternal: e.target.value})); markDirty(); }}
+              className="min-h-[80px]"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Maternal Side</Label>
+            <Textarea
+              placeholder="Health conditions on mother's side..."
+              value={healthHistoryData.familyHistoryMaternal}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, familyHistoryMaternal: e.target.value})); markDirty(); }}
+              className="min-h-[80px]"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Personal and Social History */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+          <Heart className="h-3.5 w-3.5 text-teal-600" />
+          Personal and Social History
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-xs">Smoking</Label>
+            <Input
+              placeholder="Smoker/Non-smoker, pack-years..."
+              value={healthHistoryData.smokingHistory}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, smokingHistory: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Alcohol Intake</Label>
+            <Input
+              placeholder="None/Occasional/Regular..."
+              value={healthHistoryData.alcoholIntake}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, alcoholIntake: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Drug Use</Label>
+            <Input
+              placeholder="Any substance use..."
+              value={healthHistoryData.drugUse}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, drugUse: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Dietary Pattern</Label>
+            <Input
+              placeholder="Diet description..."
+              value={healthHistoryData.dietaryPattern}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, dietaryPattern: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Physical Activity</Label>
+            <Input
+              placeholder="Sedentary/Moderate/Active..."
+              value={healthHistoryData.physicalActivity}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, physicalActivity: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Sleep Pattern</Label>
+            <Input
+              placeholder="Hours per night, quality..."
+              value={healthHistoryData.sleepPattern}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, sleepPattern: e.target.value})); markDirty(); }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Additional */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+          <Shield className="h-3.5 w-3.5 text-teal-600" />
+          Additional Information
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-xs">Allergies</Label>
+            <Input
+              placeholder="Known allergies..."
+              value={healthHistoryData.allergies}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, allergies: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Current Medications</Label>
+            <Input
+              placeholder="Ongoing medications..."
+              value={healthHistoryData.currentMedications}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, currentMedications: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Immunization Status</Label>
+            <Input
+              placeholder="Tetanus, flu vaccine, etc."
+              value={healthHistoryData.immunizationStatus}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, immunizationStatus: e.target.value})); markDirty(); }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Mental Health History</Label>
+            <Input
+              placeholder="Any mental health conditions..."
+              value={healthHistoryData.mentalHealthHistory}
+              onChange={(e) => { setHealthHistoryData(p => ({...p, mentalHealthHistory: e.target.value})); markDirty(); }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─── Step 1: Assessment (SOAP) ──────────────────────────────────────────
 
   const StepAssessment = () => (
     <div className="space-y-6">
@@ -1954,27 +2310,58 @@ export function ConsultationView() {
                       )}
                       <span className="text-sm font-medium truncate">{intervention.name}</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Evaluation Status</Label>
-                        <Select value={eval_.status} onValueChange={(v) => updateInterventionEval(idx, 'status', v)}>
-                          <SelectTrigger className="h-9 text-xs">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="achieved">Achieved</SelectItem>
-                            <SelectItem value="partially">Partially Achieved</SelectItem>
-                            <SelectItem value="not_achieved">Not Achieved</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Evaluation Status</Label>
+                          <Select value={eval_.status} onValueChange={(v) => updateInterventionEval(idx, 'status', v)}>
+                            <SelectTrigger className="h-9 text-xs">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="achieved">Achieved</SelectItem>
+                              <SelectItem value="partially">Partially Achieved</SelectItem>
+                              <SelectItem value="not_achieved">Not Achieved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">NOC Outcome (Free Text)</Label>
+                          <Input
+                            placeholder="e.g., Patient reports reduced pain"
+                            className="h-9 text-xs"
+                            value={eval_.nocOutcome}
+                            onChange={(e) => updateInterventionEval(idx, 'nocOutcome', e.target.value)}
+                          />
+                        </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">NOC Outcome</Label>
-                        <Input
-                          placeholder="e.g., Patient reports reduced pain"
-                          className="h-9 text-xs"
-                          value={eval_.nocOutcome}
-                          onChange={(e) => updateInterventionEval(idx, 'nocOutcome', e.target.value)}
+                        <Label className="text-xs">NOC Outcome Code (Optional)</Label>
+                        <CodeCombobox
+                          placeholder="Search NOC code (e.g., 2102) or keyword..."
+                          emptyMessage="No NOC outcomes found."
+                          value={eval_.nocOutcomeCode || ''}
+                          onSelect={(opt) => {
+                            if (opt) {
+                              updateInterventionEval(idx, 'nocOutcomeCode', opt.code);
+                              // Also set the name as nocOutcome if not already set
+                              if (!eval_.nocOutcome) {
+                                updateInterventionEval(idx, 'nocOutcome', opt.name);
+                              }
+                            } else {
+                              updateInterventionEval(idx, 'nocOutcomeCode', '');
+                            }
+                          }}
+                          options={nocOptions}
+                          searchFn={(query) => searchNocOutcomes(query).map((n) => ({
+                            code: n.code,
+                            name: n.name,
+                            description: n.description,
+                            category: n.category,
+                          }))}
+                          categoryColors={nocCategoryColors}
+                          infoTooltip="Type NOC code or keyword to find outcomes"
+                          prominentCode
                         />
                       </div>
                     </div>
@@ -2319,6 +2706,21 @@ export function ConsultationView() {
     </div>
   );
 
+  // ─── NOC search helpers ───────────────────────────────────────────
+  const nocOptions: CodeOption[] = NOC_OUTCOMES.map((n) => ({
+    code: n.code,
+    name: n.name,
+    description: n.description,
+    category: n.category,
+  }));
+
+  const nocCategoryColors: Record<string, string> = {
+    physiological: '#22c55e',
+    psychosocial: '#3b82f6',
+    knowledge: '#f59e0b',
+    safety: '#ef4444',
+  };
+
   // ─── Step Renderer ──────────────────────────────────────────────────────
 
   const stepMeta = STEP_META[currentStep];
@@ -2327,20 +2729,22 @@ export function ConsultationView() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return StepAssessment();
+        return StepHealthHistory();
       case 1:
-        return StepFindings();
+        return StepAssessment();
       case 2:
-        return StepDiagnosis();
+        return StepFindings();
       case 3:
-        return StepRisk();
+        return StepDiagnosis();
       case 4:
-        return StepAiSuggest();
+        return StepRisk();
       case 5:
-        return StepHITL();
+        return StepAiSuggest();
       case 6:
-        return StepEvaluation();
+        return StepHITL();
       case 7:
+        return StepEvaluation();
+      case 8:
         return StepReferral();
       default:
         return null;
@@ -2348,14 +2752,15 @@ export function ConsultationView() {
   };
 
   const stepDescriptions: Record<number, string> = {
-    0: 'Document the patient\'s subjective symptoms and objective vital signs using the SOAP format.',
-    1: 'Record physical examination findings, laboratory results, and additional notes.',
-    2: 'Enter ICD-10 medical diagnosis and NANDA-I nursing diagnosis.',
-    3: 'Classify the patient\'s current risk level based on the assessment data.',
-    4: 'Generate AI-assisted NIC nursing intervention suggestions.',
-    5: 'Review and select interventions to apply (Human-in-the-Loop).',
-    6: 'Evaluate the nursing outcomes using NOC criteria.',
-    7: 'Generate and finalize the referral summary document.',
+    0: 'Document the patient\'s past medical, surgical, family, and social history.',
+    1: 'Document the patient\'s subjective symptoms and objective vital signs using the SOAP format.',
+    2: 'Record physical examination findings, laboratory results, and additional notes.',
+    3: 'Enter ICD-10 medical diagnosis and NANDA-I nursing diagnosis.',
+    4: 'Classify the patient\'s current risk level based on the assessment data.',
+    5: 'Generate AI-assisted NIC nursing intervention suggestions.',
+    6: 'Review and select interventions to apply (Human-in-the-Loop).',
+    7: 'Evaluate the nursing outcomes using NOC criteria.',
+    8: 'Generate and finalize the referral summary document.',
   };
 
   // ─── Main Render ────────────────────────────────────────────────────────

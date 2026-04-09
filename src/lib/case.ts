@@ -241,6 +241,63 @@ export function mapPatientToDb(data: Record<string, unknown>): Record<string, un
 }
 
 /**
+ * Field mapping for health_history table: camelCase (API) -> snake_case (DB)
+ */
+export const healthHistoryFieldMap: Record<string, string> = {
+  referenceCode: 'reference_code',
+  patientId: 'patient_id',
+  nurseId: 'nurse_id',
+  pastMedicalHistory: 'past_medical_history',
+  previousSurgery: 'previous_surgery',
+  historyOfTrauma: 'history_of_trauma',
+  historyOfBloodTransfusion: 'history_of_blood_transfusion',
+  familyHistoryPaternal: 'family_history_paternal',
+  familyHistoryMaternal: 'family_history_maternal',
+  smokingHistory: 'smoking_history',
+  alcoholIntake: 'alcohol_intake',
+  drugUse: 'drug_use',
+  dietaryPattern: 'dietary_pattern',
+  physicalActivity: 'physical_activity',
+  sleepPattern: 'sleep_pattern',
+  allergies: 'allergies',
+  currentMedications: 'current_medications',
+  immunizationStatus: 'immunization_status',
+  mentalHealthHistory: 'mental_health_history',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+};
+
+/**
+ * Convert a health_history row from DB (snake_case) to API format (camelCase)
+ */
+export function mapHealthHistoryFromDb(row: Record<string, unknown>): Record<string, unknown> {
+  return {
+    id: row.id,
+    referenceCode: row.reference_code,
+    patientId: row.patient_id,
+    nurseId: row.nurse_id,
+    pastMedicalHistory: row.past_medical_history,
+    previousSurgery: row.previous_surgery,
+    historyOfTrauma: row.history_of_trauma,
+    historyOfBloodTransfusion: row.history_of_blood_transfusion,
+    familyHistoryPaternal: row.family_history_paternal,
+    familyHistoryMaternal: row.family_history_maternal,
+    smokingHistory: row.smoking_history,
+    alcoholIntake: row.alcohol_intake,
+    drugUse: row.drug_use,
+    dietaryPattern: row.dietary_pattern,
+    physicalActivity: row.physical_activity,
+    sleepPattern: row.sleep_pattern,
+    allergies: row.allergies,
+    currentMedications: row.current_medications,
+    immunizationStatus: row.immunization_status,
+    mentalHealthHistory: row.mental_health_history,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/**
  * Convert consultation data from API (camelCase) to DB (snake_case) format for INSERT/UPDATE
  */
 export function mapConsultationToDb(data: Record<string, unknown>): Record<string, unknown> {

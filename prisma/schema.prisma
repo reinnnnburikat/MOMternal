@@ -15,8 +15,9 @@ model Nurse {
   licenseNo    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  consultations Consultation[]
-  auditLogs     AuditLog[]
+  consultations   Consultation[]
+  auditLogs       AuditLog[]
+  healthHistories HealthHistory[]
 }
 
 model Patient {
@@ -69,7 +70,42 @@ model Patient {
   riskLevel       String         @default("low") // low, moderate, high
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  consultations   Consultation[]
+  consultations     Consultation[]
+  healthHistories   HealthHistory[]
+}
+
+model HealthHistory {
+  id              String   @id @default(cuid())
+  referenceCode   String   @unique // e.g. "HH-20260409-001"
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  nurseId         String
+  nurse           Nurse    @relation(fields: [nurseId], references: [id])
+  
+  // Structured Health History Fields (from clinical form)
+  pastMedicalHistory    String?  // Previous medical conditions (diabetes, hypertension, etc.)
+  previousSurgery       String?  // Previous surgeries with dates
+  historyOfTrauma       String?  // Physical trauma history
+  historyOfBloodTransfusion String? // Blood transfusion history
+  familyHistoryPaternal String?  // Paternal side health conditions
+  familyHistoryMaternal String?  // Maternal side health conditions
+  
+  // Personal and Social History
+  smokingHistory        String?  // Smoking status and pack-years
+  alcoholIntake         String?  // Alcohol consumption pattern
+  drugUse               String?  // Substance/drug use history
+  dietaryPattern        String?  // Diet description
+  physicalActivity      String?  // Exercise/activity level
+  sleepPattern          String?  // Sleep quality and duration
+  
+  // Additional
+  allergies             String?  // Known allergies
+  currentMedications    String?  // Ongoing medications
+  immunizationStatus    String?  // Vaccination records
+  mentalHealthHistory   String?  // Mental health conditions
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Consultation {
