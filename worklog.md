@@ -166,3 +166,26 @@ Stage Summary:
 - Referral PDF downloads as proper A4 document (not browser print dialog)
 - Files changed: src/components/map/map-view.tsx, src/app/api/map/data/route.ts, src/store/app-store.ts, src/components/patients/patient-profile-view.tsx, src/components/consultations/consultation-view.tsx
 - All pushed to GitHub (commit dcf0127)
+---
+Task ID: 1
+Agent: Main Agent
+Task: Comprehensive system audit to find and fix Vercel crash root cause
+
+Work Log:
+- Pulled latest code (commit 6063d91) — already had previous fixes (refreshTrigger, jspdf)
+- Analyzed error: "ReferenceError: Cannot access 'e5' before initialization" — TDZ error in minified code
+- Systematically audited all 9 component files, Zustand store, all data files, all API routes
+- Checked for: circular imports, SSR-unsafe code, unused packages, TDZ violations
+- Found ROOT CAUSE: nandaSelectedCode declared at line 1359 but referenced at line 480 in buildSavePayload useCallback deps array
+- Why it only crashed on Vercel: dev mode (SWC) may transform const to var (no TDZ), but production (Terser) preserves TDZ
+- Fixed: moved nandaSelectedCode and icd10SelectedCode declarations BEFORE buildSavePayload
+- Removed unused packages: next-intl, @mdxeditor/editor, react-syntax-highlighter
+- Fixed TS type error in referral route
+- Verified: no other TDZ issues in any component, no circular imports
+- Pushed commit fd03cb0
+
+Stage Summary:
+- Root cause identified and fixed: JavaScript TDZ violation in consultation-view.tsx
+- 3 unused packages removed (smaller bundle, fewer potential issues)
+- All lint checks pass, dev server returns 200 OK
+- Pushed to GitHub — Vercel should auto-deploy
