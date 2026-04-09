@@ -895,3 +895,36 @@ Stage Summary:
 - Pre-existing TS errors in referral route fixed
 - Files created: src/lib/generate-referral-pdf.ts
 - Files changed: src/components/consultations/consultation-view.tsx, src/app/api/consultations/[id]/referral/route.ts
+
+---
+Task ID: 11
+Agent: Main Agent
+Task: Comprehensive referral PDF — include ALL consultation steps for proper documentation
+
+Work Log:
+- Analyzed all 7 steps of the consultation wizard to identify every data field
+- Identified previously missing data in PDF:
+  - Step 2 (Health History): 16 fields completely absent (past medical, surgery, trauma, blood transfusion, family history paternal/maternal, smoking, alcohol, drugs, diet, activity, sleep, allergies, medications, immunization, mental health)
+  - Step 5 (AI Summary): Only rationale was included; missing risk indicators, priority intervention, nursing considerations, follow-up schedule, referral needed/reason
+  - Step 1 (Assessment): Pain scale was missing from vitals
+- Completely rewrote generate-referral-pdf.ts with all 7 steps organized as distinct PDF sections:
+  - Patient Information (with LMP now included in OB history)
+  - Clinical Assessment — Step 1: Assessment (11 vital signs including pain scale, allergies, medications)
+  - Health History — Step 2: Health History (teal-themed section with 4 sub-sections: Medical/Surgical, Family History, Personal/Social, Additional Info, plus health history reference code)
+  - Additional Findings — Step 3: Findings (physical exam, lab results, notes)
+  - Diagnosis — Step 4: Diagnosis (NANDA-I with code, ICD-10)
+  - AI-Assisted Summary — Step 5: AI Summary (rationale in rose box, risk indicators bulleted, priority intervention in amber box, nursing considerations bulleted, follow-up schedule, AI referral reason)
+  - Nursing Care Plan — Step 6: Care Plan (NIC interventions with per-intervention evaluation status/NOC/notes, overall outcome summary)
+  - Referral Details — Step 7: Referral (type, priority, facility)
+- Updated ReferralPdfData interface with 12 new fields for health history and AI summary
+- Updated consultation-view.tsx handleDownloadPdf to pass all new data (healthHistoryData, healthHistoryRefCode, lmp, painScale, aiRiskIndicators, aiNursingConsiderations, aiPriorityIntervention, aiFollowUpSchedule, aiReferralNeeded, aiReferralReason)
+- Each section header now includes the step label for traceability (e.g., "Health History (Step 2: Health History)")
+- Lint: 0 errors. Dev server: HTTP 200.
+
+Stage Summary:
+- Referral PDF now contains ALL data from ALL 7 consultation steps for complete documentation
+- Health History section includes 16 clinical fields organized into 4 sub-sections
+- AI Summary includes rationale, risk indicators, priority intervention, nursing considerations, follow-up, and referral reason
+- Pain scale and LMP added to Assessment section
+- Section headers reference wizard step numbers for clinical audit trail
+- Files changed: src/lib/generate-referral-pdf.ts, src/components/consultations/consultation-view.tsx

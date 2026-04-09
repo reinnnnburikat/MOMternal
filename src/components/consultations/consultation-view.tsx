@@ -758,18 +758,20 @@ export function ConsultationView() {
   const handleDownloadPdf = useCallback(async () => {
     if (!consultation) return;
     try {
-      toast.loading('Generating PDF...', { id: 'pdf-gen' });
+      toast.loading('Generating comprehensive PDF...', { id: 'pdf-gen' });
       const blob = await generateReferralPdf({
         consultationNo: consultation.consultationNo,
         consultationDate: consultation.consultationDate,
         patientName: consultation.patient?.name || 'N/A',
         patientId: consultation.patient?.patientId || 'N/A',
         patientDateOfBirth: consultation.patient?.dateOfBirth,
+        // Step 1: Assessment
         typeOfVisit: typeOfVisit || undefined,
         chiefComplaint: chiefComplaint || undefined,
         gravida: gravidity || undefined,
         para: parity || undefined,
         aog: consultationAOG || undefined,
+        lmp: lmp || undefined,
         riskLevel: riskLevel || undefined,
         preventionLevel: preventionLevel || undefined,
         bloodPressure: vitals.bloodPressure || undefined,
@@ -780,23 +782,38 @@ export function ConsultationView() {
         bmi: calculatedBMI ? String(calculatedBMI) : undefined,
         respiratoryRate: vitals.respiratoryRate || undefined,
         oxygenSat: vitals.oxygenSat || undefined,
+        painScale: vitals.painScale || undefined,
         fetalHeartRate: fetalHeartRate || undefined,
         fundalHeight: fundalHeight || undefined,
         allergies: allergies || undefined,
         medications: medications || undefined,
+        // Step 2: Health History
+        healthHistory: healthHistoryData,
+        healthHistoryRefCode: healthHistoryRefCode || undefined,
+        // Step 3: Findings
         physicalExam: physicalExam || undefined,
         labResults: labResults || undefined,
         notes: notes || undefined,
+        // Step 4: Diagnosis
         icd10Diagnosis: icd10Diagnosis || undefined,
         nandaDiagnosis: nandaDiagnosis || undefined,
         nandaCode: nandaSelectedCode || undefined,
-        referralPriority: referralPriority || undefined,
-        referralFacility: referralFacility || undefined,
-        referralType: 'Refer to Doctor',
+        // Step 5: AI Summary
+        aiRationale: aiSuggestions?.rationale || undefined,
+        aiRiskIndicators: aiSuggestions?.riskIndicators?.length ? aiSuggestions.riskIndicators : undefined,
+        aiNursingConsiderations: aiSuggestions?.nursingConsiderations?.length ? aiSuggestions.nursingConsiderations : undefined,
+        aiPriorityIntervention: aiSuggestions?.priorityIntervention || undefined,
+        aiFollowUpSchedule: aiSuggestions?.followUpSchedule || undefined,
+        aiReferralNeeded: aiSuggestions?.referralNeeded,
+        aiReferralReason: aiSuggestions?.referralReason || undefined,
+        // Step 6: Care Plan
         interventions: selectedInterventions,
         interventionEvals: interventionEvals.length > 0 ? interventionEvals : undefined,
         evaluationNotes: evaluationNotes || undefined,
-        aiRationale: aiSuggestions?.rationale || undefined,
+        // Step 7: Referral
+        referralPriority: referralPriority || undefined,
+        referralFacility: referralFacility || undefined,
+        referralType: 'Refer to Doctor',
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -809,7 +826,7 @@ export function ConsultationView() {
       console.error('PDF generation failed:', err);
       toast.error('Failed to generate PDF.', { id: 'pdf-gen' });
     }
-  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode, referralPriority, referralFacility, selectedInterventions, interventionEvals, evaluationNotes, aiSuggestions]);
+  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {

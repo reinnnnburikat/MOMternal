@@ -2,52 +2,91 @@ import jsPDF from 'jspdf';
 
 // ─── Color Palette (MOMternal Brand) ──────────────────────────────────────
 const BRAND = {
-  rose: [228, 36, 72] as [number, number, number],       // #E42448
-  roseLight: [254, 226, 226] as [number, number, number], // #FEE2E2
-  roseDark: [159, 18, 57] as [number, number, number],   // #9F1239
-  dark: [30, 30, 35] as [number, number, number],         // near-black
-  gray: [107, 114, 128] as [number, number, number],      // #6B7280
-  grayLight: [243, 244, 246] as [number, number, number], // #F3F4F6
+  rose: [228, 36, 72] as [number, number, number],        // #E42448
+  roseLight: [254, 226, 226] as [number, number, number],  // #FEE2E2
+  roseDark: [159, 18, 57] as [number, number, number],    // #9F1239
+  teal: [20, 184, 166] as [number, number, number],       // #14B8A6
+  tealLight: [204, 251, 241] as [number, number, number], // #CCFBF1
+  dark: [30, 30, 35] as [number, number, number],          // near-black
+  gray: [107, 114, 128] as [number, number, number],       // #6B7280
+  grayLight: [243, 244, 246] as [number, number, number],  // #F3F4F6
   white: [255, 255, 255] as [number, number, number],
-  black: [0, 0, 0] as [number, number, number],
 };
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 export interface ReferralPdfData {
+  // Meta
   consultationNo: string;
   consultationDate: string;
   patientName: string;
   patientId: string;
   patientDateOfBirth?: string;
   patientBarangay?: string;
+
+  // Step 0 — Assessment
   typeOfVisit?: string;
   chiefComplaint?: string;
   gravida?: string;
   para?: string;
   aog?: string;
-  riskLevel?: string;
-  preventionLevel?: string;
+  lmp?: string;
   bloodPressure?: string;
   heartRate?: string;
   temperature?: string;
   weight?: string;
+  height?: string;
+  bmi?: string;
   respiratoryRate?: string;
   oxygenSat?: string;
+  painScale?: string;
   fetalHeartRate?: string;
   fundalHeight?: string;
-  bmi?: string;
-  height?: string;
   allergies?: string;
   medications?: string;
+  riskLevel?: string;
+  preventionLevel?: string;
+
+  // Step 1 — Health History
+  healthHistory?: {
+    pastMedicalHistory?: string;
+    previousSurgery?: string;
+    historyOfTrauma?: string;
+    historyOfBloodTransfusion?: string;
+    familyHistoryPaternal?: string;
+    familyHistoryMaternal?: string;
+    smokingHistory?: string;
+    alcoholIntake?: string;
+    drugUse?: string;
+    dietaryPattern?: string;
+    physicalActivity?: string;
+    sleepPattern?: string;
+    allergies?: string;
+    currentMedications?: string;
+    immunizationStatus?: string;
+    mentalHealthHistory?: string;
+  };
+  healthHistoryRefCode?: string;
+
+  // Step 2 — Findings
   physicalExam?: string;
   labResults?: string;
   notes?: string;
+
+  // Step 3 — Diagnosis
   icd10Diagnosis?: string;
   nandaDiagnosis?: string;
   nandaCode?: string;
-  referralPriority?: string;
-  referralFacility?: string;
-  referralType?: string;
+
+  // Step 4 — AI Summary
+  aiRationale?: string;
+  aiRiskIndicators?: string[];
+  aiNursingConsiderations?: string[];
+  aiPriorityIntervention?: string;
+  aiFollowUpSchedule?: string;
+  aiReferralNeeded?: boolean;
+  aiReferralReason?: string;
+
+  // Step 5 — Care Plan
   interventions: Array<{ name: string; description?: string; code?: string }>;
   interventionEvals?: Array<{
     nicCode: string;
@@ -57,90 +96,85 @@ export interface ReferralPdfData {
     notes: string;
   }>;
   evaluationNotes?: string;
-  aiRationale?: string;
+
+  // Step 6 — Referral
+  referralPriority?: string;
+  referralFacility?: string;
+  referralType?: string;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
-function rgb(color: [number, number, number]): string {
-  return color.join(',');
-}
-
 function setFont(doc: jsPDF, size: number, style: 'normal' | 'bold' | 'italic' = 'normal') {
   doc.setFont('helvetica', style);
   doc.setFontSize(size);
-}
-
-function drawHr(doc: jsPDF, y: number, color: [number, number, number] = BRAND.grayLight, width?: number) {
-  const x = 15;
-  const w = width ?? (doc.internal.pageSize.getWidth() - 30);
-  doc.setDrawColor(...color);
-  doc.setLineWidth(0.3);
-  doc.line(x, y, x + w, y);
-  return y + 4;
 }
 
 function checkPageBreak(doc: jsPDF, y: number, needed: number): number {
   const pageH = doc.internal.pageSize.getHeight();
   if (y + needed > pageH - 25) {
     doc.addPage();
-    drawPageFooter(doc, 0);
+    drawPageFooter(doc);
     return 20;
   }
   return y;
 }
 
-function drawPageFooter(doc: jsPDF, _unused: number) {
+function drawPageFooter(doc: jsPDF) {
   const pageH = doc.internal.pageSize.getHeight();
   const pageW = doc.internal.pageSize.getWidth();
   const pageNum = doc.getNumberOfPages();
 
-  // Footer line
   doc.setDrawColor(...BRAND.rose);
   doc.setLineWidth(0.8);
   doc.line(15, pageH - 18, pageW - 15, pageH - 18);
 
-  // Footer text
   setFont(doc, 7, 'normal');
   doc.setTextColor(...BRAND.gray);
   doc.text('MOMternal — Maternal Health Nursing Assessment System', 15, pageH - 12);
   doc.text(`Page ${pageNum}`, pageW - 15, pageH - 12, { align: 'right' });
 
-  // Disclaimer
   setFont(doc, 5.5, 'italic');
   doc.setTextColor(180, 180, 190);
   doc.text(
     'This document is auto-generated by MOMternal for healthcare referral purposes only. Confidential.',
     15,
-    pageH - 7
+    pageH - 7,
   );
 }
 
-function drawSectionHeader(doc: jsPDF, y: number, title: string): number {
+function drawSectionHeader(doc: jsPDF, y: number, title: string, accentColor: [number, number, number] = BRAND.rose): number {
   y = checkPageBreak(doc, y, 20);
   setFont(doc, 10, 'bold');
-  doc.setTextColor(...BRAND.rose);
+  doc.setTextColor(...accentColor);
   doc.text(title.toUpperCase(), 15, y);
   y += 1.5;
-  // Underline
-  doc.setDrawColor(...BRAND.rose);
+  doc.setDrawColor(...accentColor);
   doc.setLineWidth(0.6);
   doc.line(15, y, 15 + doc.getTextWidth(title.toUpperCase()), y);
   y += 5;
   return y;
 }
 
-function drawDataRow(doc: jsPDF, y: number, label: string, value: string, pageWidth: number): number {
+function drawSubHeader(doc: jsPDF, y: number, title: string): number {
+  y = checkPageBreak(doc, y, 10);
+  setFont(doc, 8.5, 'bold');
+  doc.setTextColor(...BRAND.dark);
+  doc.text(title, 20, y);
+  y += 5;
+  return y;
+}
+
+function drawDataRow(doc: jsPDF, y: number, label: string, value: string, pageWidth: number, indent = 20): number {
   if (!value || value.trim() === '' || value.trim() === 'N/A') return y;
   y = checkPageBreak(doc, y, 8);
   setFont(doc, 8.5, 'normal');
   doc.setTextColor(...BRAND.gray);
   const labelW = doc.getTextWidth(label + ': ');
-  doc.text(label + ':', 20, y);
+  doc.text(label + ':', indent, y);
   doc.setTextColor(...BRAND.dark);
-  // Wrap long values
-  const maxValW = pageWidth - 20 - labelW - 15;
+  const maxValW = pageWidth - indent - labelW - 15;
   const lines = doc.splitTextToSize(value, maxValW);
-  doc.text(lines, 20 + labelW, y);
+  doc.text(lines, indent + labelW, y);
   return y + (lines.length * 4.5);
 }
 
@@ -149,12 +183,13 @@ function drawLabelValueGrid(
   y: number,
   pairs: Array<{ label: string; value: string }>,
   pageWidth: number,
-  columns = 2
+  columns = 2,
+  indent = 20,
 ): number {
   const filtered = pairs.filter((p) => p.value && p.value.trim() !== '' && p.value.trim() !== 'N/A');
   if (filtered.length === 0) return y;
 
-  const colWidth = (pageWidth - 40) / columns;
+  const colWidth = (pageWidth - (indent * 2)) / columns;
   y = checkPageBreak(doc, y, 10);
 
   filtered.forEach((pair, idx) => {
@@ -164,7 +199,7 @@ function drawLabelValueGrid(
       y += 6;
       y = checkPageBreak(doc, y, 10);
     }
-    const x = 20 + col * colWidth;
+    const x = indent + col * colWidth;
 
     setFont(doc, 8, 'bold');
     doc.setTextColor(...BRAND.gray);
@@ -177,36 +212,47 @@ function drawLabelValueGrid(
   return y + 6;
 }
 
+function hasAnyContent(...values: (string | undefined | null)[]): boolean {
+  return values.some((v) => v && v.trim() !== '');
+}
+
+function hasAnyHealthHistory(hh: ReferralPdfData['healthHistory']): boolean {
+  if (!hh) return false;
+  return hasAnyContent(
+    hh.pastMedicalHistory, hh.previousSurgery, hh.historyOfTrauma,
+    hh.historyOfBloodTransfusion, hh.familyHistoryPaternal, hh.familyHistoryMaternal,
+    hh.smokingHistory, hh.alcoholIntake, hh.drugUse, hh.dietaryPattern,
+    hh.physicalActivity, hh.sleepPattern, hh.allergies, hh.currentMedications,
+    hh.immunizationStatus, hh.mentalHealthHistory,
+  );
+}
+
 // ─── Main PDF Generator ────────────────────────────────────────────────────
 export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
   let y = 0;
 
   // ════════════════════════════════════════════════════════════════════════
   // HEADER — Branded Rose Banner
   // ════════════════════════════════════════════════════════════════════════
-  // Rose banner background
   doc.setFillColor(...BRAND.rose);
   doc.rect(0, 0, pageW, 42, 'F');
 
-  // Decorative lighter strip at bottom of banner
   doc.setFillColor(...BRAND.roseDark);
   doc.rect(0, 40, pageW, 2, 'F');
 
-  // Logo placeholder icon (heart + stethoscope circle)
+  // Heart icon in circle
   doc.setFillColor(...BRAND.white);
   doc.setDrawColor(...BRAND.white);
   doc.setLineWidth(0.8);
   doc.circle(18, 21, 8, 'FD');
 
-  // Draw a simple heart shape in the circle
   setFont(doc, 14, 'bold');
   doc.setTextColor(...BRAND.rose);
-  doc.text('♥', 18, 23.5, { align: 'center' });
+  doc.text('\u2665', 18, 23.5, { align: 'center' }); // ♥
 
-  // Title text
+  // Title
   setFont(doc, 22, 'bold');
   doc.setTextColor(...BRAND.white);
   doc.text('MOMTERNAL', 30, 17);
@@ -215,12 +261,11 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   doc.setTextColor(254, 205, 211); // rose-200
   doc.text('Maternal Health Nursing Assessment System', 30, 24);
 
-  // Document type badge
   setFont(doc, 8, 'bold');
   doc.setTextColor(...BRAND.white);
   doc.text('REFERRAL DOCUMENT', 30, 32);
 
-  // Right side: consultation info in banner
+  // Right side info
   setFont(doc, 7.5, 'normal');
   doc.setTextColor(254, 205, 211);
   doc.text(`Consultation No: ${data.consultationNo}`, pageW - 15, 14, { align: 'right' });
@@ -228,17 +273,17 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
     `Date: ${data.consultationDate ? new Date(data.consultationDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}`,
     pageW - 15,
     20,
-    { align: 'right' }
+    { align: 'right' },
   );
 
-  // Priority badge (if set)
+  // Priority badge
   if (data.referralPriority && data.referralPriority !== 'none') {
     const priorityLabel =
       data.referralPriority === 'urgent'
-        ? '⚠ URGENT'
+        ? '\u26A0 URGENT'
         : data.referralPriority === 'same_day'
-          ? '◉ SAME DAY'
-          : '○ NON-URGENT';
+          ? '\u25C9 SAME DAY'
+          : '\u25CB NON-URGENT';
     doc.setFillColor(255, 255, 255);
     const badgeW = doc.getTextWidth(priorityLabel) + 8;
     doc.roundedRect(pageW - 15 - badgeW, 25, badgeW, 7, 1.5, 1.5, 'F');
@@ -247,44 +292,40 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
     doc.text(priorityLabel, pageW - 15 - badgeW / 2, 29.5, { align: 'center' });
   }
 
-  // White card area starts
   y = 48;
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 1: PATIENT INFORMATION
+  // STEP 1: PATIENT INFORMATION (from Assessment)
   // ════════════════════════════════════════════════════════════════════════
   y = drawSectionHeader(doc, y, 'Patient Information');
 
-  // Patient name (large, prominent)
   setFont(doc, 12, 'bold');
   doc.setTextColor(...BRAND.dark);
   doc.text(data.patientName || 'N/A', 20, y);
   y += 6;
 
-  // Grid info
   y = drawLabelValueGrid(
-    doc,
-    y,
+    doc, y,
     [
       { label: 'Patient ID', value: data.patientId || 'N/A' },
       { label: 'Date of Birth', value: data.patientDateOfBirth || '' },
       { label: 'Barangay', value: data.patientBarangay || '' },
       { label: 'Type of Visit', value: data.typeOfVisit || '' },
     ],
-    pageW,
-    2
+    pageW, 2,
   );
 
-  // OB History row
+  // OB History
   const obFields: Array<{ label: string; value: string }> = [];
   if (data.gravida) obFields.push({ label: 'Gravida', value: data.gravida });
   if (data.para) obFields.push({ label: 'Para', value: data.para });
+  if (data.lmp) obFields.push({ label: 'LMP', value: data.lmp });
   if (data.aog) obFields.push({ label: 'AOG', value: data.aog });
   if (obFields.length > 0) {
     y = drawLabelValueGrid(doc, y, obFields, pageW, obFields.length);
   }
 
-  // Risk level badge
+  // Risk + Prevention Level
   if (data.riskLevel && data.riskLevel.trim()) {
     y = checkPageBreak(doc, y, 14);
     const riskVal = data.riskLevel.toUpperCase();
@@ -295,7 +336,6 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
     };
     const rc = riskColors[riskVal] ?? BRAND.gray;
 
-    // Risk badge background
     const badgeLabel = `Risk Level: ${riskVal}`;
     const bw = doc.getTextWidth(badgeLabel) + 14;
     doc.setFillColor(...rc);
@@ -316,31 +356,32 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   y += 2;
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 2: CLINICAL ASSESSMENT
+  // STEP 2: CLINICAL ASSESSMENT (from Assessment)
   // ════════════════════════════════════════════════════════════════════════
-  if (data.chiefComplaint || data.bloodPressure || data.temperature) {
-    y = drawSectionHeader(doc, y, 'Clinical Assessment');
+  if (hasAnyContent(data.chiefComplaint, data.bloodPressure, data.temperature, data.allergies, data.medications)) {
+    y = drawSectionHeader(doc, y, 'Clinical Assessment (Step 1: Assessment)');
 
     if (data.chiefComplaint) {
       y = drawDataRow(doc, y, 'Chief Complaint', data.chiefComplaint, pageW);
       y += 1;
     }
 
-    // Vitals grid
+    // Vitals grid (3 columns)
     const vitalsPairs: Array<{ label: string; value: string }> = [];
     if (data.bloodPressure) vitalsPairs.push({ label: 'Blood Pressure', value: data.bloodPressure });
     if (data.heartRate) vitalsPairs.push({ label: 'Heart Rate', value: `${data.heartRate} bpm` });
-    if (data.temperature) vitalsPairs.push({ label: 'Temperature', value: `${data.temperature}°C` });
+    if (data.temperature) vitalsPairs.push({ label: 'Temperature', value: `${data.temperature}\u00B0C` });
+    if (data.respiratoryRate) vitalsPairs.push({ label: 'Respiratory Rate', value: `${data.respiratoryRate} cpm` });
+    if (data.oxygenSat) vitalsPairs.push({ label: 'O\u2082 Saturation', value: `${data.oxygenSat}%` });
+    if (data.painScale) vitalsPairs.push({ label: 'Pain Scale', value: `${data.painScale}/10` });
+    if (data.fetalHeartRate) vitalsPairs.push({ label: 'Fetal Heart Rate', value: data.fetalHeartRate });
+    if (data.fundalHeight) vitalsPairs.push({ label: 'Fundal Height', value: data.fundalHeight });
     if (data.weight) vitalsPairs.push({ label: 'Weight', value: `${data.weight} kg` });
     if (data.height) vitalsPairs.push({ label: 'Height', value: `${data.height} cm` });
     if (data.bmi) vitalsPairs.push({ label: 'BMI', value: data.bmi });
-    if (data.respiratoryRate) vitalsPairs.push({ label: 'Respiratory Rate', value: `${data.respiratoryRate} cpm` });
-    if (data.oxygenSat) vitalsPairs.push({ label: 'O2 Saturation', value: `${data.oxygenSat}%` });
-    if (data.fetalHeartRate) vitalsPairs.push({ label: 'Fetal Heart Rate', value: data.fetalHeartRate });
-    if (data.fundalHeight) vitalsPairs.push({ label: 'Fundal Height', value: data.fundalHeight });
 
     if (vitalsPairs.length > 0) {
-      y = drawLabelValueGrid(doc, y, vitalsPairs, pageW, 2);
+      y = drawLabelValueGrid(doc, y, vitalsPairs, pageW, 3);
     }
 
     y = drawDataRow(doc, y, 'Allergies', data.allergies || '', pageW);
@@ -349,22 +390,89 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 3: FINDINGS
+  // STEP 3: HEALTH HISTORY (Step 2 in wizard)
   // ════════════════════════════════════════════════════════════════════════
-  if (data.physicalExam || data.labResults || data.notes) {
-    y = drawSectionHeader(doc, y, 'Additional Findings');
-    y = drawDataRow(doc, y, 'Physical Examination', data.physicalExam || '', pageW);
-    y = drawDataRow(doc, y, 'Laboratory Results', data.labResults || '', pageW);
-    y = drawDataRow(doc, y, 'Notes', data.notes || '', pageW);
+  if (hasAnyHealthHistory(data.healthHistory)) {
+    y = drawSectionHeader(doc, y, 'Health History (Step 2: Health History)', BRAND.teal);
+
+    const hh = data.healthHistory!;
+
+    // Reference code
+    if (data.healthHistoryRefCode) {
+      y = checkPageBreak(doc, y, 8);
+      setFont(doc, 7.5, 'italic');
+      doc.setTextColor(...BRAND.teal);
+      doc.text(`Health History Reference: ${data.healthHistoryRefCode}`, 20, y);
+      y += 6;
+    }
+
+    // Sub-section: Medical & Surgical
+    if (hasAnyContent(hh.pastMedicalHistory, hh.previousSurgery, hh.historyOfTrauma, hh.historyOfBloodTransfusion)) {
+      y = drawSubHeader(doc, y, 'Medical & Surgical History');
+      y = drawDataRow(doc, y, 'Past Medical History', hh.pastMedicalHistory || '', pageW);
+      y = drawDataRow(doc, y, 'Previous Surgery', hh.previousSurgery || '', pageW);
+      y = drawDataRow(doc, y, 'History of Trauma', hh.historyOfTrauma || '', pageW);
+      y = drawDataRow(doc, y, 'Blood Transfusion', hh.historyOfBloodTransfusion || '', pageW);
+      y += 1;
+    }
+
+    // Sub-section: Family History
+    if (hasAnyContent(hh.familyHistoryPaternal, hh.familyHistoryMaternal)) {
+      y = drawSubHeader(doc, y, 'Family History');
+      if (hasAnyContent(hh.familyHistoryPaternal)) {
+        y = drawDataRow(doc, y, 'Paternal Side', hh.familyHistoryPaternal || '', pageW);
+      }
+      if (hasAnyContent(hh.familyHistoryMaternal)) {
+        y = drawDataRow(doc, y, 'Maternal Side', hh.familyHistoryMaternal || '', pageW);
+      }
+      y += 1;
+    }
+
+    // Sub-section: Personal & Social History
+    if (hasAnyContent(hh.smokingHistory, hh.alcoholIntake, hh.drugUse, hh.dietaryPattern, hh.physicalActivity, hh.sleepPattern)) {
+      y = drawSubHeader(doc, y, 'Personal & Social History');
+      y = drawLabelValueGrid(
+        doc, y,
+        [
+          { label: 'Smoking', value: hh.smokingHistory || '' },
+          { label: 'Alcohol Intake', value: hh.alcoholIntake || '' },
+          { label: 'Drug Use', value: hh.drugUse || '' },
+          { label: 'Dietary Pattern', value: hh.dietaryPattern || '' },
+          { label: 'Physical Activity', value: hh.physicalActivity || '' },
+          { label: 'Sleep Pattern', value: hh.sleepPattern || '' },
+        ],
+        pageW, 2,
+      );
+    }
+
+    // Sub-section: Additional Info
+    if (hasAnyContent(hh.allergies, hh.currentMedications, hh.immunizationStatus, hh.mentalHealthHistory)) {
+      y = drawSubHeader(doc, y, 'Additional Information');
+      y = drawDataRow(doc, y, 'Known Allergies', hh.allergies || '', pageW);
+      y = drawDataRow(doc, y, 'Current Medications', hh.currentMedications || '', pageW);
+      y = drawDataRow(doc, y, 'Immunization Status', hh.immunizationStatus || '', pageW);
+      y = drawDataRow(doc, y, 'Mental Health History', hh.mentalHealthHistory || '', pageW);
+      y += 1;
+    }
     y += 2;
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 4: DIAGNOSIS
+  // STEP 4: ADDITIONAL FINDINGS (Step 3 in wizard)
   // ════════════════════════════════════════════════════════════════════════
-  if (data.icd10Diagnosis || data.nandaDiagnosis) {
-    y = drawSectionHeader(doc, y, 'Diagnosis');
-    y = drawDataRow(doc, y, 'ICD-10 Diagnosis', data.icd10Diagnosis || '', pageW);
+  if (hasAnyContent(data.physicalExam, data.labResults, data.notes)) {
+    y = drawSectionHeader(doc, y, 'Additional Findings (Step 3: Findings)');
+    y = drawDataRow(doc, y, 'Physical Examination', data.physicalExam || '', pageW);
+    y = drawDataRow(doc, y, 'Laboratory Results', data.labResults || '', pageW);
+    y = drawDataRow(doc, y, 'Additional Notes', data.notes || '', pageW);
+    y += 2;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // STEP 5: DIAGNOSIS (Step 4 in wizard)
+  // ════════════════════════════════════════════════════════════════════════
+  if (hasAnyContent(data.icd10Diagnosis, data.nandaDiagnosis)) {
+    y = drawSectionHeader(doc, y, 'Diagnosis (Step 4: Diagnosis)');
     y = drawDataRow(doc, y, 'NANDA-I Nursing Diagnosis', data.nandaDiagnosis || '', pageW);
     if (data.nandaCode) {
       setFont(doc, 7.5, 'italic');
@@ -372,123 +480,218 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
       doc.text(`(NANDA Code: ${data.nandaCode})`, 20, y);
       y += 5;
     }
+    y = drawDataRow(doc, y, 'ICD-10 Diagnosis', data.icd10Diagnosis || '', pageW);
     y += 2;
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 5: NURSING INTERVENTIONS (NIC)
+  // STEP 6: AI SUMMARY (Step 5 in wizard)
   // ════════════════════════════════════════════════════════════════════════
-  if (data.interventions.length > 0) {
-    y = drawSectionHeader(doc, y, 'Nursing Interventions (NIC)');
+  const hasAiData = hasAnyContent(
+    data.aiRationale, data.aiPriorityIntervention, data.aiFollowUpSchedule, data.aiReferralReason,
+  ) || (data.aiRiskIndicators && data.aiRiskIndicators.length > 0)
+    || (data.aiNursingConsiderations && data.aiNursingConsiderations.length > 0);
 
-    data.interventions.forEach((intervention, idx) => {
-      y = checkPageBreak(doc, y, 12);
-      setFont(doc, 8.5, 'bold');
-      doc.setTextColor(...BRAND.dark);
-      const code = intervention.code ? `[${intervention.code}] ` : '';
-      doc.text(`${idx + 1}. ${code}${intervention.name}`, 20, y);
-      y += 4;
-      if (intervention.description) {
-        setFont(doc, 8, 'normal');
-        doc.setTextColor(...BRAND.gray);
-        const descLines = doc.splitTextToSize(intervention.description, pageW - 40);
-        doc.text(descLines, 25, y);
-        y += descLines.length * 4;
-      }
+  if (hasAiData) {
+    y = drawSectionHeader(doc, y, 'AI-Assisted Summary (Step 5: AI Summary)');
 
-      // Check if there's an evaluation for this intervention
-      const evalItem = data.interventionEvals?.find(
-        (e) => e.nicCode === intervention.code || e.nicCode === String(intervention.code)
-      );
-      if (evalItem) {
-        y += 1;
-        const statusColors: Record<string, [number, number, number]> = {
-          Met: [34, 197, 94],
-          'Partially Met': [245, 158, 11],
-          Unmet: [220, 38, 38],
-        };
-        const sc = statusColors[evalItem.status] ?? BRAND.gray;
-        setFont(doc, 7.5, 'bold');
-        doc.setTextColor(...sc);
-        doc.text(`Evaluation: ${evalItem.status}`, 28, y);
-        y += 4;
-        if (evalItem.nocOutcome) {
-          setFont(doc, 7.5, 'normal');
-          doc.setTextColor(...BRAND.gray);
-          const nocLabel = evalItem.nocOutcomeCode ? `NOC [${evalItem.nocOutcomeCode}]: ` : 'NOC Outcome: ';
-          doc.text(nocLabel + evalItem.nocOutcome, 28, y);
-          y += 4;
-        }
-        if (evalItem.notes) {
-          setFont(doc, 7.5, 'italic');
-          doc.setTextColor(...BRAND.gray);
-          const evalNotes = doc.splitTextToSize(evalItem.notes, pageW - 50);
-          doc.text(evalNotes, 28, y);
-          y += evalNotes.length * 3.5;
-        }
-      }
-      y += 2;
-    });
-
-    // AI Rationale
+    // Rationale
     if (data.aiRationale) {
       y = checkPageBreak(doc, y, 15);
-      y += 1;
       doc.setFillColor(...BRAND.roseLight);
-      const rationaleLines = doc.splitTextToSize(`AI Rationale: ${data.aiRationale}`, pageW - 44);
-      const boxH = rationaleLines.length * 4 + 6;
+      const rationaleLines = doc.splitTextToSize(data.aiRationale, pageW - 44);
+      const boxH = rationaleLines.length * 4 + 8;
       doc.roundedRect(18, y - 4, pageW - 36, boxH, 2, 2, 'F');
-      setFont(doc, 7.5, 'italic');
+      setFont(doc, 8, 'bold');
+      doc.setTextColor(...BRAND.roseDark);
+      doc.text('Rationale', 22, y);
+      y += 4.5;
+      setFont(doc, 7.5, 'normal');
       doc.setTextColor(...BRAND.roseDark);
       doc.text(rationaleLines, 22, y);
-      y += boxH + 3;
+      y += rationaleLines.length * 3.8 + 4;
     }
+
+    // Risk Indicators
+    if (data.aiRiskIndicators && data.aiRiskIndicators.length > 0) {
+      y = checkPageBreak(doc, y, 10);
+      setFont(doc, 8, 'bold');
+      doc.setTextColor(...BRAND.dark);
+      doc.text('Risk Indicators:', 20, y);
+      y += 5;
+      data.aiRiskIndicators.forEach((indicator) => {
+        y = checkPageBreak(doc, y, 8);
+        setFont(doc, 7.5, 'normal');
+        doc.setTextColor(...BRAND.gray);
+        doc.text(`\u2022  ${indicator}`, 25, y); // bullet
+        y += 4.5;
+      });
+      y += 2;
+    }
+
+    // Priority Intervention
+    if (data.aiPriorityIntervention) {
+      y = checkPageBreak(doc, y, 12);
+      doc.setFillColor(254, 243, 199); // amber-100
+      const prioLines = doc.splitTextToSize(data.aiPriorityIntervention, pageW - 48);
+      const boxH = prioLines.length * 4 + 8;
+      doc.roundedRect(18, y - 4, pageW - 36, boxH, 2, 2, 'F');
+      setFont(doc, 8, 'bold');
+      doc.setTextColor(146, 64, 14); // amber-800
+      doc.text('Priority Intervention:', 22, y);
+      y += 4.5;
+      setFont(doc, 8, 'normal');
+      doc.text(prioLines, 22, y);
+      y += prioLines.length * 4 + 3;
+    }
+
+    // Nursing Considerations
+    if (data.aiNursingConsiderations && data.aiNursingConsiderations.length > 0) {
+      y = checkPageBreak(doc, y, 10);
+      setFont(doc, 8, 'bold');
+      doc.setTextColor(...BRAND.dark);
+      doc.text('Nursing Considerations:', 20, y);
+      y += 5;
+      data.aiNursingConsiderations.forEach((c) => {
+        y = checkPageBreak(doc, y, 8);
+        setFont(doc, 7.5, 'normal');
+        doc.setTextColor(...BRAND.gray);
+        doc.text(`\u2022  ${c}`, 25, y);
+        y += 4.5;
+      });
+      y += 2;
+    }
+
+    // Follow-up Schedule
+    if (data.aiFollowUpSchedule) {
+      y = drawDataRow(doc, y, 'Follow-up Schedule', data.aiFollowUpSchedule, pageW);
+    }
+
+    // AI Referral Reason
+    if (data.aiReferralNeeded && data.aiReferralReason) {
+      y = drawDataRow(doc, y, 'AI Referral Reason', data.aiReferralReason, pageW);
+    }
+
     y += 2;
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 6: REFERRAL DETAILS
+  // STEP 7: CARE PLAN (Step 6 in wizard)
   // ════════════════════════════════════════════════════════════════════════
-  y = drawSectionHeader(doc, y, 'Referral Details');
+  const hasCarePlan = data.interventions.length > 0 || hasAnyContent(data.evaluationNotes);
+  if (hasCarePlan) {
+    y = drawSectionHeader(doc, y, 'Nursing Care Plan (Step 6: Care Plan)');
 
-  y = drawDataRow(doc, y, 'Referral Type', data.referralType || 'Refer to Doctor', pageW);
-  y = drawDataRow(doc, y, 'Priority', data.referralPriority || 'Not specified', pageW);
-  y = drawDataRow(doc, y, 'Referred Facility', data.referralFacility || '', pageW);
+    // NIC Interventions
+    if (data.interventions.length > 0) {
+      setFont(doc, 8.5, 'bold');
+      doc.setTextColor(...BRAND.dark);
+      doc.text(`Selected Interventions (${data.interventions.length}):`, 20, y);
+      y += 5;
 
-  if (data.evaluationNotes) {
-    y += 1;
-    y = drawDataRow(doc, y, 'Evaluation Notes', data.evaluationNotes, pageW);
+      data.interventions.forEach((intervention, idx) => {
+        y = checkPageBreak(doc, y, 12);
+        setFont(doc, 8.5, 'bold');
+        doc.setTextColor(...BRAND.dark);
+        const code = intervention.code ? `[${intervention.code}] ` : '';
+        doc.text(`${idx + 1}. ${code}${intervention.name}`, 20, y);
+        y += 4;
+        if (intervention.description) {
+          setFont(doc, 8, 'normal');
+          doc.setTextColor(...BRAND.gray);
+          const descLines = doc.splitTextToSize(intervention.description, pageW - 40);
+          doc.text(descLines, 25, y);
+          y += descLines.length * 4;
+        }
+
+        // Per-intervention evaluation
+        const evalItem = data.interventionEvals?.find(
+          (e) => e.nicCode === intervention.code || e.nicCode === String(intervention.code),
+        );
+        if (evalItem) {
+          y += 1;
+          const statusColors: Record<string, [number, number, number]> = {
+            met: [34, 197, 94],
+            partially_met: [245, 158, 11],
+            unmet: [220, 38, 38],
+          };
+          const statusLabel = evalItem.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+          const sc = statusColors[evalItem.status] ?? BRAND.gray;
+          setFont(doc, 7.5, 'bold');
+          doc.setTextColor(...sc);
+          doc.text(`Evaluation: ${statusLabel}`, 28, y);
+          y += 4;
+          if (evalItem.nocOutcome) {
+            setFont(doc, 7.5, 'normal');
+            doc.setTextColor(...BRAND.gray);
+            const nocLabel = evalItem.nocOutcomeCode ? `NOC [${evalItem.nocOutcomeCode}]: ` : 'NOC Outcome: ';
+            doc.text(nocLabel + evalItem.nocOutcome, 28, y);
+            y += 4;
+          }
+          if (evalItem.notes) {
+            setFont(doc, 7.5, 'italic');
+            doc.setTextColor(...BRAND.gray);
+            const evalNotes = doc.splitTextToSize(evalItem.notes, pageW - 50);
+            doc.text(evalNotes, 28, y);
+            y += evalNotes.length * 3.5;
+          }
+        }
+        y += 2;
+      });
+    }
+
+    // Outcome Summary
+    if (data.evaluationNotes) {
+      y += 1;
+      y = drawDataRow(doc, y, 'Overall Outcome Summary', data.evaluationNotes, pageW);
+    }
+
+    y += 2;
   }
 
+  // ════════════════════════════════════════════════════════════════════════
+  // STEP 8: REFERRAL DETAILS (Step 7 in wizard)
+  // ════════════════════════════════════════════════════════════════════════
+  y = drawSectionHeader(doc, y, 'Referral Details (Step 7: Referral)');
+  y = drawDataRow(doc, y, 'Referral Type', data.referralType || 'Refer to Doctor', pageW);
+
+  if (data.referralPriority && data.referralPriority !== 'none') {
+    const prioLabel = data.referralPriority === 'urgent'
+      ? 'Urgent'
+      : data.referralPriority === 'same_day'
+        ? 'Same Day'
+        : 'Non-urgent';
+    y = drawDataRow(doc, y, 'Priority', prioLabel, pageW);
+  }
+
+  y = drawDataRow(doc, y, 'Referred Facility', data.referralFacility || 'Not specified', pageW);
   y += 4;
 
   // ════════════════════════════════════════════════════════════════════════
-  // SECTION 7: SIGNATURE AREA
+  // SIGNATURE AREA
   // ════════════════════════════════════════════════════════════════════════
   y = checkPageBreak(doc, y, 40);
-  y = drawHr(doc, y, BRAND.gray);
-  y += 4;
+  doc.setDrawColor(...BRAND.gray);
+  doc.setLineWidth(0.3);
+  doc.line(15, y, pageW - 15, y);
+  y += 6;
 
   setFont(doc, 8, 'bold');
   doc.setTextColor(...BRAND.dark);
   doc.text('Prepared by:', 20, y);
   y += 12;
 
-  // Signature lines
-  doc.setDrawColor(...BRAND.gray);
-  doc.setLineWidth(0.3);
   doc.line(20, y, 80, y);
   doc.line(110, y, pageW - 15, y);
 
   setFont(doc, 7, 'normal');
   doc.setTextColor(...BRAND.gray);
-  doc.text('Nurse Signature', 20, y + 4);
+  doc.text('Nurse Signature over Printed Name', 20, y + 4);
   doc.text('Date & Time', 110, y + 4);
   y += 15;
 
-  // Receiving facility line
   doc.line(20, y, 80, y);
-  doc.text('Receiving Physician Signature', 20, y + 4);
+  doc.text('Receiving Physician Signature over Printed Name', 20, y + 4);
   doc.line(110, y, pageW - 15, y);
   doc.text('Date & Time', 110, y + 4);
 
@@ -498,7 +701,7 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
-    drawPageFooter(doc, 0);
+    drawPageFooter(doc);
   }
 
   return doc.output('blob');
