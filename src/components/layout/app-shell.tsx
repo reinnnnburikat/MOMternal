@@ -357,14 +357,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col border-r border-rose-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm flex-shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-rose-200/70 dark:border-gray-700/60 bg-gradient-to-b from-white via-rose-50/30 to-white dark:from-gray-950 dark:via-gray-900/50 dark:to-gray-950 backdrop-blur-sm flex-shrink-0 sticky top-0 h-screen shadow-[2px_0_12px_-4px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_16px_-4px_rgba(0,0,0,0.4)]">
         <SidebarContent onNavigate={(v) => setCurrentView(v)} currentView={currentView} />
       </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-rose-100 dark:border-gray-800">
+        <header className="sticky top-0 z-40 bg-white/90 dark:bg-gray-950/90 backdrop-blur-lg border-b border-rose-200/70 dark:border-gray-700/60 shadow-[0_1px_3px_-1px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_4px_-1px_rgba(0,0,0,0.3)]">
           <div className="flex items-center justify-between h-14 px-4 lg:px-6">
             <div className="flex items-center gap-3">
               {/* Mobile menu */}
@@ -436,12 +436,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <BreadcrumbBar />
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6 bg-gray-50 dark:bg-gray-950">
+        <main className="flex-1 p-4 lg:p-6 bg-gray-50/80 dark:bg-gray-950/50">
           {children}
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-rose-100 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 mt-auto">
+        <footer className="border-t border-rose-200/60 dark:border-gray-700/50 bg-white/60 dark:bg-gray-950/60 mt-auto">
           <div className="px-4 py-3">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground dark:text-gray-500">
               <div className="flex items-center gap-1.5">

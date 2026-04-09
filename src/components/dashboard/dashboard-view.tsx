@@ -498,11 +498,14 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 dark:from-rose-700 dark:to-pink-700 px-6 py-5 shadow-lg">
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-sm text-rose-100 mt-1">
-          Overview of your maternal health outreach
-        </p>
+      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+        <div className="relative">
+          <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+          <p className="text-sm text-rose-100/90 mt-1">
+            Overview of your maternal health outreach
+          </p>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -513,28 +516,28 @@ export function DashboardView() {
           {statsCards.map((card, idx) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="dark:bg-gray-900 dark:border-gray-800 h-full shadow-md hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-800">
+              <Card key={card.label} className="group h-full shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
                 <CardContent className="p-5 flex flex-col h-full">
                   <div className="flex items-center justify-between">
-                    <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-lg`}>
-                      <Icon className={`h-5 w-5 ${card.color}`} />
+                    <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-xl shadow-sm`}>                      
+                      <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={2} />
                     </div>
                     {card.trend && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground dark:text-gray-400">
                         <TrendingUp className="h-3 w-3" />
                         <span>{card.trend}</span>
                       </div>
                     )}
                   </div>
                   <div className="mt-3 flex-1 flex flex-col justify-end">
-                    <p className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
+                    <p className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-50">
                       {card.value}
                     </p>
                     {/* Sparkline */}
                     <div className="mt-1 -mx-1 h-8">
                       <StatSparkline data={sparklineData[idx] || [0,0,0,0,0,0,0]} color={card.sparkColor} />
                     </div>
-                    <p className="text-xs text-muted-foreground dark:text-gray-400 mt-0.5">
+                    <p className="text-xs font-medium text-muted-foreground dark:text-gray-400 mt-0.5">
                       {card.label}
                     </p>
                   </div>
@@ -551,7 +554,7 @@ export function DashboardView() {
       ) : stats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
-          <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+          <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
                 <PieChartIcon className="h-5 w-5 text-rose-600" />
@@ -613,7 +616,7 @@ export function DashboardView() {
           {/* Right column: Quick Actions + Consultation Trends */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+            <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
               <CardHeader>
                 <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Quick Actions</CardTitle>
               </CardHeader>
@@ -643,7 +646,7 @@ export function DashboardView() {
             </Card>
 
             {/* Consultation Trends Line Chart */}
-            <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+            <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
                   <TrendingUp className="h-5 w-5 text-rose-600" />
@@ -703,7 +706,7 @@ export function DashboardView() {
       {isLoadingPaused ? (
         <PausedSkeleton />
       ) : (
-        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Paused Assessments</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -778,7 +781,7 @@ export function DashboardView() {
       {isLoadingStats ? (
         <RecentTableSkeleton />
       ) : stats && stats.recentConsultations.length > 0 ? (
-        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -829,7 +832,7 @@ export function DashboardView() {
           </CardContent>
         </Card>
       ) : stats ? (
-        <Card className="dark:bg-gray-900 dark:border-gray-800 shadow-md border border-gray-100 dark:border-gray-800">
+        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
           </CardHeader>

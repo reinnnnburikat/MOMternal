@@ -210,7 +210,7 @@ function InfoRow({
 }
 
 function SectionDivider() {
-  return <div className="border-t border-rose-100/60 my-1" />;
+  return <div className="border-t border-gray-100 dark:border-gray-700/50 my-1" />;
 }
 
 // ---------------------------------------------------------------------------
@@ -459,8 +459,8 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 1: Demographics                                         */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <User className="h-4 w-4 text-rose-500" />
               Demographics
@@ -554,8 +554,8 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 2: OB History                                            */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Baby className="h-4 w-4 text-rose-500" />
               OB History
@@ -635,8 +635,8 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 3: Health History                                        */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <FileText className="h-4 w-4 text-rose-500" />
               Health History
@@ -752,7 +752,7 @@ export function PatientProfileView() {
         </div>
 
         {patient.consultations.length === 0 ? (
-          <Card className="border-dashed border-rose-200">
+          <Card className="border border-dashed border-rose-200 dark:border-rose-800/40 bg-white dark:bg-gray-900">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
               <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center mb-3">
                 <ClipboardList className="h-6 w-6 text-rose-300" />
@@ -776,7 +776,7 @@ export function PatientProfileView() {
             {patient.consultations.map((consultation) => (
               <Card
                 key={consultation.id}
-                className="border-rose-100/60 hover:shadow-sm transition-shadow"
+                className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 hover:shadow-md transition-all duration-200"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">

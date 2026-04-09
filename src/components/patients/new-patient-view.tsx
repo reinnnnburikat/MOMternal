@@ -251,8 +251,8 @@ export function NewPatientView() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
         {/* ─── Card 1: Personal Information ──────────────────────────────── */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <User className="h-4 w-4 text-rose-500" />
               Personal Information
@@ -398,8 +398,8 @@ export function NewPatientView() {
         </Card>
 
         {/* ─── Card 2: Address & Contact ─────────────────────────────────── */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <MapPin className="h-4 w-4 text-rose-500" />
               Address &amp; Contact
@@ -515,8 +515,8 @@ export function NewPatientView() {
         </Card>
 
         {/* ─── Card 3: Demographics ──────────────────────────────────────── */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Users className="h-4 w-4 text-rose-500" />
               Demographics
@@ -645,8 +645,8 @@ export function NewPatientView() {
         </Card>
 
         {/* ─── Card 4: OB History ─────────────────────────────────────────── */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Baby className="h-4 w-4 text-rose-500" />
               OB History
@@ -739,8 +739,8 @@ export function NewPatientView() {
         </Card>
 
         {/* ─── Card 5: Health History ─────────────────────────────────────── */}
-        <Card className="border-rose-100/60">
-          <CardHeader className="pb-3 pt-4 px-4">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Heart className="h-4 w-4 text-rose-500" />
               Health History

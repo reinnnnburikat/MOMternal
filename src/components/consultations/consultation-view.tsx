@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useCallback, useRef, useLayoutEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';

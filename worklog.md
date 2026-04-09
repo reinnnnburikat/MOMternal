@@ -92,3 +92,38 @@ Stage Summary:
 - No more drift risk — both API route and frontend import from @/components/map/barangay-centroids
 - Key casing bug fixed: 'Pio del Pilar' patients now correctly resolve to their centroid
 - File changed: src/app/api/map/data/route.ts
+---
+Task ID: 6
+Agent: Main
+Task: Comprehensive audit and bug fixes for MOMternal 6-phase plan implementation
+
+Work Log:
+- Full codebase audit: Read all components (2400+ lines consultation-view, patient views, dashboard, map, app-shell)
+- Verified Prisma schema: All Phase 1-5 fields already present (demographics, health history, vitals, NANDA/NIC codes, prevention levels, per-intervention evaluation, referral enhancements)
+- Verified NANDA-I data: 70 maternal/prenatal nursing diagnosis codes across 13 domains with search function
+- Verified NIC data: 38 nursing interventions across 4 categories (Physiological, Psychosocial, Safety, Educational)
+- Verified CodeCombobox component: Searchable dropdown with code prefix matching, category badges, description preview
+- Verified integration: NANDA CodeCombobox in Step 2 (Diagnosis), NIC CodeCombobox in Step 5 (HITL), ICD-10 CodeCombobox in Step 2
+- Found and fixed: `useMemo` NOT imported from React in consultation-view.tsx (used at lines 312, 321 for BMI calculation)
+- Verified map pinpoint accuracy: All 33 Makati barangays match between centroids and GeoJSON (OSM Overpass API source)
+- Verified map API route: Correctly uses shared BARANGAY_CENTROIDS module (single source of truth)
+- Pushed DB schema: Already in sync, all Phase 1-5 fields present
+- Started dev server: App running on port 3000 (HTTP 200)
+- Lint check: 0 errors, 1 pre-existing warning (unused eslint-disable in ai-suggest route)
+- Delegated UI polish to frontend-styling-expert agent
+  - Dark mode contrast improved: card L* 0.21 vs background 0.13 (was 0.19 vs 0.14)
+  - Dark mode borders raised: 0.32 L* (was 0.28) for better visibility
+  - Subtle dot-grid background pattern added to distinguish page bg from card surfaces
+  - Sidebar: Subtle gradient background with right-edge depth shadow
+  - Header: Improved backdrop blur, prominent border, bottom shadow
+  - Dashboard: Refined gradient banner, card hover micro-lift animations, consistent shadow/border system
+  - Form cards (new-patient, patient-profile): Tinted card headers, consistent shadow/border treatment
+  - All cards unified: border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm
+
+Stage Summary:
+- ALL 6 phases were already implemented in the codebase from previous work sessions
+- Fixed 1 runtime bug (missing useMemo import) that could cause crash when BMI is calculated
+- Map pinpoint data verified: 33/33 barangays match between centroids and GeoJSON
+- UI polished: Better dark mode contrast, professional depth/shadows, subtle background pattern, consistent card styling
+- Application fully operational: lint passes, dev server running, HTTP 200
+- Files changed: src/components/consultations/consultation-view.tsx, src/app/globals.css, src/components/layout/app-shell.tsx, src/components/dashboard/dashboard-view.tsx, src/components/patients/new-patient-view.tsx, src/components/patients/patient-profile-view.tsx
