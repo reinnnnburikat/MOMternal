@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
         name,
         dateOfBirth,
         age,
-        address || null,
+        address || barangay || 'Makati City',
         blockLotStreet || null,
         barangay || null,
         contactNumber || null,
@@ -289,8 +289,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: patient }, { status: 201 });
   } catch (error) {
     console.error("Error creating patient:", error);
+    const msg = error instanceof Error ? error.message : "Failed to create patient";
     return NextResponse.json(
-      { success: false, error: "Failed to create patient" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
