@@ -84,11 +84,6 @@ const FIELD_MAPPING: Record<string, string> = {
   typeOfVisit: "type_of_visit",
   subjectiveSymptoms: "subjective_symptoms",
   chiefComplaint: "chief_complaint",
-  gravidity: "gravidity",
-  parity: "parity",
-  lmp: "lmp",
-  aog: "aog",
-  bloodType: "blood_type",
   height: "height",
   weight: "weight",
   bmi: "bmi",
@@ -156,13 +151,6 @@ export async function GET(
         name: row.patient_name,
         dateOfBirth: row.patient_date_of_birth,
         riskLevel: row.patient_risk_level,
-        gravidity: row.gravidity,
-        parity: row.parity,
-        aog: row.aog,
-        bloodType: row.blood_type,
-        height: row.height,
-        weight: row.weight,
-        bmi: row.bmi,
       },
     };
 
@@ -213,11 +201,6 @@ export async function PUT(
       "fundalHeight",
       "allergies",
       "medications",
-      "gravidity",
-      "parity",
-      "lmp",
-      "aog",
-      "bloodType",
       "height",
       "weight",
       "bmi",
@@ -289,6 +272,33 @@ export async function PUT(
       `UPDATE consultation SET ${setClauses.join(", ")} WHERE id = $${paramIdx} RETURNING *`,
       [...values, id]
     );
+
+    // Sync OB fields (gravidity, parity, lmp, aog, blood_type) to patient table
+    // Also track step progression for these fields
+    const OB_FIELDS = ["gravidity", "parity", "lmp", "aog", "bloodType"];
+    const obUpdates: string[] = [];
+    const obValues: unknown[] = [];
+    let obParamIdx = 1;
+    for (const field of OB_FIELDS) {
+      if (body[field] !== undefined) {
+        const snakeKey = field === 'bloodType' ? 'blood_type' : field;
+        obUpdates.push(`"${snakeKey}" = $${obParamIdx}`);
+        obValues.push(body[field]);
+        obParamIdx++;
+        // Track step progression for OB fields (step 0)
+        const fieldStep = STEP_FIELD_MAP[field];
+        if (fieldStep !== undefined && fieldStep > maxStep) {
+          maxStep = fieldStep;
+        }
+      }
+    }
+    if (obUpdates.length > 0 && existing.patient_id) {
+      obUpdates.push(`"updated_at" = now()`);
+      await query(
+        `UPDATE patient SET ${obUpdates.join(", ")} WHERE id = $${obParamIdx}`,
+        [...obValues, existing.patient_id]
+      );
+    }
 
     // Sync risk_level to patient table when it changes in consultation
     // This keeps the patient's current risk level in sync with the latest assessment

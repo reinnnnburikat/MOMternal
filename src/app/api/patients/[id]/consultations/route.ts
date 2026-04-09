@@ -64,13 +64,15 @@ export async function POST(
     const consultationNo = await generateConsultationNo();
 
     // Map optional fields from camelCase to snake_case
+    // OB fields (gravidity, parity, lmp, aog, bloodType) go to patient table, not consultation
+    const OB_FIELDS_MAP: Record<string, string> = {
+      gravidity: 'gravidity',
+      parity: 'parity',
+      lmp: 'lmp',
+      aog: 'aog',
+      bloodType: 'blood_type',
+    };
     const fieldMapping: Record<string, string> = {
-      // OB History (per-visit, moved from Patient)
-      gravidity: "gravidity",
-      parity: "parity",
-      lmp: "lmp",
-      aog: "aog",
-      bloodType: "blood_type",
       // Type of Visit
       typeOfVisit: "type_of_visit",
       // Assessment
@@ -133,7 +135,28 @@ export async function POST(
       ]
     );
 
-    // Update any optional fields if provided
+    // Separate OB fields for patient table update
+    const obUpdates: string[] = [];
+    const obValues: unknown[] = [];
+    let obParamIdx = 1;
+    for (const [camelKey, value] of Object.entries(optionalFields)) {
+      const snakeKey = OB_FIELDS_MAP[camelKey];
+      if (snakeKey && value !== undefined && value !== null) {
+        obUpdates.push(`"${snakeKey}" = $${obParamIdx}`);
+        obValues.push(value);
+        obParamIdx++;
+        delete optionalFields[camelKey]; // remove from consultation update
+      }
+    }
+    if (obUpdates.length > 0) {
+      obUpdates.push(`"updated_at" = now()`);
+      await queryOne(
+        `UPDATE patient SET ${obUpdates.join(', ')} WHERE id = $${obParamIdx}`,
+        [...obValues, patientId]
+      );
+    }
+
+    // Update consultation optional fields
     if (Object.keys(optionalFields).length > 0) {
       const setClauses: string[] = [];
       const values: unknown[] = [];
