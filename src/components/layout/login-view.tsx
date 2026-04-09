@@ -84,7 +84,7 @@ export function LoginView() {
         </div>
 
         <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/40">
-          Made with ❤ for UMAK
+          Made with R.N.
         </p>
       </div>
 
