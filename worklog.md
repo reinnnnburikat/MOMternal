@@ -928,3 +928,25 @@ Stage Summary:
 - Pain scale and LMP added to Assessment section
 - Section headers reference wizard step numbers for clinical audit trail
 - Files changed: src/lib/generate-referral-pdf.ts, src/components/consultations/consultation-view.tsx
+---
+Task ID: 12
+Agent: Fix Agent
+Task: Fix critical input/focus bugs in consultation-view.tsx
+
+Work Log:
+- Analyzed root cause: all step components (StepAssessment, StepHealthHistory, StepFindings, StepDiagnosis, StepAiSummary, StepCarePlan, StepReferral) were defined as inline component functions inside ConsultationView, causing React to unmount/remount the entire component tree on every keystroke (new function references seen as different component types)
+- Fix 1: Converted all 7 step components from JSX components (`<StepXxx />`) to render functions (`renderXxx()`)
+- Fix 1b: Moved the AI auto-trigger useEffect from inside StepAiSummary (which would be illegal in a render function) to the parent ConsultationView component, watching `[currentStep, aiSuggestions, aiLoading, aiError, handleAiSuggest]`
+- Fix 2: Wrapped VitalInput, HealthInput, HealthTextarea, and RiskBadgeCard sub-components in useCallback with `[handleFieldFocus, markDirty]` dependencies for stable references
+- Fix 3 (already applied): Focus restoration already had cursorPosRef and prevStepRef pattern — verified it only fires on step changes
+- Fix 4: Added `max="100"` to O₂ Saturation VitalInput and added clamping logic in onChange handler to prevent values > 100
+- Fix 5: Fixed health history search response parsing — API returns `{ success: true, data: [...] }` but frontend was setting results to entire response object. Now correctly extracts `json.data || []`
+- Lint: 0 errors. Build: successful compilation.
+
+Stage Summary:
+- Text reversal/focus loss on keystroke eliminated — render functions don't cause React to see "new component types"
+- AI auto-trigger preserved and moved to correct scope (parent component useEffect)
+- Sub-components now have stable references via useCallback
+- O₂ Saturation input properly capped at 100%
+- Health history search results now correctly parse API response structure
+- File changed: src/components/consultations/consultation-view.tsx

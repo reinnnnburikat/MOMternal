@@ -301,19 +301,29 @@ export function ConsultationView() {
 
   // ── Focus preservation ──
   const focusedFieldIdRef = useRef<string | null>(null);
+  const cursorPosRef = useRef<number>(0);
   const handleFieldFocus = useCallback((fieldId: string) => {
     focusedFieldIdRef.current = fieldId;
+    const el = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+    if (el) cursorPosRef.current = el.selectionStart ?? el.value.length;
   }, []);
 
+  // Only restore focus when step changes
+  const prevStepRef = useRef(currentStep);
   useEffect(() => {
-    const fieldId = focusedFieldIdRef.current;
-    if (fieldId) {
-      const el = document.getElementById(fieldId);
-      if (el && document.activeElement !== el) {
-        el.focus({ preventScroll: true });
+    if (prevStepRef.current !== currentStep) {
+      prevStepRef.current = currentStep;
+      const fieldId = focusedFieldIdRef.current;
+      if (fieldId) {
+        const el = document.getElementById(fieldId);
+        if (el) {
+          el.focus({ preventScroll: true });
+          const pos = Math.min(cursorPosRef.current, (el as HTMLInputElement).value?.length ?? 0);
+          el.setSelectionRange(pos, pos);
+        }
       }
     }
-  });
+  }, [currentStep]);
 
   // ── Form fields ──
   const [typeOfVisit, setTypeOfVisit] = useState('');
@@ -504,6 +514,14 @@ export function ConsultationView() {
 
   // Move saveRef.current assignment here — AFTER saveCurrentStepSilent is defined
   // (done via the effect above to avoid TDZ violation)
+
+  // ── Auto-trigger AI when entering step 4 ──
+  useEffect(() => {
+    if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError) {
+      const timer = setTimeout(() => handleAiSuggest(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, aiSuggestions, aiLoading, aiError, handleAiSuggest]);
 
   // ── Save payload builder ──
   const buildSavePayload = useCallback(
@@ -881,7 +899,7 @@ export function ConsultationView() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ─── Step 0: Assessment ─────────────────────────────────────────────
-  const StepAssessment = () => (
+  const renderAssessment = () => (
     <div className="space-y-6">
       {/* Type of Visit */}
       <div className="space-y-2">
@@ -937,8 +955,8 @@ export function ConsultationView() {
             placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
             onChange={v => { setVitals(p => ({ ...p, respiratoryRate: v })); markDirty(); }} />
           <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)}
-            onChange={v => { setVitals(p => ({ ...p, oxygenSat: v })); markDirty(); }} />
+            placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)} max="100"
+            onChange={v => { let clamped = v; const num = parseFloat(v); if (!isNaN(num) && num > 100) clamped = '100'; setVitals(p => ({ ...p, oxygenSat: clamped })); markDirty(); }} />
           <VitalInput id="painScale" label="Pain Scale (0-10)" icon={<AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
             onChange={v => { setVitals(p => ({ ...p, painScale: v })); markDirty(); }} />
@@ -1001,7 +1019,7 @@ export function ConsultationView() {
   );
 
   // ─── Step 1: Health History ────────────────────────────────────────
-  const StepHealthHistory = () => (
+  const renderHealthHistory = () => (
     <div className="space-y-6">
       {/* Reference Code header */}
       <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
@@ -1024,7 +1042,10 @@ export function ConsultationView() {
             if (!healthHistorySearchQuery.trim()) return;
             try {
               const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
-              if (res.ok) setHealthHistorySearchResults((await res.json()) || []);
+              if (res.ok) {
+                const json = await res.json();
+                setHealthHistorySearchResults(json.data || []);
+              }
             } catch { /* ignore */ }
           }}><Search className="h-4 w-4" /></Button>
           <Button variant="outline" onClick={() => {
@@ -1120,7 +1141,7 @@ export function ConsultationView() {
   );
 
   // ─── Step 2: Additional Findings ──────────────────────────────────
-  const StepFindings = () => (
+  const renderFindings = () => (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
@@ -1144,7 +1165,7 @@ export function ConsultationView() {
   const icd10Options: CodeOption[] = ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }));
   const nandaOptions: CodeOption[] = NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }));
 
-  const StepDiagnosis = () => (
+  const renderDiagnosis = () => (
     <div className="space-y-6">
       <div className="space-y-2">
         <CodeCombobox label="NANDA-I Nursing Diagnosis" helperText="Search by code number (e.g., 00089) or keyword."
@@ -1177,16 +1198,7 @@ export function ConsultationView() {
   );
 
   // ─── Step 4: AI Summary ───────────────────────────────────────────
-  const StepAiSummary = () => {
-    // Auto-trigger AI when entering this step (if no data yet)
-    useEffect(() => {
-      if (!aiSuggestions && !aiLoading && !aiError) {
-        // Auto-trigger after a short delay to let the UI render
-        const timer = setTimeout(() => handleAiSuggest(), 500);
-        return () => clearTimeout(timer);
-      }
-    }, []);
-
+  const renderAiSummary = () => {
     const riskColorMap: Record<string, { border: string; bg: string; text: string; icon: typeof CheckCircle2 }> = {
       low: { border: 'border-green-400', bg: 'bg-green-50 dark:bg-green-950/20', text: 'text-green-800 dark:text-green-200', icon: CheckCircle2 },
       moderate: { border: 'border-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-950/20', text: 'text-yellow-800 dark:text-yellow-200', icon: AlertTriangle },
@@ -1323,7 +1335,7 @@ export function ConsultationView() {
   // ─── Step 5: Care Plan ────────────────────────────────────────────
   const nocOptions: CodeOption[] = NOC_OUTCOMES.map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category }));
 
-  const StepCarePlan = () => (
+  const renderCarePlan = () => (
     <div className="space-y-4">
       <div>
         <h3 className="font-semibold mb-1">Nursing Care Plan</h3>
@@ -1455,7 +1467,7 @@ export function ConsultationView() {
   );
 
   // ─── Step 6: Referral ─────────────────────────────────────────────
-  const StepReferral = () => {
+  const renderReferral = () => {
     const ReferralSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
       <div><h5 className="text-sm font-semibold text-rose-700 dark:text-rose-300 border-b border-rose-100 dark:border-rose-800 pb-1 mb-2">{title}</h5><div className="space-y-1.5 pl-1">{children}</div></div>
     );
@@ -1624,13 +1636,13 @@ export function ConsultationView() {
   // ─── Step Renderer ──────────────────────────────────────────────────
   const renderStep = () => {
     switch (currentStep) {
-      case 0: return <StepAssessment />;
-      case 1: return <StepHealthHistory />;
-      case 2: return <StepFindings />;
-      case 3: return <StepDiagnosis />;
-      case 4: return <StepAiSummary />;
-      case 5: return <StepCarePlan />;
-      case 6: return <StepReferral />;
+      case 0: return renderAssessment();
+      case 1: return renderHealthHistory();
+      case 2: return renderFindings();
+      case 3: return renderDiagnosis();
+      case 4: return renderAiSummary();
+      case 5: return renderCarePlan();
+      case 6: return renderReferral();
       default: return null;
     }
   };
@@ -1650,7 +1662,7 @@ export function ConsultationView() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ─── Vital Input ───────────────────────────────────────────────────
-  const VitalInput = ({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange }: {
+  const VitalInput = useCallback(({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange }: {
     id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
     colorClass?: string; type?: string; min?: number | string; max?: number | string;
     onChange: (v: string) => void;
@@ -1661,10 +1673,10 @@ export function ConsultationView() {
         className={colorClass || ''} onFocus={() => handleFieldFocus(id)}
         onChange={e => { onChange(e.target.value); markDirty(); }} />
     </div>
-  );
+  ), [handleFieldFocus, markDirty]);
 
   // ─── Health History Field Helpers ─────────────────────────────────
-  const HealthInput = ({ id, label, placeholder, value, onChange }: {
+  const HealthInput = useCallback(({ id, label, placeholder, value, onChange }: {
     id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
   }) => (
     <div className="space-y-1.5">
@@ -1672,9 +1684,9 @@ export function ConsultationView() {
       <Input id={id} placeholder={placeholder} value={value}
         onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
     </div>
-  );
+  ), [handleFieldFocus, markDirty]);
 
-  const HealthTextarea = ({ id, label, placeholder, value, onChange }: {
+  const HealthTextarea = useCallback(({ id, label, placeholder, value, onChange }: {
     id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
   }) => (
     <div className="space-y-1.5">
@@ -1682,10 +1694,10 @@ export function ConsultationView() {
       <Textarea id={id} placeholder={placeholder} className="min-h-[60px] resize-y"
         value={value} onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
     </div>
-  );
+  ), [handleFieldFocus, markDirty]);
 
   // ─── Risk Badge Card ───────────────────────────────────────────────
-  const RiskBadgeCard = ({ label, value, colors }: {
+  const RiskBadgeCard = useCallback(({ label, value, colors }: {
     label: string; value: string;
     colors: { border: string; bg: string; text: string; icon: typeof CheckCircle2 };
   }) => {
@@ -1699,7 +1711,7 @@ export function ConsultationView() {
         </div>
       </div>
     );
-  };
+  }, [handleFieldFocus, markDirty]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // LOADING / EMPTY STATES
