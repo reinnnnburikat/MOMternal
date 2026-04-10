@@ -55,9 +55,11 @@ const navItems: { view: AppView; label: string; icon: React.ElementType }[] = [
   { view: 'audit', label: 'Audit Logs', icon: ClipboardList },
 ];
 
-function SidebarContent({ onNavigate, currentView }: {
+function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }: {
   onNavigate: (view: AppView) => void;
   currentView: AppView;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }) {
   const currentNurse = useAppStore((s) => s.currentNurse);
   const logout = useAppStore((s) => s.logout);
@@ -71,20 +73,41 @@ function SidebarContent({ onNavigate, currentView }: {
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-rose-100 dark:border-gray-800">
+      <div className={cn("flex items-center gap-3 px-4 py-5 border-b border-rose-100 dark:border-gray-800", collapsed && "justify-center px-2")}>
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-rose-300/40 dark:ring-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.25)] dark:shadow-[0_0_16px_rgba(244,63,94,0.3)]">
           <img src="/momternal_logo.png" alt="MOMternal" className="w-full h-full object-contain p-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
         </div>
-        <div className="min-w-0">
-          <h1 className="text-lg font-bold text-rose-900 dark:text-rose-100 tracking-tight">MOMternal</h1>
-          <p className="text-[10px] text-rose-400 leading-tight">Maternal Support System</p>
-        </div>
+        {!collapsed && (
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-rose-900 dark:text-rose-100 tracking-tight">MOMternal</h1>
+            <p className="text-[10px] text-rose-400 leading-tight">Maternal Support System</p>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map((item) => {
           const isActive = currentView === item.view;
+          if (collapsed) {
+            return (
+              <Tooltip key={item.view}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      'justify-center h-10 w-10 mx-auto transition-all',
+                      isActive && 'bg-rose-100 dark:bg-rose-900/30'
+                    )}
+                    onClick={() => onNavigate(item.view)}
+                  >
+                    <item.icon className={cn('h-4.5 w-4.5', isActive && 'text-rose-600')} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right"><p>{item.label}</p></TooltipContent>
+              </Tooltip>
+            );
+          }
           return (
             <Button
               key={item.view}
@@ -105,60 +128,119 @@ function SidebarContent({ onNavigate, currentView }: {
       </nav>
 
       {/* Dark Mode Toggle */}
-      <div className="mx-4 border-t border-rose-100 dark:border-gray-800" />
+      <div className={cn("mx-4 border-t border-rose-100 dark:border-gray-800", collapsed && "mx-2")} />
       <div className="px-3 py-2">
-        <DarkModeToggle />
+        <DarkModeToggle collapsed={collapsed} />
       </div>
 
-      <div className="mx-4 border-t border-rose-100 dark:border-gray-800" />
-
-      {/* User */}
-      <div className="border-t border-rose-100 dark:border-gray-800 px-3 py-4">
-        <div className="flex items-center gap-3 px-2 mb-3">
-          <Avatar className="h-9 w-9 bg-rose-100 dark:bg-rose-900/30">
-            <AvatarFallback className="bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs font-semibold">
-              {currentNurse?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-foreground truncate">{currentNurse?.name}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{currentNurse?.email}</p>
-          </div>
-        </div>
-        <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
-          <AlertDialogTrigger asChild>
+      {/* Collapse Toggle */}
+      {onToggleCollapse && (
+        <>
+          <div className={cn("mx-4 border-t border-rose-100 dark:border-gray-800", collapsed && "mx-2")} />
+          <div className="px-3 py-2">
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 h-9 px-3 text-sm text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+              onClick={onToggleCollapse}
+              className={cn(
+                "w-full justify-center gap-2 h-9 text-sm text-muted-foreground hover:text-foreground",
+                collapsed ? "mx-auto w-10" : "px-3"
+              )}
             >
-              <LogOut className="h-4 w-4" />
-              Sign Out
+              <ChevronLeft className={cn("h-4 w-4 transition-transform duration-300", collapsed && "rotate-180")} />
+              {!collapsed && <span>Collapse</span>}
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Sign Out</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to sign out? Any unsaved changes will be lost.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                Sign Out
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          </div>
+        </>
+      )}
+
+      <div className={cn("mx-4 border-t border-rose-100 dark:border-gray-800", collapsed && "mx-2")} />
+
+      {/* User */}
+      <div className={cn("border-t border-rose-100 dark:border-gray-800 px-3 py-4", collapsed && "flex flex-col items-center")}>
+        <Avatar className="h-9 w-9 bg-rose-100 dark:bg-rose-900/30">
+          <AvatarFallback className="bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+            {currentNurse?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'}
+          </AvatarFallback>
+        </Avatar>
+        {!collapsed && (
+          <>
+            <div className="flex items-center gap-3 px-2 mb-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">{currentNurse?.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{currentNurse?.email}</p>
+              </div>
+            </div>
+            <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 h-9 px-3 text-sm text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sign Out</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to sign out? Any unsaved changes will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleLogout}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Sign Out
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
+        {collapsed && (
+          <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+            <AlertDialogTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="mt-3 h-9 w-9 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right"><p>Sign Out</p></TooltipContent>
+              </Tooltip>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Sign Out</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to sign out? Any unsaved changes will be lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Sign Out
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </div>
   );
 }
 
-function DarkModeToggle() {
+function DarkModeToggle({ collapsed }: { collapsed?: boolean }) {
   const [isDark, setIsDark] = useState(false);
 
   // Sync dark mode from localStorage/matchMedia on mount (client-only)
@@ -178,6 +260,19 @@ function DarkModeToggle() {
     setIsDark(newDark);
     localStorage.setItem('momternal-theme', newDark ? 'dark' : 'light');
   };
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" onClick={toggleDark} className="mx-auto h-9 w-9 text-muted-foreground hover:text-foreground">
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right"><p>{isDark ? 'Light Mode' : 'Dark Mode'}</p></TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <Button
@@ -336,7 +431,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const currentNurse = useAppStore((s) => s.currentNurse);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('momternal-sidebar-collapsed') === 'true';
+    }
+    return false;
+  });
   const [isOnline, setIsOnline] = useState(true);
+
+  // Persist sidebar collapsed state
+  useEffect(() => {
+    localStorage.setItem('momternal-sidebar-collapsed', String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   // Track online status
   useEffect(() => {
@@ -377,8 +483,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col border-r border-rose-200/70 dark:border-gray-700/60 bg-gradient-to-b from-white via-rose-50/30 to-white dark:from-gray-950 dark:via-gray-900/50 dark:to-gray-950 backdrop-blur-sm flex-shrink-0 sticky top-0 h-screen shadow-[2px_0_12px_-4px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_16px_-4px_rgba(0,0,0,0.4)]">
-        <SidebarContent onNavigate={(v) => setCurrentView(v)} currentView={currentView} />
+      <aside className={cn(
+        "hidden lg:flex flex-col border-r border-rose-200/70 dark:border-gray-700/60 bg-gradient-to-b from-white via-rose-50/30 to-white dark:from-gray-950 dark:via-gray-900/50 dark:to-gray-950 backdrop-blur-sm flex-shrink-0 sticky top-0 h-screen shadow-[2px_0_12px_-4px_rgba(0,0,0,0.06)] dark:shadow-[2px_0_16px_-4px_rgba(0,0,0,0.4)] transition-all duration-300",
+        sidebarCollapsed ? "w-[68px]" : "w-64"
+      )}>
+        <SidebarContent
+          onNavigate={(v) => setCurrentView(v)}
+          currentView={currentView}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
+        />
       </aside>
 
       {/* Main Content */}

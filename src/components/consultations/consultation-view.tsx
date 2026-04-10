@@ -46,6 +46,7 @@ import {
   Info,
   AlertCircle,
   Users,
+  X,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -380,6 +381,8 @@ export function ConsultationView() {
   const [notes, setNotes] = useState('');
   const [icd10Diagnosis, setIcd10Diagnosis] = useState('');
   const [nandaDiagnosis, setNandaDiagnosis] = useState('');
+  const [selectedNandaCodes, setSelectedNandaCodes] = useState<Array<{code: string, name: string}>>([]);
+  const [selectedIcd10Codes, setSelectedIcd10Codes] = useState<Array<{code: string, name: string}>>([]);
   const [nandaRelatedTo, setNandaRelatedTo] = useState('');
   const [icd10AdditionalNotes, setIcd10AdditionalNotes] = useState('');
   const [riskLevel, setRiskLevel] = useState('');
@@ -413,17 +416,8 @@ export function ConsultationView() {
   }>>([]);
 
   // ── Computed values (declared before callbacks that reference them) ──
-  const nandaSelectedCode = (() => {
-    if (!nandaDiagnosis) return '';
-    const match = nandaDiagnosis.match(/^(\d{5})\b/);
-    return match ? match[1] : '';
-  })();
-
-  const icd10SelectedCode = (() => {
-    if (!icd10Diagnosis) return '';
-    const match = icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\b/);
-    return match ? match[1] : '';
-  })();
+  const nandaSelectedCode = selectedNandaCodes.length > 0 ? selectedNandaCodes.map(c => c.code).join(', ') : '';
+  const icd10SelectedCode = selectedIcd10Codes.length > 0 ? selectedIcd10Codes.map(c => c.code).join(', ') : '';
 
   // ── BMI Calculation ──
   const calculatedBMI = useMemo(() => {
@@ -457,12 +451,13 @@ export function ConsultationView() {
     } catch { return null; }
   }, [lmp]);
 
-  // ── NANDA domain for NIC filtering ──
+  // ── NANDA domain for NIC filtering (uses first selected code) ──
   const selectedNandaDomain = useMemo(() => {
-    if (!nandaSelectedCode) return null;
-    const found = NANDA_DIAGNOSES.find(d => d.code === nandaSelectedCode);
+    if (selectedNandaCodes.length === 0) return null;
+    const firstCode = selectedNandaCodes[0].code;
+    const found = NANDA_DIAGNOSES.find(d => d.code === firstCode);
     return found ? found.domain : null;
-  }, [nandaSelectedCode]);
+  }, [selectedNandaCodes]);
 
   const filteredNicOptions = useMemo(() => {
     const base = selectedNandaDomain ? getNicByDomain(selectedNandaDomain) : NIC_INTERVENTIONS;
@@ -473,6 +468,10 @@ export function ConsultationView() {
       category: n.category,
     }));
   }, [selectedNandaDomain]);
+
+  // ── Code options for diagnosis step ──
+  const nandaOptions: CodeOption[] = useMemo(() => NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category })), []);
+  const icd10Options: CodeOption[] = useMemo(() => ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category })), []);
 
   // ── Per-intervention eval update ──
   const updateInterventionEval = useCallback((index: number, field: 'status' | 'nocOutcome' | 'nocOutcomeCode' | 'notes', value: string) => {
@@ -511,8 +510,40 @@ export function ConsultationView() {
         setNotes(data.notes || '');
         setIcd10Diagnosis(data.icd10Diagnosis || '');
         setNandaDiagnosis(data.nandaDiagnosis || '');
+        // Parse NANDA codes — backward compatible: JSON array or old single-string format
+        if (data.nandaDiagnosis) {
+          try {
+            const parsed = JSON.parse(data.nandaDiagnosis);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].code) {
+              setSelectedNandaCodes(parsed.map((c: {code: string, name: string}) => ({ code: c.code, name: c.name })));
+            } else {
+              // Old single-string format like "00089 — Diagnosis Name"
+              const match = data.nandaDiagnosis.match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+              if (match) setSelectedNandaCodes([{ code: match[1], name: match[2].trim() }]);
+            }
+          } catch {
+            // Not JSON, try old format
+            const match = data.nandaDiagnosis.match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+            if (match) setSelectedNandaCodes([{ code: match[1], name: match[2].trim() }]);
+          }
+        }
+        // Parse ICD-10 codes — backward compatible
+        if (data.icd10Diagnosis) {
+          try {
+            const parsed = JSON.parse(data.icd10Diagnosis);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].code) {
+              setSelectedIcd10Codes(parsed.map((c: {code: string, name: string}) => ({ code: c.code, name: c.name })));
+            } else {
+              const match = data.icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+              if (match) setSelectedIcd10Codes([{ code: match[1], name: match[2].trim() }]);
+            }
+          } catch {
+            const match = data.icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+            if (match) setSelectedIcd10Codes([{ code: match[1], name: match[2].trim() }]);
+          }
+        }
         setNandaRelatedTo(data.nandaRelatedTo || data.nandaName || '');
-        setIcd10AdditionalNotes(data.icd10AdditionalNotes || (data.icd10Diagnosis?.includes('(') ? data.icd10Diagnosis.split('(')[1]?.replace(')', '').trim() || '' : ''));
+        setIcd10AdditionalNotes(data.icd10AdditionalNotes || '');
         setRiskLevel(data.riskLevel || '');
         setAiSuggestions(parseAI(data.aiSuggestions));
         setSelectedInterventions(parseSelectedInterventions(data.selectedInterventions));
@@ -556,12 +587,21 @@ export function ConsultationView() {
   }, []);
 
   // ── Auto-trigger AI when entering step 4 ──
+  // (Effect is registered after handleAiSuggest is defined below)
+  const aiAutoTriggerRef = useRef(false);
   useEffect(() => {
-    if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError) {
-      const timer = setTimeout(() => handleAiSuggest(), 500);
-      return () => clearTimeout(timer);
+    if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError && !aiAutoTriggerRef.current) {
+      aiAutoTriggerRef.current = true;
+      const timer = setTimeout(() => {
+        // handleAiSuggest will be available by the time this fires
+        saveRef.current = saveCurrentStepSilent;
+        handleAiSuggestRef.current();
+      }, 500);
+      return () => { clearTimeout(timer); aiAutoTriggerRef.current = false; };
     }
-  }, [currentStep, aiSuggestions, aiLoading, aiError, handleAiSuggest]);
+    if (currentStep !== 4) aiAutoTriggerRef.current = false;
+  }, [currentStep, aiSuggestions, aiLoading, aiError]);
+  const handleAiSuggestRef = useRef<() => Promise<void>>(async () => {});
 
   // ── Save payload builder ──
   const buildSavePayload = useCallback(
@@ -594,10 +634,14 @@ export function ConsultationView() {
           if (notes) payload.notes = notes;
           break;
         case 3: // Diagnosis
-          if (icd10Diagnosis) payload.icd10Diagnosis = icd10Diagnosis;
-          if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
-          if (nandaSelectedCode) payload.nandaCode = nandaSelectedCode;
-          if (nandaDiagnosis.includes('—')) payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
+          if (selectedNandaCodes.length > 0) {
+            payload.nandaDiagnosis = JSON.stringify(selectedNandaCodes);
+            payload.nandaCode = selectedNandaCodes.map(c => c.code).join(', ');
+            payload.nandaName = selectedNandaCodes.map(c => c.name).join('; ');
+          }
+          if (selectedIcd10Codes.length > 0) {
+            payload.icd10Diagnosis = JSON.stringify(selectedIcd10Codes);
+          }
           if (nandaRelatedTo) payload.nandaRelatedTo = nandaRelatedTo;
           if (icd10AdditionalNotes) payload.icd10AdditionalNotes = icd10AdditionalNotes;
           break;
@@ -622,7 +666,7 @@ export function ConsultationView() {
     },
     [typeOfVisit, chiefComplaint, vitals, fetalHeartRate, fundalHeight, allergies, medications,
       gravidity, parity, lmp, calculatedBMI, consultationAOG, healthHistoryData, healthHistoryRefCode,
-      physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode,
+      physicalExam, labResults, notes, selectedNandaCodes, selectedIcd10Codes,
       nandaRelatedTo, icd10AdditionalNotes,
       riskLevel, preventionLevel, selectedInterventions, interventionEvals, evaluationNotes,
       referralPriority, referralFacility,
@@ -678,7 +722,7 @@ export function ConsultationView() {
     const formData: Record<string, unknown> = {
       typeOfVisit,
       chiefComplaint,
-      nandaDiagnosis,
+      selectedNandaCodesCount: selectedNandaCodes.length,
       aiSuggestions,
       aiError,
       selectedInterventions,
@@ -690,7 +734,7 @@ export function ConsultationView() {
       return;
     }
     if (currentStep < TOTAL_STEPS - 1) await goToStep(currentStep + 1);
-  }, [currentStep, goToStep, typeOfVisit, chiefComplaint, nandaDiagnosis, aiSuggestions, aiError, selectedInterventions, referralPriority]);
+  }, [currentStep, goToStep, typeOfVisit, chiefComplaint, selectedNandaCodes, aiSuggestions, aiError, selectedInterventions, referralPriority]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) goToStep(currentStep - 1);
@@ -724,6 +768,7 @@ export function ConsultationView() {
 
   // ── AI Suggest ──
   const handleAiSuggest = useCallback(async () => {
+    handleAiSuggestRef.current = handleAiSuggest;
     if (!selectedConsultationId) return;
     setAiLoading(true);
     setAiError(null);
@@ -856,8 +901,8 @@ export function ConsultationView() {
         labResults: labResults || undefined,
         notes: notes || undefined,
         // Step 4: Diagnosis
-        icd10Diagnosis: icd10Diagnosis || undefined,
-        nandaDiagnosis: nandaDiagnosis || undefined,
+        icd10Diagnosis: selectedIcd10Codes.length > 0 ? selectedIcd10Codes.map(c => `${c.code} (${c.name})`).join('\n') : undefined,
+        nandaDiagnosis: selectedNandaCodes.length > 0 ? selectedNandaCodes.map(c => `${c.code} — ${c.name}`).join('\n') : undefined,
         nandaCode: nandaSelectedCode || undefined,
         nandaRelatedTo: nandaRelatedTo || undefined,
         icd10AdditionalNotes: icd10AdditionalNotes || undefined,
@@ -889,7 +934,7 @@ export function ConsultationView() {
       console.error('PDF generation failed:', err);
       toast.error('Failed to generate PDF.', { id: 'pdf-gen' });
     }
-  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
+  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, selectedIcd10Codes, selectedNandaCodes, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {
@@ -930,7 +975,7 @@ export function ConsultationView() {
     const formData: Record<string, unknown> = {
       typeOfVisit,
       chiefComplaint,
-      nandaDiagnosis,
+      selectedNandaCodesCount: selectedNandaCodes.length,
       aiSuggestions,
       aiError,
       selectedInterventions,
@@ -1217,33 +1262,95 @@ export function ConsultationView() {
   );
 
   // ─── Step 3: Diagnosis ─────────────────────────────────────────────
-  const icd10Options: CodeOption[] = useMemo(() => ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category })), []);
-  const nandaOptions: CodeOption[] = useMemo(() => NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category })), []);
-
   const renderDiagnosis = () => (
     <div className="space-y-6">
+      {/* NANDA Section */}
       <div className="space-y-2">
-        <CodeCombobox label="NANDA-I Nursing Diagnosis" helperText="Search by code number (e.g., 00089) or keyword."
-          value={nandaSelectedCode}
-          onSelect={opt => { if (opt) setNandaDiagnosis(`${opt.code} — ${opt.name}`); else setNandaDiagnosis(''); markDirty(); }}
+        <Label className="flex items-center gap-1.5 text-sm font-medium">
+          <Stethoscope className="h-3.5 w-3.5 text-purple-500" />
+          NANDA-I Nursing Diagnoses
+        </Label>
+        <p className="text-xs text-muted-foreground">Search and select one or more NANDA codes.</p>
+
+        <CodeCombobox
+          label="Search NANDA"
+          value=""
+          onSelect={opt => {
+            if (opt && !selectedNandaCodes.some(c => c.code === opt.code)) {
+              setSelectedNandaCodes(prev => [...prev, { code: opt.code, name: opt.name }]);
+              markDirty();
+            }
+          }}
           options={nandaOptions}
           searchFn={(q) => searchNandaDiagnoses(q).map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }))}
-          placeholder="Type NANDA code or keyword..." emptyMessage="No NANDA diagnoses found."
-          categoryColors={NANDA_CATEGORY_COLORS} id="nandaDiagnosis-combobox" prominentCode />
+          placeholder="Type NANDA code or keyword..."
+          emptyMessage="No NANDA diagnoses found."
+          categoryColors={NANDA_CATEGORY_COLORS}
+          id="nanda-search"
+          prominentCode
+        />
+
+        {selectedNandaCodes.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+            {selectedNandaCodes.map((code) => (
+              <Badge key={code.code} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+                <span className="font-mono text-xs font-semibold">{code.code}</span>
+                <span className="text-xs">{code.name}</span>
+                <button onClick={() => { setSelectedNandaCodes(prev => prev.filter(c => c.code !== code.code)); markDirty(); }} className="ml-1 hover:text-red-500">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
         <Textarea id="nandaRelatedTo" placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
           className="min-h-[60px] resize-y mt-2" value={nandaRelatedTo}
           onChange={e => { setNandaRelatedTo(e.target.value); markDirty(); }} />
       </div>
       <Separator />
+
+      {/* ICD-10 Section */}
       <div className="space-y-2">
-        <CodeCombobox label="ICD-10 Diagnosis" helperText="ICD-10 Maternal codes (e.g., O14 for preeclampsia)."
-          value={icd10SelectedCode}
-          onSelect={opt => { if (opt) setIcd10Diagnosis(`${opt.code} (${opt.name})`); else setIcd10Diagnosis(''); markDirty(); }}
+        <Label className="flex items-center gap-1.5 text-sm font-medium">
+          <Activity className="h-3.5 w-3.5 text-rose-500" />
+          ICD-10 Diagnoses
+        </Label>
+        <p className="text-xs text-muted-foreground">Search and select one or more ICD-10 codes.</p>
+
+        <CodeCombobox
+          label="Search ICD-10"
+          value=""
+          onSelect={opt => {
+            if (opt && !selectedIcd10Codes.some(c => c.code === opt.code)) {
+              setSelectedIcd10Codes(prev => [...prev, { code: opt.code, name: opt.name }]);
+              markDirty();
+            }
+          }}
           options={icd10Options}
           searchFn={(q) => searchIcd10Codes(q).map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }))}
-          placeholder="Type ICD-10 code or keyword..." emptyMessage="No ICD-10 codes found."
-          categoryColors={ICD10_CATEGORY_COLORS} id="icd10Diagnosis-combobox" prominentCode />
-        <Textarea id="icd10AdditionalNotes" placeholder="Additional notes or multiple codes (e.g., O14.1 + O99.0)..."
+          placeholder="Type ICD-10 code or keyword..."
+          emptyMessage="No ICD-10 codes found."
+          categoryColors={ICD10_CATEGORY_COLORS}
+          id="icd10-search"
+          prominentCode
+        />
+
+        {selectedIcd10Codes.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+            {selectedIcd10Codes.map((code) => (
+              <Badge key={code.code} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800">
+                <span className="font-mono text-xs font-semibold">{code.code}</span>
+                <span className="text-xs">{code.name}</span>
+                <button onClick={() => { setSelectedIcd10Codes(prev => prev.filter(c => c.code !== code.code)); markDirty(); }} className="ml-1 hover:text-red-500">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <Textarea id="icd10AdditionalNotes" placeholder="Additional notes or multiple codes..."
           className="min-h-[60px] resize-y mt-2" value={icd10AdditionalNotes}
           onChange={e => { setIcd10AdditionalNotes(e.target.value); markDirty(); }} />
       </div>
@@ -1482,7 +1589,8 @@ export function ConsultationView() {
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
                       <Label className="text-xs">NOC Outcome</Label>
-                      <CodeCombobox
+                                      <CodeCombobox
+                        label="NOC Outcome"
                         value={eval_.nocOutcomeCode || ''} onSelect={opt => {
                           if (opt) { updateInterventionEval(idx, 'nocOutcomeCode', opt.code); if (!eval_.nocOutcome) updateInterventionEval(idx, 'nocOutcome', opt.name); }
                           else updateInterventionEval(idx, 'nocOutcomeCode', '');
@@ -1521,6 +1629,7 @@ export function ConsultationView() {
 
   // ─── Step 6: Referral ─────────────────────────────────────────────
   const renderReferral = () => {
+    if (!consultation) return null;
     const ReferralSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
       <div><h5 className="text-sm font-semibold text-rose-700 dark:text-rose-300 border-b border-rose-100 dark:border-rose-800 pb-1 mb-2">{title}</h5><div className="space-y-1.5 pl-1">{children}</div></div>
     );
@@ -1639,10 +1748,32 @@ export function ConsultationView() {
                   </ReferralSection>
                 )}
 
-                {(icd10Diagnosis || nandaDiagnosis) && (
+                {(selectedIcd10Codes.length > 0 || selectedNandaCodes.length > 0) && (
                   <ReferralSection title="Diagnosis">
-                    {icd10Diagnosis && <ReferralRow label="ICD-10 Diagnosis" value={icd10Diagnosis} />}
-                    {nandaDiagnosis && <ReferralRow label="NANDA-I Nursing Diagnosis" value={nandaDiagnosis} />}
+                    {selectedNandaCodes.length > 0 && (
+                      <div>
+                        <span className="text-xs font-medium text-muted-foreground">NANDA-I Nursing Diagnoses</span>
+                        <ul className="list-disc list-inside space-y-1 mt-1">
+                          {selectedNandaCodes.map((code) => (
+                            <li key={code.code} className="text-sm">
+                              <span className="font-mono text-xs font-semibold">{code.code}</span> — {code.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {selectedIcd10Codes.length > 0 && (
+                      <div>
+                        <span className="text-xs font-medium text-muted-foreground">ICD-10 Diagnoses</span>
+                        <ul className="list-disc list-inside space-y-1 mt-1">
+                          {selectedIcd10Codes.map((code) => (
+                            <li key={code.code} className="text-sm">
+                              <span className="font-mono text-xs font-semibold">{code.code}</span> — {code.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     {nandaRelatedTo && <ReferralRow label="Related to" value={nandaRelatedTo} />}
                     {icd10AdditionalNotes && <ReferralRow label="Additional Diagnosis Notes" value={icd10AdditionalNotes} />}
                   </ReferralSection>

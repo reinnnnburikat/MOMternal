@@ -76,6 +76,8 @@ export interface ReferralPdfData {
   icd10Diagnosis?: string;
   nandaDiagnosis?: string;
   nandaCode?: string;
+  nandaRelatedTo?: string;
+  icd10AdditionalNotes?: string;
 
   // Step 4 — AI Summary
   aiRationale?: string;
@@ -471,7 +473,7 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   // ════════════════════════════════════════════════════════════════════════
   // STEP 5: DIAGNOSIS (Step 4 in wizard)
   // ════════════════════════════════════════════════════════════════════════
-  if (hasAnyContent(data.icd10Diagnosis, data.nandaDiagnosis)) {
+  if (hasAnyContent(data.icd10Diagnosis, data.nandaDiagnosis, data.nandaRelatedTo, data.icd10AdditionalNotes)) {
     y = drawSectionHeader(doc, y, 'Diagnosis (Step 4: Diagnosis)');
     y = drawDataRow(doc, y, 'NANDA-I Nursing Diagnosis', data.nandaDiagnosis || '', pageW);
     if (data.nandaCode) {
@@ -480,7 +482,13 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
       doc.text(`(NANDA Code: ${data.nandaCode})`, 20, y);
       y += 5;
     }
+    if (data.nandaRelatedTo) {
+      y = drawDataRow(doc, y, 'Related to', data.nandaRelatedTo, pageW);
+    }
     y = drawDataRow(doc, y, 'ICD-10 Diagnosis', data.icd10Diagnosis || '', pageW);
+    if (data.icd10AdditionalNotes) {
+      y = drawDataRow(doc, y, 'Additional Notes', data.icd10AdditionalNotes, pageW);
+    }
     y += 2;
   }
 

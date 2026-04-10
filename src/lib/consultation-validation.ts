@@ -30,12 +30,10 @@ export function validateStep(
       return null;
     }
     case 3: {
-      // Diagnosis — NANDA diagnosis must be selected
-      if (
-        !data.nandaDiagnosis ||
-        !(data.nandaDiagnosis as string).trim()
-      )
-        return 'Please select a NANDA-I Nursing Diagnosis';
+      // Diagnosis — at least one NANDA diagnosis must be selected
+      const count = data.selectedNandaCodesCount as number | undefined;
+      if (!count || count === 0)
+        return 'Please select at least one NANDA-I Nursing Diagnosis';
       return null;
     }
     case 4: {
