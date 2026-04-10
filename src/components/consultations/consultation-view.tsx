@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { validateStep } from '@/lib/consultation-validation';
@@ -286,7 +286,7 @@ function riskLabel(risk: string): string {
 // re-creation on every render, which causes character reversal bugs)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function VitalInput({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange, onDirty }: {
+const VitalInput = memo(function VitalInput({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange, onDirty }: {
   id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
   colorClass?: string; type?: string; min?: number | string; max?: number | string;
   onChange: (v: string) => void; onDirty?: () => void;
@@ -297,12 +297,12 @@ function VitalInput({ id, label, icon, placeholder, value, colorClass, type = 't
       <Input id={id} type={type} min={min} max={max} placeholder={placeholder} value={value}
         className={colorClass || ''}
         onChange={e => { onChange(e.target.value); onDirty?.(); }}
-        onBlur={e => { if (max !== undefined) { const num = parseFloat(e.target.value); if (!isNaN(num) && num > Number(max)) { onChange(String(max)); onDirty?.(); } } }} />
+        onBlur={e => { if (max !== undefined) { const num = parseInt(e.target.value, 10); const maxVal = parseInt(String(max), 10); if (!isNaN(num) && !isNaN(maxVal) && num > maxVal) { onChange(String(maxVal)); onDirty?.(); } } }} />
     </div>
   );
-}
+});
 
-function HealthInput({ id, label, placeholder, value, onChange, onDirty }: {
+const HealthInput = memo(function HealthInput({ id, label, placeholder, value, onChange, onDirty }: {
   id: string; label: string; placeholder: string; value: string;
   onChange: (v: string) => void; onDirty?: () => void;
 }) {
@@ -313,9 +313,9 @@ function HealthInput({ id, label, placeholder, value, onChange, onDirty }: {
         onChange={e => { onChange(e.target.value); onDirty?.(); }} />
     </div>
   );
-}
+});
 
-function HealthTextarea({ id, label, placeholder, value, onChange, onDirty }: {
+const HealthTextarea = memo(function HealthTextarea({ id, label, placeholder, value, onChange, onDirty }: {
   id: string; label: string; placeholder: string; value: string;
   onChange: (v: string) => void; onDirty?: () => void;
 }) {
@@ -326,7 +326,7 @@ function HealthTextarea({ id, label, placeholder, value, onChange, onDirty }: {
         value={value} onChange={e => { onChange(e.target.value); onDirty?.(); }} />
     </div>
   );
-}
+});
 
 function RiskBadgeCard({ label, value, colors }: {
   label: string; value: string;
@@ -1047,8 +1047,15 @@ export function ConsultationView() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lmp">LMP</Label>
-            <Input id="lmp" type="date" value={lmp} max={new Date().toISOString().slice(0, 10)}
-              onChange={e => { setLmp(e.target.value); markDirty(); }} />
+            <Input id="lmp" type="text" placeholder="YYYY-MM-DD" value={lmp}
+              maxLength={10}
+              onChange={e => { setLmp(e.target.value); markDirty(); }}
+              onBlur={e => {
+                const v = e.target.value;
+                if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                  toast.error('Please enter date in YYYY-MM-DD format');
+                }
+              }} />
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
@@ -1086,11 +1093,15 @@ export function ConsultationView() {
             if (!healthHistorySearchQuery.trim()) return;
             try {
               const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
+              const json = await res.json();
               if (res.ok) {
-                const json = await res.json();
                 setHealthHistorySearchResults(json.data || []);
+              } else {
+                toast.error(json.error || 'Search failed');
               }
-            } catch { /* ignore */ }
+            } catch {
+              toast.error('Failed to search health history. Please try again.');
+            }
           }}><Search className="h-4 w-4" /></Button>
           <Button variant="outline" onClick={() => {
             setHealthHistorySearchQuery(''); setHealthHistorySearchResults([]);
@@ -1206,8 +1217,8 @@ export function ConsultationView() {
   );
 
   // ─── Step 3: Diagnosis ─────────────────────────────────────────────
-  const icd10Options: CodeOption[] = ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }));
-  const nandaOptions: CodeOption[] = NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }));
+  const icd10Options: CodeOption[] = useMemo(() => ICD10_MATERNAL_CODES.map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category })), []);
+  const nandaOptions: CodeOption[] = useMemo(() => NANDA_DIAGNOSES.map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category })), []);
 
   const renderDiagnosis = () => (
     <div className="space-y-6">
@@ -1375,7 +1386,7 @@ export function ConsultationView() {
   };
 
   // ─── Step 5: Care Plan ────────────────────────────────────────────
-  const nocOptions: CodeOption[] = NOC_OUTCOMES.map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category }));
+  const nocOptions: CodeOption[] = useMemo(() => NOC_OUTCOMES.map(n => ({ code: n.code, name: n.name, description: n.description, category: n.category })), []);
 
   const renderCarePlan = () => (
     <div className="space-y-4">
