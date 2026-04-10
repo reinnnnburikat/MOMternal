@@ -236,7 +236,7 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   let y = 0;
 
   // ════════════════════════════════════════════════════════════════════════
-  // HEADER — Branded Rose Banner
+  // HEADER — Branded Rose Banner with Logo
   // ════════════════════════════════════════════════════════════════════════
   doc.setFillColor(...BRAND.rose);
   doc.rect(0, 0, pageW, 42, 'F');
@@ -244,28 +244,40 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   doc.setFillColor(...BRAND.roseDark);
   doc.rect(0, 40, pageW, 2, 'F');
 
-  // Heart icon in circle
-  doc.setFillColor(...BRAND.white);
-  doc.setDrawColor(...BRAND.white);
-  doc.setLineWidth(0.8);
-  doc.circle(18, 21, 8, 'FD');
+  // MOMternal logo image — fetch from public directory
+  let logoDataUri = '';
+  try {
+    const logoResp = await fetch('/momternal_logo.png');
+    if (logoResp.ok) {
+      const logoBlob = await logoResp.blob();
+      logoDataUri = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(logoBlob);
+      });
+    }
+  } catch {
+    // fallback: no logo
+  }
 
-  setFont(doc, 14, 'bold');
-  doc.setTextColor(...BRAND.rose);
-  doc.text('\u2665', 18, 23.5, { align: 'center' }); // ♥
+  // Logo: 674x194 px → scale to ~50mm wide (proportional height ~14.4mm)
+  const logoW = 50;
+  const logoH = 14.4;
+  const logoX = 15;
+  const logoY = (42 - logoH) / 2;
 
-  // Title
-  setFont(doc, 22, 'bold');
-  doc.setTextColor(...BRAND.white);
-  doc.text('MOMTERNAL', 30, 17);
+  if (logoDataUri) {
+    doc.addImage(logoDataUri, 'PNG', logoX, logoY, logoW, logoH);
+  }
 
+  // Subtitle below logo
   setFont(doc, 9, 'normal');
   doc.setTextColor(254, 205, 211); // rose-200
-  doc.text('Maternal Health Nursing Assessment System', 30, 24);
+  doc.text('Maternal Health Nursing Assessment System', logoX, logoY + logoH + 5);
 
   setFont(doc, 8, 'bold');
   doc.setTextColor(...BRAND.white);
-  doc.text('REFERRAL DOCUMENT', 30, 32);
+  doc.text('REFERRAL DOCUMENT', logoX, logoY + logoH + 10);
 
   // Right side info
   setFont(doc, 7.5, 'normal');
