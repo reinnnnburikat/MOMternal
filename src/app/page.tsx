@@ -38,13 +38,16 @@ class AppErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[MOMternal] ErrorBoundary caught:', error);
     console.error('[MOMternal] Component stack:', errorInfo.componentStack);
-    // Try to send error details to console for Vercel logging
     try {
       console.error('[MOMternal] Error details:', {
         message: error.message,
         name: error.name,
         stack: error.stack,
       });
+    } catch { /* ignore */ }
+    // Store error globally so it persists across re-renders
+    try {
+      (window as unknown as Record<string, string>).__momternal_error = `${error.name}: ${error.message}\n${error.stack || ''}`;
     } catch { /* ignore */ }
   }
 
@@ -64,9 +67,10 @@ class AppErrorBoundary extends Component<
               <p className="text-sm text-muted-foreground mt-2">
                 An unexpected error occurred. Please try refreshing the page.
               </p>
-              {/* Show error details only in development for debugging */}
-              {err && process.env.NODE_ENV === 'development' && (
+              {/* Show error details for debugging */}
+              {err && (
                 <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-left">
+                  <p className="text-xs font-medium text-red-800 dark:text-red-300 mb-1">Error Details</p>
                   <p className="text-xs font-mono text-red-700 dark:text-red-400 break-all">
                     {err.name}: {err.message}
                   </p>
