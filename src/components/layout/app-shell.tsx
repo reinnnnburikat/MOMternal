@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -66,8 +65,12 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   const handleLogout = () => {
-    logout();
-    toast.info('You have been logged out');
+    setShowSignOutDialog(false);
+    // Use setTimeout to let the dialog close before unmounting
+    setTimeout(() => {
+      logout();
+      toast.success('You have been signed out');
+    }, 100);
   };
 
   return (
@@ -189,51 +192,46 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleLogout}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                  >
+                  <Button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white">
                     Sign Out
-                  </AlertDialogAction>
+                  </Button>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </>
         )}
         {collapsed && (
-          <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
-            <AlertDialogTrigger asChild>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="mt-3 h-9 w-9 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right"><p>Sign Out</p></TooltipContent>
-              </Tooltip>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Sign Out</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to sign out? Any unsaved changes will be lost.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleLogout}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+          <div className="flex flex-col items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="mt-3 h-9 w-9 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  onClick={() => setShowSignOutDialog(true)}
                 >
-                  Sign Out
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right"><p>Sign Out</p></TooltipContent>
+            </Tooltip>
+            <AlertDialog open={showSignOutDialog} onOpenChange={(open) => { if (!open) setShowSignOutDialog(false); }}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sign Out</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to sign out? Any unsaved changes will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white">
+                    Sign Out
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         )}
       </div>
     </div>
