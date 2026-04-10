@@ -122,6 +122,8 @@ interface ConsultationData {
   referralStatus?: string;
   healthHistory?: string | null;
   healthHistoryRefCode?: string | null;
+  nandaRelatedTo?: string | null;
+  icd10AdditionalNotes?: string | null;
 }
 
 interface AISuggestion {
@@ -279,6 +281,69 @@ function riskLabel(risk: string): string {
   return risk.charAt(0).toUpperCase() + risk.slice(1);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// STANDALONE SUB-COMPONENTS (defined OUTSIDE ConsultationView to avoid
+// re-creation on every render, which causes character reversal bugs)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function VitalInput({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange, onDirty }: {
+  id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
+  colorClass?: string; type?: string; min?: number | string; max?: number | string;
+  onChange: (v: string) => void; onDirty?: () => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="flex items-center gap-1.5">{icon} {label}</Label>
+      <Input id={id} type={type} min={min} max={max} placeholder={placeholder} value={value}
+        className={colorClass || ''}
+        onChange={e => { onChange(e.target.value); onDirty?.(); }}
+        onBlur={e => { if (max !== undefined) { const num = parseFloat(e.target.value); if (!isNaN(num) && num > Number(max)) { onChange(String(max)); onDirty?.(); } } }} />
+    </div>
+  );
+}
+
+function HealthInput({ id, label, placeholder, value, onChange, onDirty }: {
+  id: string; label: string; placeholder: string; value: string;
+  onChange: (v: string) => void; onDirty?: () => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Input id={id} placeholder={placeholder} value={value}
+        onChange={e => { onChange(e.target.value); onDirty?.(); }} />
+    </div>
+  );
+}
+
+function HealthTextarea({ id, label, placeholder, value, onChange, onDirty }: {
+  id: string; label: string; placeholder: string; value: string;
+  onChange: (v: string) => void; onDirty?: () => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Textarea id={id} placeholder={placeholder} className="min-h-[60px] resize-y"
+        value={value} onChange={e => { onChange(e.target.value); onDirty?.(); }} />
+    </div>
+  );
+}
+
+function RiskBadgeCard({ label, value, colors }: {
+  label: string; value: string;
+  colors: { border: string; bg: string; text: string; icon: typeof CheckCircle2 };
+}) {
+  const Icon = colors.icon;
+  return (
+    <div className={`rounded-xl border-2 p-4 ${colors.border} ${colors.bg} flex items-center gap-3`}>
+      <Icon className={`h-6 w-6 ${colors.text} flex-shrink-0`} />
+      <div>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className={`font-semibold text-sm ${colors.text}`}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export function ConsultationView() {
@@ -299,32 +364,6 @@ export function ConsultationView() {
   const [customNicName, setCustomNicName] = useState('');
   const isInitialized = useRef(false);
 
-  // ── Focus preservation ──
-  const focusedFieldIdRef = useRef<string | null>(null);
-  const cursorPosRef = useRef<number>(0);
-  const handleFieldFocus = useCallback((fieldId: string) => {
-    focusedFieldIdRef.current = fieldId;
-    const el = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
-    if (el) cursorPosRef.current = el.selectionStart ?? el.value.length;
-  }, []);
-
-  // Only restore focus when step changes
-  const prevStepRef = useRef(currentStep);
-  useEffect(() => {
-    if (prevStepRef.current !== currentStep) {
-      prevStepRef.current = currentStep;
-      const fieldId = focusedFieldIdRef.current;
-      if (fieldId) {
-        const el = document.getElementById(fieldId);
-        if (el) {
-          el.focus({ preventScroll: true });
-          const pos = Math.min(cursorPosRef.current, (el as HTMLInputElement).value?.length ?? 0);
-          el.setSelectionRange(pos, pos);
-        }
-      }
-    }
-  }, [currentStep]);
-
   // ── Form fields ──
   const [typeOfVisit, setTypeOfVisit] = useState('');
   const [chiefComplaint, setChiefComplaint] = useState('');
@@ -341,6 +380,8 @@ export function ConsultationView() {
   const [notes, setNotes] = useState('');
   const [icd10Diagnosis, setIcd10Diagnosis] = useState('');
   const [nandaDiagnosis, setNandaDiagnosis] = useState('');
+  const [nandaRelatedTo, setNandaRelatedTo] = useState('');
+  const [icd10AdditionalNotes, setIcd10AdditionalNotes] = useState('');
   const [riskLevel, setRiskLevel] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion | null>(null);
   const [selectedInterventions, setSelectedInterventions] = useState<Array<{ name: string; description?: string; code?: string }>>([]);
@@ -470,6 +511,8 @@ export function ConsultationView() {
         setNotes(data.notes || '');
         setIcd10Diagnosis(data.icd10Diagnosis || '');
         setNandaDiagnosis(data.nandaDiagnosis || '');
+        setNandaRelatedTo(data.nandaRelatedTo || data.nandaName || '');
+        setIcd10AdditionalNotes(data.icd10AdditionalNotes || (data.icd10Diagnosis?.includes('(') ? data.icd10Diagnosis.split('(')[1]?.replace(')', '').trim() || '' : ''));
         setRiskLevel(data.riskLevel || '');
         setAiSuggestions(parseAI(data.aiSuggestions));
         setSelectedInterventions(parseSelectedInterventions(data.selectedInterventions));
@@ -511,9 +554,6 @@ export function ConsultationView() {
       if (isInitialized.current && selectedConsultationId) saveRef.current();
     };
   }, []);
-
-  // Move saveRef.current assignment here — AFTER saveCurrentStepSilent is defined
-  // (done via the effect above to avoid TDZ violation)
 
   // ── Auto-trigger AI when entering step 4 ──
   useEffect(() => {
@@ -558,6 +598,8 @@ export function ConsultationView() {
           if (nandaDiagnosis) payload.nandaDiagnosis = nandaDiagnosis;
           if (nandaSelectedCode) payload.nandaCode = nandaSelectedCode;
           if (nandaDiagnosis.includes('—')) payload.nandaName = nandaDiagnosis.split('—')[1]?.trim() || '';
+          if (nandaRelatedTo) payload.nandaRelatedTo = nandaRelatedTo;
+          if (icd10AdditionalNotes) payload.icd10AdditionalNotes = icd10AdditionalNotes;
           break;
         case 4: // AI Summary
           if (riskLevel) payload.riskLevel = riskLevel;
@@ -581,6 +623,7 @@ export function ConsultationView() {
     [typeOfVisit, chiefComplaint, vitals, fetalHeartRate, fundalHeight, allergies, medications,
       gravidity, parity, lmp, calculatedBMI, consultationAOG, healthHistoryData, healthHistoryRefCode,
       physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode,
+      nandaRelatedTo, icd10AdditionalNotes,
       riskLevel, preventionLevel, selectedInterventions, interventionEvals, evaluationNotes,
       referralPriority, referralFacility,
     ]
@@ -816,6 +859,8 @@ export function ConsultationView() {
         icd10Diagnosis: icd10Diagnosis || undefined,
         nandaDiagnosis: nandaDiagnosis || undefined,
         nandaCode: nandaSelectedCode || undefined,
+        nandaRelatedTo: nandaRelatedTo || undefined,
+        icd10AdditionalNotes: icd10AdditionalNotes || undefined,
         // Step 5: AI Summary
         aiRationale: aiSuggestions?.rationale || undefined,
         aiRiskIndicators: aiSuggestions?.riskIndicators?.length ? aiSuggestions.riskIndicators : undefined,
@@ -844,7 +889,7 @@ export function ConsultationView() {
       console.error('PDF generation failed:', err);
       toast.error('Failed to generate PDF.', { id: 'pdf-gen' });
     }
-  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
+  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, icd10Diagnosis, nandaDiagnosis, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {
@@ -917,7 +962,7 @@ export function ConsultationView() {
           <Heart className="h-3.5 w-3.5 text-rose-500" /> Chief Complaint
         </Label>
         <Textarea id="chiefComplaint" placeholder="Patient reports: e.g., headache, nausea, swelling..." className="min-h-[80px] resize-y"
-          value={chiefComplaint} onFocus={() => handleFieldFocus('chiefComplaint')} onChange={e => { setChiefComplaint(e.target.value); markDirty(); }} />
+          value={chiefComplaint} onChange={e => { setChiefComplaint(e.target.value); markDirty(); }} />
       </div>
 
       {/* Allergies & Medications */}
@@ -925,12 +970,12 @@ export function ConsultationView() {
         <div className="space-y-1.5">
           <Label htmlFor="allergies" className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-muted-foreground" /> Allergies</Label>
           <Input id="allergies" placeholder="e.g. Penicillin, Sulfa drugs" value={allergies}
-            onFocus={() => handleFieldFocus('allergies')} onChange={e => { setAllergies(e.target.value); markDirty(); }} />
+            onChange={e => { setAllergies(e.target.value); markDirty(); }} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="medications">Current Medications</Label>
           <Textarea id="medications" placeholder="List current medications..." className="min-h-[60px] resize-y"
-            value={medications} onFocus={() => handleFieldFocus('medications')} onChange={e => { setMedications(e.target.value); markDirty(); }} />
+            value={medications} onChange={e => { setMedications(e.target.value); markDirty(); }} />
         </div>
       </div>
       <Separator />
@@ -944,31 +989,32 @@ export function ConsultationView() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           <VitalInput id="bloodPressure" label="Blood Pressure" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 120/80" value={vitals.bloodPressure} colorClass={getVitalColor('bloodPressure', vitals.bloodPressure)}
-            onChange={v => { setVitals(p => ({ ...p, bloodPressure: v })); markDirty(); }} />
+            onChange={v => { setVitals(p => ({ ...p, bloodPressure: v })); }} onDirty={markDirty} />
           <VitalInput id="heartRate" label="Heart Rate" icon={<Heart className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 72 bpm" value={vitals.heartRate} colorClass={getVitalColor('heartRate', vitals.heartRate)}
-            onChange={v => { setVitals(p => ({ ...p, heartRate: v })); markDirty(); }} />
+            onChange={v => { setVitals(p => ({ ...p, heartRate: v })); }} onDirty={markDirty} />
           <VitalInput id="temperature" label="Temperature" icon={<Thermometer className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 36.8°C" value={vitals.temperature} colorClass={getVitalColor('temperature', vitals.temperature)}
-            onChange={v => { setVitals(p => ({ ...p, temperature: v })); markDirty(); }} />
+            onChange={v => { setVitals(p => ({ ...p, temperature: v })); }} onDirty={markDirty} />
           <VitalInput id="respiratoryRate" label="Resp. Rate" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
-            onChange={v => { setVitals(p => ({ ...p, respiratoryRate: v })); markDirty(); }} />
+            onChange={v => { setVitals(p => ({ ...p, respiratoryRate: v })); }} onDirty={markDirty} />
           <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)} max="100"
-            onChange={v => { let clamped = v; const num = parseFloat(v); if (!isNaN(num) && num > 100) clamped = '100'; setVitals(p => ({ ...p, oxygenSat: clamped })); markDirty(); }} />
+            onChange={v => { let clamped = v.replace(/[^0-9]/g, ''); const num = parseInt(clamped, 10); if (!isNaN(num) && num > 100) clamped = '100'; setVitals(p => ({ ...p, oxygenSat: clamped })); }}
+            onDirty={markDirty} />
           <VitalInput id="painScale" label="Pain Scale (0-10)" icon={<AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
-            onChange={v => { setVitals(p => ({ ...p, painScale: v })); markDirty(); }} />
+            onChange={v => { setVitals(p => ({ ...p, painScale: v })); }} onDirty={markDirty} />
           <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 140 bpm" value={fetalHeartRate} colorClass={getVitalColor('fetalHeartRate', fetalHeartRate)}
-            onChange={v => { setFetalHeartRate(v); markDirty(); }} />
+            onChange={v => { setFetalHeartRate(v); }} onDirty={markDirty} />
           <VitalInput id="fundalHeight" label="Fundal Height" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => { setFundalHeight(v); markDirty(); }} />
+            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => { setFundalHeight(v); }} onDirty={markDirty} />
           <VitalInput id="weight" label="Weight (kg)" icon={<Weight className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => { setVitals(p => ({ ...p, weight: v })); markDirty(); }} />
+            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => { setVitals(p => ({ ...p, weight: v })); }} onDirty={markDirty} />
           <VitalInput id="height" label="Height (cm)" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => { setVitals(p => ({ ...p, height: v })); markDirty(); }} />
+            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => { setVitals(p => ({ ...p, height: v })); }} onDirty={markDirty} />
         </div>
         {/* BMI */}
         {calculatedBMI && bmiCategory && (
@@ -990,21 +1036,19 @@ export function ConsultationView() {
           <div className="space-y-1.5">
             <Label htmlFor="gravidity">Gravidity (G)</Label>
             <Input id="gravidity" type="number" min="0" max="20" placeholder="0" value={gravidity}
-              onFocus={() => handleFieldFocus('gravidity')}
               onChange={e => { const v = parseInt(e.target.value, 10); setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
             <p className="text-[11px] text-muted-foreground">No. of pregnancies</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="parity">Parity (P)</Label>
             <Input id="parity" type="number" min="0" max="20" placeholder="0" value={parity}
-              onFocus={() => handleFieldFocus('parity')}
               onChange={e => { const v = parseInt(e.target.value, 10); setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
             <p className="text-[11px] text-muted-foreground">No. of births</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lmp">LMP</Label>
             <Input id="lmp" type="date" value={lmp} max={new Date().toISOString().slice(0, 10)}
-              onFocus={() => handleFieldFocus('lmp')} onChange={e => { setLmp(e.target.value); markDirty(); }} />
+              onChange={e => { setLmp(e.target.value); markDirty(); }} />
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
@@ -1037,7 +1081,7 @@ export function ConsultationView() {
         <Label className="flex items-center gap-1.5"><Search className="h-3.5 w-3.5 text-muted-foreground" /> Search Existing Health History</Label>
         <div className="flex gap-2">
           <Input placeholder="Enter reference code (e.g., HH-20260409-001)..." value={healthHistorySearchQuery}
-            onChange={e => setHealthHistorySearchQuery(e.target.value)} className="flex-1" />
+            onChange={e => { setHealthHistorySearchQuery(e.target.value); markDirty(); }} className="flex-1" />
           <Button variant="outline" onClick={async () => {
             if (!healthHistorySearchQuery.trim()) return;
             try {
@@ -1081,13 +1125,13 @@ export function ConsultationView() {
       {/* Past Medical History & Previous Surgery */}
       <div className="space-y-4">
         <HealthTextarea id="hh-pastMedical" label="Past Medical History" placeholder="Previous medical conditions (diabetes, hypertension, heart disease, etc.)"
-          value={healthHistoryData.pastMedicalHistory} onChange={v => setHealthHistoryData(p => ({ ...p, pastMedicalHistory: v }))} />
+          value={healthHistoryData.pastMedicalHistory} onChange={v => setHealthHistoryData(p => ({ ...p, pastMedicalHistory: v }))} onDirty={markDirty} />
         <HealthTextarea id="hh-surgery" label="Previous Surgery" placeholder="Previous surgical procedures with dates if known"
-          value={healthHistoryData.previousSurgery} onChange={v => setHealthHistoryData(p => ({ ...p, previousSurgery: v }))} />
+          value={healthHistoryData.previousSurgery} onChange={v => setHealthHistoryData(p => ({ ...p, previousSurgery: v }))} onDirty={markDirty} />
         <HealthInput id="hh-trauma" label="History of Trauma" placeholder="Any history of physical trauma..."
-          value={healthHistoryData.historyOfTrauma} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfTrauma: v }))} />
+          value={healthHistoryData.historyOfTrauma} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfTrauma: v }))} onDirty={markDirty} />
         <HealthInput id="hh-transfusion" label="History of Blood Transfusion" placeholder="Any previous blood transfusions..."
-          value={healthHistoryData.historyOfBloodTransfusion} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfBloodTransfusion: v }))} />
+          value={healthHistoryData.historyOfBloodTransfusion} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfBloodTransfusion: v }))} onDirty={markDirty} />
       </div>
       <Separator />
 
@@ -1096,9 +1140,9 @@ export function ConsultationView() {
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-teal-600" /> Family History</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <HealthTextarea id="hh-familyPat" label="Paternal Side" placeholder="Health conditions on father's side..."
-            value={healthHistoryData.familyHistoryPaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryPaternal: v }))} />
+            value={healthHistoryData.familyHistoryPaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryPaternal: v }))} onDirty={markDirty} />
           <HealthTextarea id="hh-familyMat" label="Maternal Side" placeholder="Health conditions on mother's side..."
-            value={healthHistoryData.familyHistoryMaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryMaternal: v }))} />
+            value={healthHistoryData.familyHistoryMaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryMaternal: v }))} onDirty={markDirty} />
         </div>
       </div>
       <Separator />
@@ -1108,17 +1152,17 @@ export function ConsultationView() {
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-teal-600" /> Personal and Social History</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <HealthInput id="hh-smoking" label="Smoking" placeholder="Smoker/Non-smoker, pack-years..."
-            value={healthHistoryData.smokingHistory} onChange={v => setHealthHistoryData(p => ({ ...p, smokingHistory: v }))} />
+            value={healthHistoryData.smokingHistory} onChange={v => setHealthHistoryData(p => ({ ...p, smokingHistory: v }))} onDirty={markDirty} />
           <HealthInput id="hh-alcohol" label="Alcohol Intake" placeholder="None/Occasional/Regular..."
-            value={healthHistoryData.alcoholIntake} onChange={v => setHealthHistoryData(p => ({ ...p, alcoholIntake: v }))} />
+            value={healthHistoryData.alcoholIntake} onChange={v => setHealthHistoryData(p => ({ ...p, alcoholIntake: v }))} onDirty={markDirty} />
           <HealthInput id="hh-drugs" label="Drug Use" placeholder="Any substance use..."
-            value={healthHistoryData.drugUse} onChange={v => setHealthHistoryData(p => ({ ...p, drugUse: v }))} />
+            value={healthHistoryData.drugUse} onChange={v => setHealthHistoryData(p => ({ ...p, drugUse: v }))} onDirty={markDirty} />
           <HealthInput id="hh-diet" label="Dietary Pattern" placeholder="Diet description..."
-            value={healthHistoryData.dietaryPattern} onChange={v => setHealthHistoryData(p => ({ ...p, dietaryPattern: v }))} />
+            value={healthHistoryData.dietaryPattern} onChange={v => setHealthHistoryData(p => ({ ...p, dietaryPattern: v }))} onDirty={markDirty} />
           <HealthInput id="hh-activity" label="Physical Activity" placeholder="Sedentary/Moderate/Active..."
-            value={healthHistoryData.physicalActivity} onChange={v => setHealthHistoryData(p => ({ ...p, physicalActivity: v }))} />
+            value={healthHistoryData.physicalActivity} onChange={v => setHealthHistoryData(p => ({ ...p, physicalActivity: v }))} onDirty={markDirty} />
           <HealthInput id="hh-sleep" label="Sleep Pattern" placeholder="Hours per night, quality..."
-            value={healthHistoryData.sleepPattern} onChange={v => setHealthHistoryData(p => ({ ...p, sleepPattern: v }))} />
+            value={healthHistoryData.sleepPattern} onChange={v => setHealthHistoryData(p => ({ ...p, sleepPattern: v }))} onDirty={markDirty} />
         </div>
       </div>
       <Separator />
@@ -1128,13 +1172,13 @@ export function ConsultationView() {
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-teal-600" /> Additional Information</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <HealthInput id="hh-allergies" label="Allergies" placeholder="Known allergies..."
-            value={healthHistoryData.allergies} onChange={v => setHealthHistoryData(p => ({ ...p, allergies: v }))} />
+            value={healthHistoryData.allergies} onChange={v => setHealthHistoryData(p => ({ ...p, allergies: v }))} onDirty={markDirty} />
           <HealthInput id="hh-meds" label="Current Medications" placeholder="Ongoing medications..."
-            value={healthHistoryData.currentMedications} onChange={v => setHealthHistoryData(p => ({ ...p, currentMedications: v }))} />
+            value={healthHistoryData.currentMedications} onChange={v => setHealthHistoryData(p => ({ ...p, currentMedications: v }))} onDirty={markDirty} />
           <HealthInput id="hh-immuno" label="Immunization Status" placeholder="Tetanus, flu vaccine, etc."
-            value={healthHistoryData.immunizationStatus} onChange={v => setHealthHistoryData(p => ({ ...p, immunizationStatus: v }))} />
+            value={healthHistoryData.immunizationStatus} onChange={v => setHealthHistoryData(p => ({ ...p, immunizationStatus: v }))} onDirty={markDirty} />
           <HealthInput id="hh-mental" label="Mental Health History" placeholder="Any mental health conditions..."
-            value={healthHistoryData.mentalHealthHistory} onChange={v => setHealthHistoryData(p => ({ ...p, mentalHealthHistory: v }))} />
+            value={healthHistoryData.mentalHealthHistory} onChange={v => setHealthHistoryData(p => ({ ...p, mentalHealthHistory: v }))} onDirty={markDirty} />
         </div>
       </div>
     </div>
@@ -1146,17 +1190,17 @@ export function ConsultationView() {
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
         <Textarea id="physicalExam" placeholder="General appearance, fundal assessment, edema, etc." className="min-h-[100px] resize-y"
-          value={physicalExam} onFocus={() => handleFieldFocus('physicalExam')} onChange={e => { setPhysicalExam(e.target.value); markDirty(); }} />
+          value={physicalExam} onChange={e => { setPhysicalExam(e.target.value); markDirty(); }} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="labResults">Laboratory Results</Label>
         <Textarea id="labResults" placeholder="CBC, Urinalysis, Blood typing, etc." className="min-h-[100px] resize-y"
-          value={labResults} onFocus={() => handleFieldFocus('labResults')} onChange={e => { setLabResults(e.target.value); markDirty(); }} />
+          value={labResults} onChange={e => { setLabResults(e.target.value); markDirty(); }} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Additional Notes</Label>
         <Textarea id="notes" placeholder="Any additional observations or notes..." className="min-h-[80px] resize-y"
-          value={notes} onFocus={() => handleFieldFocus('notes')} onChange={e => { setNotes(e.target.value); markDirty(); }} />
+          value={notes} onChange={e => { setNotes(e.target.value); markDirty(); }} />
       </div>
     </div>
   );
@@ -1175,10 +1219,9 @@ export function ConsultationView() {
           searchFn={(q) => searchNandaDiagnoses(q).map(d => ({ code: d.code, name: d.name, description: d.definition, category: d.category }))}
           placeholder="Type NANDA code or keyword..." emptyMessage="No NANDA diagnoses found."
           categoryColors={NANDA_CATEGORY_COLORS} id="nandaDiagnosis-combobox" prominentCode />
-        <Textarea id="nandaDiagnosis-notes" placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
-          className="min-h-[60px] resize-y mt-2" value={nandaDiagnosis.includes('—') ? '' : nandaDiagnosis}
-          onFocus={() => handleFieldFocus('nandaDiagnosis-notes')}
-          onChange={e => { const v = e.target.value; if (v.trim() && !nandaSelectedCode) setNandaDiagnosis(v); markDirty(); }} />
+        <Textarea id="nandaRelatedTo" placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
+          className="min-h-[60px] resize-y mt-2" value={nandaRelatedTo}
+          onChange={e => { setNandaRelatedTo(e.target.value); markDirty(); }} />
       </div>
       <Separator />
       <div className="space-y-2">
@@ -1189,10 +1232,9 @@ export function ConsultationView() {
           searchFn={(q) => searchIcd10Codes(q).map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }))}
           placeholder="Type ICD-10 code or keyword..." emptyMessage="No ICD-10 codes found."
           categoryColors={ICD10_CATEGORY_COLORS} id="icd10Diagnosis-combobox" prominentCode />
-        <Textarea id="icd10Diagnosis-notes" placeholder="Additional notes or multiple codes (e.g., O14.1 + O99.0)..."
-          className="min-h-[60px] resize-y mt-2" value={icd10Diagnosis.includes('(') ? '' : icd10Diagnosis}
-          onFocus={() => handleFieldFocus('icd10Diagnosis-notes')}
-          onChange={e => { const v = e.target.value; if (v.trim() && !icd10SelectedCode) setIcd10Diagnosis(v); markDirty(); }} />
+        <Textarea id="icd10AdditionalNotes" placeholder="Additional notes or multiple codes (e.g., O14.1 + O99.0)..."
+          className="min-h-[60px] resize-y mt-2" value={icd10AdditionalNotes}
+          onChange={e => { setIcd10AdditionalNotes(e.target.value); markDirty(); }} />
       </div>
     </div>
   );
@@ -1461,7 +1503,7 @@ export function ConsultationView() {
         <Label htmlFor="evaluationNotes">Outcome Summary</Label>
         <Textarea id="evaluationNotes" placeholder="Document the overall outcomes, patient response, and follow-up plan..."
           className="min-h-[80px] resize-y" value={evaluationNotes}
-          onFocus={() => handleFieldFocus('evaluationNotes')} onChange={e => { setEvaluationNotes(e.target.value); markDirty(); }} />
+          onChange={e => { setEvaluationNotes(e.target.value); markDirty(); }} />
       </div>
     </div>
   );
@@ -1507,7 +1549,7 @@ export function ConsultationView() {
                 <Label htmlFor="referralFacility" className="flex items-center gap-1.5"><Info className="h-3.5 w-3.5 text-muted-foreground" /> Referral Facility</Label>
                 <Textarea id="referralFacility" placeholder="Facility name, address, contact information..."
                   className="min-h-[80px] resize-y" value={referralFacility}
-                  onFocus={() => handleFieldFocus('referralFacility')} onChange={e => { setReferralFacility(e.target.value); markDirty(); }} />
+                  onChange={e => { setReferralFacility(e.target.value); markDirty(); }} />
               </div>
               {/* Pre-filled notes from assessment */}
               {(chiefComplaint || vitals.bloodPressure || riskLevel) && (
@@ -1590,6 +1632,8 @@ export function ConsultationView() {
                   <ReferralSection title="Diagnosis">
                     {icd10Diagnosis && <ReferralRow label="ICD-10 Diagnosis" value={icd10Diagnosis} />}
                     {nandaDiagnosis && <ReferralRow label="NANDA-I Nursing Diagnosis" value={nandaDiagnosis} />}
+                    {nandaRelatedTo && <ReferralRow label="Related to" value={nandaRelatedTo} />}
+                    {icd10AdditionalNotes && <ReferralRow label="Additional Diagnosis Notes" value={icd10AdditionalNotes} />}
                   </ReferralSection>
                 )}
 
@@ -1656,62 +1700,6 @@ export function ConsultationView() {
     5: 'Select NIC interventions, evaluate outcomes, and document the care plan.',
     6: 'Generate and finalize the referral summary document.',
   };
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SUB-COMPONENTS
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  // ─── Vital Input ───────────────────────────────────────────────────
-  const VitalInput = useCallback(({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange }: {
-    id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
-    colorClass?: string; type?: string; min?: number | string; max?: number | string;
-    onChange: (v: string) => void;
-  }) => (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="flex items-center gap-1.5">{icon} {label}</Label>
-      <Input id={id} type={type} min={min} max={max} placeholder={placeholder} value={value}
-        className={colorClass || ''} onFocus={() => handleFieldFocus(id)}
-        onChange={e => { onChange(e.target.value); markDirty(); }} />
-    </div>
-  ), [handleFieldFocus, markDirty]);
-
-  // ─── Health History Field Helpers ─────────────────────────────────
-  const HealthInput = useCallback(({ id, label, placeholder, value, onChange }: {
-    id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
-  }) => (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-xs">{label}</Label>
-      <Input id={id} placeholder={placeholder} value={value}
-        onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
-    </div>
-  ), [handleFieldFocus, markDirty]);
-
-  const HealthTextarea = useCallback(({ id, label, placeholder, value, onChange }: {
-    id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
-  }) => (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-xs">{label}</Label>
-      <Textarea id={id} placeholder={placeholder} className="min-h-[60px] resize-y"
-        value={value} onFocus={() => handleFieldFocus(id)} onChange={e => { onChange(e.target.value); markDirty(); }} />
-    </div>
-  ), [handleFieldFocus, markDirty]);
-
-  // ─── Risk Badge Card ───────────────────────────────────────────────
-  const RiskBadgeCard = useCallback(({ label, value, colors }: {
-    label: string; value: string;
-    colors: { border: string; bg: string; text: string; icon: typeof CheckCircle2 };
-  }) => {
-    const Icon = colors.icon;
-    return (
-      <div className={`rounded-xl border-2 p-4 ${colors.border} ${colors.bg} flex items-center gap-3`}>
-        <Icon className={`h-6 w-6 ${colors.text} flex-shrink-0`} />
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <p className={`font-semibold text-sm ${colors.text}`}>{value}</p>
-        </div>
-      </div>
-    );
-  }, [handleFieldFocus, markDirty]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // LOADING / EMPTY STATES
