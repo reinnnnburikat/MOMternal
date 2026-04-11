@@ -876,35 +876,10 @@ export function ConsultationView() {
     fetchConsultation();
   }, [selectedConsultationId]);
 
-  // ── Auto-save on unmount placeholder (saveRef initialized after saveCurrentStepSilent) ──
-  const saveRef = useRef<() => Promise<void>>(async () => {});
-  useEffect(() => {
-    saveRef.current = saveCurrentStepSilent;
-  }, [saveCurrentStepSilent]);
-  useEffect(() => {
-    return () => {
-      if (isInitialized.current && selectedConsultationId) saveRef.current();
-    };
-  }, []);
-
-  // ── Auto-trigger AI when entering step 4 ──
-  // (Effect is registered after handleAiSuggest is defined below)
-  const aiAutoTriggerRef = useRef(false);
-  useEffect(() => {
-    if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError && !aiAutoTriggerRef.current) {
-      aiAutoTriggerRef.current = true;
-      const timer = setTimeout(() => {
-        // handleAiSuggest will be available by the time this fires
-        saveRef.current = saveCurrentStepSilent;
-        handleAiSuggestRef.current();
-      }, 500);
-      return () => { clearTimeout(timer); aiAutoTriggerRef.current = false; };
-    }
-    if (currentStep !== 4) aiAutoTriggerRef.current = false;
-  }, [currentStep, aiSuggestions, aiLoading, aiError]);
+  // ── handleAiSuggestRef (defined early to avoid TDZ with useEffect below) ──
   const handleAiSuggestRef = useRef<() => Promise<void>>(async () => {});
 
-  // ── Save payload builder ──
+  // ── Save payload builder (defined early to avoid TDZ with useEffect below) ──
   const buildSavePayload = useCallback(
     (step: number): Record<string, unknown> => {
       const payload: Record<string, unknown> = {};
@@ -1038,6 +1013,32 @@ export function ConsultationView() {
       });
     } catch { /* silent */ }
   }, [selectedConsultationId, buildSavePayload, currentStep]);
+
+  // ── Auto-save: keep saveRef in sync with latest saveCurrentStepSilent ──
+  const saveRef = useRef<() => Promise<void>>(async () => {});
+  useEffect(() => {
+    saveRef.current = saveCurrentStepSilent;
+  }); // intentionally no deps — always update ref with latest function
+
+  // ── Auto-save on unmount ──
+  useEffect(() => {
+    return () => {
+      if (isInitialized.current && selectedConsultationId) saveRef.current();
+    };
+  }, []);
+
+  // ── Auto-trigger AI when entering step 4 ──
+  const aiAutoTriggerRef = useRef(false);
+  useEffect(() => {
+    if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError && !aiAutoTriggerRef.current) {
+      aiAutoTriggerRef.current = true;
+      const timer = setTimeout(() => {
+        handleAiSuggestRef.current();
+      }, 500);
+      return () => { clearTimeout(timer); aiAutoTriggerRef.current = false; };
+    }
+    if (currentStep !== 4) aiAutoTriggerRef.current = false;
+  }, [currentStep, aiSuggestions, aiLoading, aiError]);
 
   // ── Navigation ──
   const goToStep = useCallback(async (targetStep: number) => {
