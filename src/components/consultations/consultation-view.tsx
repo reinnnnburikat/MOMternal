@@ -694,16 +694,80 @@ export function ConsultationView() {
     setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v))));
     markDirty();
   }, []);
-  const handleLmpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLmp(e.target.value);
-    markDirty();
+  // ── LMP: Display MM/DD/YYYY, Store YYYY-MM-DD ──
+  const [lmpDisplay, setLmpDisplay] = useState('');
+  const [prevLmpDisplayLen, setPrevLmpDisplayLen] = useState(0);
+
+  // Convert YYYY-MM-DD (storage) → MM/DD/YYYY (display)
+  const lmpStorageToDisplay = useCallback((stored: string): string => {
+    if (!stored || !/^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored || '';
+    const [y, m, d] = stored.split('-');
+    return `${m}/${d}/${y}`;
   }, []);
+
+  // Convert MM/DD/YYYY (display) → YYYY-MM-DD (storage)
+  const lmpDisplayToStorage = useCallback((display: string): string => {
+    const digits = display.replace(/[^\d]/g, '');
+    if (digits.length < 8) return '';
+    return `${digits.slice(4, 8)}-${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
+  }, []);
+
+  const handleLmpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^\d/]/g, ''); // strip non-digit non-slash
+    const digits = raw.replace(/\//g, '');
+    if (digits.length > 8) return;
+
+    // Auto-insert slashes
+    let formatted = '';
+    for (let i = 0; i < digits.length && i < 8; i++) {
+      if (i === 2 || i === 4) formatted += '/';
+      formatted += digits[i];
+    }
+    // Add trailing slash if user just typed 2nd or 4th digit
+    if (digits.length === 2 || digits.length === 4) {
+      if (raw.length === 2 || raw.length === 5) formatted += '/';
+    }
+
+    setLmpDisplay(formatted);
+    setPrevLmpDisplayLen(formatted.length);
+
+    // Update the stored lmp value (YYYY-MM-DD) for AOG calculation
+    const stored = lmpDisplayToStorage(formatted);
+    setLmp(stored);
+    markDirty();
+  }, [lmpDisplayToStorage]);
+
   const handleLmpBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const v = e.target.value;
-    if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      toast.error('Please enter date in YYYY-MM-DD format');
+    const digits = v.replace(/[^\d]/g, '');
+    if (digits.length > 0 && digits.length < 8) {
+      toast.error('Please enter a complete date: MM/DD/YYYY');
+    } else if (digits.length === 8) {
+      // Validate month 01-12 and day 01-31
+      const m = parseInt(digits.slice(0, 2), 10);
+      const d = parseInt(digits.slice(2, 4), 10);
+      if (m < 1 || m > 12) {
+        toast.error('Invalid month. Please enter 01-12.');
+      } else if (d < 1 || d > 31) {
+        toast.error('Invalid day. Please enter 01-31.');
+      }
     }
   }, []);
+
+  const handleLmpKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow backspace to delete the slash along with the preceding digit
+    if (e.key === 'Backspace' && lmpDisplay.length > 0) {
+      const pos = (e.target as HTMLInputElement).selectionStart || lmpDisplay.length;
+      // If cursor is right after a slash, move back one more position
+      if (pos > 0 && lmpDisplay[pos - 1] === '/' && pos === lmpDisplay.length) {
+        // Let the native backspace handle it, but we'll clean up in onChange
+      }
+    }
+    // Allow: digits, slash, Backspace, Delete, Tab, Arrow keys, Home, End
+    if (!/^[\d/]$/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+      e.preventDefault();
+    }
+  }, [lmpDisplay]);
   const handleFetalHeartRateChange = useCallback((v: string) => {
     setFetalHeartRate(v);
   }, []);
@@ -856,6 +920,7 @@ export function ConsultationView() {
         setGravidity(data.gravidity != null ? String(data.gravidity) : '');
         setParity(data.parity != null ? String(data.parity) : '');
         setLmp(data.lmp ? (typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
+        setLmpDisplay(data.lmp ? lmpStorageToDisplay(typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
         if (data.height) setVitals(v => ({ ...v, height: data.height }));
         if (data.weight) setVitals(v => ({ ...v, weight: data.weight }));
         setPreventionLevel(data.preventionLevel || '');
@@ -1546,10 +1611,14 @@ export function ConsultationView() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lmp">LMP</Label>
-            <Input id="lmp" type="text" placeholder="YYYY-MM-DD" value={lmp}
+            <Input id="lmp" type="text" placeholder="MM/DD/YYYY" value={lmpDisplay}
               maxLength={10}
               onChange={handleLmpChange}
-              onBlur={handleLmpBlur} />
+              onBlur={handleLmpBlur}
+              onKeyDown={handleLmpKeyDown}
+              inputMode="numeric"
+              autoComplete="off" />
+            <p className="text-[11px] text-muted-foreground">Format: Month/Day/Year (auto-formatted)</p>
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
