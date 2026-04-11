@@ -483,6 +483,9 @@ export function ConsultationView() {
   const [currentStep, setCurrentStep] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // ── AI auto-trigger ref (defined early, used in both fetchConsultation and useEffect) ──
+  const aiAutoTriggerRef = useRef(false);
   const [referralLoading, setReferralLoading] = useState(false);
   const [customIntervention, setCustomIntervention] = useState('');
   const [customNicCode, setCustomNicCode] = useState('');
@@ -879,8 +882,16 @@ export function ConsultationView() {
           }
         }
         setHealthHistoryRefCode(data.healthHistoryRefCode || '');
-        setCurrentStep(resolveStartStep(data.stepCompleted));
+        const startStep = resolveStartStep(data.stepCompleted);
+        setCurrentStep(startStep);
         isInitialized.current = true;
+        // Auto-trigger AI if resuming at step 4 with no existing AI suggestions
+        if (startStep === 4 && !data.aiSuggestions && !aiAutoTriggerRef.current) {
+          aiAutoTriggerRef.current = true;
+          setTimeout(() => {
+            handleAiSuggestRef.current();
+          }, 800);
+        }
       } catch (err) {
         console.error('Error fetching consultation:', err);
         toast.error('Failed to load consultation');
@@ -1040,18 +1051,19 @@ export function ConsultationView() {
     };
   }, []);
 
-  // ── Auto-trigger AI when entering step 4 ──
-  const aiAutoTriggerRef = useRef(false);
+  // ── Auto-trigger AI when navigating TO step 4 (covers forward navigation) ──
+  // Note: Resume-from-pause is handled directly in fetchConsultation below
   useEffect(() => {
     if (currentStep === 4 && !aiSuggestions && !aiLoading && !aiError && !aiAutoTriggerRef.current) {
       aiAutoTriggerRef.current = true;
       const timer = setTimeout(() => {
         handleAiSuggestRef.current();
-      }, 500);
-      return () => { clearTimeout(timer); aiAutoTriggerRef.current = false; };
+      }, 600);
+      return () => clearTimeout(timer);
     }
+    // Reset only when navigating AWAY from step 4
     if (currentStep !== 4) aiAutoTriggerRef.current = false;
-  }, [currentStep, aiSuggestions, aiLoading, aiError]);
+  }, [currentStep]);
 
   // ── Navigation ──
   const goToStep = useCallback(async (targetStep: number) => {
@@ -1988,6 +2000,25 @@ export function ConsultationView() {
             <h3 className="font-semibold text-base mb-2">Unable to Generate AI Summary</h3>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">{aiError}</p>
             <Button onClick={handleAiSuggest} variant="outline" className="gap-2"><RefreshCw className="h-4 w-4" /> Try Again</Button>
+          </div>
+        )}
+
+        {/* Empty State — no AI data yet and not loading */}
+        {!aiLoading && !aiError && !aiSuggestions && (
+          <div className="text-center py-10">
+            <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="h-8 w-8 text-rose-500" />
+            </div>
+            <h3 className="font-semibold text-base mb-2">AI Risk Assessment</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-5">
+              Generate an AI-powered risk classification, nursing interventions, and care recommendations based on the assessment data.
+            </p>
+            <Button onClick={handleAiSuggest} size="lg" className="gap-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-md">
+              <Sparkles className="h-4.5 w-4.5" /> Generate AI Summary
+            </Button>
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground mt-4">
+              <Shield className="h-3 w-3" /> AI only receives clinical data, no patient identifiers
+            </div>
           </div>
         )}
 
