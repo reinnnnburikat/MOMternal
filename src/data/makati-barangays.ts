@@ -1,8 +1,14 @@
+// Single source of truth for all 33 Makati barangays
+// Names MUST match exactly with /public/makati-barangays.geojson and /src/components/map/barangay-centroids.ts
+// Source: OpenStreetMap Overpass API
 export const MAKATI_BARANGAYS: string[] = [
   "Bangkal",
   "Bel-Air",
   "Carmona",
-  "Dasmariñas Village",
+  "Cembo",
+  "Comembo",
+  "Dasmariñas",
+  "East Rembo",
   "Forbes Park",
   "Guadalupe Nuevo",
   "Guadalupe Viejo",
@@ -11,14 +17,22 @@ export const MAKATI_BARANGAYS: string[] = [
   "Magallanes",
   "Olympia",
   "Palanan",
+  "Pembo",
+  "Pinagkaisahan",
   "Pio del Pilar",
   "Pitogo",
   "Poblacion",
+  "Post Proper Northside",
+  "Post Proper Southside",
+  "Rizal",
   "San Antonio",
   "San Isidro",
   "San Lorenzo",
   "Santa Cruz",
   "Singkamas",
+  "South Cembo",
   "Tejeros",
   "Urdaneta",
+  "Valenzuela",
+  "West Rembo",
 ];

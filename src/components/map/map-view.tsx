@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
+import { MAKATI_BARANGAYS } from '@/data/makati-barangays';
+import { setCache, getCache } from '@/lib/offline-cache';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,8 @@ import {
   Loader2,
   Search,
   X,
+  RefreshCw,
+  Database,
 } from 'lucide-react';
 import { useAppStore } from '@/store/app-store';
 
@@ -90,8 +94,8 @@ const DEFAULT_ZOOM = 14;
 // All 33 Makati barangays with full boundary polygons from live OSM data
 let BARANGAY_BOUNDARIES: any[] = [];
 
-// Flat list of all barangay names for the search input
-const BARANGAY_NAMES = Object.keys(BARANGAY_CENTROIDS).sort();
+// Flat list of all barangay names from the shared source of truth (matches GeoJSON + centroids)
+const BARANGAY_NAMES = MAKATI_BARANGAYS.sort();
 
 export function MapView() {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -102,23 +106,46 @@ export function MapView() {
   const [riskFilter, setRiskFilter] = useState<string>('all');
 
   // ── TanStack Query: Map data ──
+  const queryClient = useQueryClient();
+  const [isFromCache, setIsFromCache] = useState(false);
+
   const {
     data: mapData,
     isLoading: loading,
     error: mapError,
     refetch: refetchMapData,
+    isFetching,
   } = useQuery<MapApiResponse | null>({
     queryKey: ['map-data'],
     queryFn: async () => {
       const res = await fetch('/api/map/data');
       if (!res.ok) throw new Error('Failed to fetch map data');
       const data: MapApiResponse = await res.json();
+      // Cache successful response for offline use
+      setCache('map-data', data);
+      setIsFromCache(false);
       return data;
     },
     enabled: mapReady,
+    staleTime: 30000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    retry: 1,
   });
 
-  const error = mapError ? 'Unable to load patient data. Map is still viewable.' : null;
+  // Load cached data when offline
+  useEffect(() => {
+    if (mapError && !mapData) {
+      const cached = getCache<MapApiResponse>('map-data');
+      if (cached) {
+        setIsFromCache(true);
+        // Inject cached data via query client
+        queryClient.setQueryData(['map-data'], cached);
+      }
+    }
+  }, [mapError, mapData, queryClient]);
+
+  const error = mapError && !isFromCache ? 'Unable to load patient data. Map is still viewable.' : null;
 
   // D3: Barangay search state
   const [searchOpen, setSearchOpen] = useState(false);
@@ -662,6 +689,18 @@ export function MapView() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              {/* Manual Refresh Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs"
+                onClick={() => refetchMapData()}
+                disabled={isFetching}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+                {isFetching ? 'Refreshing...' : 'Refresh'}
+              </Button>
+
               {/* D3: Barangay Search */}
               <Popover open={searchOpen} onOpenChange={setSearchOpen}>
                 <PopoverTrigger asChild>
@@ -783,6 +822,14 @@ export function MapView() {
                 >
                   Retry
                 </Button>
+              </div>
+            )}
+
+            {/* Cached data indicator */}
+            {isFromCache && !loading && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-blue-50/95 backdrop-blur-sm border border-blue-200 rounded-full shadow-md px-4 py-2 flex items-center gap-2">
+                <Database className="h-3.5 w-3.5 text-blue-600" />
+                <span className="text-xs font-medium text-blue-800">Using cached data (offline)</span>
               </div>
             )}
 

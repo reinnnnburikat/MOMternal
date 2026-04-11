@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/app-store';
+import { setCache, getCache, getCacheTimestamp } from '@/lib/offline-cache';
 import {
   Card,
   CardHeader,
@@ -46,6 +47,7 @@ import {
   ShieldCheck,
   PieChart as PieChartIcon,
   RefreshCw,
+  Database,
 } from 'lucide-react';
 
 // ---------- types ----------
@@ -334,6 +336,14 @@ export function DashboardView() {
   const setFilterReferralPending = useAppStore((s) => s.setFilterReferralPending);
 
   // ── TanStack Query: Dashboard stats ──
+  const [statsFromCache, setStatsFromCache] = useState(false);
+  const [lastCacheTime, setLastCacheTime] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return getCacheTimestamp('dashboard-stats');
+  });
+
+  const queryClient = useQueryClient();
+
   const {
     data: stats,
     isLoading: isLoadingStats,
@@ -344,9 +354,24 @@ export function DashboardView() {
     queryFn: async () => {
       const res = await fetch('/api/dashboard/stats', { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to fetch dashboard stats');
-      return res.json();
+      const data: DashboardStats = await res.json();
+      // Cache successful response for offline use
+      setCache('dashboard-stats', data);
+      setStatsFromCache(false);
+      setLastCacheTime(Date.now());
+      return data;
     },
+    staleTime: 30000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    retry: 1,
   });
+
+  // If fetch failed and we have cached data, inject it as fallback
+  const displayStats = statsError && !stats
+    ? getCache<DashboardStats>('dashboard-stats') ?? null
+    : stats;
+  const isShowingCachedStats = statsError && !stats && !!displayStats;
 
   // ── TanStack Query: Paused consultations ──
   const {
@@ -414,46 +439,46 @@ export function DashboardView() {
 
   // --- derived data ---
 
-  const lowRiskPatients = stats
-    ? stats.totalPatients - stats.highRiskPatients - stats.moderateRiskPatients
+  const lowRiskPatients = displayStats
+    ? displayStats.totalPatients - displayStats.highRiskPatients - displayStats.moderateRiskPatients
     : 0;
 
   // Risk distribution data for pie chart — uses consultation-based risk counts
   // which reflects actual risk assessments rather than the patient table
   const riskDistributionData = useMemo(() => {
-    if (!stats) return [];
-    const cbr = stats.consultationsByRisk;
+    if (!displayStats) return [];
+    const cbr = displayStats.consultationsByRisk;
     return [
       { name: 'Low Risk', value: cbr.low, color: CHART_COLORS.green },
       { name: 'Moderate Risk', value: cbr.moderate, color: CHART_COLORS.gold },
       { name: 'High Risk', value: cbr.high, color: CHART_COLORS.red },
     ];
-  }, [stats]);
+  }, [displayStats]);
 
   // Monthly trend data for line chart — only use real API data
   const monthlyTrendData = useMemo(() => {
-    if (!stats) return [];
-    if (stats.monthlyTrend && stats.monthlyTrend.length > 0) {
-      return stats.monthlyTrend.slice(-6);
+    if (!displayStats) return [];
+    if (displayStats.monthlyTrend && displayStats.monthlyTrend.length > 0) {
+      return displayStats.monthlyTrend.slice(-6);
     }
     // No mock data — show empty chart when no real data exists
     return getLast6MonthNames().map((month) => ({ month, count: 0 }));
-  }, [stats]);
+  }, [displayStats]);
 
   // --- stats cards config ---
 
-  const statsCards = stats
+  const statsCards = displayStats
     ? [
         {
           label: 'Total Patients',
-          value: stats.totalPatients,
+          value: displayStats.totalPatients,
           icon: Users,
           color: 'text-rose-600',
           bg: 'bg-rose-50',
           darkBg: 'dark:bg-rose-950/40',
           sparkColor: CHART_COLORS.rose,
-          trend: stats.monthlyTrend.length > 0
-            ? `${stats.monthlyTrend[stats.monthlyTrend.length - 1].count} this month`
+          trend: displayStats.monthlyTrend.length > 0
+            ? `${displayStats.monthlyTrend[displayStats.monthlyTrend.length - 1].count} this month`
             : undefined,
         },
         {
@@ -470,38 +495,38 @@ export function DashboardView() {
         },
         {
           label: 'High Risk Patients',
-          value: stats.highRiskPatients,
+          value: displayStats.highRiskPatients,
           icon: AlertTriangle,
           color: 'text-red-600',
           bg: 'bg-red-50',
           darkBg: 'dark:bg-red-950/40',
           sparkColor: CHART_COLORS.rose,
-          trend: stats.highRiskPatients > 0
+          trend: displayStats.highRiskPatients > 0
             ? 'Requires attention'
             : 'All clear',
         },
         {
           label: 'Pending Referrals',
-          value: stats.pendingReferrals,
+          value: displayStats.pendingReferrals,
           icon: FileText,
           color: 'text-amber-600',
           bg: 'bg-amber-50',
           darkBg: 'dark:bg-amber-950/40',
           sparkColor: CHART_COLORS.rose,
-          trend: stats.pendingReferrals > 0
+          trend: displayStats.pendingReferrals > 0
             ? 'Action needed'
             : 'Up to date',
         },
         {
           label: 'Recent Consultations',
-          value: stats.recentConsultations.length,
+          value: displayStats.recentConsultations.length,
           icon: Activity,
           color: 'text-purple-600',
           bg: 'bg-purple-50',
           darkBg: 'dark:bg-purple-950/40',
           sparkColor: CHART_COLORS.rose,
-          trend: stats.consultationsByRisk
-            ? `${stats.consultationsByRisk.low} low · ${stats.consultationsByRisk.moderate} mod · ${stats.consultationsByRisk.high} high`
+          trend: displayStats.consultationsByRisk
+            ? `${displayStats.consultationsByRisk.low} low · ${displayStats.consultationsByRisk.moderate} mod · ${displayStats.consultationsByRisk.high} high`
             : undefined,
         },
       ]
@@ -509,7 +534,7 @@ export function DashboardView() {
 
   // Generate sparkline data from real monthly trend (memoized to avoid re-renders)
   const sparklineData = useMemo(() => {
-    if (!stats || !stats.monthlyTrend || stats.monthlyTrend.length === 0) {
+    if (!displayStats || !displayStats.monthlyTrend || displayStats.monthlyTrend.length === 0) {
       return {
         0: [0, 0, 0, 0, 0, 0, 0],
         1: [0, 0, 0, 0, 0, 0, 0],
@@ -519,21 +544,21 @@ export function DashboardView() {
       };
     }
     // Calculate ratios based on current stats vs trend totals
-    const totalTrend = stats.monthlyTrend.reduce((sum, m) => sum + m.count, 0);
-    const totalRatio = totalTrend > 0 ? stats.totalPatients / totalTrend : 1;
+    const totalTrend = displayStats.monthlyTrend.reduce((sum, m) => sum + m.count, 0);
+    const totalRatio = totalTrend > 0 ? displayStats.totalPatients / totalTrend : 1;
     const lowRatio = totalTrend > 0 ? lowRiskPatients / totalTrend : 1;
-    const highRatio = totalTrend > 0 ? stats.highRiskPatients / totalTrend : 1;
-    const pendingRatio = totalTrend > 0 ? stats.pendingReferrals / totalTrend : 1;
-    const recentRatio = totalTrend > 0 ? stats.recentConsultations.length / totalTrend : 1;
+    const highRatio = totalTrend > 0 ? displayStats.highRiskPatients / totalTrend : 1;
+    const pendingRatio = totalTrend > 0 ? displayStats.pendingReferrals / totalTrend : 1;
+    const recentRatio = totalTrend > 0 ? displayStats.recentConsultations.length / totalTrend : 1;
 
     return {
-      0: deriveSparklineFromTrend(stats.monthlyTrend, totalRatio),
-      1: deriveSparklineFromTrend(stats.monthlyTrend, lowRatio),
-      2: deriveSparklineFromTrend(stats.monthlyTrend, highRatio),
-      3: deriveSparklineFromTrend(stats.monthlyTrend, pendingRatio),
-      4: deriveSparklineFromTrend(stats.monthlyTrend, recentRatio),
+      0: deriveSparklineFromTrend(displayStats.monthlyTrend, totalRatio),
+      1: deriveSparklineFromTrend(displayStats.monthlyTrend, lowRatio),
+      2: deriveSparklineFromTrend(displayStats.monthlyTrend, highRatio),
+      3: deriveSparklineFromTrend(displayStats.monthlyTrend, pendingRatio),
+      4: deriveSparklineFromTrend(displayStats.monthlyTrend, recentRatio),
     };
-  }, [stats, lowRiskPatients]);
+  }, [displayStats, lowRiskPatients]);
 
   // --- render ---
 
@@ -550,8 +575,26 @@ export function DashboardView() {
         </div>
       </div>
 
-      {/* Error Banner */}
-      {statsError && (
+      {/* Offline cached data indicator */}
+      {isShowingCachedStats && displayStats && (
+        <div className="flex items-center gap-3 rounded-xl border border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-950/20 p-4">
+          <Database className="h-5 w-5 text-blue-500 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Using cached data (offline)</p>
+            {lastCacheTime && (
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                Last updated: {new Date(lastCacheTime).toLocaleString()} — Refresh when back online
+              </p>
+            )}
+          </div>
+          <Button variant="outline" size="sm" onClick={() => refetchStats()} className="border-blue-200 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/40">
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+          </Button>
+        </div>
+      )}
+
+      {/* Error Banner — only show if no cached data */}
+      {statsError && !isShowingCachedStats && (
         <div className="flex items-center gap-3 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-4">
           <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
           <div className="flex-1">
@@ -607,7 +650,7 @@ export function DashboardView() {
       {/* Charts Row: Risk Pie (left) | Quick Actions + Trends (right) */}
       {isLoadingStats ? (
         <ChartsSkeleton />
-      ) : stats ? (
+      ) : displayStats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
           <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
@@ -644,7 +687,7 @@ export function DashboardView() {
                     {/* Center label */}
                     <PieCenterLabel
                       viewBox={{ cx: '50%', cy: '50%' } as never}
-                      total={stats.consultationsByRisk.low + stats.consultationsByRisk.moderate + stats.consultationsByRisk.high}
+                      total={displayStats.consultationsByRisk.low + displayStats.consultationsByRisk.moderate + displayStats.consultationsByRisk.high}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -835,12 +878,12 @@ export function DashboardView() {
       {/* Recent Consultations */}
       {isLoadingStats ? (
         <RecentTableSkeleton />
-      ) : stats && stats.recentConsultations.length > 0 ? (
+      ) : displayStats && displayStats.recentConsultations.length > 0 ? (
         <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
             <CardDescription className="dark:text-gray-400">
-              Last {stats.recentConsultations.length} consultations
+              Last {displayStats.recentConsultations.length} consultations
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -855,7 +898,7 @@ export function DashboardView() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stats.recentConsultations.map((c) => (
+                  {displayStats.recentConsultations.map((c) => (
                     <TableRow key={c.id}>
                       <TableCell>
                         <button
@@ -886,7 +929,7 @@ export function DashboardView() {
             </div>
           </CardContent>
         </Card>
-      ) : stats ? (
+      ) : displayStats ? (
         <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>

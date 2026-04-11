@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/supabase";
 import { BARANGAY_CENTROIDS } from "@/components/map/barangay-centroids";
+import { MAKATI_BARANGAYS } from "@/data/makati-barangays";
+
+// Set of valid barangay names (lowercase) for filtering
+const VALID_BARANGAYS = new Set(MAKATI_BARANGAYS.map((b) => b.toLowerCase()));
 
 // Case-insensitive centroid lookup (handles casing differences like 'Pio Del Pilar' vs 'Pio del Pilar')
 function lookupCentroid(barangay: string): [number, number] | undefined {
@@ -21,6 +25,7 @@ function lookupCentroid(barangay: string): [number, number] | undefined {
  *
  * NOTE: BARANGAY_CENTROIDS are imported from the shared source-of-truth module
  * (src/components/map/barangay-centroids.ts) which uses OSM Overpass API data.
+ * MAKATI_BARANGAYS is the canonical list from makati-barangays.ts.
  * Both the frontend map-view and this API route now use the same centroid coordinates.
  */
 
@@ -39,15 +44,21 @@ export async function GET() {
     );
 
     // For each patient, determine their "latest" risk level
-    const patientRiskData = patients.rows.map((p: Record<string, unknown>) => {
-      const latestRisk = p.latest_consultation_risk || p.patient_risk_level || 'low';
-      return {
-        id: p.id,
-        patientId: p.patient_id,
-        barangay: p.barangay || "Unknown",
-        riskLevel: latestRisk,
-      };
-    });
+    // Only include patients whose barangay is in the valid list
+    const patientRiskData = patients.rows
+      .filter((p: Record<string, unknown>) => {
+        const brgy = (p.barangay as string) || "Unknown";
+        return VALID_BARANGAYS.has(brgy.toLowerCase());
+      })
+      .map((p: Record<string, unknown>) => {
+        const latestRisk = p.latest_consultation_risk || p.patient_risk_level || 'low';
+        return {
+          id: p.id,
+          patientId: p.patient_id,
+          barangay: p.barangay || "Unknown",
+          riskLevel: latestRisk,
+        };
+      });
 
     // Group by barangay
     const barangayMap: Record<

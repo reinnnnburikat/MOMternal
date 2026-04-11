@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppStore, AppView } from '@/store/app-store';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ import {
   WifiOff,
   Sun,
   Moon,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/notifications/notification-panel';
@@ -394,16 +395,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return false;
   });
   const [isOnline, setIsOnline] = useState(true);
+  const prevOnlineRef = useRef(true);
 
   // Persist sidebar collapsed state
   useEffect(() => {
     localStorage.setItem('momternal-sidebar-collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  // Track online status
+  // Track online status with toast notifications
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (prevOnlineRef.current === false) {
+        toast.success('Back online!', {
+          description: 'Data will be refreshed automatically.',
+          duration: 3000,
+          action: {
+            label: 'Refresh',
+            onClick: () => window.location.reload(),
+          },
+        });
+      }
+      prevOnlineRef.current = true;
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      if (prevOnlineRef.current === true) {
+        toast.warning("You're offline", {
+          description: 'Cached data is available. Some features may be limited.',
+          duration: 5000,
+        });
+      }
+      prevOnlineRef.current = false;
+    };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     return () => {

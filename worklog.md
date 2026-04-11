@@ -299,3 +299,52 @@ Stage Summary:
 - Notification system upgraded from basic count-only bell to full "god mode" with dropdown panel, multiple notification types, real-time 15s polling, click-to-action navigation, session expiry warnings, per-type visual theming, empty states, and dark mode support
 - ✅ `bun run lint` — zero errors
 - ✅ Dev server compiled successfully
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix Risk Map, Align Barangays, and Implement God Mode Offline
+
+Work Log:
+- **Issue 1: Risk Map Not Updating**
+  - Added `staleTime: 30000`, `refetchOnWindowFocus: true`, `refetchOnMount: true`, `retry: 1` to map-view.tsx useQuery options
+  - Added prominent "Refresh" button with spinning animation during fetch (using RefreshCw icon)
+  - Added `isFetching` state to show loading spinner on the refresh button
+  - Map data now auto-refreshes on window focus and considers data stale after 30s
+
+- **Issue 2: Barangay Mismatch**
+  - Updated `/src/data/makati-barangays.ts` from 22 to 33 barangays matching GeoJSON/centroids exactly
+  - Key change: "Dasmariñas Village" → "Dasmariñas" to match OSM data
+  - Added 11 missing barangays: Cembo, Comembo, East Rembo, Pembo, Pinagkaisahan, Post Proper Northside, Post Proper Southside, Rizal, South Cembo, Valenzuela, West Rembo
+  - Updated map-view.tsx to import `MAKATI_BARANGAYS` instead of `Object.keys(BARANGAY_CENTROIDS)`
+  - Updated `/api/map/data/route.ts` to import `MAKATI_BARANGAYS` and filter patients to only include barangays in the master list
+
+- **Issue 3: God Mode Offline**
+  - Created `/src/lib/offline-cache.ts` — localStorage caching utility with TTL (24h), typed get/set, clearCache, getCacheTimestamp
+  - Created `/src/hooks/use-offline-data.ts` — reusable hook for offline-aware data fetching with auto-retry on reconnect
+  - Updated map-view.tsx: caches map data on successful fetch, falls back to cached data when offline, shows blue "Using cached data (offline)" indicator
+  - Updated dashboard-view.tsx: caches dashboard stats on success, shows cached data with "Last updated" timestamp when offline, separate blue indicator vs red error banner
+  - Enhanced app-shell.tsx online/offline indicator:
+    - Going offline: toast.warning("You're offline") with description about cached data
+    - Coming back online: toast.success("Back online!") with Refresh action button
+    - Uses prevOnlineRef to only show toasts on actual transitions (not on mount)
+
+Files Created:
+- `/src/lib/offline-cache.ts` — localStorage cache utility
+- `/src/hooks/use-offline-data.ts` — offline-aware data fetching hook
+
+Files Modified:
+- `/src/data/makati-barangays.ts` — expanded to 33 barangays matching GeoJSON
+- `/src/components/map/map-view.tsx` — query options, refresh button, barangay list, offline caching
+- `/src/app/api/map/data/route.ts` — filter by MAKATI_BARANGAYS
+- `/src/components/dashboard/dashboard-view.tsx` — offline caching, cached data indicator
+- `/src/components/layout/app-shell.tsx` — toast notifications on online/offline transitions
+
+Verification:
+- ✅ `bun run lint` — zero errors, zero warnings
+- ✅ All 33 barangays match GeoJSON and centroids files exactly
+
+Stage Summary:
+- Risk map now properly refetches on window focus, mount, and has manual refresh button
+- All barangay sources (dropdown, map, API) now use the same 33-barangay list matching OSM GeoJSON
+- God Mode Offline implemented: localStorage caching with 24h TTL, offline fallback for map and dashboard, toast notifications on connectivity changes
+- Zero lint errors
