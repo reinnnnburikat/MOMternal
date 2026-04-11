@@ -387,3 +387,33 @@ Stage Summary:
 - Module-level JSX constants in lazy-loaded modules cause TDZ in minified production builds
 - Replaced with lazy factory + singleton cache pattern to eliminate TDZ while preserving performance
 - Full system verified: all API routes working, login working, notifications working, dashboard data flowing
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix risk map not showing correct risk distribution (moderate/high patients all appearing as low)
+
+Work Log:
+- Investigated map API response — all 10 patients returned as "low" despite patient records showing 1 high, 2 moderate
+- Queried database directly and found root cause:
+  - Patient MOM-2026-004 has risk_level=high, but latest consultation by date has risk_level=low (in-progress, step 0)
+  - Patient MOM-2026-003 has risk_level=moderate, but latest consultation by date has risk_level=low (in-progress, step 0)
+  - The SQL subquery `ORDER BY consultation_date DESC LIMIT 1` picked the newest consultation regardless of completion status
+  - New in-progress consultations (step 0) have default risk_level='low', overriding completed consultation's assessed risk
+- Fixed `/api/map/data/route.ts`:
+  - Changed risk priority: patient.risk_level (primary) > latest completed consultation > 'low'
+  - SQL subquery now filters `WHERE step_completed >= 6` to only consider completed consultations
+  - Changed ORDER BY to `created_at DESC NULLS LAST`
+- Fixed case-insensitive barangay lookup in `map-view.tsx`:
+  - Changed barangayLookup to use lowercase keys
+  - Added `lookupBrgy()` helper function for consistent case-insensitive matching
+  - Prevents mismatches between GeoJSON property names and database barangay names
+- Verified: API now returns High=1, Moderate=2, Low=7 (matching actual database records)
+- Verified: bun run lint — zero errors
+- Pushed to GitHub (commit eb6a44f)
+
+Stage Summary:
+- Root cause: In-progress consultations (step 0) with default risk_level='low' overriding completed consultation risk
+- Fix: Use patient.risk_level as primary source, only consider completed consultations (step_completed >= 6) as fallback
+- Secondary fix: Case-insensitive barangay lookup prevents GeoJSON/DB name mismatches
+- All changes committed and pushed to https://github.com/reinnnnburikat/MOMternal.git
