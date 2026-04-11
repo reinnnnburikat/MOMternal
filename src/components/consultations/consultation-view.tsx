@@ -308,17 +308,30 @@ function riskLabel(risk: string): string {
 // re-creation on every render, which causes character reversal bugs)
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ─── Icon constants (stable references, never re-created) ─────────────────
-const ICON_BP = <Activity className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_PULSE = <Heart className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_TEMP = <Thermometer className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_RESP = <Wind className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_O2 = <Wind className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_PAIN = <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_FHR = <Baby className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_FH = <Baby className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_WEIGHT = <Weight className="h-3.5 w-3.5 text-muted-foreground" />;
-const ICON_HEIGHT = <Activity className="h-3.5 w-3.5 text-muted-foreground" />;
+// ─── Icon constants as lazy factory (avoids module-level JSX TDZ in
+// production builds where SWC/Terser may reorder initialization)
+// ─────────────────────────────────────────────────────────────────────────
+function getIcons() {
+  return {
+    bp: <Activity className="h-3.5 w-3.5 text-muted-foreground" />,
+    pulse: <Heart className="h-3.5 w-3.5 text-muted-foreground" />,
+    temp: <Thermometer className="h-3.5 w-3.5 text-muted-foreground" />,
+    resp: <Wind className="h-3.5 w-3.5 text-muted-foreground" />,
+    o2: <Wind className="h-3.5 w-3.5 text-muted-foreground" />,
+    pain: <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />,
+    fhr: <Baby className="h-3.5 w-3.5 text-muted-foreground" />,
+    fh: <Baby className="h-3.5 w-3.5 text-muted-foreground" />,
+    weight: <Weight className="h-3.5 w-3.5 text-muted-foreground" />,
+    height: <Activity className="h-3.5 w-3.5 text-muted-foreground" />,
+  };
+}
+
+// Singleton cache — created once on first component mount, reused thereafter
+let _cachedIcons: ReturnType<typeof getIcons> | null = null;
+function getStableIcons() {
+  if (!_cachedIcons) _cachedIcons = getIcons();
+  return _cachedIcons;
+}
 
 const VitalInput = memo(function VitalInput({ id, label, icon, placeholder, value, colorClass, type = 'text', min, max, onChange, onDirty }: {
   id: string; label: string; icon: React.ReactNode; placeholder: string; value: string;
@@ -1386,33 +1399,33 @@ export function ConsultationView() {
           <h3 className="font-semibold text-foreground dark:text-gray-100">Vital Signs</h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          <VitalInput id="bloodPressure" label="Blood Pressure" icon={ICON_BP}
+          <VitalInput id="bloodPressure" label="Blood Pressure" icon={getStableIcons().bp}
             placeholder="e.g. 120/80" value={vitals.bloodPressure} colorClass={getVitalColor('bloodPressure', vitals.bloodPressure)}
             onChange={handleBloodPressureChange} onDirty={markDirty} />
-          <VitalInput id="heartRate" label="Pulse Rate" icon={ICON_PULSE}
+          <VitalInput id="heartRate" label="Pulse Rate" icon={getStableIcons().pulse}
             placeholder="e.g. 72 bpm" value={vitals.heartRate} colorClass={getVitalColor('heartRate', vitals.heartRate)}
             onChange={handleHeartRateChange} onDirty={markDirty} />
-          <VitalInput id="temperature" label="Temperature" icon={ICON_TEMP}
+          <VitalInput id="temperature" label="Temperature" icon={getStableIcons().temp}
             placeholder="e.g. 36.8°C" value={vitals.temperature} colorClass={getVitalColor('temperature', vitals.temperature)}
             onChange={handleTemperatureChange} onDirty={markDirty} />
-          <VitalInput id="respiratoryRate" label="Resp. Rate" icon={ICON_RESP}
+          <VitalInput id="respiratoryRate" label="Resp. Rate" icon={getStableIcons().resp}
             placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
             onChange={handleRespiratoryRateChange} onDirty={markDirty} />
-          <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={ICON_O2}
+          <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={getStableIcons().o2}
             placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)} max="100"
             onChange={handleOxygenSatChange}
             onDirty={markDirty} />
-          <VitalInput id="painScale" label="Pain Scale (0-10)" icon={ICON_PAIN}
+          <VitalInput id="painScale" label="Pain Scale (0-10)" icon={getStableIcons().pain}
             placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
             onChange={handlePainScaleChange} onDirty={markDirty} />
-          <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={ICON_FHR}
+          <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={getStableIcons().fhr}
             placeholder="e.g. 140 bpm" value={fetalHeartRate} colorClass={getVitalColor('fetalHeartRate', fetalHeartRate)}
             onChange={handleFetalHeartRateChange} onDirty={markDirty} />
-          <VitalInput id="fundalHeight" label="Fundal Height" icon={ICON_FH}
+          <VitalInput id="fundalHeight" label="Fundal Height" icon={getStableIcons().fh}
             placeholder="e.g. 24 cm" value={fundalHeight} onChange={handleFundalHeightChange} onDirty={markDirty} />
-          <VitalInput id="weight" label="Weight (kg)" icon={ICON_WEIGHT}
+          <VitalInput id="weight" label="Weight (kg)" icon={getStableIcons().weight}
             placeholder="e.g. 65 kg" value={vitals.weight} onChange={handleWeightChange} onDirty={markDirty} />
-          <VitalInput id="height" label="Height (cm)" icon={ICON_HEIGHT}
+          <VitalInput id="height" label="Height (cm)" icon={getStableIcons().height}
             placeholder="e.g. 158 cm" value={vitals.height} onChange={handleHeightChange} onDirty={markDirty} />
         </div>
         {/* BMI */}
