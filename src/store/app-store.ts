@@ -51,6 +51,12 @@ interface AppState {
   notificationCount: number;
   setNotificationCount: (count: number) => void;
 
+  // Offline state
+  isOffline: boolean;
+  setIsOffline: (status: boolean) => void;
+  pendingSyncCount: number;
+  setPendingSyncCount: (count: number) => void;
+
   // Hydration state — true once client-side zustand persist has rehydrated
   _hasHydrated: boolean;
   _setHasHydrated: () => void;
@@ -127,6 +133,12 @@ export const useAppStore = create<AppState>()(
       // Notifications
       notificationCount: 0,
       setNotificationCount: (count) => set({ notificationCount: count }),
+
+      // Offline state
+      isOffline: false,
+      setIsOffline: (status) => set({ isOffline: status }),
+      pendingSyncCount: 0,
+      setPendingSyncCount: (count) => set({ pendingSyncCount: count }),
 
       // Hydration
       _hasHydrated: false,

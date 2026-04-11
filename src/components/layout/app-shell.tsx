@@ -44,9 +44,11 @@ import {
   Sun,
   Moon,
   RefreshCw,
+  CloudOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/notifications/notification-panel';
+import { processQueue, getQueueLength } from '@/lib/offline-queue';
 
 const navItems: { view: AppView; label: string; icon: React.ElementType }[] = [
   { view: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -396,33 +398,70 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   });
   const [isOnline, setIsOnline] = useState(true);
   const prevOnlineRef = useRef(true);
+  const isOffline = useAppStore((s) => s.isOffline);
+  const setIsOffline = useAppStore((s) => s.setIsOffline);
+  const pendingSyncCount = useAppStore((s) => s.pendingSyncCount);
+  const setPendingSyncCount = useAppStore((s) => s.setPendingSyncCount);
+
+  // Sync pendingSyncCount from offline queue on mount and periodically
+  useEffect(() => {
+    const syncCount = () => setPendingSyncCount(getQueueLength());
+    syncCount();
+    const interval = setInterval(syncCount, 3000);
+    return () => clearInterval(interval);
+  }, [setPendingSyncCount]);
 
   // Persist sidebar collapsed state
   useEffect(() => {
     localStorage.setItem('momternal-sidebar-collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  // Track online status with toast notifications
+  // Track online status with toast notifications and offline queue processing
   useEffect(() => {
-    const handleOnline = () => {
+    const handleOnline = async () => {
       setIsOnline(true);
+      setIsOffline(false);
       if (prevOnlineRef.current === false) {
-        toast.success('Back online!', {
-          description: 'Data will be refreshed automatically.',
-          duration: 3000,
-          action: {
-            label: 'Refresh',
-            onClick: () => window.location.reload(),
-          },
-        });
+        // Check if there are queued actions to sync
+        const queueLen = getQueueLength();
+        if (queueLen > 0) {
+          toast.success('Back online! Syncing...', {
+            description: `Processing ${queueLen} pending action${queueLen > 1 ? 's' : ''}.`,
+            duration: 4000,
+          });
+          // Process queue in background
+          const result = await processQueue();
+          setPendingSyncCount(getQueueLength());
+          if (result.processed > 0) {
+            toast.success(`Synced ${result.processed} action${result.processed > 1 ? 's' : ''} successfully`, {
+              duration: 3000,
+            });
+          }
+          if (result.failed > 0) {
+            toast.error(`${result.failed} action${result.failed > 1 ? 's' : ''} failed to sync`, {
+              description: 'Will retry when back online.',
+              duration: 4000,
+            });
+          }
+        } else {
+          toast.success('Back online!', {
+            description: 'Data will be refreshed automatically.',
+            duration: 3000,
+            action: {
+              label: 'Refresh',
+              onClick: () => window.location.reload(),
+            },
+          });
+        }
       }
       prevOnlineRef.current = true;
     };
     const handleOffline = () => {
       setIsOnline(false);
+      setIsOffline(true);
       if (prevOnlineRef.current === true) {
         toast.warning("You're offline", {
-          description: 'Cached data is available. Some features may be limited.',
+          description: 'Cached data is available. Changes will sync when online.',
           duration: 5000,
         });
       }
@@ -434,7 +473,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [setIsOffline, setPendingSyncCount]);
 
   // Init dark mode on mount
   useEffect(() => {
@@ -520,6 +559,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {/* Notification Bell */}
               <NotificationBell />
 
+              {/* Pending Sync Badge */}
+              {pendingSyncCount > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+                  <CloudOff className="h-3 w-3" />
+                  <span className="hidden sm:inline">{pendingSyncCount} pending</span>
+                  <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">{pendingSyncCount}</span>
+                </div>
+              )}
+
               {/* Online/Offline indicator */}
               <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                 isOnline
@@ -553,6 +601,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-4 lg:p-6 bg-gray-50/80 dark:bg-gray-950/50">
           {children}
         </main>
+
+        {/* Offline Banner — persistent bottom bar */}
+        {isOffline && (
+          <div className="sticky bottom-0 z-50 bg-amber-500 text-white px-4 py-2.5 flex items-center justify-center gap-2 shadow-[0_-2px_10px_rgba(245,158,11,0.3)]">
+            <WifiOff className="h-4 w-4 flex-shrink-0" />
+            <p className="text-sm font-medium">
+              You're offline — cached data is available. Changes will sync when you're back online.
+            </p>
+            {pendingSyncCount > 0 && (
+              <span className="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-amber-600 text-amber-50 text-xs font-bold">
+                {pendingSyncCount} pending
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="border-t border-rose-200/60 dark:border-gray-700/50 bg-white/60 dark:bg-gray-950/60 mt-auto">

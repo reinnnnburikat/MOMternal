@@ -13,9 +13,11 @@ import {
   Calendar,
   MapPin,
   Filter,
+  WifiOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { setCache, getCache, getCacheTimestamp } from '@/lib/offline-cache';
 
 interface PatientListItem {
   id: string;
@@ -69,10 +71,13 @@ function PatientCardSkeleton() {
 export function PatientListView() {
   const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFromCache, setIsFromCache] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState('all');
   const [barangayFilter, setBarangayFilter] = useState('all');
   const [isCreatingConsultation, setIsCreatingConsultation] = useState<string | null>(null);
+
+  const isOffline = useAppStore((s) => s.isOffline);
 
   const setCurrentView = useAppStore((s) => s.setCurrentView);
   const setSelectedPatientId = useAppStore((s) => s.setSelectedPatientId);
@@ -107,11 +112,23 @@ export function PatientListView() {
 
       if (data.success) {
         setPatients(data.data);
+        setIsFromCache(false);
+        // Cache the full patient list (unfiltered) for offline use
+        if (!searchQuery && riskFilter === 'all' && barangayFilter === 'all') {
+          setCache('patient-list', data.data);
+        }
       } else {
         toast.error(data.error || 'Failed to fetch patients');
       }
     } catch {
-      toast.error('Connection error. Please try again.');
+      // Try loading from cache when offline
+      const cached = getCache<PatientListItem[]>('patient-list');
+      if (cached) {
+        setPatients(cached);
+        setIsFromCache(true);
+      } else {
+        toast.error('Connection error. No cached data available.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +140,13 @@ export function PatientListView() {
     }, 300);
     return () => clearTimeout(debounce);
   }, [fetchPatients]);
+
+  // Auto-refetch when coming back online from cached state
+  useEffect(() => {
+    if (!isOffline && isFromCache) {
+      fetchPatients();
+    }
+  }, [isOffline, isFromCache, fetchPatients]);
 
   const barangays = useMemo(() => {
     const set = new Set<string>();
@@ -183,6 +207,14 @@ export function PatientListView() {
 
   return (
     <div className="space-y-6">
+      {/* Cached data indicator */}
+      {isFromCache && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300">
+          <WifiOff className="h-4 w-4 flex-shrink-0" />
+          <span className="text-xs font-medium">Using cached data (offline)</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>

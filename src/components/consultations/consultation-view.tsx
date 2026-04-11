@@ -5,6 +5,9 @@ import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { validateStep } from '@/lib/consultation-validation';
 import { generateReferralPdf } from '@/lib/generate-referral-pdf';
+import { enqueue, getQueueLength } from '@/lib/offline-queue';
+import { setCache, getCache } from '@/lib/offline-cache';
+import { generateFallbackSuggestions } from '@/lib/ai-fallback';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,6 +56,7 @@ import {
   Salad,
   Dumbbell,
   Moon,
+  CloudOff,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -475,6 +479,16 @@ export function ConsultationView() {
   const selectedConsultationId = useAppStore((s) => s.selectedConsultationId);
   const goBack = useAppStore((s) => s.goBack);
   const updateActivity = useAppStore((s) => s.updateActivity);
+  const isOffline = useAppStore((s) => s.isOffline);
+  const setPendingSyncCount = useAppStore((s) => s.setPendingSyncCount);
+
+  // ── Track pending sync count ──
+  useEffect(() => {
+    const syncCount = () => setPendingSyncCount(getQueueLength());
+    syncCount();
+    const interval = setInterval(syncCount, 5000);
+    return () => clearInterval(interval);
+  }, [setPendingSyncCount]);
 
   // ── State ──
   const [consultation, setConsultation] = useState<ConsultationData | null>(null);
@@ -1019,8 +1033,10 @@ export function ConsultationView() {
       updateActivity();
       return true;
     } catch {
-      toast.error('Failed to save progress');
-      return false;
+      // Offline — enqueue the action for later sync
+      enqueue('update-consultation', `/api/consultations/${selectedConsultationId}`, 'PUT', payload);
+      toast.warning('Saved locally — will sync when online');
+      return true; // Return true so navigation isn't blocked
     } finally { setSaving(false); }
   }, [selectedConsultationId, buildSavePayload, updateActivity]);
 
@@ -1158,10 +1174,69 @@ export function ConsultationView() {
       updateActivity();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to generate AI summary';
-      setAiError(msg);
-      toast.error(msg, { duration: 5000 });
+      // Check if offline — use AI fallback engine
+      const isOfflineNow = !navigator.onLine;
+      if (isOfflineNow) {
+        try {
+          // Build assessment data for fallback engine
+          const assessmentData = {
+            subjectiveSymptoms: chiefComplaint,
+            objectiveVitals: stringifyVitals(vitals),
+            fetalHeartRate: fetalHeartRate || undefined,
+            labResults: labResults || undefined,
+            physicalExam: physicalExam || undefined,
+            icd10Diagnosis: icd10SelectedCode || undefined,
+            nandaDiagnosis: nandaSelectedCode || undefined,
+            clinicalContext: {
+              riskLevel: riskLevel || undefined,
+              aog: consultationAOG || undefined,
+            },
+          };
+          const fallbackResult = generateFallbackSuggestions(assessmentData);
+          // Map fallback result to AISuggestion format
+          const mappedSuggestions: AISuggestion = {
+            interventions: fallbackResult.interventions.map(i => ({
+              code: i.code,
+              name: i.name,
+              description: i.description,
+              category: i.category,
+              relatedNanda: i.relatedNanda,
+              relatedNoc: i.relatedNoc,
+              priority: i.priority,
+            })),
+            priorityIntervention: fallbackResult.priorityIntervention,
+            priorityCode: fallbackResult.priorityCode,
+            rationale: fallbackResult.rationale,
+            preventionLevel: fallbackResult.preventionLevel,
+            riskIndicators: fallbackResult.riskIndicators,
+            nursingConsiderations: fallbackResult.nursingConsiderations,
+            referralNeeded: fallbackResult.referralNeeded,
+            referralReason: fallbackResult.referralReason,
+            followUpSchedule: fallbackResult.followUpSchedule,
+            rawResponse: '[Generated in offline mode using evidence-based nursing guidelines]',
+          };
+          setAiSuggestions(mappedSuggestions);
+          if (fallbackResult.preventionLevel) {
+            const pl = fallbackResult.preventionLevel;
+            setPreventionLevel(pl);
+            setRiskLevel(preventionToRisk(pl));
+          }
+          toast.success('AI summary generated (offline mode)', {
+            description: 'Suggestions generated using local clinical guidelines. Will update when back online.',
+            duration: 5000,
+          });
+          // Cache the fallback suggestions
+          setCache(`consultation-ai-${selectedConsultationId}`, mappedSuggestions);
+        } catch {
+          setAiError('Offline AI generation failed. Please try again when online.');
+          toast.error('Unable to generate suggestions offline', { duration: 5000 });
+        }
+      } else {
+        setAiError(msg);
+        toast.error(msg, { duration: 5000 });
+      }
     } finally { setAiLoading(false); }
-  }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep]);
+  }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep, chiefComplaint, vitals, fetalHeartRate, labResults, physicalExam, icd10SelectedCode, nandaSelectedCode, riskLevel, consultationAOG]);
 
   // ── Generate Referral ──
   const handleGenerateReferral = useCallback(async () => {
@@ -2534,6 +2609,13 @@ export function ConsultationView() {
         <div className="ml-auto text-right hidden sm:block">
           <p className="text-xs text-muted-foreground">{consultation.consultationNo}</p>
           <p className="text-xs text-muted-foreground">{new Date(consultation.consultationDate).toLocaleDateString()}</p>
+          {/* Pending Sync Badge */}
+          {getQueueLength() > 0 && (
+            <Badge variant="outline" className="mt-1 border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 text-[10px] gap-1">
+              <CloudOff className="h-3 w-3" />
+              {getQueueLength()} Pending Sync
+            </Badge>
+          )}
         </div>
       </div>
 

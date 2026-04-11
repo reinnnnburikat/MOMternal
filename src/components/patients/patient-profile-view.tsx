@@ -6,6 +6,7 @@ import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { setCache, getCache } from '@/lib/offline-cache';
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,7 @@ import {
   TrendingUp,
   Info,
   Pencil,
+  WifiOff,
 } from 'lucide-react';
 import { EditPatientDialog } from './edit-patient-dialog';
 import {
@@ -688,11 +690,17 @@ export function PatientProfileView() {
     }
   }, [selectedPatientId, setCurrentView]);
 
+  const isOffline = useAppStore((s) => s.isOffline);
+
+  // ── Cache key for offline ──
+  const patientCacheKey = useMemo(() => `patient-${selectedPatientId}`, [selectedPatientId]);
+
   // ── TanStack Query: Patient data ──
   const {
     data: patient,
     isLoading,
     error: patientError,
+    isFetched,
   } = useQuery<PatientData>({
     queryKey: ['patient', selectedPatientId],
     queryFn: async () => {
@@ -703,15 +711,24 @@ export function PatientProfileView() {
       throw new Error(data.error || 'Failed to fetch patient');
     },
     enabled: !!selectedPatientId,
+    // Use cached data as placeholder while fetching
+    placeholderData: () => getCache<PatientData>(patientCacheKey) ?? undefined,
   });
 
-  // Handle errors from useQuery
+  // Cache patient data when successfully fetched
   useEffect(() => {
-    if (patientError) {
-      toast.error(patientError.message || 'Connection error. Please try again.');
+    if (patient && isFetched && !isLoading) {
+      setCache(patientCacheKey, patient);
+    }
+  }, [patient, isFetched, isLoading, patientCacheKey]);
+
+  // Handle errors from useQuery — but don't redirect if we have cached data
+  useEffect(() => {
+    if (patientError && !patient) {
+      toast.error(patientError.message || 'Connection error. No cached data available.');
       setCurrentView('patients');
     }
-  }, [patientError, setCurrentView]);
+  }, [patientError, patient, setCurrentView]);
 
   const handleNewConsultation = async () => {
     if (!patient || !currentNurse) return;
@@ -757,11 +774,14 @@ export function PatientProfileView() {
     queryClient.invalidateQueries({ queryKey: ['patient', selectedPatientId] });
   };
 
+  // Check if currently showing cached data
+  const isFromCache = isOffline && patient && !isFetched;
+
   // ------------------------------------------------------------------
   // Loading / not-found states
   // ------------------------------------------------------------------
 
-  if (isLoading) {
+  if (isLoading && !patient) {
     return <ProfileSkeleton />;
   }
 
@@ -812,6 +832,14 @@ export function PatientProfileView() {
 
   return (
     <div className="space-y-6">
+      {/* Cached data indicator */}
+      {isFromCache && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300">
+          <WifiOff className="h-4 w-4 flex-shrink-0" />
+          <span className="text-xs font-medium">Using cached data (offline)</span>
+        </div>
+      )}
+
       {/* Patient Header */}
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
         <div>
