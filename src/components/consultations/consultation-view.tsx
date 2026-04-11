@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
+import { format } from 'date-fns';
 import { useAppStore } from '@/store/app-store';
 import { toast } from 'sonner';
 import { validateStep } from '@/lib/consultation-validation';
@@ -18,6 +19,9 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CalendarIcon } from '@radix-ui/react-icons';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import {
   ClipboardList,
   Search,
@@ -737,19 +741,42 @@ export function ConsultationView() {
     markDirty();
   }, [lmpDisplayToStorage]);
 
+  const [lmpCalendarOpen, setLmpCalendarOpen] = useState(false);
+
   const handleLmpBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const v = e.target.value;
     const digits = v.replace(/[^\d]/g, '');
     if (digits.length > 0 && digits.length < 8) {
       toast.error('Please enter a complete date: MM/DD/YYYY');
-    } else if (digits.length === 8) {
+      return;
+    }
+    if (digits.length === 8) {
       // Validate month 01-12 and day 01-31
       const m = parseInt(digits.slice(0, 2), 10);
       const d = parseInt(digits.slice(2, 4), 10);
+      const y = parseInt(digits.slice(4, 8), 10);
       if (m < 1 || m > 12) {
         toast.error('Invalid month. Please enter 01-12.');
-      } else if (d < 1 || d > 31) {
+        return;
+      }
+      if (d < 1 || d > 31) {
         toast.error('Invalid day. Please enter 01-31.');
+        return;
+      }
+      if (y < 1900) {
+        toast.error('Invalid year. Please enter a valid year.');
+        return;
+      }
+      // ── Future date restriction ──
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      const enteredDate = new Date(y, m - 1, d, 23, 59, 59);
+      if (enteredDate > today) {
+        toast.error('LMP cannot be a future date. Please enter a date on or before today.');
+        setLmpDisplay('');
+        setLmp('');
+        markDirty();
+        return;
       }
     }
   }, []);
@@ -768,6 +795,25 @@ export function ConsultationView() {
       e.preventDefault();
     }
   }, [lmpDisplay]);
+
+  // Parse lmp (YYYY-MM-DD) → Date for calendar
+  const lmpAsDate = useMemo((): Date | undefined => {
+    if (!lmp) return undefined;
+    const parsed = new Date(lmp + 'T00:00:00');
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  }, [lmp]);
+
+  // Calendar select handler
+  const handleLmpCalendarSelect = useCallback((date: Date | undefined) => {
+    if (!date) return;
+    setLmpCalendarOpen(false);
+    const display = format(date, 'MM/dd/yyyy');
+    const stored = format(date, 'yyyy-MM-dd');
+    setLmpDisplay(display);
+    setLmp(stored);
+    markDirty();
+  }, []);
+
   const handleFetalHeartRateChange = useCallback((v: string) => {
     setFetalHeartRate(v);
   }, []);
@@ -1611,14 +1657,37 @@ export function ConsultationView() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lmp">LMP</Label>
-            <Input id="lmp" type="text" placeholder="MM/DD/YYYY" value={lmpDisplay}
-              maxLength={10}
-              onChange={handleLmpChange}
-              onBlur={handleLmpBlur}
-              onKeyDown={handleLmpKeyDown}
-              inputMode="numeric"
-              autoComplete="off" />
-            <p className="text-[11px] text-muted-foreground">Format: Month/Day/Year (auto-formatted)</p>
+            <div className="flex gap-1.5">
+              <Input id="lmp" type="text" placeholder="MM/DD/YYYY" value={lmpDisplay}
+                maxLength={10}
+                onChange={handleLmpChange}
+                onBlur={handleLmpBlur}
+                onKeyDown={handleLmpKeyDown}
+                inputMode="numeric"
+                autoComplete="off"
+                className="flex-1" />
+              <Popover open={lmpCalendarOpen} onOpenChange={setLmpCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="outline" size="icon" className="shrink-0 h-9 w-9"
+                    aria-label="Pick LMP date from calendar">
+                    <CalendarIcon className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={lmpAsDate}
+                    onSelect={handleLmpCalendarSelect}
+                    disabled={(date) => date > new Date()}
+                    defaultMonth={lmpAsDate || undefined}
+                    captionLayout="dropdown"
+                    fromYear={2010}
+                    toYear={new Date().getFullYear()}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Type or pick from calendar · No future dates</p>
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
