@@ -47,6 +47,10 @@ interface AppState {
   filterReferralPending: boolean;
   setFilterReferralPending: (pending: boolean) => void;
 
+  // Notifications
+  notificationCount: number;
+  setNotificationCount: (count: number) => void;
+
   // Hydration state — true once client-side zustand persist has rehydrated
   _hasHydrated: boolean;
   _setHasHydrated: () => void;
@@ -119,6 +123,10 @@ export const useAppStore = create<AppState>()(
       setFilterRisk: (risk) => set({ filterRisk: risk }),
       filterReferralPending: false,
       setFilterReferralPending: (pending) => set({ filterReferralPending: pending }),
+
+      // Notifications
+      notificationCount: 0,
+      setNotificationCount: (count) => set({ notificationCount: count }),
 
       // Hydration
       _hasHydrated: false,

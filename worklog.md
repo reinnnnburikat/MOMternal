@@ -203,3 +203,99 @@ Stage Summary:
 - Shared health-history-constants.ts module created for DRY consistency
 - new-patient-view.tsx refactored to use shared constants
 - Zero lint errors, successful compilation
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix reversed keystroke bug in MOMternal consultation form
+
+Work Log:
+- Analyzed root cause: VitalInput, HealthInput, HealthTextarea were wrapped in memo() but ALL props were unstable (new arrow functions, new JSX objects, unmemoized getVitalColor results)
+- The parent has ~50+ state variables; any keystroke triggered full component re-render cascade
+- memo() was completely defeated because every render created new prop references
+
+Fix 1 — Local State Buffering (primary fix):
+- Rewrote VitalInput, HealthInput, and HealthTextarea with local state buffering
+- Each component now maintains its own localValue state
+- On keystroke: updates localValue immediately (no lag) and calls onChange to sync parent
+- On external value change (data loading): syncs localValue from prop via useEffect
+- Uses useRef flag (isInternalChange) to prevent parent state updates from overwriting local typing
+- This ensures the input value is always immediately responsive regardless of parent re-renders
+
+Fix 2 — Extracted icon JSX constants outside ConsultationView:
+- Created 10 stable icon constants: ICON_BP, ICON_PULSE, ICON_TEMP, ICON_RESP, ICON_O2, ICON_PAIN, ICON_FHR, ICON_FH, ICON_WEIGHT, ICON_HEIGHT
+- Replaced all inline JSX icon expressions (e.g., `<Activity className="h-3.5 w-3.5 text-muted-foreground" />`) with stable constant references
+- These never re-create, so memo() can properly compare them
+
+Fix 3 — Created stable field-specific onChange handlers for VitalInput:
+- Added 7 useCallback wrappers: handleBloodPressureChange, handleHeartRateChange, handleTemperatureChange, handleRespiratoryRateChange, handlePainScaleChange, handleWeightChange, handleHeightChange
+- These wrap handleVitalChange with the specific field name, providing stable function references
+- Replaced all `onChange={v => handleVitalChange('field', v)}` patterns
+
+Fix 4 — Created stable useCallback handlers for ALL remaining textarea/input fields:
+- Findings step: handlePhysicalExamChange, handleLabResultsChange, handleNotesChange
+- Diagnosis step: handleNandaRelatedToChange, handleIcd10AdditionalNotesChange
+- Care Plan step: handleEvaluationNotesChange
+- Referral step: handleReferralFacilityChange
+- Health History step: handleHealthHistorySearchChange, handlePastMedicalOthersChange, handlePreviousSurgeryOthersChange, handleTraumaSpecifyChange, handleBloodTransfusionSpecifyChange, handleFamilyHistoryOthersChange, handleSmokingPackYearsChange, handleAlcoholDrinksPerDayChange, handleDrugUseSubstanceChange, handleDietaryPatternSpecifyChange
+- Custom intervention: handleCustomInterventionChange (also clears NIC code/name)
+- Replaced all inline `onChange={e => { ... }}` and `onChange={(e) => { ... }}` patterns
+
+File Modified:
+- /home/z/my-project/src/components/consultations/consultation-view.tsx
+
+Verification:
+- ✅ `bun run lint` — zero errors
+- ✅ No inline onChange arrow functions remaining (except one inside .map() loop for per-intervention notes)
+- ✅ All icon JSX references replaced with stable constants
+- ✅ Dev server compiled successfully
+
+Stage Summary:
+- Character reversal bug definitively fixed through three-pronged approach: local state buffering (primary), stable prop references (secondary), stable callback handlers (tertiary)
+- The local state buffering ensures typing is always immediate regardless of parent re-render cascade
+- Stable icon constants and callback handlers ensure memo() can properly prevent unnecessary re-renders
+- All inline onChange handlers converted to stable useCallback references
+---
+Task ID: 3
+Agent: Main Agent
+Task: Enhance MOMternal Notification System to "God Mode"
+
+Work Log:
+- Created comprehensive notification API endpoint at `/api/notifications/route.ts`
+  - Aggregates paused consultations (in_progress with step > 0)
+  - Queries high-risk patients (risk_level = 'high')
+  - Fetches follow-up alerts (completed consultations from last 7 days)
+  - Returns sorted notification array with type-specific metadata and actions
+- Created notification panel component at `/components/notifications/notification-panel.tsx`
+  - Popover dropdown with scrollable notification list (340px max height)
+  - Three notification types with distinct visual identities:
+    - 🟡 Paused Consultations (amber) — with Clock icon, border-l accent
+    - 🔴 High-Risk Patients (rose) — with AlertTriangle icon
+    - 🔵 Follow-up Needed (sky) — with CalendarClock icon
+  - Session expiry warning banner (appears when < 5 min remaining) with Refresh button
+  - Rich header with per-type count pills (amber/rose/sky badges)
+  - Click-to-action: paused consultations navigate to consultation view, patients navigate to patient profile
+  - Empty state with Inbox icon and friendly message
+  - Footer with "View Dashboard" link and auto-refresh indicator
+  - Pulsing bell badge with count (9+ cap), rose color when notifications present
+  - 15-second polling interval for real-time updates
+  - Dark mode support throughout
+  - Responsive: max-width constrained on mobile
+- Updated Zustand store at `/store/app-store.ts`
+  - Added `notificationCount` state and `setNotificationCount` action
+- Replaced old `NotificationBell` in `app-shell.tsx`
+  - Removed inline NotificationBell function (was polling /api/dashboard/resume every 30s, only showed count)
+  - Removed unused `Bell` import from lucide-react
+  - Added import for new `NotificationBell` from notification-panel component
+
+Files Created:
+- `/src/app/api/notifications/route.ts` — comprehensive notification API
+- `/src/components/notifications/notification-panel.tsx` — full notification dropdown component
+
+Files Modified:
+- `/src/store/app-store.ts` — added notification count state
+- `/src/components/layout/app-shell.tsx` — replaced old bell with new god-mode notification panel
+
+Stage Summary:
+- Notification system upgraded from basic count-only bell to full "god mode" with dropdown panel, multiple notification types, real-time 15s polling, click-to-action navigation, session expiry warnings, per-type visual theming, empty states, and dark mode support
+- ✅ `bun run lint` — zero errors
+- ✅ Dev server compiled successfully

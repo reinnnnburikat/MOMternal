@@ -41,11 +41,11 @@ import {
   Clock,
   Wifi,
   WifiOff,
-  Bell,
   Sun,
   Moon,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { NotificationBell } from '@/components/notifications/notification-panel';
 
 const navItems: { view: AppView; label: string; icon: React.ElementType }[] = [
   { view: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -380,49 +380,7 @@ function BreadcrumbBar() {
   );
 }
 
-function NotificationBell() {
-  const setCurrentView = useAppStore((s) => s.setCurrentView);
-  const [pausedCount, setPausedCount] = useState(0);
 
-  useEffect(() => {
-    async function fetchPausedCount() {
-      try {
-        const res = await fetch('/api/dashboard/resume');
-        if (res.ok) {
-          const data = await res.json();
-          setPausedCount(data.consultations?.length ?? 0);
-        }
-      } catch { /* silent */ }
-    }
-    fetchPausedCount();
-    // Poll every 30 seconds
-    const interval = setInterval(fetchPausedCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-9 w-9"
-          onClick={() => setCurrentView('dashboard')}
-        >
-          <Bell className="h-4.5 w-4.5 text-muted-foreground" />
-          {pausedCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
-              {pausedCount > 9 ? '9+' : pausedCount}
-            </span>
-          )}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{pausedCount > 0 ? `${pausedCount} paused consultation${pausedCount > 1 ? 's' : ''}` : 'No notifications'}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const currentView = useAppStore((s) => s.currentView);
