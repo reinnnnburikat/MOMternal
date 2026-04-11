@@ -417,3 +417,28 @@ Stage Summary:
 - Fix: Use patient.risk_level as primary source, only consider completed consultations (step_completed >= 6) as fallback
 - Secondary fix: Case-insensitive barangay lookup prevents GeoJSON/DB name mismatches
 - All changes committed and pushed to https://github.com/reinnnnburikat/MOMternal.git
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix AI Summary step showing blank — no content, no generate button, no re-assess
+
+Work Log:
+- Analyzed screenshot: Step 5 (AI Summary) showed completely empty for patient MOM-2026-008
+- Queried database: consultation had step_completed=4 but ai_suggestions=NULL
+- Root cause 1: renderAiSummary had no empty state handler — only checked aiLoading (spinner), aiError (error msg), aiSuggestions (results). When all three were false/null, nothing rendered at all
+- Root cause 2: Auto-trigger useEffect deps included [aiSuggestions, aiLoading, aiError], causing React to re-run and cleanup the timer before it fired when any state changed during mount
+- Root cause 3: aiAutoTriggerRef was defined after fetchConsultation (potential TDZ issue)
+- Fix 1: Added empty state with prominent "Generate AI Summary" gradient button + privacy notice
+- Fix 2: Changed auto-trigger useEffect deps from [currentStep, aiSuggestions, aiLoading, aiError] to [currentStep] only — prevents self-cancellation
+- Fix 3: Added direct auto-trigger in fetchConsultation for resume-from-pause case (when startStep === 4 and no existing AI data)
+- Fix 4: Moved aiAutoTriggerRef declaration earlier (before fetchConsultation) to avoid reference issues
+- Verified: AI suggest endpoint works (tested with MOM-2026-008 — returns 5 interventions, primary prevention level)
+- Verified: bun run lint — zero errors
+- Pushed to GitHub (commit 0e8b4f6)
+
+Stage Summary:
+- AI Summary step now shows clear empty state with "Generate AI Summary" button instead of blank
+- Auto-trigger is robust: works both for forward navigation and resume-from-pause
+- AI API verified working (real AI responses with nursing interventions)
+- All changes committed and pushed to https://github.com/reinnnnburikat/MOMternal.git
