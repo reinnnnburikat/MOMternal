@@ -442,3 +442,56 @@ Stage Summary:
 - Auto-trigger is robust: works both for forward navigation and resume-from-pause
 - AI API verified working (real AI responses with nursing interventions)
 - All changes committed and pushed to https://github.com/reinnnnburikat/MOMternal.git
+
+---
+Task ID: 3
+Agent: Offline Feature Agent
+Task: Implement comprehensive offline functionality for the entire MOMternal app
+
+Work Log:
+- Created `/src/lib/offline-queue.ts` — Write queue system that stores failed API calls in localStorage with unique IDs, replays them when back online via `processQueue()`, supports `enqueue()`, `getQueueLength()`, `clearQueue()`, and `getQueue()` for all action types (create-patient, update-patient, create-consultation, update-consultation, ai-suggest)
+- Updated `/src/store/app-store.ts` — Added 4 new state fields: `isOffline: boolean`, `setIsOffline(status)`, `pendingSyncCount: number`, `setPendingSyncCount(count)` so all components can access offline state from Zustand
+- Enhanced `/src/components/layout/app-shell.tsx`:
+  - Replaced toast-only offline indicator with a **persistent amber bottom banner** saying "You're offline — cached data is available. Changes will sync when you're back online." with pending sync count badge
+  - Online transition now checks for queued actions and shows "Back online! Syncing..." toast with progress/fail results, triggering `processQueue()` automatically
+  - Added pending sync count badge in header (amber CloudOff icon with numeric badge) visible when queue has items
+  - Syncs `pendingSyncCount` from localStorage queue every 3 seconds
+- Updated `/src/components/patients/patient-list-view.tsx`:
+  - Added offline caching: successful fetches cache patient list in localStorage under key 'patient-list'
+  - On network error, falls back to cached data with blue "Using cached data (offline)" indicator banner
+  - Auto-refetches when coming back online from cached state
+- Updated `/src/components/patients/patient-profile-view.tsx`:
+  - Patient data cached via `placeholderData` from offline cache for instant rendering
+  - Successful fetches write patient data (with consultations) to cache under per-patient key
+  - Error handler doesn't redirect to patients list if cached data is available
+  - Blue "Using cached data (offline)" indicator shown when viewing cached profile
+- Updated `/src/components/consultations/consultation-view.tsx`:
+  - **Save offline**: When `saveStep()` fails (offline), action is enqueued via `enqueue()` and toast shows "Saved locally — will sync when online" instead of blocking navigation
+  - **AI offline**: When `handleAiSuggest()` fails due to being offline, uses `generateFallbackSuggestions()` from `/src/lib/ai-fallback.ts` to generate evidence-based nursing interventions locally, maps result to `AISuggestion` format, caches it, and shows toast "AI summary generated (offline mode)" with explanation
+  - **Pending Sync Badge**: Amber badge with CloudOff icon and count shown in consultation header when there are queued saves
+  - Tracks `isOffline` and `pendingSyncCount` from Zustand store, syncs queue count every 5 seconds
+  - Added imports for `enqueue`, `getQueueLength`, `setCache`, `getCache`, `generateFallbackSuggestions`, `CloudOff`
+
+Files Created:
+- `/src/lib/offline-queue.ts` — Offline write queue system
+
+Files Modified:
+- `/src/store/app-store.ts` — Added isOffline, pendingSyncCount state + setters
+- `/src/components/layout/app-shell.tsx` — Offline banner, sync processing, pending badge
+- `/src/components/patients/patient-list-view.tsx` — Patient list caching, offline fallback
+- `/src/components/patients/patient-profile-view.tsx` — Patient profile caching, offline fallback
+- `/src/components/consultations/consultation-view.tsx` — Offline save queue, AI fallback, pending badge
+
+Verification:
+- ✅ `bun run lint` — zero errors
+- ✅ Dev server responding (HTTP 200)
+- ✅ No API routes or database schema modified
+- ✅ All existing patterns preserved (shadcn/ui, Tailwind, Lucide icons)
+
+Stage Summary:
+- Comprehensive offline functionality implemented across all major views
+- Write queue system enables offline form saves that sync automatically when back online
+- AI fallback engine provides local evidence-based suggestions when cloud AI is unavailable
+- Patient list and profile pages show cached data with clear offline indicators
+- Persistent offline banner, header badges, and toast notifications keep user informed
+- All offline state centralized in Zustand store for cross-component consistency
