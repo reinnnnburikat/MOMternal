@@ -47,6 +47,12 @@ import {
   AlertCircle,
   Users,
   X,
+  Cigarette,
+  Wine,
+  Pill,
+  Salad,
+  Dumbbell,
+  Moon,
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -66,6 +72,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ICD10_MATERNAL_CODES, searchIcd10Codes } from '@/data/icd10-maternal';
+import {
+  PAST_MEDICAL_OPTIONS,
+  PREVIOUS_SURGERY_OPTIONS,
+  FAMILY_HISTORY_CONDITIONS,
+  TRAUMA_OPTIONS,
+  BLOOD_TRANSFUSION_OPTIONS,
+  FAMILY_HISTORY_PRESENCE_OPTIONS,
+  SMOKING_OPTIONS,
+  ALCOHOL_OPTIONS,
+  DRUG_USE_OPTIONS,
+  DIETARY_PATTERN_OPTIONS,
+  PHYSICAL_ACTIVITY_OPTIONS,
+  SLEEP_PATTERN_OPTIONS,
+  parseHealthHistory,
+} from '@/lib/health-history-constants';
 import { NANDA_DIAGNOSES, searchNandaDiagnoses } from '@/data/nanda-diagnoses';
 import { NIC_INTERVENTIONS, searchNicInterventions, getNicByDomain } from '@/data/nic-interventions';
 import { NOC_OUTCOMES, searchNocOutcomes } from '@/data/noc-outcomes';
@@ -345,6 +366,12 @@ function RiskBadgeCard({ label, value, colors }: {
   );
 }
 
+// ─── Toggle helper for checkbox arrays ─────────────────────────────────────
+
+function toggleItem(arr: string[], item: string): string[] {
+  return arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item];
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export function ConsultationView() {
@@ -400,14 +427,39 @@ export function ConsultationView() {
     nicCode: string; status: string; nocOutcome: string; nocOutcomeCode: string; notes: string;
   }>>([]);
 
-  // ── Health History state ──
-  const [healthHistoryData, setHealthHistoryData] = useState({
-    pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '',
-    historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '',
-    smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '',
-    physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '',
-    immunizationStatus: '', mentalHealthHistory: '',
-  });
+  // ── Health History state (structured: dropdowns + checkboxes) ──
+  // Past Medical History
+  const [pastMedicalSelected, setPastMedicalSelected] = useState<string[]>([]);
+  const [pastMedicalOthersText, setPastMedicalOthersText] = useState('');
+  // Previous Surgery
+  const [previousSurgerySelected, setPreviousSurgerySelected] = useState<string[]>([]);
+  const [previousSurgeryOthersText, setPreviousSurgeryOthersText] = useState('');
+  // Trauma
+  const [traumaValue, setTraumaValue] = useState('');
+  const [traumaSpecify, setTraumaSpecify] = useState('');
+  // Blood Transfusion
+  const [bloodTransfusionValue, setBloodTransfusionValue] = useState('');
+  const [bloodTransfusionSpecify, setBloodTransfusionSpecify] = useState('');
+  // Family History
+  const [familyHistoryDropdown, setFamilyHistoryDropdown] = useState('');
+  const [familyHistorySelected, setFamilyHistorySelected] = useState<string[]>([]);
+  const [familyHistoryOthersText, setFamilyHistoryOthersText] = useState('');
+  // Smoking
+  const [smokingValue, setSmokingValue] = useState('');
+  const [smokingPackYears, setSmokingPackYears] = useState('');
+  // Alcohol
+  const [alcoholValue, setAlcoholValue] = useState('');
+  const [alcoholDrinksPerDay, setAlcoholDrinksPerDay] = useState('');
+  // Drug Use
+  const [drugUseValue, setDrugUseValue] = useState('');
+  const [drugUseSubstance, setDrugUseSubstance] = useState('');
+  // Dietary Pattern
+  const [dietaryPatternValue, setDietaryPatternValue] = useState('');
+  const [dietaryPatternSpecify, setDietaryPatternSpecify] = useState('');
+  // Physical Activity & Sleep
+  const [hhPhysicalActivity, setHhPhysicalActivity] = useState('');
+  const [hhSleepPattern, setHhSleepPattern] = useState('');
+  // Search / load
   const [healthHistoryRefCode, setHealthHistoryRefCode] = useState('');
   const [healthHistoryExisting, setHealthHistoryExisting] = useState<string | null>(null);
   const [healthHistorySearchQuery, setHealthHistorySearchQuery] = useState('');
@@ -490,6 +542,61 @@ export function ConsultationView() {
   // ── Dirty state ──
   const markDirty = useCallback(() => setIsDirty(true), []);
 
+  // ── Stable onChange handlers for VitalInput (prevents character reversal) ──
+  const handleVitalChange = useCallback((field: keyof VitalsForm, value: string) => {
+    setVitals(prev => ({ ...prev, [field]: value }));
+  }, []);
+  const handleOxygenSatChange = useCallback((v: string) => {
+    let clamped = v.replace(/[^0-9]/g, '');
+    const num = parseInt(clamped, 10);
+    if (!isNaN(num) && num > 100) clamped = '100';
+    setVitals(prev => ({ ...prev, oxygenSat: clamped }));
+  }, []);
+
+  // ── Stable onChange handlers for Assessment step direct inputs ──
+  const handleChiefComplaintChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setChiefComplaint(e.target.value);
+    markDirty();
+  }, []);
+  const handleAllergiesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setAllergies(e.target.value);
+    markDirty();
+  }, []);
+  const handleMedicationsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMedications(e.target.value);
+    markDirty();
+  }, []);
+  const handleTypeOfVisitChange = useCallback((v: string) => {
+    setTypeOfVisit(v);
+    markDirty();
+  }, []);
+  const handleGravidityChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v))));
+    markDirty();
+  }, []);
+  const handleParityChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v))));
+    markDirty();
+  }, []);
+  const handleLmpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLmp(e.target.value);
+    markDirty();
+  }, []);
+  const handleLmpBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      toast.error('Please enter date in YYYY-MM-DD format');
+    }
+  }, []);
+  const handleFetalHeartRateChange = useCallback((v: string) => {
+    setFetalHeartRate(v);
+  }, []);
+  const handleFundalHeightChange = useCallback((v: string) => {
+    setFundalHeight(v);
+  }, []);
+
   // ── Fetch consultation ──
   useEffect(() => {
     if (!selectedConsultationId) { setLoading(false); return; }
@@ -561,8 +668,36 @@ export function ConsultationView() {
         if (data.interventionEvaluations) {
           try { setInterventionEvals(JSON.parse(data.interventionEvaluations)); } catch { setInterventionEvals([]); }
         }
+        // Parse health history — backward compatible with old flat-string format
         if (data.healthHistory) {
-          try { setHealthHistoryData(prev => ({ ...prev, ...JSON.parse(data.healthHistory) })); } catch { /* ignore */ }
+          const parsed = parseHealthHistory(data.healthHistory);
+          if (parsed) {
+            // Structured format
+            setPastMedicalSelected(parsed.pastMedicalHistory.selected);
+            setPastMedicalOthersText(parsed.pastMedicalHistory.othersText);
+            setPreviousSurgerySelected(parsed.previousSurgery.selected);
+            setPreviousSurgeryOthersText(parsed.previousSurgery.othersText);
+            setTraumaValue(parsed.historyOfTrauma.value);
+            setTraumaSpecify(parsed.historyOfTrauma.specify);
+            setBloodTransfusionValue(parsed.historyOfBloodTransfusion.value);
+            setBloodTransfusionSpecify(parsed.historyOfBloodTransfusion.specify);
+            setFamilyHistoryDropdown(parsed.familyHistory.value);
+            setFamilyHistorySelected(parsed.familyHistory.selected);
+            setFamilyHistoryOthersText(parsed.familyHistory.othersText);
+            setSmokingValue(parsed.smoking.value);
+            setSmokingPackYears(parsed.smoking.packYears);
+            setAlcoholValue(parsed.alcoholIntake.value);
+            setAlcoholDrinksPerDay(parsed.alcoholIntake.drinksPerDay);
+            setDrugUseValue(parsed.drugUse.value);
+            setDrugUseSubstance(parsed.drugUse.substance);
+            setDietaryPatternValue(parsed.dietaryPattern.value);
+            setDietaryPatternSpecify(parsed.dietaryPattern.specify);
+            setHhPhysicalActivity(parsed.physicalActivity);
+            setHhSleepPattern(parsed.sleepPattern);
+          } else {
+            // Old flat-string format — keep as empty (can't reliably map free text to dropdowns)
+            // The old data is still stored and will be available via parseHealthHistory returning null
+          }
         }
         setHealthHistoryRefCode(data.healthHistoryRefCode || '');
         setCurrentStep(resolveStartStep(data.stepCompleted));
@@ -579,7 +714,7 @@ export function ConsultationView() {
   const saveRef = useRef<() => Promise<void>>(async () => {});
   useEffect(() => {
     saveRef.current = saveCurrentStepSilent;
-  });
+  }, [saveCurrentStepSilent]);
   useEffect(() => {
     return () => {
       if (isInitialized.current && selectedConsultationId) saveRef.current();
@@ -625,7 +760,29 @@ export function ConsultationView() {
           if (consultationAOG) payload.aog = consultationAOG;
           break;
         case 1: // Health History
-          payload.healthHistory = JSON.stringify(healthHistoryData);
+          payload.healthHistory = JSON.stringify({
+            pastMedicalHistory: {
+              selected: pastMedicalSelected.filter(i => i !== 'Others (specify)'),
+              othersText: pastMedicalSelected.includes('Others (specify)') ? pastMedicalOthersText : '',
+            },
+            previousSurgery: {
+              selected: previousSurgerySelected.filter(i => i !== 'Others (specify)'),
+              othersText: previousSurgerySelected.includes('Others (specify)') ? previousSurgeryOthersText : '',
+            },
+            historyOfTrauma: { value: traumaValue, specify: traumaValue === 'yes' ? traumaSpecify : '' },
+            historyOfBloodTransfusion: { value: bloodTransfusionValue, specify: bloodTransfusionValue === 'yes' ? bloodTransfusionSpecify : '' },
+            familyHistory: {
+              value: familyHistoryDropdown,
+              selected: familyHistoryDropdown === 'present' ? familyHistorySelected.filter(i => i !== 'Others (specify)') : [],
+              othersText: familyHistoryDropdown === 'present' && familyHistorySelected.includes('Others (specify)') ? familyHistoryOthersText : '',
+            },
+            smoking: { value: smokingValue, packYears: (smokingValue === 'former' || smokingValue === 'current') ? smokingPackYears : '' },
+            alcoholIntake: { value: alcoholValue, drinksPerDay: (alcoholValue === 'occasional' || alcoholValue === 'regular') ? alcoholDrinksPerDay : '' },
+            drugUse: { value: drugUseValue, substance: (drugUseValue === 'past' || drugUseValue === 'current') ? drugUseSubstance : '' },
+            dietaryPattern: { value: dietaryPatternValue, specify: dietaryPatternValue === 'special' ? dietaryPatternSpecify : '' },
+            physicalActivity: hhPhysicalActivity,
+            sleepPattern: hhSleepPattern,
+          });
           if (healthHistoryRefCode) payload.healthHistoryRefCode = healthHistoryRefCode;
           break;
         case 2: // Additional Findings
@@ -665,7 +822,13 @@ export function ConsultationView() {
       return payload;
     },
     [typeOfVisit, chiefComplaint, vitals, fetalHeartRate, fundalHeight, allergies, medications,
-      gravidity, parity, lmp, calculatedBMI, consultationAOG, healthHistoryData, healthHistoryRefCode,
+      gravidity, parity, lmp, calculatedBMI, consultationAOG,
+      pastMedicalSelected, pastMedicalOthersText, previousSurgerySelected, previousSurgeryOthersText,
+      traumaValue, traumaSpecify, bloodTransfusionValue, bloodTransfusionSpecify,
+      familyHistoryDropdown, familyHistorySelected, familyHistoryOthersText,
+      smokingValue, smokingPackYears, alcoholValue, alcoholDrinksPerDay,
+      drugUseValue, drugUseSubstance, dietaryPatternValue, dietaryPatternSpecify,
+      hhPhysicalActivity, hhSleepPattern, healthHistoryRefCode,
       physicalExam, labResults, notes, selectedNandaCodes, selectedIcd10Codes,
       nandaRelatedTo, icd10AdditionalNotes,
       riskLevel, preventionLevel, selectedInterventions, interventionEvals, evaluationNotes,
@@ -893,8 +1056,25 @@ export function ConsultationView() {
         fundalHeight: fundalHeight || undefined,
         allergies: allergies || undefined,
         medications: medications || undefined,
-        // Step 2: Health History
-        healthHistory: healthHistoryData,
+        // Step 2: Health History (convert structured to flat strings for PDF)
+        healthHistory: {
+          pastMedicalHistory: pastMedicalSelected.length > 0 ? [...pastMedicalSelected.filter(i => i !== 'Others (specify)'), ...(pastMedicalSelected.includes('Others (specify)') && pastMedicalOthersText ? [pastMedicalOthersText] : [])].join(', ') : '',
+          previousSurgery: previousSurgerySelected.length > 0 ? [...previousSurgerySelected.filter(i => i !== 'Others (specify)'), ...(previousSurgerySelected.includes('Others (specify)') && previousSurgeryOthersText ? [previousSurgeryOthersText] : [])].join(', ') : '',
+          historyOfTrauma: traumaValue === 'yes' ? (traumaSpecify || 'Yes') : (traumaValue === 'no' ? 'No' : ''),
+          historyOfBloodTransfusion: bloodTransfusionValue === 'yes' ? (bloodTransfusionSpecify || 'Yes') : (bloodTransfusionValue === 'no' ? 'No' : ''),
+          familyHistoryPaternal: familyHistoryDropdown === 'present' ? [...familyHistorySelected.filter(i => i !== 'Others (specify)'), ...(familyHistorySelected.includes('Others (specify)') && familyHistoryOthersText ? [familyHistoryOthersText] : [])].join(', ') : familyHistoryDropdown ? familyHistoryDropdown.charAt(0).toUpperCase() + familyHistoryDropdown.slice(1) : '',
+          familyHistoryMaternal: '',
+          smokingHistory: smokingValue ? (smokingValue.charAt(0).toUpperCase() + smokingValue.slice(1)) + (smokingPackYears ? ` (${smokingPackYears} pack-yrs)` : '') : '',
+          alcoholIntake: alcoholValue ? (alcoholValue.charAt(0).toUpperCase() + alcoholValue.slice(1)) + (alcoholDrinksPerDay ? ` (${alcoholDrinksPerDay}/day)` : '') : '',
+          drugUse: drugUseValue ? (drugUseValue.charAt(0).toUpperCase() + drugUseValue.slice(1)) + (drugUseSubstance ? ` (${drugUseSubstance})` : '') : '',
+          dietaryPattern: dietaryPatternValue ? (dietaryPatternValue.charAt(0).toUpperCase() + dietaryPatternValue.slice(1)) + (dietaryPatternSpecify ? ` — ${dietaryPatternSpecify}` : '') : '',
+          physicalActivity: hhPhysicalActivity ? hhPhysicalActivity.charAt(0).toUpperCase() + hhPhysicalActivity.slice(1) : '',
+          sleepPattern: hhSleepPattern || '',
+          allergies: '',
+          currentMedications: '',
+          immunizationStatus: '',
+          mentalHealthHistory: '',
+        },
         healthHistoryRefCode: healthHistoryRefCode || undefined,
         // Step 3: Findings
         physicalExam: physicalExam || undefined,
@@ -934,7 +1114,14 @@ export function ConsultationView() {
       console.error('PDF generation failed:', err);
       toast.error('Failed to generate PDF.', { id: 'pdf-gen' });
     }
-  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications, healthHistoryData, healthHistoryRefCode, physicalExam, labResults, notes, selectedIcd10Codes, selectedNandaCodes, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
+  }, [consultation, typeOfVisit, chiefComplaint, gravidity, parity, lmp, consultationAOG, riskLevel, preventionLevel, vitals, calculatedBMI, fetalHeartRate, fundalHeight, allergies, medications,
+    pastMedicalSelected, pastMedicalOthersText, previousSurgerySelected, previousSurgeryOthersText,
+    traumaValue, traumaSpecify, bloodTransfusionValue, bloodTransfusionSpecify,
+    familyHistoryDropdown, familyHistorySelected, familyHistoryOthersText,
+    smokingValue, smokingPackYears, alcoholValue, alcoholDrinksPerDay,
+    drugUseValue, drugUseSubstance, dietaryPatternValue, dietaryPatternSpecify,
+    hhPhysicalActivity, hhSleepPattern, healthHistoryRefCode,
+    physicalExam, labResults, notes, selectedIcd10Codes, selectedNandaCodes, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {
@@ -994,7 +1181,7 @@ export function ConsultationView() {
       {/* Type of Visit */}
       <div className="space-y-2">
         <Label className="flex items-center gap-1.5"><ClipboardList className="h-3.5 w-3.5 text-muted-foreground" /> Type of Visit</Label>
-        <Select value={typeOfVisit || undefined} onValueChange={v => { setTypeOfVisit(v); markDirty(); }}>
+        <Select value={typeOfVisit || undefined} onValueChange={handleTypeOfVisitChange}>
           <SelectTrigger className="w-full sm:w-80"><SelectValue placeholder="Select visit type" /></SelectTrigger>
           <SelectContent>{TYPE_OF_VISIT_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
         </Select>
@@ -1007,7 +1194,7 @@ export function ConsultationView() {
           <Heart className="h-3.5 w-3.5 text-rose-500" /> Chief Complaint
         </Label>
         <Textarea id="chiefComplaint" placeholder="Patient reports: e.g., headache, nausea, swelling..." className="min-h-[80px] resize-y"
-          value={chiefComplaint} onChange={e => { setChiefComplaint(e.target.value); markDirty(); }} />
+          value={chiefComplaint} onChange={handleChiefComplaintChange} />
       </div>
 
       {/* Allergies & Medications */}
@@ -1015,12 +1202,12 @@ export function ConsultationView() {
         <div className="space-y-1.5">
           <Label htmlFor="allergies" className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-muted-foreground" /> Allergies</Label>
           <Input id="allergies" placeholder="e.g. Penicillin, Sulfa drugs" value={allergies}
-            onChange={e => { setAllergies(e.target.value); markDirty(); }} />
+            onChange={handleAllergiesChange} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="medications">Current Medications</Label>
           <Textarea id="medications" placeholder="List current medications..." className="min-h-[60px] resize-y"
-            value={medications} onChange={e => { setMedications(e.target.value); markDirty(); }} />
+            value={medications} onChange={handleMedicationsChange} />
         </div>
       </div>
       <Separator />
@@ -1034,32 +1221,32 @@ export function ConsultationView() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           <VitalInput id="bloodPressure" label="Blood Pressure" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 120/80" value={vitals.bloodPressure} colorClass={getVitalColor('bloodPressure', vitals.bloodPressure)}
-            onChange={v => { setVitals(p => ({ ...p, bloodPressure: v })); }} onDirty={markDirty} />
-          <VitalInput id="heartRate" label="Heart Rate" icon={<Heart className="h-3.5 w-3.5 text-muted-foreground" />}
+            onChange={v => handleVitalChange('bloodPressure', v)} onDirty={markDirty} />
+          <VitalInput id="heartRate" label="Pulse Rate" icon={<Heart className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 72 bpm" value={vitals.heartRate} colorClass={getVitalColor('heartRate', vitals.heartRate)}
-            onChange={v => { setVitals(p => ({ ...p, heartRate: v })); }} onDirty={markDirty} />
+            onChange={v => handleVitalChange('heartRate', v)} onDirty={markDirty} />
           <VitalInput id="temperature" label="Temperature" icon={<Thermometer className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 36.8°C" value={vitals.temperature} colorClass={getVitalColor('temperature', vitals.temperature)}
-            onChange={v => { setVitals(p => ({ ...p, temperature: v })); }} onDirty={markDirty} />
+            onChange={v => handleVitalChange('temperature', v)} onDirty={markDirty} />
           <VitalInput id="respiratoryRate" label="Resp. Rate" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 18 cpm" value={vitals.respiratoryRate} colorClass={getVitalColor('respiratoryRate', vitals.respiratoryRate)}
-            onChange={v => { setVitals(p => ({ ...p, respiratoryRate: v })); }} onDirty={markDirty} />
+            onChange={v => handleVitalChange('respiratoryRate', v)} onDirty={markDirty} />
           <VitalInput id="oxygenSat" label="O₂ Saturation (%)" icon={<Wind className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 98%" value={vitals.oxygenSat} colorClass={getVitalColor('oxygenSat', vitals.oxygenSat)} max="100"
-            onChange={v => { let clamped = v.replace(/[^0-9]/g, ''); const num = parseInt(clamped, 10); if (!isNaN(num) && num > 100) clamped = '100'; setVitals(p => ({ ...p, oxygenSat: clamped })); }}
+            onChange={handleOxygenSatChange}
             onDirty={markDirty} />
           <VitalInput id="painScale" label="Pain Scale (0-10)" icon={<AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 3" type="number" min="0" max="10" value={vitals.painScale} colorClass={getVitalColor('painScale', vitals.painScale)}
-            onChange={v => { setVitals(p => ({ ...p, painScale: v })); }} onDirty={markDirty} />
+            onChange={v => handleVitalChange('painScale', v)} onDirty={markDirty} />
           <VitalInput id="fetalHeartRate" label="Fetal Heart Rate" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
             placeholder="e.g. 140 bpm" value={fetalHeartRate} colorClass={getVitalColor('fetalHeartRate', fetalHeartRate)}
-            onChange={v => { setFetalHeartRate(v); }} onDirty={markDirty} />
+            onChange={handleFetalHeartRateChange} onDirty={markDirty} />
           <VitalInput id="fundalHeight" label="Fundal Height" icon={<Baby className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 24 cm" value={fundalHeight} onChange={v => { setFundalHeight(v); }} onDirty={markDirty} />
+            placeholder="e.g. 24 cm" value={fundalHeight} onChange={handleFundalHeightChange} onDirty={markDirty} />
           <VitalInput id="weight" label="Weight (kg)" icon={<Weight className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => { setVitals(p => ({ ...p, weight: v })); }} onDirty={markDirty} />
+            placeholder="e.g. 65 kg" value={vitals.weight} onChange={v => handleVitalChange('weight', v)} onDirty={markDirty} />
           <VitalInput id="height" label="Height (cm)" icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
-            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => { setVitals(p => ({ ...p, height: v })); }} onDirty={markDirty} />
+            placeholder="e.g. 158 cm" value={vitals.height} onChange={v => handleVitalChange('height', v)} onDirty={markDirty} />
         </div>
         {/* BMI */}
         {calculatedBMI && bmiCategory && (
@@ -1081,26 +1268,21 @@ export function ConsultationView() {
           <div className="space-y-1.5">
             <Label htmlFor="gravidity">Gravidity (G)</Label>
             <Input id="gravidity" type="number" min="0" max="20" placeholder="0" value={gravidity}
-              onChange={e => { const v = parseInt(e.target.value, 10); setGravidity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
+              onChange={handleGravidityChange} />
             <p className="text-[11px] text-muted-foreground">No. of pregnancies</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="parity">Parity (P)</Label>
             <Input id="parity" type="number" min="0" max="20" placeholder="0" value={parity}
-              onChange={e => { const v = parseInt(e.target.value, 10); setParity(isNaN(v) ? '' : String(Math.max(0, Math.min(20, v)))); markDirty(); }} />
+              onChange={handleParityChange} />
             <p className="text-[11px] text-muted-foreground">No. of births</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lmp">LMP</Label>
             <Input id="lmp" type="text" placeholder="YYYY-MM-DD" value={lmp}
               maxLength={10}
-              onChange={e => { setLmp(e.target.value); markDirty(); }}
-              onBlur={e => {
-                const v = e.target.value;
-                if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-                  toast.error('Please enter date in YYYY-MM-DD format');
-                }
-              }} />
+              onChange={handleLmpChange}
+              onBlur={handleLmpBlur} />
           </div>
           <div className="space-y-1.5">
             <Label>Age of Gestation</Label>
@@ -1150,7 +1332,16 @@ export function ConsultationView() {
           }}><Search className="h-4 w-4" /></Button>
           <Button variant="outline" onClick={() => {
             setHealthHistorySearchQuery(''); setHealthHistorySearchResults([]);
-            setHealthHistoryData({ pastMedicalHistory: '', previousSurgery: '', historyOfTrauma: '', historyOfBloodTransfusion: '', familyHistoryPaternal: '', familyHistoryMaternal: '', smokingHistory: '', alcoholIntake: '', drugUse: '', dietaryPattern: '', physicalActivity: '', sleepPattern: '', allergies: '', currentMedications: '', immunizationStatus: '', mentalHealthHistory: '' });
+            setPastMedicalSelected([]); setPastMedicalOthersText('');
+            setPreviousSurgerySelected([]); setPreviousSurgeryOthersText('');
+            setTraumaValue(''); setTraumaSpecify('');
+            setBloodTransfusionValue(''); setBloodTransfusionSpecify('');
+            setFamilyHistoryDropdown(''); setFamilyHistorySelected([]); setFamilyHistoryOthersText('');
+            setSmokingValue(''); setSmokingPackYears('');
+            setAlcoholValue(''); setAlcoholDrinksPerDay('');
+            setDrugUseValue(''); setDrugUseSubstance('');
+            setDietaryPatternValue(''); setDietaryPatternSpecify('');
+            setHhPhysicalActivity(''); setHhSleepPattern('');
             setHealthHistoryRefCode(''); setHealthHistoryExisting(null);
           }}><Plus className="h-4 w-4" /> New</Button>
         </div>
@@ -1163,11 +1354,34 @@ export function ConsultationView() {
                     const res = await fetch(`/api/health-history/${r.id}`);
                     if (res.ok) {
                       const data = await res.json();
-                      setHealthHistoryData(prev => ({ ...prev, pastMedicalHistory: data.pastMedicalHistory || '', previousSurgery: data.previousSurgery || '', historyOfTrauma: data.historyOfTrauma || '', historyOfBloodTransfusion: data.historyOfBloodTransfusion || '', familyHistoryPaternal: data.familyHistoryPaternal || '', familyHistoryMaternal: data.familyHistoryMaternal || '', smokingHistory: data.smokingHistory || '', alcoholIntake: data.alcoholIntake || '', drugUse: data.drugUse || '', dietaryPattern: data.dietaryPattern || '', physicalActivity: data.physicalActivity || '', sleepPattern: data.sleepPattern || '', allergies: data.allergies || '', currentMedications: data.currentMedications || '', immunizationStatus: data.immunizationStatus || '', mentalHealthHistory: data.mentalHealthHistory || '' }));
+                      const parsed = parseHealthHistory(data.healthHistory);
+                      if (parsed) {
+                        setPastMedicalSelected(parsed.pastMedicalHistory.selected);
+                        setPastMedicalOthersText(parsed.pastMedicalHistory.othersText);
+                        setPreviousSurgerySelected(parsed.previousSurgery.selected);
+                        setPreviousSurgeryOthersText(parsed.previousSurgery.othersText);
+                        setTraumaValue(parsed.historyOfTrauma.value);
+                        setTraumaSpecify(parsed.historyOfTrauma.specify);
+                        setBloodTransfusionValue(parsed.historyOfBloodTransfusion.value);
+                        setBloodTransfusionSpecify(parsed.historyOfBloodTransfusion.specify);
+                        setFamilyHistoryDropdown(parsed.familyHistory.value);
+                        setFamilyHistorySelected(parsed.familyHistory.selected);
+                        setFamilyHistoryOthersText(parsed.familyHistory.othersText);
+                        setSmokingValue(parsed.smoking.value);
+                        setSmokingPackYears(parsed.smoking.packYears);
+                        setAlcoholValue(parsed.alcoholIntake.value);
+                        setAlcoholDrinksPerDay(parsed.alcoholIntake.drinksPerDay);
+                        setDrugUseValue(parsed.drugUse.value);
+                        setDrugUseSubstance(parsed.drugUse.substance);
+                        setDietaryPatternValue(parsed.dietaryPattern.value);
+                        setDietaryPatternSpecify(parsed.dietaryPattern.specify);
+                        setHhPhysicalActivity(parsed.physicalActivity);
+                        setHhSleepPattern(parsed.sleepPattern);
+                      }
                       setHealthHistoryRefCode(data.referenceCode); setHealthHistoryExisting(r.id);
                       setHealthHistorySearchResults([]); setHealthHistorySearchQuery('');
                     }
-                  } catch { /* ignore */ }
+                  } catch { toast.error('Failed to load health history record.'); }
                 }}>
                 <span className="font-mono font-medium">{r.referenceCode}</span>
                 <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
@@ -1178,64 +1392,273 @@ export function ConsultationView() {
       </div>
       <Separator />
 
-      {/* Past Medical History & Previous Surgery */}
-      <div className="space-y-4">
-        <HealthTextarea id="hh-pastMedical" label="Past Medical History" placeholder="Previous medical conditions (diabetes, hypertension, heart disease, etc.)"
-          value={healthHistoryData.pastMedicalHistory} onChange={v => setHealthHistoryData(p => ({ ...p, pastMedicalHistory: v }))} onDirty={markDirty} />
-        <HealthTextarea id="hh-surgery" label="Previous Surgery" placeholder="Previous surgical procedures with dates if known"
-          value={healthHistoryData.previousSurgery} onChange={v => setHealthHistoryData(p => ({ ...p, previousSurgery: v }))} onDirty={markDirty} />
-        <HealthInput id="hh-trauma" label="History of Trauma" placeholder="Any history of physical trauma..."
-          value={healthHistoryData.historyOfTrauma} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfTrauma: v }))} onDirty={markDirty} />
-        <HealthInput id="hh-transfusion" label="History of Blood Transfusion" placeholder="Any previous blood transfusions..."
-          value={healthHistoryData.historyOfBloodTransfusion} onChange={v => setHealthHistoryData(p => ({ ...p, historyOfBloodTransfusion: v }))} onDirty={markDirty} />
+      {/* ── Past Medical History (checkboxes) ───────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+          Past Medical History
+          <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
+        </Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {PAST_MEDICAL_OPTIONS.map((option) => (
+            <label
+              key={option}
+              className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Checkbox
+                checked={pastMedicalSelected.includes(option)}
+                onCheckedChange={() => {
+                  setPastMedicalSelected((prev) => toggleItem(prev, option));
+                  markDirty();
+                }}
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+        </div>
+        {pastMedicalSelected.includes('Others (specify)') && (
+          <Input
+            placeholder="Please specify..."
+            className="h-9 mt-1"
+            value={pastMedicalOthersText}
+            onChange={(e) => { setPastMedicalOthersText(e.target.value); markDirty(); }}
+          />
+        )}
+      </div>
+
+      {/* ── Previous Surgery (checkboxes) ───────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+          Previous Surgery
+          <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
+        </Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {PREVIOUS_SURGERY_OPTIONS.map((option) => (
+            <label
+              key={option}
+              className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Checkbox
+                checked={previousSurgerySelected.includes(option)}
+                onCheckedChange={() => {
+                  setPreviousSurgerySelected((prev) => toggleItem(prev, option));
+                  markDirty();
+                }}
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+        </div>
+        {previousSurgerySelected.includes('Others (specify)') && (
+          <Input
+            placeholder="Please specify..."
+            className="h-9 mt-1"
+            value={previousSurgeryOthersText}
+            onChange={(e) => { setPreviousSurgeryOthersText(e.target.value); markDirty(); }}
+          />
+        )}
       </div>
       <Separator />
 
-      {/* Family History */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-teal-600" /> Family History</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <HealthTextarea id="hh-familyPat" label="Paternal Side" placeholder="Health conditions on father's side..."
-            value={healthHistoryData.familyHistoryPaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryPaternal: v }))} onDirty={markDirty} />
-          <HealthTextarea id="hh-familyMat" label="Maternal Side" placeholder="Health conditions on mother's side..."
-            value={healthHistoryData.familyHistoryMaternal} onChange={v => setHealthHistoryData(p => ({ ...p, familyHistoryMaternal: v }))} onDirty={markDirty} />
-        </div>
+      {/* ── History of Trauma (dropdown) ─────────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">History of Trauma</Label>
+        <Select value={traumaValue || undefined} onValueChange={(v) => { setTraumaValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {TRAUMA_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {traumaValue === 'yes' && (
+          <Input placeholder="Please specify the trauma..." className="h-9 mt-1"
+            value={traumaSpecify} onChange={(e) => { setTraumaSpecify(e.target.value); markDirty(); }} />
+        )}
+      </div>
+
+      {/* ── History of Blood Transfusion (dropdown) ─────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">History of Blood Transfusion</Label>
+        <Select value={bloodTransfusionValue || undefined} onValueChange={(v) => { setBloodTransfusionValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {BLOOD_TRANSFUSION_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {bloodTransfusionValue === 'yes' && (
+          <Input placeholder="Please specify..." className="h-9 mt-1"
+            value={bloodTransfusionSpecify} onChange={(e) => { setBloodTransfusionSpecify(e.target.value); markDirty(); }} />
+        )}
       </div>
       <Separator />
 
-      {/* Personal and Social History */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-teal-600" /> Personal and Social History</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <HealthInput id="hh-smoking" label="Smoking" placeholder="Smoker/Non-smoker, pack-years..."
-            value={healthHistoryData.smokingHistory} onChange={v => setHealthHistoryData(p => ({ ...p, smokingHistory: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-alcohol" label="Alcohol Intake" placeholder="None/Occasional/Regular..."
-            value={healthHistoryData.alcoholIntake} onChange={v => setHealthHistoryData(p => ({ ...p, alcoholIntake: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-drugs" label="Drug Use" placeholder="Any substance use..."
-            value={healthHistoryData.drugUse} onChange={v => setHealthHistoryData(p => ({ ...p, drugUse: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-diet" label="Dietary Pattern" placeholder="Diet description..."
-            value={healthHistoryData.dietaryPattern} onChange={v => setHealthHistoryData(p => ({ ...p, dietaryPattern: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-activity" label="Physical Activity" placeholder="Sedentary/Moderate/Active..."
-            value={healthHistoryData.physicalActivity} onChange={v => setHealthHistoryData(p => ({ ...p, physicalActivity: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-sleep" label="Sleep Pattern" placeholder="Hours per night, quality..."
-            value={healthHistoryData.sleepPattern} onChange={v => setHealthHistoryData(p => ({ ...p, sleepPattern: v }))} onDirty={markDirty} />
-        </div>
+      {/* ── Family History (dropdown + conditional checkboxes) ───────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+          Family History (Maternal and Paternal)
+        </Label>
+        <Select
+          value={familyHistoryDropdown || undefined}
+          onValueChange={(val) => {
+            setFamilyHistoryDropdown(val);
+            if (val !== 'present') {
+              setFamilyHistorySelected([]);
+              setFamilyHistoryOthersText('');
+            }
+            markDirty();
+          }}
+        >
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {FAMILY_HISTORY_PRESENCE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {familyHistoryDropdown === 'present' && (
+          <>
+            <p className="text-xs text-muted-foreground mt-2">Select all that apply:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {FAMILY_HISTORY_CONDITIONS.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Checkbox
+                    checked={familyHistorySelected.includes(option)}
+                    onCheckedChange={() => {
+                      setFamilyHistorySelected((prev) => toggleItem(prev, option));
+                      markDirty();
+                    }}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+            {familyHistorySelected.includes('Others (specify)') && (
+              <Input placeholder="Please specify..." className="h-9 mt-1"
+                value={familyHistoryOthersText} onChange={(e) => { setFamilyHistoryOthersText(e.target.value); markDirty(); }} />
+            )}
+          </>
+        )}
       </div>
       <Separator />
 
-      {/* Additional Info */}
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-teal-600" /> Additional Information</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <HealthInput id="hh-allergies" label="Allergies" placeholder="Known allergies..."
-            value={healthHistoryData.allergies} onChange={v => setHealthHistoryData(p => ({ ...p, allergies: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-meds" label="Current Medications" placeholder="Ongoing medications..."
-            value={healthHistoryData.currentMedications} onChange={v => setHealthHistoryData(p => ({ ...p, currentMedications: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-immuno" label="Immunization Status" placeholder="Tetanus, flu vaccine, etc."
-            value={healthHistoryData.immunizationStatus} onChange={v => setHealthHistoryData(p => ({ ...p, immunizationStatus: v }))} onDirty={markDirty} />
-          <HealthInput id="hh-mental" label="Mental Health History" placeholder="Any mental health conditions..."
-            value={healthHistoryData.mentalHealthHistory} onChange={v => setHealthHistoryData(p => ({ ...p, mentalHealthHistory: v }))} onDirty={markDirty} />
-        </div>
+      {/* ── Smoking (dropdown + conditional) ─────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Cigarette className="h-3.5 w-3.5 text-muted-foreground" />
+          Smoking
+        </Label>
+        <Select value={smokingValue || undefined} onValueChange={(v) => { setSmokingValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {SMOKING_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(smokingValue === 'former' || smokingValue === 'current') && (
+          <Input placeholder="No. of Pack Years" className="h-9 mt-1"
+            value={smokingPackYears} onChange={(e) => { setSmokingPackYears(e.target.value); markDirty(); }} />
+        )}
+      </div>
+
+      {/* ── Alcohol Intake (dropdown + conditional) ──────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Wine className="h-3.5 w-3.5 text-muted-foreground" />
+          Alcohol Intake
+        </Label>
+        <Select value={alcoholValue || undefined} onValueChange={(v) => { setAlcoholValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {ALCOHOL_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(alcoholValue === 'occasional' || alcoholValue === 'regular') && (
+          <Input placeholder="No. of standard drinks per day" className="h-9 mt-1"
+            value={alcoholDrinksPerDay} onChange={(e) => { setAlcoholDrinksPerDay(e.target.value); markDirty(); }} />
+        )}
+      </div>
+
+      {/* ── Drug Use (dropdown + conditional) ────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Pill className="h-3.5 w-3.5 text-muted-foreground" />
+          Drug Use
+        </Label>
+        <Select value={drugUseValue || undefined} onValueChange={(v) => { setDrugUseValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {DRUG_USE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(drugUseValue === 'past' || drugUseValue === 'current') && (
+          <Input placeholder="Type of Substance" className="h-9 mt-1"
+            value={drugUseSubstance} onChange={(e) => { setDrugUseSubstance(e.target.value); markDirty(); }} />
+        )}
+      </div>
+
+      {/* ── Dietary Pattern (dropdown + conditional) ─────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Salad className="h-3.5 w-3.5 text-muted-foreground" />
+          Dietary Pattern
+        </Label>
+        <Select value={dietaryPatternValue || undefined} onValueChange={(v) => { setDietaryPatternValue(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {DIETARY_PATTERN_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {dietaryPatternValue === 'special' && (
+          <Input placeholder="Please specify the special diet..." className="h-9 mt-1"
+            value={dietaryPatternSpecify} onChange={(e) => { setDietaryPatternSpecify(e.target.value); markDirty(); }} />
+        )}
+      </div>
+
+      {/* ── Physical Activity (dropdown) ─────────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Dumbbell className="h-3.5 w-3.5 text-muted-foreground" />
+          Physical Activity
+        </Label>
+        <Select value={hhPhysicalActivity || undefined} onValueChange={(v) => { setHhPhysicalActivity(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {PHYSICAL_ACTIVITY_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* ── Sleep Pattern (dropdown) ─────────────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium flex items-center gap-1.5">
+          <Moon className="h-3.5 w-3.5 text-muted-foreground" />
+          Sleep Pattern
+        </Label>
+        <Select value={hhSleepPattern || undefined} onValueChange={(v) => { setHhSleepPattern(v); markDirty(); }}>
+          <SelectTrigger className="h-10 w-full"><SelectValue placeholder="Select option" /></SelectTrigger>
+          <SelectContent>
+            {SLEEP_PATTERN_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

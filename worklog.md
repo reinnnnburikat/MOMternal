@@ -110,3 +110,96 @@ Stage Summary:
 - Diagnosis step now supports multi-select for both NANDA and ICD codes
 - Desktop sidebar is now collapsible with icon-only mode and smooth transition
 - All changes committed and pushed to https://github.com/reinnnnburikat/MOMternal.git
+---
+Task ID: 4
+Agent: Main Fix Agent
+Task: Fix character reversal, rewrite health history with dropdowns/checkboxes
+
+Work Log:
+- Fixed character reversal bug ("pabaliktad na naman ang keystroke") by wrapping all onChange/onDirty handler functions passed to VitalInput with useCallback
+- Added stable callbacks: handleVitalChange, handleOxygenSatChange, handleChiefComplaintChange, handleAllergiesChange, handleMedicationsChange, handleTypeOfVisitChange, handleGravidityChange, handleParityChange, handleLmpChange, handleLmpBlur, handleFetalHeartRateChange, handleFundalHeightChange
+- Replaced flat healthHistoryData state with 24 individual structured state variables matching the new-patient-view.tsx pattern
+- Rewrote renderHealthHistory() completely: checkboxes for Past Medical History and Previous Surgery, dropdowns for Trauma/Blood Transfusion/Family History/Smoking/Alcohol/Drug Use/Dietary Pattern/Physical Activity/Sleep Pattern, conditional text inputs for "specify" fields
+- Updated buildSavePayload case 1 to serialize structured health history data
+- Updated data loading (fetchConsultation) to parse structured health history using parseHealthHistory(), with backward compatibility for old flat-string format
+- Updated handleDownloadPdf to convert structured health history to flat strings for the PDF generator (no changes needed to PDF generator)
+- Fixed "Heart Rate" label to "Pulse Rate" per DOCX specs
+- Fixed useEffect missing dependency array (added [saveCurrentStepSilent] to prevent running on every render)
+- Added imports: health-history-constants (PAST_MEDICAL_OPTIONS, etc.), lucide-react icons (Cigarette, Wine, Pill, Salad, Dumbbell, Moon)
+- Added toggleItem helper function for checkbox arrays
+- Verified zero lint errors and dev server running successfully
+
+Stage Summary:
+- Character reversal fixed by using useCallback for all input handlers passed to memo-wrapped components
+- Health History step now uses proper dropdowns and checkboxes matching MOMTERNAL.docx specifications
+- Backward compatibility maintained: old flat-string data gracefully handled (new structured format preferred)
+- "Heart Rate" renamed to "Pulse Rate" in Assessment vitals
+- useEffect dependency array bug fixed to prevent unnecessary re-renders
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: System audit against MOMTERNAL.docx specs, fix character reversal, update consultation health history form
+
+Work Log:
+- Extracted and analyzed MOMTERNAL.docx specifications (5 tables covering Patient Profile, Assessment, Health History, Diagnosis NANDA/NIC/NOC, Care Plan, Referral)
+- Performed full codebase audit comparing current implementation vs DOCX specs
+- Created shared health history constants module at /src/lib/health-history-constants.ts
+- Updated new-patient-view.tsx to import from shared constants (removed duplicate definitions)
+- Delegated consultation-view.tsx rewrite to subagent (Task ID 4)
+- Verified all changes: zero lint errors, dev server compiled successfully
+
+Audit Report - Compliance Status:
+
+STEP 0 (Assessment):
+✅ Type of Visit — Dropdown (4 options) — Matches DOCX
+✅ Chief Complaint — Free text — Matches DOCX
+✅ Allergies — Free text — Matches DOCX
+✅ Current Medications — Free text — Matches DOCX
+✅ Blood Pressure — Free text with color coding — Matches DOCX
+✅ Pulse Rate — Free text with color coding — FIXED (was "Heart Rate")
+✅ Temperature — Free text with color coding — Matches DOCX
+✅ Respiratory Rate — Free text with color coding — Matches DOCX
+✅ O₂ Saturation — Free text (clamped 0-100) — Matches DOCX
+✅ Pain Scale — Number input (0-10) — Matches DOCX
+✅ Fetal Heart Rate — Free text — Matches DOCX
+✅ Fundal Height — Free text — Matches DOCX
+✅ Weight / Height — Free text — Matches DOCX
+✅ BMI — Auto-calculated — Matches DOCX
+✅ Gravidity / Parity — Data entry — Matches DOCX
+✅ LMP — Data entry (YYYY-MM-DD) — Matches DOCX
+✅ AOG — Auto-calculated from LMP — Matches DOCX
+
+STEP 1 (Health History) — MAJOR OVERHAUL:
+✅ Past Medical History — NOW Checkboxes (was free text) — FIXED
+✅ Previous Surgery — NOW Checkboxes (was free text) — FIXED
+✅ History of Trauma — NOW Dropdown Yes/No + conditional (was free text) — FIXED
+✅ History of Blood Transfusion — NOW Dropdown Yes/No + conditional (was free text) — FIXED
+✅ Family History — NOW Dropdown Present/Absent/Unknown + conditional checkboxes (was free text) — FIXED
+✅ Smoking — NOW Dropdown Never/Former/Current + conditional Pack Years (was free text) — FIXED
+✅ Alcohol Intake — NOW Dropdown None/Occasional/Regular + conditional (was free text) — FIXED
+✅ Drug Use — NOW Dropdown None/Past/Current + conditional (was free text) — FIXED
+✅ Dietary Pattern — NOW Dropdown Adequate/Inadequate/Special (was free text) — FIXED
+✅ Physical Activity — NOW Dropdown Sedentary/Light/Moderate/Vigorous (was free text) — FIXED
+✅ Sleep Pattern — NOW Dropdown Adequate/Inadequate/Excessive (was free text) — FIXED
+
+STEP 2 (Findings): ✅ Physical Exam, Lab Results, Notes — All free text — Matches DOCX
+
+STEP 3 (Diagnosis): ✅ NANDA-I multi-select, ICD-10 multi-select, Related-to, Notes — Matches DOCX
+
+STEP 4 (AI Summary): ✅ Risk classification, prevention level, rationale, suggestions, reassess button — Matches DOCX
+
+STEP 5 (Care Plan): ✅ AI-suggested checkboxes, custom NIC, NOC per-intervention, evaluation dropdown (Met/Partially Met/Unmet), outcome summary — Matches DOCX
+
+STEP 6 (Referral): ✅ Fixed "Refer to Doctor" type, priority dropdown (4 options), facility info, generate/copy/PDF — Matches DOCX
+
+Character Reversal Bug:
+✅ Fixed by wrapping all input handlers in useCallback to provide stable references to memo-wrapped child components
+
+Stage Summary:
+- 11 out of 11 Health History fields were non-compliant (free text instead of dropdowns/checkboxes) — ALL FIXED
+- "Heart Rate" label corrected to "Pulse Rate" per DOCX
+- Character reversal bug fixed with useCallback wrapper pattern
+- Shared health-history-constants.ts module created for DRY consistency
+- new-patient-view.tsx refactored to use shared constants
+- Zero lint errors, successful compilation

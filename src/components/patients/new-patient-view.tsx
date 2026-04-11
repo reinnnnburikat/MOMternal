@@ -52,6 +52,20 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { MAKATI_BARANGAYS } from '@/data/makati-barangays';
+import {
+  PAST_MEDICAL_OPTIONS,
+  PREVIOUS_SURGERY_OPTIONS,
+  FAMILY_HISTORY_CONDITIONS as FAMILY_HISTORY_OPTIONS,
+  TRAUMA_OPTIONS,
+  BLOOD_TRANSFUSION_OPTIONS,
+  FAMILY_HISTORY_PRESENCE_OPTIONS as FAMILY_HISTORY_DROPDOWN_OPTIONS,
+  SMOKING_OPTIONS,
+  ALCOHOL_OPTIONS,
+  DRUG_USE_OPTIONS,
+  DIETARY_PATTERN_OPTIONS,
+  PHYSICAL_ACTIVITY_OPTIONS,
+  SLEEP_PATTERN_OPTIONS,
+} from '@/lib/health-history-constants';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -83,86 +97,9 @@ const INCOME_BRACKETS = [
   'High Income (> \u20B1120,830/month)',
 ];
 
-const PAST_MEDICAL_OPTIONS = [
-  'Hypertension',
-  'Diabetes Mellitus',
-  'Heart Disease',
-  'Pulmonary Disease',
-  'Rheumatic Fever (RF)',
-  'Seizure Disorder',
-  'Renal Disease',
-  'Others (specify)',
-];
-
-const PREVIOUS_SURGERY_OPTIONS = [
-  'None',
-  'Cesarean section',
-  'Abdominal Surgery',
-  'Others (specify)',
-];
-
-const FAMILY_HISTORY_OPTIONS = [
-  'Hypertension',
-  'Diabetes Mellitus',
-  'Heart Disease',
-  'Congenital Anomalies',
-  'Twin Pregnancy',
-  'Breech Presentation',
-  'Others (specify)',
-];
-
-const TRAUMA_OPTIONS = [
-  { label: 'Yes (specify)', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
-const BLOOD_TRANSFUSION_OPTIONS = [
-  { label: 'Yes (specify)', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
-const FAMILY_HISTORY_DROPDOWN_OPTIONS = [
-  { label: 'Present', value: 'present' },
-  { label: 'Absent', value: 'absent' },
-  { label: 'Unknown', value: 'unknown' },
-];
-
-const SMOKING_OPTIONS = [
-  { label: 'Never', value: 'never' },
-  { label: 'Former', value: 'former' },
-  { label: 'Current', value: 'current' },
-];
-
-const ALCOHOL_OPTIONS = [
-  { label: 'None', value: 'none' },
-  { label: 'Occasional', value: 'occasional' },
-  { label: 'Regular', value: 'regular' },
-];
-
-const DRUG_USE_OPTIONS = [
-  { label: 'None', value: 'none' },
-  { label: 'Past use', value: 'past' },
-  { label: 'Current use', value: 'current' },
-];
-
-const DIETARY_PATTERN_OPTIONS = [
-  { label: 'Adequate', value: 'adequate' },
-  { label: 'Inadequate', value: 'inadequate' },
-  { label: 'Special diet (specify)', value: 'special' },
-];
-
-const PHYSICAL_ACTIVITY_OPTIONS = [
-  { label: 'Sedentary', value: 'sedentary' },
-  { label: 'Light', value: 'light' },
-  { label: 'Moderate', value: 'moderate' },
-  { label: 'Vigorous', value: 'vigorous' },
-];
-
-const SLEEP_PATTERN_OPTIONS = [
-  { label: 'Adequate (6-8 hrs)', value: 'adequate' },
-  { label: 'Inadequate (<6 hrs)', value: 'inadequate' },
-  { label: 'Excessive (>9 hrs)', value: 'excessive' },
-];
+// Health history constants imported from shared module (see imports above)
+// NAME_EXTENSIONS, OCCUPATIONS, MARITAL_STATUSES, FAMILY_COMPOSITIONS, INCOME_BRACKETS
+// are still defined locally below since they are patient-specific, not health-history-specific.
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
