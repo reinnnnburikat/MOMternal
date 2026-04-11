@@ -329,15 +329,18 @@ export function MapView() {
 
     const newLayers: any[] = [];
 
-    // Build barangay lookup
+    // Build case-insensitive barangay lookup (lowercase keys)
     const barangayLookup: Record<string, BarangayData> = {};
     data.barangayData.forEach((b) => {
-      barangayLookup[b.barangay] = b;
+      barangayLookup[b.barangay.toLowerCase()] = b;
     });
+
+    // Helper: case-insensitive lookup
+    const lookupBrgy = (name: string) => barangayLookup[name.toLowerCase()];
 
     // Add barangay boundary polygons with risk coloring
     BARANGAY_BOUNDARIES.forEach((feature) => {
-      const bData = barangayLookup[feature.properties.name];
+      const bData = lookupBrgy(feature.properties.name);
       const riskLevel = bData?.latestRiskLevel || 'low';
       if (filter !== 'all' && riskLevel !== filter) return;
 
@@ -353,7 +356,7 @@ export function MapView() {
         },
         onEachFeature: (_feature: any, layer: any) => {
           const name = feature.properties.name;
-          const bd = barangayLookup[name];
+          const bd = lookupBrgy(name);
           if (bd) {
             const popup = `
               <div style="padding:14px 16px;min-width:220px;">
@@ -402,7 +405,7 @@ export function MapView() {
 
     filteredMarkers.forEach((marker) => {
       const color = RISK_COLORS[marker.riskLevel] || RISK_COLORS.low;
-      const bd = barangayLookup[marker.barangay];
+      const bd = lookupBrgy(marker.barangay);
 
       const circleMarker = L.circleMarker([marker.lat, marker.lng], {
         radius: 8,

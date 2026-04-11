@@ -23,40 +23,46 @@ function lookupCentroid(barangay: string): [number, number] | undefined {
  * - Per-barangay aggregation: patient count and risk distribution
  * - Individual patient markers (patientId + riskLevel only, no names)
  *
- * NOTE: BARANGAY_CENTROIDS are imported from the shared source-of-truth module
- * (src/components/map/barangay-centroids.ts) which uses OSM Overpass API data.
- * MAKATI_BARANGAYS is the canonical list from makati-barangays.ts.
- * Both the frontend map-view and this API route now use the same centroid coordinates.
+ * Risk level priority:
+ * 1. patient.risk_level (synced from latest completed consultation — most reliable)
+ * 2. Latest completed consultation's risk_level (step_completed >= 6)
+ * 3. Fallback to 'low'
+ *
+ * NOTE: We do NOT use the latest consultation by date because in-progress consultations
+ * (step 0) have default risk_level='low' which would override the actual assessed risk.
  */
 
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 
 export async function GET() {
   try {
-    // Fetch all patients with their latest consultation risk level
+    // Fetch all patients with risk level from the patient table (primary source)
+    // and fallback from latest COMPLETED consultation only
     const patients = await query(
       `SELECT p.id, p.patient_id, p.barangay, p.risk_level AS patient_risk_level,
               (SELECT c.risk_level FROM consultation c
-               WHERE c.patient_id = p.id
-               ORDER BY c.consultation_date DESC
-               LIMIT 1) AS latest_consultation_risk
+               WHERE c.patient_id = p.id AND c.step_completed >= 6
+               ORDER BY c.created_at DESC NULLS LAST
+               LIMIT 1) AS latest_completed_risk
        FROM patient p`
     );
 
-    // For each patient, determine their "latest" risk level
-    // Only include patients whose barangay is in the valid list
+    // For each patient, determine their effective risk level
+    // Priority: patient.risk_level > latest completed consultation risk > 'low'
     const patientRiskData = patients.rows
       .filter((p: Record<string, unknown>) => {
         const brgy = (p.barangay as string) || "Unknown";
         return VALID_BARANGAYS.has(brgy.toLowerCase());
       })
       .map((p: Record<string, unknown>) => {
-        const latestRisk = p.latest_consultation_risk || p.patient_risk_level || 'low';
+        // Use patient.risk_level as primary (synced from completed consultation saves)
+        // Fall back to latest completed consultation if patient risk is null
+        const effectiveRisk = p.patient_risk_level || p.latest_completed_risk || 'low';
         return {
           id: p.id,
           patientId: p.patient_id,
           barangay: p.barangay || "Unknown",
-          riskLevel: latestRisk,
+          riskLevel: effectiveRisk,
         };
       });
 
