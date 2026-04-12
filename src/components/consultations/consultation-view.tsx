@@ -1522,7 +1522,7 @@ export function ConsultationView() {
         // Step 7: Referral
         referralPriority: referralPriority || undefined,
         referralFacility: referralFacility || undefined,
-        referralType: 'Refer to Doctor',
+        referralType: referralType || 'Refer to Doctor',
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1542,7 +1542,7 @@ export function ConsultationView() {
     smokingValue, smokingPackYears, alcoholValue, alcoholDrinksPerDay,
     drugUseValue, drugUseSubstance, dietaryPatternValue, dietaryPatternSpecify,
     hhPhysicalActivity, hhSleepPattern, healthHistoryRefCode,
-    physicalExam, labResults, notes, selectedIcd10Codes, selectedNandaCodes, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility]);
+    physicalExam, labResults, notes, selectedIcd10Codes, selectedNandaCodes, nandaSelectedCode, nandaRelatedTo, icd10AdditionalNotes, aiSuggestions, selectedInterventions, interventionEvals, evaluationNotes, referralPriority, referralFacility, referralType]);
 
   // ─── Vital sign color coding ────────────────────────────────────────
   const getVitalColor = (field: string, value: string): string => {

@@ -495,3 +495,32 @@ Stage Summary:
 - Patient list and profile pages show cached data with clear offline indicators
 - Persistent offline banner, header badges, and toast notifications keep user informed
 - All offline state centralized in Zustand store for cross-component consistency
+---
+Task ID: 1
+Agent: Main
+Task: Fix referral PDF layout - margins, padding, Unicode encoding, spacing
+
+Work Log:
+- Analyzed uploaded referral PDF (CONSULT-0015) and identified 3 major issues:
+  1. Unicode corruption: >=, <=, special chars rendered as garbled text (e.g., "e instead of >=)
+  2. Wide character spacing in AI summary bullet points
+  3. Layout needs better margins, padding, and section spacing
+- Rewrote src/lib/generate-referral-pdf.ts with:
+  - Added comprehensive sanitize() function to replace all Unicode symbols (>=, <=, arrows, bullets, degree, smart quotes, etc.) with ASCII equivalents
+  - Added zero-width space/non-breaking space removal
+  - Added Latin extended character mapping to ASCII
+  - Improved section headings with colored accent bar instead of underline
+  - Better spacing: increased font sizes slightly, more consistent padding
+  - Vitals grid now uses 3 columns for compact but readable layout
+  - Referral details now rendered in a teal info box instead of plain text
+  - Improved signature section with proper cell sizing and 4px gap
+  - All text passed through sanitize() before rendering
+- Fixed hardcoded referralType in consultation-view.tsx PDF generation call
+- Added referralType to handleDownloadPdf dependency array
+
+Stage Summary:
+- Key fix: sanitize() function prevents all Unicode rendering issues in jsPDF Helvetica
+- Layout improvements: accent bars, better spacing, 3-col vitals, teal referral box
+- referralType now properly passed from state to PDF
+- Lint passes clean, dev server 200 OK
+
