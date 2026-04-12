@@ -20,6 +20,8 @@ const CLR = {
   divider:    [226, 232, 240] as const,  // slate-200
   white:      [255, 255, 255] as const,
   pageBg:     [248, 250, 252] as const,  // slate-50
+  emergencyRed: [220, 38, 38] as const, // vivid red for emergency
+  emergencyRedLt: [254, 226, 226] as const, // soft red for emergency badge
 };
 
 type C3 = readonly [number, number, number];
@@ -150,7 +152,7 @@ function pageBreak(doc: jsPDF, y: number, need: number): number {
 
 /** Section heading with underline accent */
 function heading(doc: jsPDF, y: number, text: string, accent: C3 = CLR.primary): number {
-  y = pageBreak(doc, y, 16);
+  y = pageBreak(doc, y, 18);
   setF(doc, 9, 'bold');
   doc.setTextColor(...accent);
   doc.text(text.toUpperCase(), ML, y);
@@ -158,7 +160,7 @@ function heading(doc: jsPDF, y: number, text: string, accent: C3 = CLR.primary):
   doc.setDrawColor(...accent);
   doc.setLineWidth(0.4);
   doc.line(ML, y, ML + doc.getTextWidth(text.toUpperCase()), y);
-  return y + 6;
+  return y + 8;
 }
 
 /** Sub-section heading */
@@ -326,15 +328,28 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   doc.text(`Consultation No: ${data.consultationNo}`, PW - MR, 12, { align: 'right' });
   doc.text(fmtDate(data.consultationDate), PW - MR, 17, { align: 'right' });
 
-  // Right: Priority badge
+  // Right: Priority badge — supports emergency, urgent, same_day, non_urgent
   if (data.referralPriority && data.referralPriority !== 'none') {
-    const pLabel = data.referralPriority === 'urgent' ? 'URGENT'
+    const pLabel = data.referralPriority === 'emergency' ? 'EMERGENCY'
+      : data.referralPriority === 'urgent' ? 'URGENT'
       : data.referralPriority === 'same_day' ? 'SAME DAY' : 'NON-URGENT';
     setF(doc, 6, 'bold');
     const pw2 = doc.getTextWidth(pLabel) + 8;
     const px = PW - MR - pw2;
-    const pbg: C3 = data.referralPriority === 'urgent' ? CLR.primaryLt : CLR.tealLt;
-    const pfg: C3 = data.referralPriority === 'urgent' ? CLR.primary : CLR.teal;
+
+    let pbg: C3;
+    let pfg: C3;
+    if (data.referralPriority === 'emergency' || data.referralPriority === 'urgent') {
+      pbg = CLR.emergencyRedLt;
+      pfg = CLR.emergencyRed;
+    } else if (data.referralPriority === 'same_day') {
+      pbg = CLR.amberLt;
+      pfg = CLR.amber;
+    } else {
+      pbg = CLR.tealLt;
+      pfg = CLR.teal;
+    }
+
     doc.setFillColor(...pbg);
     doc.roundedRect(px, 22, pw2, 5.5, 2.5, 2.5, 'F');
     doc.setTextColor(...pfg);
@@ -373,11 +388,15 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   if (data.aog) ob.push({ label: 'AOG', value: data.aog });
   if (ob.length) y = grid(doc, y, ob);
 
-  // Risk Level badge
+  // Risk Level badge — MODERATE=brown, HIGH=red, LOW=green
   if (data.riskLevel && data.riskLevel.trim()) {
     y += 2;
     const rv = data.riskLevel.toUpperCase();
-    const rcMap: Record<string, C3> = { HIGH: [185, 28, 28], MODERATE: [180, 83, 9], LOW: [5, 150, 105] };
+    const rcMap: Record<string, C3> = {
+      HIGH: [185, 28, 28],
+      MODERATE: [180, 83, 9],
+      LOW: [5, 150, 105],
+    };
     const rc = rcMap[rv] ?? CLR.label;
     const rlbl = `Risk Level: ${rv}`;
     setF(doc, 7, 'bold');
@@ -536,10 +555,6 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
       y = list(doc, y, 'Risk Indicators:', data.aiRiskIndicators);
     }
 
-    if (data.aiPriorityIntervention) {
-      y = box(doc, y, 'Priority Intervention', data.aiPriorityIntervention, CLR.amberLt, CLR.amber, CLR.amber);
-    }
-
     if (data.aiNursingConsiderations?.length) {
       y = list(doc, y, 'Nursing Considerations:', data.aiNursingConsiderations);
     }
@@ -547,6 +562,14 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
     if (data.aiFollowUpSchedule) y = kv(doc, y, 'Follow-up Schedule', data.aiFollowUpSchedule);
     if (data.aiReferralNeeded && data.aiReferralReason) y = kv(doc, y, 'AI Referral Reason', data.aiReferralReason);
     y += 3;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  6b. PRIORITY INTERVENTION — Prominent amber box after AI Summary
+  // ═══════════════════════════════════════════════════════════════════════════
+  if (data.aiPriorityIntervention) {
+    y = box(doc, y, 'Priority Intervention', data.aiPriorityIntervention, CLR.amberLt, CLR.amber, CLR.amber);
+    y += 2;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -618,7 +641,8 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   y = kv(doc, y, 'Referral Type', data.referralType || 'Refer to Doctor');
 
   if (data.referralPriority && data.referralPriority !== 'none') {
-    const pl = data.referralPriority === 'urgent' ? 'Urgent'
+    const pl = data.referralPriority === 'emergency' ? 'Emergency'
+      : data.referralPriority === 'urgent' ? 'Urgent'
       : data.referralPriority === 'same_day' ? 'Same Day' : 'Non-urgent';
     y = kv(doc, y, 'Priority', pl);
   }
@@ -626,32 +650,52 @@ export async function generateReferralPdf(data: ReferralPdfData): Promise<Blob> 
   y += 5;
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  SIGNATURES
+  //  SIGNATURES — Proper 2×2 bordered table
   // ═══════════════════════════════════════════════════════════════════════════
-  y = pageBreak(doc, y, 38);
+  y = pageBreak(doc, y, 52);
 
+  // Thin separator line before signature section
   doc.setDrawColor(...CLR.divider);
-  doc.setLineWidth(0.25);
+  doc.setLineWidth(0.3);
   doc.line(ML, y, PW - MR, y);
-  y += 5;
+  y += 6;
 
+  // "Prepared by:" label
   setF(doc, 8, 'bold');
   doc.setTextColor(...CLR.heading);
   doc.text('Prepared by:', ML, y);
-  y += 10;
+  y += 5;
 
-  doc.line(ML, y, 82, y);
-  doc.line(108, y, PW - MR, y);
+  // ── Signature table dimensions ──
+  const sigTableW = CW;
+  const sigCellW = 82;                   // each cell width
+  const sigCellH = 18;                   // each cell height
+  const sigGap = sigTableW - (sigCellW * 2); // gap between the two columns
+  const sigBorderClr = [200, 200, 200] as const; // light gray borders
+
+  // Outer container border
+  doc.setDrawColor(...sigBorderClr);
+  doc.setLineWidth(0.35);
+  doc.rect(ML, y, sigTableW, sigCellH * 2);
+
+  // Draw each of the 4 cells with borders
+  // Row 1, Col 1 — Nurse Signature
+  doc.rect(ML, y, sigCellW, sigCellH);
   setF(doc, 6.5, 'normal');
   doc.setTextColor(...CLR.muted);
-  doc.text('Nurse Signature over Printed Name', ML, y + 3.5);
-  doc.text('Date & Time', 108, y + 3.5);
-  y += 13;
+  doc.text('Nurse Signature over Printed Name', ML + 3, y + sigCellH / 2 + 2.2);
 
-  doc.line(ML, y, 82, y);
-  doc.line(108, y, PW - MR, y);
-  doc.text('Receiving Physician Signature over Printed Name', ML, y + 3.5);
-  doc.text('Date & Time', 108, y + 3.5);
+  // Row 1, Col 2 — Date & Time
+  doc.rect(ML + sigCellW, y, sigTableW - sigCellW, sigCellH);
+  doc.text('Date & Time', ML + sigCellW + 3, y + sigCellH / 2 + 2.2);
+
+  // Row 2, Col 1 — Receiving Physician Signature
+  doc.rect(ML, y + sigCellH, sigCellW, sigCellH);
+  doc.text('Receiving Physician Signature over Printed Name', ML + 3, y + sigCellH + sigCellH / 2 + 2.2);
+
+  // Row 2, Col 2 — Date & Time
+  doc.rect(ML + sigCellW, y + sigCellH, sigTableW - sigCellW, sigCellH);
+  doc.text('Date & Time', ML + sigCellW + 3, y + sigCellH + sigCellH / 2 + 2.2);
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  FOOTER — rendered on every page ONCE at the end
