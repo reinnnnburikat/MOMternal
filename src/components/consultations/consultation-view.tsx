@@ -233,10 +233,17 @@ const TYPE_OF_VISIT_OPTIONS = [
 
 const REFERRAL_PRIORITY_OPTIONS = [
   { value: 'none', label: 'No referral', description: 'No referral needed' },
-  { value: 'urgent', label: 'Urgent referral', description: 'Immediate referral required' },
-  { value: 'non_urgent', label: 'Non-urgent', description: 'Routine referral' },
-  { value: 'same_day', label: 'Same day referral', description: 'Referral within the day' },
+  { value: 'non_urgent', label: 'Non-urgent', description: 'Routine referral (24-72 hrs)' },
+  { value: 'same_day', label: 'Same day referral', description: 'Referral within the day (≤6-12 hrs)' },
+  { value: 'urgent', label: 'Urgent referral', description: 'Immediate referral (minutes to <1 hr)' },
+  { value: 'emergency', label: 'Emergency referral', description: 'Life-threatening — activate emergency transport' },
 ];
+
+const REFERRAL_TYPE_OPTIONS = [
+  'Refer to Doctor',
+  'Refer to Specialist',
+  'Transfer to Hospital',
+] as const;
 
 // Code-to-color category maps
 const NIC_CATEGORY_COLORS: Record<string, string> = {
@@ -305,6 +312,19 @@ function preventionToRisk(level: string): string {
     case 'tertiary': return 'high';
     default: return 'low';
   }
+}
+
+function riskToReferralUrgency(risk: string, emergencySigns: boolean = false): string {
+  if (risk === 'high' && emergencySigns) return 'emergency';
+  if (risk === 'high') return 'urgent';
+  if (risk === 'moderate') return 'non_urgent';
+  return 'none';
+}
+
+function riskToReferralType(risk: string): string {
+  if (risk === 'high') return 'Transfer to Hospital';
+  if (risk === 'moderate') return 'Refer to Specialist';
+  return 'Refer to Doctor';
 }
 
 function riskLabel(risk: string): string {
@@ -540,6 +560,7 @@ export function ConsultationView() {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [preventionLevel, setPreventionLevel] = useState('');
   const [referralPriority, setReferralPriority] = useState('');
+  const [referralType, setReferralType] = useState('Refer to Doctor');
   const [referralFacility, setReferralFacility] = useState('');
   const [interventionEvals, setInterventionEvals] = useState<Array<{
     nicCode: string; status: string; nocOutcome: string; nocOutcomeCode: string; notes: string;
@@ -971,6 +992,7 @@ export function ConsultationView() {
         if (data.weight) setVitals(v => ({ ...v, weight: data.weight }));
         setPreventionLevel(data.preventionLevel || '');
         setReferralPriority(data.referralPriority || '');
+        setReferralType(data.referralType || 'Refer to Doctor');
         setReferralFacility(data.referralFacility || '');
         if (data.interventionEvaluations) {
           try { setInterventionEvals(JSON.parse(data.interventionEvaluations)); } catch { setInterventionEvals([]); }
@@ -1103,7 +1125,7 @@ export function ConsultationView() {
           if (evaluationNotes) payload.evaluationNotes = evaluationNotes;
           break;
         case 6: // Referral
-          payload.referralType = 'Refer to Doctor';
+          payload.referralType = referralType;
           if (referralPriority) payload.referralPriority = referralPriority;
           if (referralFacility) payload.referralFacility = referralFacility;
           // referralSummary saved by the referral endpoint
@@ -1122,7 +1144,7 @@ export function ConsultationView() {
       physicalExam, labResults, notes, selectedNandaCodes, selectedIcd10Codes,
       nandaRelatedTo, icd10AdditionalNotes,
       riskLevel, preventionLevel, selectedInterventions, interventionEvals, evaluationNotes,
-      referralPriority, referralFacility,
+      referralPriority, referralType, referralFacility,
     ]
   );
 
@@ -1267,15 +1289,21 @@ export function ConsultationView() {
       // Derive risk level from prevention level
       if (data.aiSuggestions?.preventionLevel) {
         const pl = data.aiSuggestions.preventionLevel;
+        const newRisk = preventionToRisk(pl);
         setPreventionLevel(pl);
-        setRiskLevel(preventionToRisk(pl));
+        setRiskLevel(newRisk);
+        // Auto-set referral priority and type based on risk level
+        const newUrgency = riskToReferralUrgency(newRisk);
+        const newType = riskToReferralType(newRisk);
+        setReferralPriority(prev => prev || newUrgency);
+        setReferralType(newType);
         // Save risk level and prevention level
         try {
           await fetch(`/api/consultations/${selectedConsultationId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              riskLevel: preventionToRisk(pl),
+              riskLevel: newRisk,
               preventionLevel: pl,
             }),
           });
@@ -1301,6 +1329,11 @@ export function ConsultationView() {
             clinicalContext: {
               riskLevel: riskLevel || undefined,
               aog: consultationAOG || undefined,
+              age: consultation?.patient?.age || undefined,
+              bmi: calculatedBMI ? parseFloat(calculatedBMI) : undefined,
+              smoking: smokingValue || undefined,
+              alcohol: alcoholValue || undefined,
+              drugUse: drugUseValue || undefined,
             },
           };
           const fallbackResult = generateFallbackSuggestions(assessmentData);
@@ -1329,8 +1362,18 @@ export function ConsultationView() {
           setAiSuggestions(mappedSuggestions);
           if (fallbackResult.preventionLevel) {
             const pl = fallbackResult.preventionLevel;
+            const newRisk = preventionToRisk(pl);
             setPreventionLevel(pl);
-            setRiskLevel(preventionToRisk(pl));
+            setRiskLevel(newRisk);
+            // Auto-set referral priority and type based on risk level
+            const newUrgency = riskToReferralUrgency(newRisk);
+            const newType = riskToReferralType(newRisk);
+            setReferralPriority(prev => prev || newUrgency);
+            setReferralType(newType);
+            // Apply fallback-specific urgency if available
+            const fbAny = fallbackResult as any;
+            if (fbAny.referralUrgency) setReferralPriority(prev => prev || fbAny.referralUrgency);
+            if (fbAny.referralType) setReferralType(fbAny.referralType);
           }
           toast.success('AI summary generated (offline mode)', {
             description: 'Suggestions generated using local clinical guidelines. Will update when back online.',
@@ -1347,7 +1390,7 @@ export function ConsultationView() {
         toast.error(msg, { duration: 5000 });
       }
     } finally { setAiLoading(false); }
-  }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep, chiefComplaint, vitals, fetalHeartRate, labResults, physicalExam, icd10SelectedCode, nandaSelectedCode, riskLevel, consultationAOG]);
+  }, [selectedConsultationId, updateActivity, aiError, saveStep, currentStep, chiefComplaint, vitals, fetalHeartRate, labResults, physicalExam, icd10SelectedCode, nandaSelectedCode, riskLevel, consultationAOG, calculatedBMI, smokingValue, alcoholValue, drugUseValue]);
 
   // ── Generate Referral ──
   const handleGenerateReferral = useCallback(async () => {
@@ -2491,12 +2534,20 @@ export function ConsultationView() {
               <p className="text-sm text-muted-foreground max-w-md mx-auto">Configure the referral details before generating the referral summary document.</p>
             </div>
             <div className="space-y-4 max-w-xl mx-auto">
-              {/* Fixed Referral Type */}
+              {/* Referral Type */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-1.5"><FileOutput className="h-3.5 w-3.5 text-muted-foreground" /> Type of Referral</Label>
-                <div className="h-9 rounded-md border border-gray-200 dark:border-gray-700 bg-muted px-3 flex items-center text-sm font-medium">
-                  Refer to Doctor
-                </div>
+                <Select value={referralType} onValueChange={v => { setReferralType(v); markDirty(); }}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Select referral type" /></SelectTrigger>
+                  <SelectContent>
+                    {REFERRAL_TYPE_OPTIONS.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {riskLevel && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Auto-suggested based on risk level: <span className={riskLevel === 'high' ? 'text-red-600 dark:text-red-400 font-medium' : riskLevel === 'moderate' ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-green-600 dark:text-green-400 font-medium'}>{riskToReferralType(riskLevel)}</span>
+                  </p>
+                )}
               </div>
               {/* Priority */}
               <div className="space-y-2">

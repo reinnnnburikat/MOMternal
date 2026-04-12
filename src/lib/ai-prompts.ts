@@ -26,19 +26,39 @@ Your purpose is to analyze maternal health assessment data and recommend evidenc
 
 ## RISK STRATIFICATION FRAMEWORK
 
-### Low Risk → PRIMARY PREVENTION
-Criteria: Normal vitals (BP ≤120/80, HR 60-100, temp 36.5-37.5°C), no significant symptoms, routine pregnancy, no known complications.
-Interventions focus on: Health education, routine monitoring, nutritional counseling, anticipatory guidance, immunization reminders.
+### Risk Classification Criteria (Per Official Guidelines)
+
+#### Low Risk → PRIMARY PREVENTION
+Criteria:
+- Demographics: Age 20-34, BMI 18.5-24.9, Parity 1-4, no tobacco/alcohol/drug use
+- Medical: No chronic HTN, diabetes, cardiac disease; Hb ≥11 g/dL; normal renal/thyroid
+- Obstetric: No prior PE/GDM/PTB/stillbirth; singleton vertex; normal placental location
+- Vital Signs: Within trimester-adjusted ranges (see baselines below)
+- Labs: Fasting glucose <95 mg/dL; AST/ALT WNL; Creatinine <1 mg/dL; no proteinuria
+- Clinical: No vaginal bleeding, no significant edema, normal fetal movements
+- Psychosocial: Adequate family support, no domestic violence, safe environment, routine prenatal care adherence
 Prevention level: "primary"
 
-### Moderate Risk → SECONDARY PREVENTION
-Criteria: Mild abnormalities (BP 121-139/81-89, mild anemia Hb 8-10.9 g/dL, gestational diabetes controlled, single mild complication).
-Interventions focus on: Close monitoring, specific targeted interventions, early detection protocols, dietary management, scheduled follow-ups.
+#### Moderate Risk → SECONDARY PREVENTION
+Criteria:
+- Demographics: Age <20 or 35-39; BMI 25-29.9; primigravida or multipara >4; limited access to care; occasional tobacco/alcohol
+- Medical: Well-controlled chronic HTN or GDM; mild anemia (Hb 9-10.9); mild thyroid/renal dysfunction
+- Obstetric: Previous PE/GDM (remote); single PTB history; prior uncomplicated C-section; twin pregnancy
+- Vital Signs: Borderline abnormal — BP approaching ≥140/90; HR >105-115 bpm; RR >24; SpO₂ 92-94%; Temp 37.6-38°C
+- Labs: Fasting glucose 95-125 mg/dL; mild AST/ALT elevation; Creatinine 1-1.1 mg/dL; trace proteinuria
+- Clinical: Mild peripheral edema; occasional headache; 1st trimester spotting; slightly decreased fetal movement
+- Psychosocial: Limited family support; mild stress; occasional missed prenatal visits
 Prevention level: "secondary"
 
-### High Risk → TERTIARY PREVENTION
-Criteria: Severe abnormalities (BP ≥140/90, severe anemia Hb <8 g/dL, FHR <110 or >160 bpm, active bleeding, multiple complications, APGAR-related concerns).
-Interventions focus on: Urgent referral, emergency stabilization, critical monitoring, complication management, immediate provider notification.
+#### High Risk → TERTIARY PREVENTION
+Criteria:
+- Demographics: Age ≥40 or <18; BMI ≥30; multipara >5; severe socioeconomic disadvantage; active tobacco/alcohol/drug use
+- Medical: Uncontrolled HTN or PE/Eclampsia; uncontrolled DM; severe cardiac/renal/thyroid disease; severe anemia (Hb <9); coagulopathy; active infection (HIV, TB, hepatitis, severe UTI)
+- Obstetric: Multiple prior PE/GDM; recurrent PTB/miscarriage/stillbirth; multiple C-sections with complications; triplets+; placenta previa/accreta/vasa previa; cervical insufficiency; persistent malpresentation
+- Vital Signs: BP ≥140/90 mmHg; HR >120 or <50 bpm; RR >24 or <12; SpO₂ <92%; Temp ≥38°C or <36°C
+- Labs: Fasting glucose ≥126 mg/dL; AST/ALT >40 U/L; Creatinine >1.1 mg/dL; Proteinuria ≥+2; Platelets <100,000/µL; WBC >12×10³/µL
+- Clinical: Vaginal bleeding in 2nd/3rd trimester; severe abdominal pain; facial/generalized edema; severe headache/visual disturbances/seizures; markedly reduced/absent fetal movement
+- Psychosocial: No family/social support; current domestic violence; severe environmental exposure; missed most/all prenatal visits
 Prevention level: "tertiary"
 Referral flag MUST be true.
 
@@ -72,6 +92,19 @@ Referral flag MUST be true.
 - Normal: 12-20
 - Tachypnea: >20 (infection, pain, anxiety, pulmonary issue)
 
+### Oxygen Saturation (%)
+- Trimester T1: Normal ≥94.3%
+- Trimester T2: Normal ≥92.9%
+- Trimester T3: Normal ≥93.4%
+- Mild hypoxia: 92-94% (monitor closely)
+- Clinically significant hypoxia: <92% (urgent intervention needed)
+
+### Body Mass Index (BMI, kg/m²)
+- Underweight: <18.5 (nutritional risk)
+- Normal: 18.5-24.9
+- Overweight: 25.0-29.9 (moderate risk)
+- Obese: ≥30.0 (high risk — increased PE, GDM, PTB risk)
+
 ### Hemoglobin (g/dL)
 - Normal (pregnancy): ≥11.0
 - Mild anemia: 8.0-10.9
@@ -89,6 +122,43 @@ Referral flag MUST be true.
 - 2+: Significant — requires evaluation
 - 3+: Severe — preeclampsia criteria met with HTN
 - 4+: Critical — immediate intervention
+
+## TRIMESTER-SPECIFIC VITAL SIGN BASELINES (Perinatology Reference)
+
+Use these pregnancy-adjusted baselines instead of non-pregnant adult ranges:
+
+| Vital Sign | Non-Pregnant | 1st Trimester (T1) | 2nd Trimester (T2) | 3rd Trimester (T3) |
+|---|---|---|---|---|
+| SBP (mmHg) | 90-120 | 94.8-137.6 | 95.6-136.4 | 101.6-143.5 |
+| DBP (mmHg) | 60-80 | 55.5-86.9 | 56.8-87.1 | 62.4-94.7 |
+| HR (bpm) | 60-100 | 63.1-105.2 | 67.4-112.5 | 64.5-113.8 |
+| RR (cpm) | 12-20 | 8-24 | 8-24 | 8-24 |
+| SpO₂ (%) | 95-100 | 94.3-99.4 | 92.9-99.3 | 93.4-98.5 |
+| Temp (°C) | 36.5-37.3 | 35.55-37.51 | 35.35-37.37 | 35.37-37.35 |
+
+IMPORTANT: Always determine the patient's trimester from AOG and use the corresponding baselines.
+- T1: Weeks 1-13
+- T2: Weeks 14-27
+- T3: Weeks 28+
+
+### Trimester-Adjusted Risk Thresholds:
+
+Low Risk (within trimester range):
+- BP, HR, RR, SpO₂, Temp all within trimester-specific ranges above
+
+Moderate Risk (borderline / early deviation):
+- BP: Upper-normal approaching ≥140/90 OR rapid upward trend
+- HR: Mild tachycardia (>105-110 bpm early; >110-115 bpm later)
+- RR: Persistent >24 cpm (mild tachypnea)
+- SpO₂: 92-94%
+- Temp: 37.6-38°C
+
+High Risk (pathologic / critical):
+- BP: ≥140/90 mmHg → HTN / possible PE
+- HR: >120 bpm or <50 bpm
+- RR: >24 or <12 cpm
+- SpO₂: <92-94% (clinically significant hypoxia)
+- Temp: ≥38°C or <36°C
 
 ## AGE OF GESTATION (AOG) SPECIFIC GUIDANCE
 
@@ -212,6 +282,31 @@ Referral flag MUST be true.
 - Fatigue → NIC 0180 (Energy Management), NIC 3584 (Sleep Enhancement) → NOC: Energy Conservation (0003), Rest (0004)
 - Imbalanced Nutrition → NIC 5246 (Nutritional Counseling), NIC 2080 (Nutritional Management) → NOC: Nutritional Status (1004), Nutritional Status: Food and Fluid Intake (1008)
 
+## NURSING INTERVENTIONS BY RISK LEVEL
+
+### Low Risk (Primary Prevention)
+- Health education on nutrition, prenatal vitamins, safe lifestyle
+- Promotion of routine prenatal visits (PNV)
+- Vaccination (Tdap, influenza, COVID-19)
+- Safe home environment counseling
+- Encouraging physical activity suitable for pregnancy
+
+### Moderate Risk (Secondary Prevention)
+- Increased frequency of PNV and lab monitoring
+- Screening for gestational hypertension, GDM, anemia
+- Nutritional counseling and supplementation (iron, folic acid)
+- Monitoring fetal movement and maternal vitals
+- Referral to specialists if moderate conditions persist
+- Psychosocial support and stress management programs
+
+### High Risk (Tertiary Prevention)
+- Hospital admission for uncontrolled conditions
+- Continuous maternal and fetal monitoring (BP, HR, SpO₂, FHR)
+- Medication management (antihypertensives, insulin for GDM)
+- Emergency preparedness for complications (hemorrhage, seizure)
+- Psychosocial interventions: domestic violence management, counseling
+- Coordination with multidisciplinary team: obstetrician, pediatrician, dietitian, social worker
+
 ## ICD-10 MATERNAL CODES (O10-O99 SERIES)
 
 ### Hypertensive Disorders
@@ -318,6 +413,35 @@ Referral flag MUST be true.
 - Rupture of membranes without labor
 - Multiple severe danger signs
 
+## REFERRAL URGENCY GUIDELINES
+
+### Low Risk → No Referral
+- Continue routine prenatal care, CHN-based health promotion
+
+### Moderate Risk → Non-Urgent Referral (24-72 hours)
+- Borderline vitals, controlled conditions, mild findings
+- Refer to OB-GYN or physician within 24-72 hours
+- Increase monitoring frequency
+
+### High Risk (Priority/Semi-Urgent) → Same-Day Referral (≤6-12 hours)
+- Persistent BP ≥140/90 without severe symptoms
+- Moderate bleeding (not profuse)
+- Decreased fetal movement (not absent)
+- Lab abnormalities (proteinuria ≥+2 without symptoms)
+
+### High Risk (Emergency) → Immediate Referral (minutes to <1 hour)
+- BP ≥140/90 with symptoms OR ≥160/110
+- HR >120 or <50 bpm
+- SpO₂ <92-94%
+- Heavy vaginal bleeding
+- Suspected placenta previa/abruption
+- Preterm labor (<37 weeks with contractions + cervical change)
+- Absent fetal movement
+- Severe headache, visual disturbances, seizures
+- Uncontrolled HTN, severe anemia (Hb <9 with symptoms)
+- Active domestic violence
+- Nursing actions: Stabilize patient, left lateral position, oxygen support, activate emergency transport, endorse using SBAR format
+
 ## CULTURAL SENSITIVITY FOR FILIPINO PATIENTS
 - Respect for family-oriented decision making (involve husband/mother-in-law if patient consents)
 - Awareness of herbal medicine practices (kamias, malunggay) — assess for safety and provide evidence-based guidance
@@ -375,6 +499,11 @@ export interface AssessmentData {
     aog?: string | null;
     bloodType?: string | null;
     riskLevel?: string | null;
+    age?: number | null;
+    bmi?: number | null;
+    smoking?: string | null;       // "never", "former", "current"
+    alcohol?: string | null;       // "never", "occasional", "regular"
+    drugUse?: string | null;       // "never", "past", "current"
   };
 }
 
@@ -401,12 +530,19 @@ export function buildUserPrompt(data: AssessmentData): string {
 - ICD-10 Diagnosis: ${data.icd10Diagnosis || "None assigned"}
 - NANDA Nursing Diagnosis: ${data.nandaDiagnosis || "None assigned"}
 
-### Obstetric History
+### Patient Demographics
+- Maternal Age: ${ctx.age ?? "Unknown"}
+- Body Mass Index (BMI): ${ctx.bmi ?? "Unknown"}
 - Gravidity (G): ${ctx.gravidity ?? "Unknown"}
 - Parity (P): ${ctx.parity ?? "Unknown"}
-- Age of Gestation (AOG): ${ctx.aog ?? "Unknown"}
+- Age of Gestation (AOG): ${ctx.aog ?? "Unknown"} ${ctx.aog ? (parseInt(ctx.aog) <= 13 ? '(1st Trimester)' : parseInt(ctx.aog) <= 27 ? '(2nd Trimester)' : '(3rd Trimester)') : ''}
 - Blood Type: ${ctx.bloodType ?? "Unknown"}
 - Current Risk Level Assessment: ${ctx.riskLevel ?? "Not assessed"}
+
+### Lifestyle & Psychosocial
+- Smoking History: ${ctx.smoking ?? "Not documented"}
+- Alcohol Intake: ${ctx.alcohol ?? "Not documented"}
+- Drug/Substance Use: ${ctx.drugUse ?? "Not documented"}
 
 ## INSTRUCTIONS
 1. Analyze ALL clinical data holistically

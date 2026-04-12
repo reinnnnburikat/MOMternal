@@ -20,7 +20,8 @@ export async function POST(
       `SELECT c.*,
               p.id AS patient_db_id,
               p.risk_level AS patient_risk_level,
-              p.barangay AS patient_barangay
+              p.barangay AS patient_barangay,
+              p.age AS patient_age
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.id = $1`,
@@ -30,6 +31,12 @@ export async function POST(
     if (!consultation) {
       return NextResponse.json({ error: "Consultation not found" }, { status: 404 });
     }
+
+    // Parse health history for lifestyle data
+    let healthHistoryData: any = {};
+    try {
+      healthHistoryData = consultation.health_history ? JSON.parse(consultation.health_history as string) : {};
+    } catch { healthHistoryData = {}; }
 
     const assessmentData = {
       subjectiveSymptoms: consultation.subjective_symptoms as string | null | undefined,
@@ -50,6 +57,11 @@ export async function POST(
         bloodType: consultation.blood_type as string | null | undefined,
         riskLevel: consultation.patient_risk_level as string | null | undefined,
         barangay: consultation.patient_barangay as string | null | undefined,
+        age: consultation.patient_age as number | null | undefined,
+        bmi: consultation.bmi ? parseFloat(consultation.bmi as string) : undefined,
+        smoking: healthHistoryData.smoking?.value || undefined,
+        alcohol: healthHistoryData.alcoholIntake?.value || undefined,
+        drugUse: healthHistoryData.drugUse?.value || undefined,
       },
     };
 
