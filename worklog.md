@@ -657,3 +657,39 @@ UI/UX visual polish for App Shell and Consultation View. Layout/CSS/className ch
 - ESLint: 0 errors
 - No TypeScript errors
 - No functionality changes — purely CSS/className improvements
+---
+Task ID: 7
+Agent: Main Agent
+Task: Thorough system audit — fix all encountered and potential problems
+
+Work Log:
+- Ran ESLint: 0 errors
+- Ran TypeScript (tsc --noEmit): Found 9 distinct TS errors across 5 files
+- Fixed all 9 TS errors:
+  - map/data/route.ts: typed PatientRiskItem interface to fix '{}' index type
+  - page.tsx: framer-motion ease 'as const' for Easing type compatibility
+  - consultation-view.tsx: null guard on consultation!.id (2 locations), patient.age type cast via unknown
+  - map-view.tsx: GeoJSON type narrowed 'FeatureCollection' as const
+  - patient-profile-view.tsx: Recharts Tooltip formatter relaxed to any types
+  - Created src/types/leaflet.d.ts for CSS module declaration
+- Launched API audit agent: found 39 issues (5 CRITICAL, 14 HIGH, 12 MEDIUM, 8 LOW)
+- Launched frontend audit agent: found 5 confirmed bugs (1 CRITICAL, 1 HIGH, 3 MEDIUM)
+- Fixed all actionable frontend bugs:
+  - CRITICAL: data.data.id null check in patient-list-view.tsx and patient-profile-view.tsx
+  - HIGH: processQueue concurrency lock in offline-queue.ts
+  - MEDIUM: isNetworkError broadened for Safari/FF in offline-fetch.ts
+  - MEDIUM: lowRiskPatients Math.max(0,...) in dashboard-view.tsx
+  - MEDIUM: DELETE added to OfflineAction method union, body skipped for DELETE
+- Fixed API route issues:
+  - All 8 audit_log INSERT .catch(() => {}) replaced with console.error
+  - Added force-dynamic to dashboard/resume and map/data routes
+  - Fixed AI prompts AOG parseInt NaN guard
+  - Fixed notifications timestamp null sort handling
+
+Stage Summary:
+- 20 files modified, 110 insertions, 72 deletions
+- TypeScript: 9 errors → 0 errors
+- ESLint: 0 errors, 0 warnings
+- Dev server: compiling cleanly
+- Pushed to GitHub as commit d1ae8e7
+- Remaining items noted but not addressed (architectural): server-side auth middleware, DB transactions for cascade deletes, rate limiting on login, credential rotation (these require infrastructure changes beyond code fixes)
