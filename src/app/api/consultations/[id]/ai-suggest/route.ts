@@ -143,7 +143,6 @@ export async function POST(
     return NextResponse.json({
       success: true,
       aiSuggestions,
-      usedFallback,
       consultation: { id: updated!.id, stepCompleted: updated!.step_completed },
     });
   } catch (error: unknown) {

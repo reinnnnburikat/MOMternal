@@ -37,7 +37,7 @@ export function SplashScreen({ duration = 2500, onComplete }: SplashScreenProps)
       {/* Heartbeat logo */}
       <div className="animate-heartbeat">
         <img
-          src="/momternal_logo.png"
+          src="/loading-icon.png"
           alt="MOMternal"
           className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_0_30px_rgba(244,63,94,0.5)]"
           draggable={false}

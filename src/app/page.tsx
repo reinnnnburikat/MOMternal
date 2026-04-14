@@ -133,9 +133,7 @@ function ViewFallback() {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="flex flex-col items-center gap-3">
-        <div className="animate-heartbeat">
-          <img src="/momternal_logo.png" alt="Loading" className="w-12 h-12 object-contain" draggable={false} />
-        </div>
+        <img src="/loading-icon.png" alt="Loading" className="w-12 h-12 object-contain animate-spin" draggable={false} />
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
@@ -220,9 +218,7 @@ function AppContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rose-950">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-heartbeat">
-            <img src="/momternal_logo.png" alt="MOMternal" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.4)]" draggable={false} />
-          </div>
+          <img src="/loading-icon.png" alt="MOMternal" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.4)] animate-spin" draggable={false} />
           <p className="text-sm text-rose-300/70">Loading...</p>
         </div>
       </div>

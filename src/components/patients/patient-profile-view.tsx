@@ -501,10 +501,12 @@ function VitalsTrendCard({
   // Show info message if not enough data
   if (chartData.length < 2) {
     return (
-      <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+      <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200">
         <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-rose-500" />
+            <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+              <TrendingUp className="h-3.5 w-3.5 text-rose-500" />
+            </div>
             Vitals Trend
           </CardTitle>
         </CardHeader>
@@ -524,10 +526,12 @@ function VitalsTrendCard({
   }
 
   return (
-    <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
+    <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="pb-2 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-rose-500" />
+          <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+            <TrendingUp className="h-3.5 w-3.5 text-rose-500" />
+          </div>
           Vitals Trend
         </CardTitle>
       </CardHeader>
@@ -842,11 +846,18 @@ export function PatientProfileView() {
 
   if (!patient) {
     return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">Patient not found.</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="relative mb-5">
+          <div className="absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60" />
+          <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 flex items-center justify-center">
+            <User className="h-9 w-9 text-rose-300" />
+          </div>
+        </div>
+        <p className="text-base font-medium text-foreground">Patient not found.</p>
+        <p className="text-sm text-muted-foreground mt-1">The patient you're looking for doesn't exist or has been removed.</p>
         <Button
           variant="outline"
-          className="mt-3 border-rose-200"
+          className="mt-4 border-rose-200 hover:bg-rose-50"
           onClick={() => setCurrentView('patients')}
         >
           Back to Patients
@@ -896,40 +907,43 @@ export function PatientProfileView() {
       )}
 
       {/* Patient Header */}
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-xl font-bold text-foreground">
-              {patient.name}
-            </h2>
-            <span
-              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                RISK_CLASSES[patient.riskLevel] || RISK_CLASSES.low
-              }`}
-            >
-              {RISK_LABELS[patient.riskLevel] || 'Low Risk'}
-            </span>
+      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="text-xl font-bold text-white">
+                {patient.name}
+              </h2>
+              <span
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm border border-white/20 ${
+                  RISK_CLASSES[patient.riskLevel] || RISK_CLASSES.low
+                }`}
+              >
+                {RISK_LABELS[patient.riskLevel] || 'Low Risk'}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-rose-100/80">
+              <Badge
+                variant="outline"
+                className="text-[10px] font-mono px-1.5 py-0 border-white/30 text-white/90 bg-white/10"
+              >
+                {patient.patientId}
+              </Badge>
+              <span>{displayAge} years old</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">
+                {patient.barangay
+                  ? `Brgy. ${patient.barangay}`
+                  : patient.address}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <Badge
-              variant="outline"
-              className="text-[10px] font-mono px-1.5 py-0 border-rose-200 text-rose-600"
-            >
-              {patient.patientId}
-            </Badge>
-            <span>{displayAge} years old</span>
-            <span className="hidden sm:inline">·</span>
-            <span className="hidden sm:inline">
-              {patient.barangay
-                ? `Brgy. ${patient.barangay}`
-                : patient.address}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="border-rose-200 hover:bg-rose-50 text-rose-600 gap-1.5 flex-shrink-0"
+              className="border-white/30 hover:bg-white/15 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm"
               onClick={() => setIsEditDialogOpen(true)}
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -938,7 +952,7 @@ export function PatientProfileView() {
             <Button
               variant="outline"
               size="sm"
-              className="border-red-200 hover:bg-red-50 text-red-600 gap-1.5 flex-shrink-0"
+              className="border-white/30 hover:bg-red-500/30 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm"
               onClick={handleOpenDeleteDialog}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -955,10 +969,12 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 1: Demographics                                         */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
-          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+          <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <User className="h-4 w-4 text-rose-500" />
+              <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                <User className="h-3.5 w-3.5 text-rose-500" />
+              </div>
               Demographics
             </CardTitle>
           </CardHeader>
@@ -1041,10 +1057,12 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 2: Consultation Summary                                  */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
-          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+          <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-rose-500" />
+              <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                <ClipboardList className="h-3.5 w-3.5 text-rose-500" />
+              </div>
               Consultation Summary
             </CardTitle>
           </CardHeader>
@@ -1231,10 +1249,12 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 3: Health History                                        */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
-          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+          <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-sky-50/60 to-sky-50/20 dark:from-sky-950/30 dark:to-sky-950/10 rounded-t-xl border-b border-sky-100/50 dark:border-sky-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <FileText className="h-4 w-4 text-rose-500" />
+              <div className="w-6 h-6 rounded-md bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center">
+                <FileText className="h-3.5 w-3.5 text-sky-500" />
+              </div>
               Health History
             </CardTitle>
           </CardHeader>
@@ -1360,9 +1380,9 @@ export function PatientProfileView() {
         </div>
 
         {patient.consultations.length === 0 ? (
-          <Card className="border border-dashed border-rose-200 dark:border-rose-800/40 bg-white dark:bg-gray-900">
+          <Card className="border border-dashed border-rose-200 dark:border-rose-800/40 bg-gradient-to-br from-white to-rose-50/30 dark:from-gray-900 dark:to-rose-950/10">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/20 flex items-center justify-center mb-3 border-2 border-dashed border-rose-200 dark:border-rose-800/40">
                 <ClipboardList className="h-6 w-6 text-rose-300" />
               </div>
               <p className="text-sm text-muted-foreground">
@@ -1384,7 +1404,7 @@ export function PatientProfileView() {
             {patient.consultations.map((consultation) => (
               <Card
                 key={consultation.id}
-                className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 hover:shadow-md transition-all duration-200"
+                className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 hover:shadow-md hover:border-rose-100 transition-all duration-200 overflow-hidden"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">

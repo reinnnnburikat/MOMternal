@@ -1,3 +1,72 @@
+# Worklog: System UI/UX Visual Polish
+
+## Date: 2025-01-22
+
+## Task
+Enhance visual polish and consistency across the MOMternal maternal health system. Layout and presentation only — no functionality, API calls, state management, or routing changes.
+
+## Changes Made
+
+### Files Modified
+- `src/components/layout/app-shell.tsx`
+- `src/components/dashboard/dashboard-view.tsx`
+- `src/components/patients/patient-list-view.tsx`
+- `src/components/patients/patient-profile-view.tsx`
+
+### 1. App Shell (`app-shell.tsx`)
+- **Active nav indicator**: Added a 2px rose accent bar on the left edge of the active nav item in expanded sidebar mode, with smooth `transition-colors` on the icon
+- **Active nav gradient**: Active nav item now uses `bg-gradient-to-r from-rose-100 to-rose-50` instead of flat `bg-rose-100` for a softer look
+- **Inactive nav hover**: Improved to `hover:bg-rose-50/80` for subtler feedback
+- **Breadcrumb bar**: Added `bg-white/50 backdrop-blur-sm` for a glassmorphism effect and increased vertical padding
+- **Main content area**: Changed from flat `bg-gray-50/80` to `bg-gradient-to-b from-gray-50/80 to-gray-100/60` for subtle depth
+- **Footer**: Added `backdrop-blur-sm` and adjusted border/card opacity for lighter visual weight
+
+### 2. Dashboard (`dashboard-view.tsx`)
+- **Header banner**: Added a second radial gradient overlay (`ellipse_at_bottom_left`) for richer depth, plus `hover:shadow-xl` transition for interactive feedback
+- **Stats cards**: Added `overflow-hidden` and `hover:shadow-rose-500/5` for a subtle rose-tinted shadow on hover
+- **Chart card headers**: Icon wrapped in a `w-8 h-8 rounded-lg bg-rose-50` container for visual consistency across cards
+- **Quick Actions card**: Added `overflow-hidden` and `hover:shadow-md transition-shadow`
+- **Consultation Trends card**: Same icon container treatment and hover shadow
+- **All cards**: Added `overflow-hidden` class consistently, and `hover:shadow-md transition-shadow duration-200`
+- **Paused assessment items**: Upgraded to `rounded-xl` with gradient background (`from-rose-50/50 to-rose-50/20`) and smoother hover transitions
+- **Empty states**: Empty state icon containers now use gradient (`from-rose-50 to-pink-50`) instead of flat color
+
+### 3. Patient List (`patient-list-view.tsx`)
+- **Search input**: Increased height to `h-11`, added `border-rose-200/60 focus:border-rose-400 focus:ring-rose-400/20 transition-all bg-white`
+- **Search icon**: Added `group-focus-within:text-rose-500 transition-colors` so the search icon turns rose when focused
+- **Risk filter buttons**: Active state now includes `shadow-sm shadow-{color}/20` for depth; inactive state uses `hover:border-rose-300 transition-all`
+- **Barangay filter buttons**: Same active/inactive treatment as risk filters
+- **Empty state**: Icon container upgraded to gradient with dashed border, icon size adjusted for better proportion
+- **Patient cards**: Added `duration-200 hover:-translate-y-px group` for a subtle lift animation on hover
+
+### 4. Patient Profile (`patient-profile-view.tsx`)
+- **Patient header**: Complete redesign — now uses matching gradient banner (`from-rose-600 via-rose-600/95 to-pink-600/90`) with radial gradient overlay, matching the dashboard header
+- **Header buttons**: Changed from rose/red bordered buttons to glass-style `border-white/30 hover:bg-white/15 text-white backdrop-blur-sm` buttons that float on the gradient
+- **Risk badge in header**: Now uses `bg-white/20 text-white backdrop-blur-sm border border-white/20` for a frosted glass effect
+- **Patient ID badge**: Uses `border-white/30 text-white/90 bg-white/10` to blend with the gradient header
+- **Info cards**: All three cards upgraded with `hover:shadow-md transition-shadow duration-200 overflow-hidden`
+- **Card headers**: Upgraded to `bg-gradient-to-r from-rose-50/60 to-rose-50/20` (Demographics, Consultation Summary) and `from-sky-50/60 to-sky-50/20` (Health History — sky/blue accent for visual distinction)
+- **Card header icons**: Wrapped in `w-6 h-6 rounded-md bg-{color}-100` containers for a consistent badge-like appearance
+- **Vitals Trend card (both states)**: Added hover shadow and icon container treatment
+- **Consultation history cards**: Added `hover:border-rose-100` on hover for subtle border highlight
+- **Empty consultation card**: Gradient background (`from-white to-rose-50/30`) with dashed border icon container
+- **Not found state**: Complete redesign with decorative dashed ring, gradient icon container, and descriptive helper text
+
+## Design Principles Applied
+- **Consistent card styling**: All cards now have `shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden`
+- **Gradient backgrounds**: Subtle `from-X/60 to-X/20` gradients on card headers for depth without distraction
+- **Icon containers**: Card header icons wrapped in small `rounded-md` colored containers for visual rhythm
+- **Interactive feedback**: Hover shadows with subtle `-translate-y-px` lifts, color transitions, and focus ring styling
+- **Maternal rose/pink theme**: Preserved and enhanced throughout with consistent rose-50/rose-100/rose-500 palette usage
+- **Glassmorphism accents**: Backdrop blur on breadcrumb, footer, and gradient header buttons
+
+## Verification
+- Build: `next build` succeeded with 0 errors
+- No TypeScript errors
+- No functionality changes — purely CSS/className improvements
+
+---
+
 # Worklog: Fix Past Diagnoses Accumulation — Separate useEffect Refactor
 
 ## Date: 2025-01-22

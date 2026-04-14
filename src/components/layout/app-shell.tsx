@@ -119,15 +119,16 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
               key={item.view}
               variant="ghost"
               className={cn(
-                'w-full justify-start gap-3 h-10 px-3 text-sm font-medium transition-all',
+                'w-full justify-start gap-3 h-10 px-3 text-sm font-medium transition-all relative',
                 isActive
-                  ? 'bg-rose-100 text-rose-800 hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-200'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-rose-50 dark:hover:bg-gray-800'
+                  ? 'bg-gradient-to-r from-rose-100 to-rose-50 text-rose-800 hover:from-rose-100 hover:to-rose-50 dark:from-rose-900/40 dark:to-rose-900/20 dark:text-rose-200'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-rose-50/80 dark:hover:bg-gray-800'
               )}
               onClick={() => onNavigate(item.view)}
             >
-              <item.icon className={cn('h-4.5 w-4.5', isActive && 'text-rose-600')} />
+              <item.icon className={cn('h-4.5 w-4.5 transition-colors', isActive && 'text-rose-600')} />
               {item.label}
+              {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-rose-500 rounded-r-full" />}
             </Button>
           );
         })}
@@ -349,7 +350,7 @@ function BreadcrumbBar() {
   const path = getBreadcrumbPath(currentView);
 
   return (
-    <div className="border-b border-rose-100 dark:border-gray-800 px-6 py-2">
+    <div className="border-b border-rose-100/80 dark:border-gray-800 px-6 py-2.5 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm">
       <Breadcrumb className="text-sm">
         <BreadcrumbList>
           {path.map((item, idx) => {
@@ -598,7 +599,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <BreadcrumbBar />
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6 bg-gray-50/80 dark:bg-gray-950/50">
+        <main className="flex-1 p-4 lg:p-6 bg-gradient-to-b from-gray-50/80 to-gray-100/60 dark:from-gray-950/50 dark:to-gray-900/40">
           {children}
         </main>
 
@@ -618,7 +619,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Footer */}
-        <footer className="border-t border-rose-200/60 dark:border-gray-700/50 bg-white/60 dark:bg-gray-950/60 mt-auto">
+        <footer className="border-t border-rose-200/40 dark:border-gray-700/40 bg-white/70 dark:bg-gray-950/70 mt-auto backdrop-blur-sm">
           <div className="px-4 py-3">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground dark:text-gray-500">
               <div className="flex items-center gap-1.5">

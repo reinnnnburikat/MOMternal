@@ -415,23 +415,23 @@ export function AuditView() {
                   </div>
                 ) : (
                   <Table>
-                    <TableHeader className="sticky top-0 z-10 bg-rose-50/90 backdrop-blur-sm">
-                      <TableRow>
-                        <TableHead className="w-[180px]">
+                    <TableHeader className="sticky top-0 z-10 bg-rose-50 dark:bg-rose-950/40 backdrop-blur-sm">
+                      <TableRow className="border-b-rose-200 dark:border-b-rose-800">
+                        <TableHead className="w-[180px] text-rose-800 dark:text-rose-200 font-semibold">
                           <div className="flex items-center gap-1.5">
                             <Clock className="h-3.5 w-3.5" />
                             Timestamp
                           </div>
                         </TableHead>
-                        <TableHead className="w-[160px]">
+                        <TableHead className="w-[160px] text-rose-800 dark:text-rose-200 font-semibold">
                           <div className="flex items-center gap-1.5">
                             <User className="h-3.5 w-3.5" />
                             Nurse
                           </div>
                         </TableHead>
-                        <TableHead className="w-[90px]">Action</TableHead>
-                        <TableHead className="w-[110px]">Entity</TableHead>
-                        <TableHead>Details</TableHead>
+                        <TableHead className="w-[90px] text-rose-800 dark:text-rose-200 font-semibold">Action</TableHead>
+                        <TableHead className="w-[110px] text-rose-800 dark:text-rose-200 font-semibold">Entity</TableHead>
+                        <TableHead className="text-rose-800 dark:text-rose-200 font-semibold">Details</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

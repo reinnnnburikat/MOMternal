@@ -48,7 +48,7 @@ const RISK_CLASSES: Record<string, string> = {
 
 function PatientCardSkeleton() {
   return (
-    <div className="bg-card rounded-xl border border-rose-100/60 p-4 space-y-3">
+    <div className="bg-card rounded-xl border border-rose-100/60 p-4 space-y-3 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-5 w-24" />
@@ -237,13 +237,13 @@ export function PatientListView() {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative group">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-rose-500 transition-colors" />
         <Input
           placeholder="Search by name, patient ID, barangay, address, consultation #, or diagnosis..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 h-10"
+          className="pl-9 h-11 border-rose-200/60 focus:border-rose-400 focus:ring-rose-400/20 transition-all bg-white dark:bg-gray-900"
         />
       </div>
 
@@ -261,13 +261,13 @@ export function PatientListView() {
             className={
               riskFilter === level
                 ? level === 'all'
-                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
                   : level === 'low'
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20'
                   : level === 'moderate'
-                  ? 'bg-amber-500 hover:bg-amber-600 text-white'
-                  : 'bg-red-600 hover:bg-red-700 text-white'
-                : 'border-rose-200 text-muted-foreground hover:bg-rose-50'
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20'
+                  : 'bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-600/20'
+                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
             }
             onClick={() => setRiskFilter(level)}
           >
@@ -288,8 +288,8 @@ export function PatientListView() {
             size="sm"
             className={
               barangayFilter === 'all'
-                ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                : 'border-rose-200 text-muted-foreground hover:bg-rose-50'
+                ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
+                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
             }
             onClick={() => setBarangayFilter('all')}
           >
@@ -302,8 +302,8 @@ export function PatientListView() {
               size="sm"
               className={
                 barangayFilter === b
-                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                  : 'border-rose-200 text-muted-foreground hover:bg-rose-50'
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
+                  : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
               }
               onClick={() => setBarangayFilter(b)}
             >
@@ -322,8 +322,8 @@ export function PatientListView() {
         </div>
       ) : filteredPatients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center mb-4">
-            <User className="h-8 w-8 text-rose-300" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/20 flex items-center justify-center mb-4 border-2 border-dashed border-rose-200 dark:border-rose-800/40">
+            <User className="h-7 w-7 text-rose-300" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-1">No patients found</h3>
           <p className="text-sm text-muted-foreground max-w-sm">
@@ -346,7 +346,7 @@ export function PatientListView() {
           {filteredPatients.map((patient) => (
             <div
               key={patient.id}
-              className="bg-card rounded-xl border border-rose-100/60 p-4 hover:shadow-md hover:border-rose-200 transition-all"
+              className="bg-card rounded-xl border border-rose-100/60 p-4 hover:shadow-md hover:border-rose-200/80 transition-all duration-200 hover:-translate-y-px group"
             >
               {/* Top row: ID badge, Name, Risk */}
               <div className="flex items-start justify-between mb-3">

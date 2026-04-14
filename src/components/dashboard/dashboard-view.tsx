@@ -565,11 +565,12 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden hover:shadow-xl hover:shadow-rose-500/15 transition-shadow duration-300">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(244,63,94,0.08)_0%,_transparent_50%)]" />
         <div className="relative">
           <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-          <p className="text-sm text-rose-100/90 mt-1">
+          <p className="text-sm text-rose-100/80 mt-1">
             Overview of your maternal health outreach
           </p>
         </div>
@@ -615,7 +616,7 @@ export function DashboardView() {
           {statsCards.map((card, idx) => {
             const Icon = card.icon;
             return (
-              <Card key={card.label} className="group h-full shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 cursor-pointer" onClick={() => handleStatCardClick(card.label)}>
+              <Card key={card.label} className="group h-full shadow-sm hover:shadow-lg hover:shadow-rose-500/5 transition-all duration-200 hover:-translate-y-0.5 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 cursor-pointer overflow-hidden" onClick={() => handleStatCardClick(card.label)}>
                 <CardContent className="p-5 flex flex-col h-full">
                   <div className="flex items-center justify-between">
                     <div className={`${card.bg} ${card.darkBg} p-2.5 rounded-xl shadow-sm`}>                      
@@ -653,10 +654,12 @@ export function DashboardView() {
       ) : displayStats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
-          <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
-            <CardHeader>
+          <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
+            <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
-                <PieChartIcon className="h-5 w-5 text-rose-600" />
+                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center">
+                  <PieChartIcon className="h-4 w-4 text-rose-600" />
+                </div>
                 Risk Distribution
               </CardTitle>
               <CardDescription className="dark:text-gray-400">
@@ -715,8 +718,8 @@ export function DashboardView() {
           {/* Right column: Quick Actions + Consultation Trends */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
-              <CardHeader>
+            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-3">
@@ -745,10 +748,12 @@ export function DashboardView() {
             </Card>
 
             {/* Consultation Trends Line Chart */}
-            <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
-              <CardHeader>
+            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
-                  <TrendingUp className="h-5 w-5 text-rose-600" />
+                  <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-rose-600" />
+                  </div>
                   Consultation Trends
                 </CardTitle>
                 <CardDescription className="dark:text-gray-400">
@@ -804,7 +809,7 @@ export function DashboardView() {
       {isLoadingPaused ? (
         <PausedSkeleton />
       ) : (
-        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Paused Assessments</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -818,7 +823,7 @@ export function DashboardView() {
                 <div className="relative mb-5">
                   <div className="absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60" />
                   {/* Icon container */}
-                  <div className="relative w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center">
+                  <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 flex items-center justify-center">
                     <Activity className="h-9 w-9 text-rose-400" />
                   </div>
                   {/* Small decorative dot */}
@@ -843,7 +848,7 @@ export function DashboardView() {
                 {pausedConsultations.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center justify-between rounded-lg border border-rose-100 dark:border-rose-900/40 bg-rose-50/30 dark:bg-rose-950/20 p-4 transition-colors hover:bg-rose-50/60 dark:hover:bg-rose-950/40"
+                    className="flex items-center justify-between rounded-xl border border-rose-100 dark:border-rose-900/40 bg-gradient-to-r from-rose-50/50 to-rose-50/20 dark:from-rose-950/20 dark:to-rose-950/10 p-4 transition-all duration-200 hover:from-rose-50/70 hover:to-rose-50/40 dark:hover:from-rose-950/30 dark:hover:to-rose-950/20 hover:shadow-sm"
                   >
                     <div className="space-y-1">
                       <button
@@ -879,7 +884,7 @@ export function DashboardView() {
       {isLoadingStats ? (
         <RecentTableSkeleton />
       ) : displayStats && displayStats.recentConsultations.length > 0 ? (
-        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
             <CardDescription className="dark:text-gray-400">
@@ -930,7 +935,7 @@ export function DashboardView() {
           </CardContent>
         </Card>
       ) : displayStats ? (
-        <Card className="shadow-sm border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
           </CardHeader>
@@ -940,7 +945,7 @@ export function DashboardView() {
               <div className="relative mb-5">
                 <div className="absolute -inset-3 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/40 opacity-60" />
                 {/* Icon container */}
-                <div className="relative w-20 h-20 rounded-2xl bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center">
+                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 flex items-center justify-center">
                   <Activity className="h-9 w-9 text-rose-400" />
                 </div>
                 {/* Small decorative dot */}
