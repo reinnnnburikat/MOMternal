@@ -322,12 +322,12 @@ export function NewPatientView() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-6xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-7xl">
         {/* ═══════════════════════════════════════════════════════════════════
             CARD 1: Personal Information
         ═══════════════════════════════════════════════════════════════════ */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
-          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+          <CardHeader className="pb-3 pt-5 px-5 lg:px-6 border-b border-rose-100/60 dark:border-rose-900/30 border-l-4 border-l-rose-500 bg-gradient-to-r from-rose-50/50 to-transparent dark:from-rose-950/20 dark:to-transparent">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <User className="h-4 w-4 text-rose-500" />
               Personal Information
@@ -336,9 +336,9 @@ export function NewPatientView() {
               Required fields are marked with *
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
+          <CardContent className="px-5 lg:px-6 pb-5 space-y-5">
             {/* ── Patient Name ─────────────────────────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
                 name="surname"
@@ -387,9 +387,6 @@ export function NewPatientView() {
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="nameExtension"
@@ -442,8 +439,8 @@ export function NewPatientView() {
             />
 
             {/* ── Address ─────────────────────────────────────────────────── */}
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-2">
-              <p className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-1.5">
+            <div className="border-l-2 border-l-rose-200 dark:border-l-rose-800 bg-rose-50/30 dark:bg-rose-950/10 rounded-r-lg pl-4 pr-3 py-3 my-1">
+              <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
                 <MapPin className="h-3.5 w-3.5" />
                 Address
               </p>
@@ -496,7 +493,12 @@ export function NewPatientView() {
             </div>
 
             {/* ── Occupation, Religion, Marital Status, Family, Income ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="border-l-2 border-l-rose-200 dark:border-l-rose-800 bg-rose-50/30 dark:bg-rose-950/10 rounded-r-lg pl-4 pr-3 py-3 my-1">
+              <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+                <Briefcase className="h-3.5 w-3.5" />
+                Occupation &amp; Demographics
+              </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
                 name="occupation"
@@ -617,23 +619,24 @@ export function NewPatientView() {
                 )}
               />
             </div>
+            </div>
           </CardContent>
         </Card>
 
         {/* ═══════════════════════════════════════════════════════════════════
             CARD 2: Health History
         ═══════════════════════════════════════════════════════════════════ */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm">
-          <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+          <CardHeader className="pb-3 pt-5 px-5 lg:px-6 border-b border-sky-100/60 dark:border-sky-900/30 border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50/50 to-transparent dark:from-sky-950/20 dark:to-transparent">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Heart className="h-4 w-4 text-rose-500" />
+              <Heart className="h-4 w-4 text-sky-500" />
               Health History
             </CardTitle>
             <CardDescription className="text-xs">
               Medical background and current health status
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-5">
+          <CardContent className="px-5 lg:px-6 pb-6 space-y-6">
             {/* ── Allergies ──────────────────────────────────────────────── */}
             <FormField
               control={form.control}
@@ -663,7 +666,7 @@ export function NewPatientView() {
                 Past Medical History
                 <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                 {PAST_MEDICAL_OPTIONS.map((option) => (
                   <label
                     key={option}
@@ -696,7 +699,7 @@ export function NewPatientView() {
                 Previous Surgery
                 <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                 {PREVIOUS_SURGERY_OPTIONS.map((option) => (
                   <label
                     key={option}
@@ -805,7 +808,7 @@ export function NewPatientView() {
                   <p className="text-xs text-muted-foreground mt-2">
                     Select all that apply:
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                     {FAMILY_HISTORY_OPTIONS.map((option) => (
                       <label
                         key={option}

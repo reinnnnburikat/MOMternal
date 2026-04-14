@@ -115,6 +115,7 @@ interface ConsultationData {
   consultationDate: string;
   stepCompleted: number;
   status: string;
+  patientId?: string;
   patient: PatientInfo;
   typeOfVisit?: string | null;
   gravidity?: number | null;
@@ -1033,104 +1034,6 @@ export function ConsultationView() {
           }
         }
         setHealthHistoryRefCode(data.healthHistoryRefCode || '');
-        // Fetch past consultations' diagnoses for display in Health History & Diagnosis steps
-        try {
-          const patientId = data.patient?.id;
-          console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId);
-          if (patientId) {
-            const pastRes = await fetch(`/api/patients/${patientId}`);
-            console.log('[PastDiagnoses] Patient API response ok:', pastRes.ok);
-            if (pastRes.ok) {
-              const pastData = await pastRes.json();
-              console.log('[PastDiagnoses] Patient data success:', pastData.success, 'consultations:', pastData.data?.consultations?.length);
-              if (pastData.success && pastData.data?.consultations) {
-                const currentConsultationId = data.id;
-                const allConsultations = pastData.data.consultations;
-                console.log('[PastDiagnoses] Current consultation:', currentConsultationId);
-                // Include ANY consultation with diagnoses (not just completed — many are in_progress with data)
-                const pastConsultations = allConsultations
-                  .filter((c: any) =>
-                    c.id !== currentConsultationId &&
-                    (c.icd10Diagnosis || c.nandaDiagnosis || c.nandaCode || c.nandaName)
-                  );
-                console.log('[PastDiagnoses] Past consultations with diagnoses:', pastConsultations.length);
-
-                const diagnoses: typeof pastDiagnoses = pastConsultations.map((c: any) => {
-                  let icd10Parsed: Array<{ code: string; name: string }> = [];
-                  let nandaParsed: Array<{ code: string; name: string }> = [];
-
-                  // Try JSON array format first: [{"code":"O14.1","name":"..."}]
-                  try {
-                    const icd10 = JSON.parse(c.icd10Diagnosis);
-                    if (Array.isArray(icd10) && icd10[0]?.code) {
-                      icd10Parsed = icd10;
-                    }
-                  } catch { /* not JSON array — try old string format */ }
-
-                  // Fallback: old string format "O14.0 (Mild to moderate pre-eclampsia)"
-                  if (icd10Parsed.length === 0 && c.icd10Diagnosis) {
-                    const match = String(c.icd10Diagnosis).match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
-                    if (match) {
-                      icd10Parsed = [{ code: match[1], name: match[2].trim() }];
-                    }
-                  }
-
-                  // Try JSON array format first: [{"code":"00026","name":"..."}]
-                  try {
-                    const nanda = JSON.parse(c.nandaDiagnosis);
-                    if (Array.isArray(nanda) && nanda[0]?.code) {
-                      nandaParsed = nanda;
-                    }
-                  } catch { /* not JSON array — try old formats */ }
-
-                  // Fallback: old string format "00276 — Ineffective Health Self-Management"
-                  if (nandaParsed.length === 0 && c.nandaDiagnosis) {
-                    const match = String(c.nandaDiagnosis).match(/^(\d{5})\s*[—\-]\s*(.+)$/);
-                    if (match) {
-                      nandaParsed = [{ code: match[1], name: match[2].trim() }];
-                    }
-                  }
-
-                  // Last fallback: use nandaCode + nandaName fields (comma-separated codes, semicolon-separated names)
-                  if (nandaParsed.length === 0 && (c.nandaCode || c.nandaName)) {
-                    const codes = (c.nandaCode || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-                    const names = (c.nandaName || '').split(';').map((s: string) => s.trim()).filter(Boolean);
-                    nandaParsed = codes.map((code: string, i: number) => ({
-                      code,
-                      name: names[i] || 'Unknown',
-                    }));
-                  }
-
-                  return {
-                    consultationNo: c.consultationNo || 'N/A',
-                    consultationDate: c.consultationDate || c.createdAt,
-                    status: c.status,
-                    nurseName: c.nurseName || 'Recorded',
-                    icd10Diagnoses: icd10Parsed,
-                    nandaDiagnoses: nandaParsed,
-                  };
-                });
-
-                console.log('[PastDiagnoses] Parsed diagnoses:', diagnoses.map(d => ({
-                  no: d.consultationNo,
-                  status: d.status,
-                  icd: d.icd10Diagnoses.length,
-                  nanda: d.nandaDiagnoses.length,
-                })));
-                setPastDiagnoses(diagnoses);
-              } else {
-                console.warn('[PastDiagnoses] Patient API did not return expected format:', pastData);
-              }
-            } else {
-              console.warn('[PastDiagnoses] Patient API returned non-OK status:', pastRes.status);
-            }
-          } else {
-            console.warn('[PastDiagnoses] No patientId found on consultation data:', data);
-          }
-        } catch (err) {
-          console.error('[PastDiagnoses] Failed to load past diagnoses:', err);
-          // Don't block the consultation loading if past diagnoses fetch fails
-        }
         const startStep = resolveStartStep(data.stepCompleted);
         setCurrentStep(startStep);
         isInitialized.current = true;
@@ -1148,6 +1051,129 @@ export function ConsultationView() {
     }
     fetchConsultation();
   }, [selectedConsultationId]);
+
+  // ── Fetch past consultations' diagnoses (separate useEffect for robustness) ──
+  // This runs independently from the consultation fetch so that:
+  // 1. A failure in consultation fetch doesn't prevent past diagnoses from loading on retry
+  // 2. React Strict Mode double-mount is handled via AbortController cleanup
+  // 3. If consultation.patient.id is missing, we fall back to consultation.patientId (foreign key)
+  useEffect(() => {
+    if (!consultation) return;
+
+    const patientId = consultation.patient?.id || consultation.patientId;
+    if (!patientId) {
+      console.warn('[PastDiagnoses] No patientId available on consultation:', consultation.id);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchPastDiagnoses() {
+      try {
+        console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId, 'current consultation:', consultation.id);
+        const res = await fetch(`/api/patients/${patientId}`, { signal: controller.signal });
+        if (!res.ok) {
+          console.warn('[PastDiagnoses] Patient API returned non-OK status:', res.status);
+          return;
+        }
+        const data = await res.json();
+        console.log('[PastDiagnoses] Patient data success:', data.success, 'consultations:', data.data?.consultations?.length);
+
+        if (data.success && data.data?.consultations) {
+          const currentConsultationId = consultation.id;
+          // Include ANY consultation with diagnoses (not just completed — many are in_progress with data)
+          const pastConsultations = data.data.consultations
+            .filter((c: Record<string, unknown>) =>
+              c.id !== currentConsultationId &&
+              (c.icd10Diagnosis || c.nandaDiagnosis || c.nandaCode || c.nandaName)
+            );
+          console.log('[PastDiagnoses] Past consultations with diagnoses:', pastConsultations.length);
+
+          const diagnoses: typeof pastDiagnoses = pastConsultations.map((c: Record<string, unknown>) => {
+            let icd10Parsed: Array<{ code: string; name: string }> = [];
+            let nandaParsed: Array<{ code: string; name: string }> = [];
+
+            // Parse ICD-10: handle both pre-parsed objects and JSON strings
+            const icd10Raw = c.icd10Diagnosis;
+            if (icd10Raw) {
+              try {
+                const parsed = typeof icd10Raw === 'string' ? JSON.parse(icd10Raw) : icd10Raw;
+                if (Array.isArray(parsed) && parsed[0]?.code) {
+                  icd10Parsed = parsed;
+                }
+              } catch { /* not parseable as JSON — try old string format below */ }
+              // Fallback: old string format "O14.0 (Mild to moderate pre-eclampsia)"
+              if (icd10Parsed.length === 0) {
+                const match = String(icd10Raw).match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+                if (match) {
+                  icd10Parsed = [{ code: match[1], name: match[2].trim() }];
+                }
+              }
+            }
+
+            // Parse NANDA: handle both pre-parsed objects and JSON strings
+            const nandaRaw = c.nandaDiagnosis;
+            if (nandaRaw) {
+              try {
+                const parsed = typeof nandaRaw === 'string' ? JSON.parse(nandaRaw) : nandaRaw;
+                if (Array.isArray(parsed) && parsed[0]?.code) {
+                  nandaParsed = parsed;
+                }
+              } catch { /* not parseable as JSON — try old formats below */ }
+              // Fallback: old string format "00276 — Ineffective Health Self-Management"
+              if (nandaParsed.length === 0) {
+                const match = String(nandaRaw).match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+                if (match) {
+                  nandaParsed = [{ code: match[1], name: match[2].trim() }];
+                }
+              }
+            }
+
+            // Last fallback: use nandaCode + nandaName fields (comma-separated codes, semicolon-separated names)
+            if (nandaParsed.length === 0 && (c.nandaCode || c.nandaName)) {
+              const codes = String(c.nandaCode || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+              const names = String(c.nandaName || '').split(';').map((s: string) => s.trim()).filter(Boolean);
+              nandaParsed = codes.map((code: string, i: number) => ({
+                code,
+                name: names[i] || 'Unknown',
+              }));
+            }
+
+            return {
+              consultationNo: (c.consultationNo as string) || 'N/A',
+              consultationDate: (c.consultationDate as string) || (c.createdAt as string) || '',
+              status: (c.status as string) || 'in_progress',
+              nurseName: (c.nurseName as string) || 'Recorded',
+              icd10Diagnoses: icd10Parsed,
+              nandaDiagnoses: nandaParsed,
+            };
+          });
+
+          console.log('[PastDiagnoses] Parsed diagnoses:', diagnoses.map(d => ({
+            no: d.consultationNo,
+            status: d.status,
+            icd: d.icd10Diagnoses.length,
+            nanda: d.nandaDiagnoses.length,
+          })));
+          setPastDiagnoses(diagnoses);
+        } else {
+          console.warn('[PastDiagnoses] Patient API did not return expected format:', data);
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          // Fetch was aborted due to cleanup (consultation changed or unmounted) — expected
+          return;
+        }
+        console.error('[PastDiagnoses] Failed to load past diagnoses:', err);
+      }
+    }
+
+    fetchPastDiagnoses();
+
+    return () => {
+      controller.abort();
+    };
+  }, [consultation]);
 
   // ── handleAiSuggestRef (defined early to avoid TDZ with useEffect below) ──
   const handleAiSuggestRef = useRef<() => Promise<void>>(async () => {});

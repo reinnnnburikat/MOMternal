@@ -14,6 +14,7 @@ import { AuditView } from '@/components/audit/audit-view';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SplashScreen } from '@/components/layout/splash-screen';
 
 // Lazy load heavy components to reduce initial bundle size
 const MapView = lazy(() => import('@/components/map/map-view').then(m => ({ default: m.MapView })));
@@ -132,7 +133,9 @@ function ViewFallback() {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
+        <div className="animate-heartbeat">
+          <img src="/momternal_logo.png" alt="Loading" className="w-12 h-12 object-contain" draggable={false} />
+        </div>
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
@@ -172,6 +175,7 @@ function AppContent() {
   const logout = useAppStore((s) => s.logout);
   const updateActivity = useAppStore((s) => s.updateActivity);
   const hasHydrated = useAppStore((s) => s._hasHydrated);
+  const [showSplash, setShowSplash] = useState(true);
 
   // Rehydrate zustand persist on mount (client-only) — guarded for safety
   useEffect(() => {
@@ -214,17 +218,23 @@ function AppContent() {
   // This prevents hydration flash (login → dashboard) on returning users
   if (!hasHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading MOMternal...</p>
+      <div className="min-h-screen flex items-center justify-center bg-rose-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-heartbeat">
+            <img src="/momternal_logo.png" alt="MOMternal" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_20px_rgba(244,63,94,0.4)]" draggable={false} />
+          </div>
+          <p className="text-sm text-rose-300/70">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <>
+      {/* Splash / Landing screen — shows on every page load */}
+      <SplashScreen onComplete={() => setShowSplash(false)} />
+
+      <AnimatePresence mode="wait">
       {!isAuthenticated ? (
         <motion.div
           key="login-screen"
@@ -249,6 +259,7 @@ function AppContent() {
         </motion.div>
       )}
     </AnimatePresence>
+    </>
   );
 }
 

@@ -1,3 +1,124 @@
+# Worklog: Fix Past Diagnoses Accumulation — Separate useEffect Refactor
+
+## Date: 2025-01-22
+
+## Task
+Fix Health History past diagnoses not accumulating across consultations (1st, 2nd, 3rd consultations' diagnoses not showing when viewing the 4th consultation).
+
+## Investigation
+- Re-read full data flow: `/api/consultations/[id]` → `data.patient.id` → `/api/patients/[id]` → filter/map → `setPastDiagnoses()`
+- Verified `/api/patients/[id]/route.ts` returns ALL consultations (no pagination), correctly mapped via `mapConsultationFromDb` (`icd10_diagnosis` → `icd10Diagnosis`, `nanda_diagnosis` → `nandaDiagnosis`)
+- Verified `mapConsultationFromDb` in `src/lib/case.ts` correctly maps all diagnosis fields
+- Analyzed the previous fix's approach: nested fetch inside `fetchConsultation()` with `data.patient?.id`
+
+## Root Cause
+The past diagnoses fetch was **nested deeply inside** the `fetchConsultation()` async function (lines 1036-1133), which caused several problems:
+
+1. **No AbortController cleanup** — React Strict Mode double-mount fires the `useEffect` twice with no cleanup, creating two concurrent `fetchConsultation()` invocations. The second invocation's `setPastDiagnoses([])` could race with the first invocation's `setPastDiagnoses(diagnoses)`, causing the state to be reset after being populated.
+
+2. **Tightly coupled to consultation fetch** — If the outer consultation fetch succeeded but any intermediate state-setting code threw, the past diagnoses fetch would never execute.
+
+3. **Single point of failure via `data.patient?.id`** — If the nested `patient` object was undefined for any reason, the fetch was silently skipped.
+
+4. **No handling for pre-parsed JSON** — `JSON.parse()` was called on `c.icd10Diagnosis` which could already be a parsed array if the DB driver auto-parses JSON columns, causing a silent catch that skipped the data.
+
+## Changes Made
+
+### Files Modified
+- `src/components/consultations/consultation-view.tsx`
+
+### 1. Added `patientId` to `ConsultationData` interface (Line 118)
+- Added `patientId?: string;` field so we can use it as a fallback if `consultation.patient.id` is ever undefined
+- Both fields (`patient.id` and `patientId`) map to the same patient DB UUID
+
+### 2. Extracted past diagnoses fetch into separate `useEffect` (Lines 1055-1176)
+- **New `useEffect` with `[consultation]` dependency** — fires whenever the consultation state is set/updated
+- **AbortController cleanup** — properly handles Strict Mode double-mounts and unmounts by aborting stale fetches
+- **Dual patientId source**: `consultation.patient?.id || consultation.patientId` — falls back to the direct foreign key field if the nested patient object is missing
+- **Robust JSON parsing**: `typeof raw === 'string' ? JSON.parse(raw) : raw` — handles both JSON strings and already-parsed objects
+- **Typed filter/map**: Changed `any` to `Record<string, unknown>` with explicit type assertions for better type safety
+- **AbortError detection**: Silently ignores `AbortError` (expected during cleanup) while still logging real errors
+
+### 3. Removed nested fetch from `fetchConsultation()` (Lines 1036-1133, removed)
+- The `setPastDiagnoses([])` reset at line 932 still runs in the consultation fetch `useEffect` to clear stale data when switching consultations
+- The `setHealthHistoryRefCode` and `startStep` logic flows directly after the reset, no longer blocked by the past diagnoses fetch
+
+## Verification
+- ESLint: 0 errors
+- Dev server: Compiled successfully (Turbopack hot reload)
+- No rendering code changes — only data fetching logic was modified
+
+---
+
+# Worklog: Enhanced Add Patient Form Layout & Visual Polish
+
+## Date: 2025-01-22
+
+## Task
+Enhance the Add Patient form in `src/components/patients/new-patient-view.tsx` to maximize space utilization and improve visual presentation. Layout-only changes — no functionality, validation, or data handling modifications.
+
+## Changes Made
+
+### Files Modified
+- `src/components/patients/new-patient-view.tsx`
+
+### 1. Form Max Width (Line 325)
+- Changed `max-w-6xl` (1152px) to `max-w-7xl` (1280px) for maximum width utilization on large screens.
+
+### 2. Card 1 — Personal Information Header (Lines 329-330)
+- Added `hover:shadow-md transition-shadow duration-200 overflow-hidden` to Card for subtle hover elevation effect.
+- Replaced `bg-rose-50/40 rounded-t-xl` header with gradient `bg-gradient-to-r from-rose-50/50 to-transparent dark:from-rose-950/20 dark:to-transparent`.
+- Added `border-l-4 border-l-rose-500` left accent border for strong visual hierarchy.
+- Increased padding: `px-5 lg:px-6 pt-5` (was `px-4 pt-4`).
+
+### 3. Card 1 Content Padding (Line 339)
+- Changed to `px-5 lg:px-6 pb-5 space-y-5` (was `px-4 pb-4 space-y-4`) for more breathing room.
+
+### 4. Patient Name Fields — 4-Column on XL (Lines 341-415)
+- Upgraded grid from `lg:grid-cols-3` to `lg:grid-cols-3 xl:grid-cols-4`.
+- Merged Name Extension into the same grid row as Surname, First Name, Middle Initial.
+- Removed separate Name Extension grid wrapper — all 4 name fields now share one grid.
+- Result: on XL screens, all name fields appear in a single row.
+
+### 5. Address Sub-Section Styling (Lines 442-443)
+- Replaced `border-t` separator with `border-l-2 border-l-rose-200 dark:border-l-rose-800` left accent.
+- Added subtle background: `bg-rose-50/30 dark:bg-rose-950/10 rounded-r-lg`.
+- Upgraded label to uppercase with tracking: `font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider`.
+
+### 6. Occupation & Demographics Sub-Section (Lines 496-501)
+- Added matching left border accent wrapper (same rose styling as Address section).
+- Added new sub-header: "OCCUPATION & DEMOGRAPHICS" with Briefcase icon.
+- Upgraded grid from `lg:grid-cols-3` to `lg:grid-cols-3 xl:grid-cols-4`.
+- Wrapped in the same styled container as Address for visual consistency.
+
+### 7. Card 2 — Health History Header (Lines 629-630)
+- Same hover/shadow treatment as Card 1.
+- Switched color accent from rose to **sky/blue** (`border-l-sky-500`, `from-sky-50/50`, `text-sky-500`) to visually distinguish the two cards.
+- Heart icon now uses sky-500 color instead of rose-500.
+
+### 8. Card 2 Content Padding (Line 639)
+- Changed to `px-5 lg:px-6 pb-6 space-y-6` for more generous section spacing.
+
+### 9. Checkbox Grids — 4-Column on XL (Lines 669, 702, 811)
+- **Past Medical History**: `lg:grid-cols-3` → `lg:grid-cols-3 xl:grid-cols-4`
+- **Previous Surgery**: `lg:grid-cols-3` → `lg:grid-cols-3 xl:grid-cols-4`
+- **Family History**: `lg:grid-cols-3` → `lg:grid-cols-3 xl:grid-cols-4`
+
+## Responsive Breakpoint Summary
+| Breakpoint | Name Fields | Occupation Grid | Checkbox Grids |
+|-----------|------------|-----------------|----------------|
+| Mobile (<640px) | 1 col | 1 col | 1 col |
+| Tablet (sm: 640px+) | 2 col | 2 col | 2 col |
+| Desktop (lg: 1024px+) | 3 col | 3 col | 3 col |
+| Large Desktop (xl: 1280px+) | **4 col** | **4 col** | **4 col** |
+
+## Verification
+- ESLint: 0 errors
+- TypeScript: No new errors
+- No functionality changes — purely layout/presentation improvements
+
+---
+
 # Worklog: Past Diagnoses Fix & Status Indicator
 
 ## Date: 2025-01-21
