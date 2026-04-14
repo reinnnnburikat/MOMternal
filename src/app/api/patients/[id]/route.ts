@@ -179,15 +179,21 @@ export async function DELETE(
       );
     }
 
-    // Check if patient has consultations
-    if ((patientRow as Record<string, unknown>).consultation_count > 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Cannot delete patient with existing consultations. Remove consultations first.",
-        },
-        { status: 409 }
-      );
+    // Cascade delete: count consultations for audit
+    const consultCount = await queryOne(
+      'SELECT COUNT(*)::int AS count FROM consultation WHERE patient_id = $1',
+      [id]
+    );
+    const count = (consultCount as Record<string, unknown>)?.count || 0;
+
+    // Delete consultations (cascade)
+    await query('DELETE FROM consultation WHERE patient_id = $1', [id]);
+
+    // Delete health history records if table exists
+    try {
+      await query('DELETE FROM health_history WHERE patient_id = $1', [id]);
+    } catch {
+      // health_history table may not exist, ignore
     }
 
     // Delete patient
@@ -197,12 +203,17 @@ export async function DELETE(
     query(
       `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
        VALUES ($1, $2, $3, $4, $5)`,
-      [nurseId, "delete", "patient", id, JSON.stringify({ patientId: patientRow.patient_id, name: patientRow.name })]
+      [nurseId, "delete", "patient", id, JSON.stringify({
+        patientId: patientRow.patient_id,
+        name: patientRow.name,
+        consultationsDeleted: count,
+      })]
     ).catch(() => {});
 
     return NextResponse.json({
       success: true,
       message: "Patient deleted successfully",
+      consultationsDeleted: count,
     });
   } catch (error) {
     console.error("Error deleting patient:", error);

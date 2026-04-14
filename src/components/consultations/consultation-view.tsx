@@ -600,10 +600,13 @@ export function ConsultationView() {
   const [hhSleepPattern, setHhSleepPattern] = useState('');
   // Search / load
   const [healthHistoryRefCode, setHealthHistoryRefCode] = useState('');
-  const [healthHistoryExisting, setHealthHistoryExisting] = useState<string | null>(null);
-  const [healthHistorySearchQuery, setHealthHistorySearchQuery] = useState('');
-  const [healthHistorySearchResults, setHealthHistorySearchResults] = useState<Array<{
-    id: string; referenceCode: string; createdAt: string;
+  const [pastDiagnoses, setPastDiagnoses] = useState<Array<{
+    consultationNo: string;
+    consultationDate: string;
+    status: string;
+    nurseName: string;
+    icd10Diagnoses: Array<{ code: string; name: string }>;
+    nandaDiagnoses: Array<{ code: string; name: string }>;
   }>>([]);
 
   // ── Computed values (declared before callbacks that reference them) ──
@@ -872,9 +875,7 @@ export function ConsultationView() {
   }, []);
 
   // ── Stable onChange handlers for Health History step ──
-  const handleHealthHistorySearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setHealthHistorySearchQuery(e.target.value);
-  }, []);
+
   const handlePastMedicalOthersChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setPastMedicalOthersText(e.target.value); markDirty();
   }, []);
@@ -1029,6 +1030,57 @@ export function ConsultationView() {
           }
         }
         setHealthHistoryRefCode(data.healthHistoryRefCode || '');
+        // Fetch past consultations' diagnoses for display in Health History step
+        try {
+          const patientId = data.patient?.id;
+          if (patientId) {
+            const pastRes = await fetch(`/api/patients/${patientId}`);
+            if (pastRes.ok) {
+              const pastData = await pastRes.json();
+              if (pastData.success && pastData.data?.consultations) {
+                const currentConsultationId = data.id;
+                const pastConsultations = pastData.data.consultations
+                  .filter((c: any) =>
+                    c.status === 'completed' &&
+                    c.id !== currentConsultationId &&
+                    (c.icd10Diagnosis || c.nandaDiagnosis)
+                  );
+
+                const diagnoses: typeof pastDiagnoses = pastConsultations.map((c: any) => {
+                  let icd10Parsed: Array<{ code: string; name: string }> = [];
+                  let nandaParsed: Array<{ code: string; name: string }> = [];
+
+                  try {
+                    const icd10 = JSON.parse(c.icd10Diagnosis);
+                    if (Array.isArray(icd10) && icd10[0]?.code) {
+                      icd10Parsed = icd10;
+                    }
+                  } catch { /* ignore */ }
+
+                  try {
+                    const nanda = JSON.parse(c.nandaDiagnosis);
+                    if (Array.isArray(nanda) && nanda[0]?.code) {
+                      nandaParsed = nanda;
+                    }
+                  } catch { /* ignore */ }
+
+                  return {
+                    consultationNo: c.consultationNo || 'N/A',
+                    consultationDate: c.consultationDate || c.createdAt,
+                    status: c.status,
+                    nurseName: c.nurseName || 'Unknown',
+                    icd10Diagnoses: icd10Parsed,
+                    nandaDiagnoses: nandaParsed,
+                  };
+                });
+
+                setPastDiagnoses(diagnoses);
+              }
+            }
+          }
+        } catch {
+          // Silently fail - past diagnoses are non-critical
+        }
         const startStep = resolveStartStep(data.stepCompleted);
         setCurrentStep(startStep);
         isInitialized.current = true;
@@ -1747,98 +1799,81 @@ export function ConsultationView() {
   // ─── Step 1: Health History ────────────────────────────────────────
   const renderHealthHistory = () => (
     <div className="space-y-6">
-      {/* Reference Code header */}
-      <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-teal-800">HEALTH HISTORY</h3>
-            {healthHistoryRefCode && <p className="text-xs text-teal-600 font-mono mt-0.5">Ref: {healthHistoryRefCode}</p>}
-          </div>
-          {healthHistoryExisting && <Badge variant="outline" className="bg-teal-100 text-teal-700 border-teal-300">Loaded from record</Badge>}
-        </div>
+      {/* Section header */}
+      <div className="bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-teal-800 dark:text-teal-300">HEALTH HISTORY</h3>
+        <p className="text-xs text-teal-600 dark:text-teal-400 mt-0.5">Record current health status and medical background</p>
       </div>
 
-      {/* Search existing health history */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-1.5"><Search className="h-3.5 w-3.5 text-muted-foreground" /> Search Existing Health History</Label>
-        <div className="flex gap-2">
-          <Input placeholder="Enter reference code (e.g., HH-20260409-001)..." value={healthHistorySearchQuery}
-            onChange={handleHealthHistorySearchChange} className="flex-1" />
-          <Button variant="outline" onClick={async () => {
-            if (!healthHistorySearchQuery.trim()) return;
-            try {
-              const res = await fetch(`/api/health-history/search?q=${encodeURIComponent(healthHistorySearchQuery.trim())}`);
-              const json = await res.json();
-              if (res.ok) {
-                setHealthHistorySearchResults(json.data || []);
-              } else {
-                toast.error(json.error || 'Search failed');
-              }
-            } catch {
-              toast.error('Failed to search health history. Please try again.');
-            }
-          }}><Search className="h-4 w-4" /></Button>
-          <Button variant="outline" onClick={() => {
-            setHealthHistorySearchQuery(''); setHealthHistorySearchResults([]);
-            setPastMedicalSelected([]); setPastMedicalOthersText('');
-            setPreviousSurgerySelected([]); setPreviousSurgeryOthersText('');
-            setTraumaValue(''); setTraumaSpecify('');
-            setBloodTransfusionValue(''); setBloodTransfusionSpecify('');
-            setFamilyHistoryDropdown(''); setFamilyHistorySelected([]); setFamilyHistoryOthersText('');
-            setSmokingValue(''); setSmokingPackYears('');
-            setAlcoholValue(''); setAlcoholDrinksPerDay('');
-            setDrugUseValue(''); setDrugUseSubstance('');
-            setDietaryPatternValue(''); setDietaryPatternSpecify('');
-            setHhPhysicalActivity(''); setHhSleepPattern('');
-            setHealthHistoryRefCode(''); setHealthHistoryExisting(null);
-          }}><Plus className="h-4 w-4" /> New</Button>
-        </div>
-        {healthHistorySearchResults.length > 0 && (
-          <div className="border rounded-lg max-h-40 overflow-y-auto">
-            {healthHistorySearchResults.map(r => (
-              <button key={r.id} className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-0 flex justify-between items-center"
-                onClick={async () => {
-                  try {
-                    const res = await fetch(`/api/health-history/${r.id}`);
-                    if (res.ok) {
-                      const data = await res.json();
-                      const parsed = parseHealthHistory(data.healthHistory);
-                      if (parsed) {
-                        setPastMedicalSelected(parsed.pastMedicalHistory.selected);
-                        setPastMedicalOthersText(parsed.pastMedicalHistory.othersText);
-                        setPreviousSurgerySelected(parsed.previousSurgery.selected);
-                        setPreviousSurgeryOthersText(parsed.previousSurgery.othersText);
-                        setTraumaValue(parsed.historyOfTrauma.value);
-                        setTraumaSpecify(parsed.historyOfTrauma.specify);
-                        setBloodTransfusionValue(parsed.historyOfBloodTransfusion.value);
-                        setBloodTransfusionSpecify(parsed.historyOfBloodTransfusion.specify);
-                        setFamilyHistoryDropdown(parsed.familyHistory.value);
-                        setFamilyHistorySelected(parsed.familyHistory.selected);
-                        setFamilyHistoryOthersText(parsed.familyHistory.othersText);
-                        setSmokingValue(parsed.smoking.value);
-                        setSmokingPackYears(parsed.smoking.packYears);
-                        setAlcoholValue(parsed.alcoholIntake.value);
-                        setAlcoholDrinksPerDay(parsed.alcoholIntake.drinksPerDay);
-                        setDrugUseValue(parsed.drugUse.value);
-                        setDrugUseSubstance(parsed.drugUse.substance);
-                        setDietaryPatternValue(parsed.dietaryPattern.value);
-                        setDietaryPatternSpecify(parsed.dietaryPattern.specify);
-                        setHhPhysicalActivity(parsed.physicalActivity);
-                        setHhSleepPattern(parsed.sleepPattern);
-                      }
-                      setHealthHistoryRefCode(data.referenceCode); setHealthHistoryExisting(r.id);
-                      setHealthHistorySearchResults([]); setHealthHistorySearchQuery('');
-                    }
-                  } catch { toast.error('Failed to load health history record.'); }
-                }}>
-                <span className="font-mono font-medium">{r.referenceCode}</span>
-                <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
-              </button>
+      {/* Past Diagnoses from Previous Consultations */}
+      {pastDiagnoses.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-rose-500" />
+            <h3 className="text-sm font-semibold text-foreground">Past Diagnoses</h3>
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-rose-50 text-rose-600 border-rose-200">
+              {pastDiagnoses.length} previous consultation{pastDiagnoses.length > 1 ? 's' : ''}
+            </Badge>
+          </div>
+          <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-1">
+            {pastDiagnoses.map((past, idx) => (
+              <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50/50 dark:bg-gray-900/30">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-gray-300 text-gray-600">
+                      {past.consultationNo}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(past.consultationDate), 'MMM d, yyyy')}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">
+                    by {past.nurseName}
+                  </span>
+                </div>
+
+                {/* ICD-10 Diagnoses */}
+                {past.icd10Diagnoses.length > 0 && (
+                  <div className="mb-1.5">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">ICD-10</p>
+                    <div className="flex flex-wrap gap-1">
+                      {past.icd10Diagnoses.map((d, di) => (
+                        <span key={di} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-[11px] font-medium border border-blue-200 dark:border-blue-800">
+                          <span className="font-mono">{d.code}</span>
+                          <span className="text-blue-400 dark:text-blue-500">·</span>
+                          <span>{d.name}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* NANDA Diagnoses */}
+                {past.nandaDiagnoses.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">NANDA</p>
+                    <div className="flex flex-wrap gap-1">
+                      {past.nandaDiagnoses.map((d, di) => (
+                        <span key={di} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[11px] font-medium border border-amber-200 dark:border-amber-800">
+                          <span className="font-mono">{d.code}</span>
+                          <span className="text-amber-400 dark:text-amber-500">·</span>
+                          <span>{d.name}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* No diagnoses for this consultation */}
+                {past.icd10Diagnoses.length === 0 && past.nandaDiagnoses.length === 0 && (
+                  <p className="text-xs text-muted-foreground italic">No diagnoses recorded</p>
+                )}
+              </div>
             ))}
           </div>
-        )}
-      </div>
-      <Separator />
+          <Separator />
+        </div>
+      )}
 
       {/* ── Past Medical History (checkboxes) ───────────────────────── */}
       <div className="space-y-2">

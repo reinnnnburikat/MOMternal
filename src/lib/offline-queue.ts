@@ -10,6 +10,7 @@ const QUEUE_KEY = 'momternal-offline-queue';
 export type OfflineActionType =
   | 'create-patient'
   | 'update-patient'
+  | 'delete-patient'
   | 'create-consultation'
   | 'update-consultation'
   | 'ai-suggest';
@@ -81,7 +82,8 @@ export async function processQueue(): Promise<{ processed: number; failed: numbe
   let failed = 0;
   const remaining: OfflineAction[] = [];
 
-  for (const action of queue) {
+  for (let i = 0; i < queue.length; i++) {
+    const action = queue[i];
     try {
       const res = await fetch(action.url, {
         method: action.method,
@@ -99,6 +101,11 @@ export async function processQueue(): Promise<{ processed: number; failed: numbe
       // Still offline or network error — keep in queue
       remaining.push(action);
       failed++;
+    }
+
+    // Small delay between items to avoid overwhelming the server
+    if (i < queue.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
   }
 

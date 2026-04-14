@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { setCache, getCache, getCacheTimestamp } from '@/lib/offline-cache';
+import { offlineFetch } from '@/lib/offline-fetch';
 
 interface PatientListItem {
   id: string;
@@ -107,12 +108,12 @@ export function PatientListView() {
       if (riskFilter !== 'all') params.set('riskLevel', riskFilter);
       if (barangayFilter !== 'all') params.set('barangay', barangayFilter);
 
-      const res = await fetch(`/api/patients?${params.toString()}`);
+      const res = await offlineFetch(`/api/patients?${params.toString()}`);
       const data = await res.json();
 
       if (data.success) {
         setPatients(data.data);
-        setIsFromCache(false);
+        setIsFromCache(data.fromCache === true);
         // Cache the full patient list (unfiltered) for offline use
         if (!searchQuery && riskFilter === 'all' && barangayFilter === 'all') {
           setCache('patient-list', data.data);
@@ -175,7 +176,7 @@ export function PatientListView() {
   const handleNewConsultation = async (patientDbId: string) => {
     setIsCreatingConsultation(patientDbId);
     try {
-      const res = await fetch(`/api/patients/${patientDbId}/consultations`, {
+      const res = await offlineFetch(`/api/patients/${patientDbId}/consultations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -185,11 +186,15 @@ export function PatientListView() {
 
       const data = await res.json();
 
-      if (data.success) {
-        setSelectedConsultationId(data.data.id);
-        setSelectedPatientId(patientDbId);
-        setCurrentView('consultation');
-        toast.success('Consultation created successfully');
+      if (data.success || data.offline) {
+        if (data.offline) {
+          toast.success('Consultation will be created when back online.');
+        } else {
+          setSelectedConsultationId(data.data.id);
+          setSelectedPatientId(patientDbId);
+          setCurrentView('consultation');
+          toast.success('Consultation created successfully');
+        }
       } else {
         toast.error(data.error || 'Failed to create consultation');
       }

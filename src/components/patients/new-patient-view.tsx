@@ -52,6 +52,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { MAKATI_BARANGAYS } from '@/data/makati-barangays';
+import { offlineFetch } from '@/lib/offline-fetch';
 import {
   PAST_MEDICAL_OPTIONS,
   PREVIOUS_SURGERY_OPTIONS,
@@ -288,7 +289,7 @@ export function NewPatientView() {
         allergies: values.allergies.trim() || null,
       };
 
-      const res = await fetch('/api/patients', {
+      const res = await offlineFetch('/api/patients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -296,10 +297,17 @@ export function NewPatientView() {
 
       const data = await res.json();
 
-      if (data.success) {
-        toast.success(`Patient ${data.data.name} created successfully!`);
-        setSelectedPatientId(data.data.id);
-        setCurrentView('patient-profile');
+      if (data.success || data.offline) {
+        if (data.offline) {
+          toast.success('Patient saved locally. Will sync when back online.', {
+            description: 'Changes will be synced automatically.',
+          });
+          setCurrentView('patients');
+        } else {
+          toast.success(`Patient ${data.data.name} created successfully!`);
+          setSelectedPatientId(data.data.id);
+          setCurrentView('patient-profile');
+        }
       } else {
         toast.error(data.error || 'Failed to create patient');
       }
@@ -314,7 +322,7 @@ export function NewPatientView() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-6xl">
         {/* ═══════════════════════════════════════════════════════════════════
             CARD 1: Personal Information
         ═══════════════════════════════════════════════════════════════════ */}
@@ -330,7 +338,7 @@ export function NewPatientView() {
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-4">
             {/* ── Patient Name ─────────────────────────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="surname"
@@ -360,9 +368,7 @@ export function NewPatientView() {
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="middleInitial"
@@ -381,7 +387,9 @@ export function NewPatientView() {
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="nameExtension"
@@ -439,7 +447,7 @@ export function NewPatientView() {
                 <MapPin className="h-3.5 w-3.5" />
                 Address
               </p>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="barangay"
@@ -487,8 +495,8 @@ export function NewPatientView() {
               </div>
             </div>
 
-            {/* ── Occupation & Religion ───────────────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* ── Occupation, Religion, Marital Status, Family, Income ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="occupation"
@@ -530,10 +538,7 @@ export function NewPatientView() {
                   </FormItem>
                 )}
               />
-            </div>
 
-            {/* ── Marital Status & Family Composition ─────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="maritalStatus"
@@ -586,33 +591,32 @@ export function NewPatientView() {
                   </FormItem>
                 )}
               />
-            </div>
 
-            {/* ── Income Bracket ──────────────────────────────────────────── */}
-            <FormField
-              control={form.control}
-              name="incomeBracket"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Income</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
-                    <FormControl>
-                      <SelectTrigger className="h-10 w-full">
-                        <SelectValue placeholder="Select income bracket" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {INCOME_BRACKETS.map((b) => (
-                        <SelectItem key={b} value={b}>
-                          {b}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="incomeBracket"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Income</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                      <FormControl>
+                        <SelectTrigger className="h-10 w-full">
+                          <SelectValue placeholder="Select income bracket" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {INCOME_BRACKETS.map((b) => (
+                          <SelectItem key={b} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -659,7 +663,7 @@ export function NewPatientView() {
                 Past Medical History
                 <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {PAST_MEDICAL_OPTIONS.map((option) => (
                   <label
                     key={option}
@@ -692,7 +696,7 @@ export function NewPatientView() {
                 Previous Surgery
                 <span className="text-xs text-muted-foreground font-normal">(Select all that apply)</span>
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {PREVIOUS_SURGERY_OPTIONS.map((option) => (
                   <label
                     key={option}
@@ -718,54 +722,55 @@ export function NewPatientView() {
               )}
             </div>
 
-            {/* ── History of Trauma (dropdown) ────────────────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">History of Trauma</Label>
-              <Select value={traumaValue || undefined} onValueChange={setTraumaValue}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TRAUMA_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {traumaValue === 'yes' && (
-                <Input
-                  placeholder="Please specify the trauma..."
-                  className="h-9 mt-1"
-                  value={traumaSpecify}
-                  onChange={(e) => setTraumaSpecify(e.target.value)}
-                />
-              )}
-            </div>
+            {/* ── Trauma & Blood Transfusion (side-by-side) ──────────────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">History of Trauma</Label>
+                <Select value={traumaValue || undefined} onValueChange={setTraumaValue}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRAUMA_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {traumaValue === 'yes' && (
+                  <Input
+                    placeholder="Please specify the trauma..."
+                    className="h-9 mt-1"
+                    value={traumaSpecify}
+                    onChange={(e) => setTraumaSpecify(e.target.value)}
+                  />
+                )}
+              </div>
 
-            {/* ── History of Blood Transfusion (dropdown) ─────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">History of Blood Transfusion</Label>
-              <Select value={bloodTransfusionValue || undefined} onValueChange={setBloodTransfusionValue}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BLOOD_TRANSFUSION_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {bloodTransfusionValue === 'yes' && (
-                <Input
-                  placeholder="Please specify..."
-                  className="h-9 mt-1"
-                  value={bloodTransfusionSpecify}
-                  onChange={(e) => setBloodTransfusionSpecify(e.target.value)}
-                />
-              )}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">History of Blood Transfusion</Label>
+                <Select value={bloodTransfusionValue || undefined} onValueChange={setBloodTransfusionValue}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BLOOD_TRANSFUSION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {bloodTransfusionValue === 'yes' && (
+                  <Input
+                    placeholder="Please specify..."
+                    className="h-9 mt-1"
+                    value={bloodTransfusionSpecify}
+                    onChange={(e) => setBloodTransfusionSpecify(e.target.value)}
+                  />
+                )}
+              </div>
             </div>
 
             {/* ── Family History (dropdown + conditional checkboxes) ──────── */}
@@ -800,7 +805,7 @@ export function NewPatientView() {
                   <p className="text-xs text-muted-foreground mt-2">
                     Select all that apply:
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {FAMILY_HISTORY_OPTIONS.map((option) => (
                       <label
                         key={option}
@@ -828,60 +833,61 @@ export function NewPatientView() {
               )}
             </div>
 
-            {/* ── Smoking (dropdown + conditional) ────────────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-1.5">
-                <Cigarette className="h-3.5 w-3.5 text-muted-foreground" />
-                Smoking
-              </Label>
-              <Select value={smokingValue || undefined} onValueChange={setSmokingValue}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SMOKING_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {(smokingValue === 'former' || smokingValue === 'current') && (
-                <Input
-                  placeholder="No. of Pack Years"
-                  className="h-9 mt-1"
-                  value={smokingPackYears}
-                  onChange={(e) => setSmokingPackYears(e.target.value)}
-                />
-              )}
-            </div>
+            {/* ── Smoking & Alcohol Intake (side-by-side) ────────────────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-1.5">
+                  <Cigarette className="h-3.5 w-3.5 text-muted-foreground" />
+                  Smoking
+                </Label>
+                <Select value={smokingValue || undefined} onValueChange={setSmokingValue}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SMOKING_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(smokingValue === 'former' || smokingValue === 'current') && (
+                  <Input
+                    placeholder="No. of Pack Years"
+                    className="h-9 mt-1"
+                    value={smokingPackYears}
+                    onChange={(e) => setSmokingPackYears(e.target.value)}
+                  />
+                )}
+              </div>
 
-            {/* ── Alcohol Intake (dropdown + conditional) ─────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-1.5">
-                <Wine className="h-3.5 w-3.5 text-muted-foreground" />
-                Alcohol Intake
-              </Label>
-              <Select value={alcoholValue || undefined} onValueChange={setAlcoholValue}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ALCOHOL_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {(alcoholValue === 'occasional' || alcoholValue === 'regular') && (
-                <Input
-                  placeholder="No. of standard drinks per day"
-                  className="h-9 mt-1"
-                  value={alcoholDrinksPerDay}
-                  onChange={(e) => setAlcoholDrinksPerDay(e.target.value)}
-                />
-              )}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-1.5">
+                  <Wine className="h-3.5 w-3.5 text-muted-foreground" />
+                  Alcohol Intake
+                </Label>
+                <Select value={alcoholValue || undefined} onValueChange={setAlcoholValue}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALCOHOL_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(alcoholValue === 'occasional' || alcoholValue === 'regular') && (
+                  <Input
+                    placeholder="No. of standard drinks per day"
+                    className="h-9 mt-1"
+                    value={alcoholDrinksPerDay}
+                    onChange={(e) => setAlcoholDrinksPerDay(e.target.value)}
+                  />
+                )}
+              </div>
             </div>
 
             {/* ── Drug Use (dropdown + conditional) ───────────────────────── */}
@@ -940,44 +946,45 @@ export function NewPatientView() {
               )}
             </div>
 
-            {/* ── Physical Activity (dropdown) ────────────────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-1.5">
-                <Dumbbell className="h-3.5 w-3.5 text-muted-foreground" />
-                Physical Activity
-              </Label>
-              <Select value={physicalActivity || undefined} onValueChange={setPhysicalActivity}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PHYSICAL_ACTIVITY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* ── Physical Activity & Sleep Pattern (side-by-side) ──────────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-1.5">
+                  <Dumbbell className="h-3.5 w-3.5 text-muted-foreground" />
+                  Physical Activity
+                </Label>
+                <Select value={physicalActivity || undefined} onValueChange={setPhysicalActivity}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PHYSICAL_ACTIVITY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* ── Sleep Pattern (dropdown) ───────────────────────────────── */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-1.5">
-                <Moon className="h-3.5 w-3.5 text-muted-foreground" />
-                Sleep Pattern
-              </Label>
-              <Select value={sleepPattern || undefined} onValueChange={setSleepPattern}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select option" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SLEEP_PATTERN_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-1.5">
+                  <Moon className="h-3.5 w-3.5 text-muted-foreground" />
+                  Sleep Pattern
+                </Label>
+                <Select value={sleepPattern || undefined} onValueChange={setSleepPattern}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SLEEP_PATTERN_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>

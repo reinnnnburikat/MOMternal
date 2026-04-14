@@ -6,13 +6,23 @@ import { useAppStore } from '@/store/app-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { setCache, getCache } from '@/lib/offline-cache';
+import { setCache, getCache, clearCache } from '@/lib/offline-cache';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Card,
   CardContent,
@@ -55,6 +65,7 @@ import {
   Info,
   Pencil,
   WifiOff,
+  Trash2,
 } from 'lucide-react';
 import { EditPatientDialog } from './edit-patient-dialog';
 import {
@@ -69,6 +80,7 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { offlineFetch } from '@/lib/offline-fetch';
 
 // ---------------------------------------------------------------------------
 // Data interfaces
@@ -667,6 +679,9 @@ export function PatientProfileView() {
   const [viewingConsultation, setViewingConsultation] =
     useState<ConsultationData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [consultationCount, setConsultationCount] = useState(0);
   const [isDark, setIsDark] = useState(() => {
     if (typeof document !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -705,7 +720,7 @@ export function PatientProfileView() {
     queryKey: ['patient', selectedPatientId],
     queryFn: async () => {
       if (!selectedPatientId) throw new Error('No patient ID');
-      const res = await fetch(`/api/patients/${selectedPatientId}`);
+      const res = await offlineFetch(`/api/patients/${selectedPatientId}`);
       const data = await res.json();
       if (data.success) return data.data;
       throw new Error(data.error || 'Failed to fetch patient');
@@ -734,7 +749,7 @@ export function PatientProfileView() {
     if (!patient || !currentNurse) return;
     setIsCreatingConsultation(true);
     try {
-      const res = await fetch(`/api/patients/${patient.id}/consultations`, {
+      const res = await offlineFetch(`/api/patients/${patient.id}/consultations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nurseId: currentNurse.id }),
@@ -742,10 +757,14 @@ export function PatientProfileView() {
 
       const data = await res.json();
 
-      if (data.success) {
-        setSelectedConsultationId(data.data.id);
-        setCurrentView('consultation');
-        toast.success('Consultation created successfully');
+      if (data.success || data.offline) {
+        if (data.offline) {
+          toast.success('Consultation will be created when back online.');
+        } else {
+          setSelectedConsultationId(data.data.id);
+          setCurrentView('consultation');
+          toast.success('Consultation created successfully');
+        }
       } else {
         toast.error(data.error || 'Failed to create consultation');
       }
@@ -772,6 +791,42 @@ export function PatientProfileView() {
 
   const handleEditSaved = () => {
     queryClient.invalidateQueries({ queryKey: ['patient', selectedPatientId] });
+  };
+
+  const handleOpenDeleteDialog = () => {
+    if (patient) {
+      setConsultationCount(patient.consultations.length);
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeletePatient = async () => {
+    if (!patient || !currentNurse) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/patients/${patient.id}?nurseId=${encodeURIComponent(currentNurse.id)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Patient deleted successfully', {
+          description: consultationCount > 0
+            ? `${consultationCount} consultation${consultationCount > 1 ? 's' : ''} removed.`
+            : undefined,
+        });
+        // Clear cache for this patient
+        clearCache(`patient-${patient.id}`);
+        queryClient.invalidateQueries({ queryKey: ['patients'] });
+        setCurrentView('patients');
+      } else {
+        toast.error(data.error || 'Failed to delete patient');
+      }
+    } catch {
+      toast.error('Connection error. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   // Check if currently showing cached data
@@ -870,15 +925,26 @@ export function PatientProfileView() {
                 : patient.address}
             </span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-rose-200 hover:bg-rose-50 text-rose-600 gap-1.5 flex-shrink-0"
-            onClick={() => setIsEditDialogOpen(true)}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Edit Patient
-          </Button>
+          <div className="flex items-center gap-2 mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-rose-200 hover:bg-rose-50 text-rose-600 gap-1.5 flex-shrink-0"
+              onClick={() => setIsEditDialogOpen(true)}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit Patient
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-red-200 hover:bg-red-50 text-red-600 gap-1.5 flex-shrink-0"
+              onClick={handleOpenDeleteDialog}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Patient
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1415,6 +1481,57 @@ export function PatientProfileView() {
           onSaved={handleEditSaved}
         />
       )}
+
+      {/* ============================================================= */}
+      {/* Delete Patient Confirmation Dialog                             */}
+      {/* ============================================================= */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600">Delete Patient Permanently</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  Are you sure you want to permanently delete <strong>{patient?.name}</strong>?
+                </p>
+                {consultationCount > 0 && (
+                  <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">
+                      This patient has {consultationCount} consultation{consultationCount > 1 ? 's' : ''}.
+                    </p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                      All consultation records, diagnoses, care plans, and referral data will be permanently deleted.
+                    </p>
+                  </div>
+                )}
+                <p className="text-sm font-medium text-muted-foreground">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <Button
+              onClick={handleDeletePatient}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4" />
+                  Delete Patient
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* ============================================================= */}
       {/* Consultation Detail Dialog                                     */}
