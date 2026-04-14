@@ -928,11 +928,14 @@ export function ConsultationView() {
   // ── Fetch consultation ──
   useEffect(() => {
     if (!selectedConsultationId) { setLoading(false); return; }
+    // Reset past diagnoses when switching consultations to avoid stale data
+    setPastDiagnoses([]);
     async function fetchConsultation() {
       try {
         const res = await fetch(`/api/consultations/${selectedConsultationId}`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
+        console.log('[PastDiagnoses] Consultation loaded:', data.consultationNo, 'patient:', data.patient?.id);
         setConsultation(data);
         setChiefComplaint(data.chiefComplaint || data.subjectiveSymptoms || '');
         setVitals(parseVitals(data.objectiveVitals));
@@ -1030,21 +1033,27 @@ export function ConsultationView() {
           }
         }
         setHealthHistoryRefCode(data.healthHistoryRefCode || '');
-        // Fetch past consultations' diagnoses for display in Health History step
+        // Fetch past consultations' diagnoses for display in Health History & Diagnosis steps
         try {
           const patientId = data.patient?.id;
+          console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId);
           if (patientId) {
             const pastRes = await fetch(`/api/patients/${patientId}`);
+            console.log('[PastDiagnoses] Patient API response ok:', pastRes.ok);
             if (pastRes.ok) {
               const pastData = await pastRes.json();
+              console.log('[PastDiagnoses] Patient data success:', pastData.success, 'consultations:', pastData.data?.consultations?.length);
               if (pastData.success && pastData.data?.consultations) {
                 const currentConsultationId = data.id;
+                const allConsultations = pastData.data.consultations;
+                console.log('[PastDiagnoses] Current consultation:', currentConsultationId);
                 // Include ANY consultation with diagnoses (not just completed — many are in_progress with data)
-                const pastConsultations = pastData.data.consultations
+                const pastConsultations = allConsultations
                   .filter((c: any) =>
                     c.id !== currentConsultationId &&
                     (c.icd10Diagnosis || c.nandaDiagnosis || c.nandaCode || c.nandaName)
                   );
+                console.log('[PastDiagnoses] Past consultations with diagnoses:', pastConsultations.length);
 
                 const diagnoses: typeof pastDiagnoses = pastConsultations.map((c: any) => {
                   let icd10Parsed: Array<{ code: string; name: string }> = [];
@@ -1102,12 +1111,25 @@ export function ConsultationView() {
                   };
                 });
 
+                console.log('[PastDiagnoses] Parsed diagnoses:', diagnoses.map(d => ({
+                  no: d.consultationNo,
+                  status: d.status,
+                  icd: d.icd10Diagnoses.length,
+                  nanda: d.nandaDiagnoses.length,
+                })));
                 setPastDiagnoses(diagnoses);
+              } else {
+                console.warn('[PastDiagnoses] Patient API did not return expected format:', pastData);
               }
+            } else {
+              console.warn('[PastDiagnoses] Patient API returned non-OK status:', pastRes.status);
             }
+          } else {
+            console.warn('[PastDiagnoses] No patientId found on consultation data:', data);
           }
         } catch (err) {
           console.error('[PastDiagnoses] Failed to load past diagnoses:', err);
+          // Don't block the consultation loading if past diagnoses fetch fails
         }
         const startStep = resolveStartStep(data.stepCompleted);
         setCurrentStep(startStep);
@@ -1847,15 +1869,23 @@ export function ConsultationView() {
             {pastDiagnoses.map((past, idx) => (
               <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50/50 dark:bg-gray-900/30">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-gray-300 text-gray-600">
                       {past.consultationNo}
+                    </Badge>
+                    {/* Completed / In Progress status indicator */}
+                    <Badge className={`text-[10px] px-1.5 py-0 border-0 ${
+                      past.status === 'completed'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
+                    }`}>
+                      {past.status === 'completed' ? '✓ Completed' : '◷ In Progress'}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
                       {format(new Date(past.consultationDate), 'MMM d, yyyy')}
                     </span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
                     by {past.nurseName}
                   </span>
                 </div>
@@ -1890,11 +1920,6 @@ export function ConsultationView() {
                       ))}
                     </div>
                   </div>
-                )}
-
-                {/* No diagnoses for this consultation */}
-                {past.icd10Diagnoses.length === 0 && past.nandaDiagnoses.length === 0 && (
-                  <p className="text-xs text-muted-foreground italic">No diagnoses recorded</p>
                 )}
               </div>
             ))}
@@ -2198,6 +2223,51 @@ export function ConsultationView() {
   // ─── Step 3: Diagnosis ─────────────────────────────────────────────
   const renderDiagnosis = () => (
     <div className="space-y-6">
+      {/* Past Diagnoses Reference */}
+      {pastDiagnoses.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-rose-500" />
+            <h3 className="text-sm font-semibold text-foreground">Previous Diagnoses</h3>
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-rose-50 text-rose-600 border-rose-200">
+              {pastDiagnoses.length} prior
+            </Badge>
+          </div>
+          <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+            {pastDiagnoses.map((past, idx) => (
+              <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50/50 dark:bg-gray-900/30">
+                <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                  <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-gray-300 text-gray-600">
+                    {past.consultationNo}
+                  </Badge>
+                  <Badge className={`text-[10px] px-1.5 py-0 border-0 ${
+                    past.status === 'completed'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+                      : 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
+                  }`}>
+                    {past.status === 'completed' ? '✓ Completed' : '◷ In Progress'}
+                  </Badge>
+                  <span className="text-[10px] text-muted-foreground">{format(new Date(past.consultationDate), 'MMM d, yyyy')}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {past.icd10Diagnoses.map((d, di) => (
+                    <span key={`icd-${di}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-[10px] font-medium border border-blue-200 dark:border-blue-800">
+                      <span className="font-mono">{d.code}</span>
+                    </span>
+                  ))}
+                  {past.nandaDiagnoses.map((d, di) => (
+                    <span key={`nanda-${di}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[10px] font-medium border border-amber-200 dark:border-amber-800">
+                      <span className="font-mono">{d.code}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <Separator />
+        </div>
+      )}
+
       {/* NANDA Section */}
       <div className="space-y-2">
         <Label className="flex items-center gap-1.5 text-sm font-medium">
