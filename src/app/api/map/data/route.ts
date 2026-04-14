@@ -34,6 +34,8 @@ function lookupCentroid(barangay: string): [number, number] | undefined {
 
 const MAKATI_CENTER: [number, number] = [14.5547, 121.0244];
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     // Fetch all patients with risk level from the patient table (primary source)
@@ -49,19 +51,26 @@ export async function GET() {
 
     // For each patient, determine their effective risk level
     // Priority: patient.risk_level > latest completed consultation risk > 'low'
-    const patientRiskData = patients.rows
+    interface PatientRiskItem {
+      id: string;
+      patientId: string;
+      barangay: string;
+      riskLevel: string;
+    }
+
+    const patientRiskData: PatientRiskItem[] = patients.rows
       .filter((p: Record<string, unknown>) => {
         const brgy = (p.barangay as string) || "Unknown";
         return VALID_BARANGAYS.has(brgy.toLowerCase());
       })
-      .map((p: Record<string, unknown>) => {
+      .map((p: Record<string, unknown>): PatientRiskItem => {
         // Use patient.risk_level as primary (synced from completed consultation saves)
         // Fall back to latest completed consultation if patient risk is null
-        const effectiveRisk = p.patient_risk_level || p.latest_completed_risk || 'low';
+        const effectiveRisk = (p.patient_risk_level || p.latest_completed_risk || 'low') as string;
         return {
-          id: p.id,
-          patientId: p.patient_id,
-          barangay: p.barangay || "Unknown",
+          id: p.id as string,
+          patientId: p.patient_id as string,
+          barangay: (p.barangay || "Unknown") as string,
           riskLevel: effectiveRisk,
         };
       });

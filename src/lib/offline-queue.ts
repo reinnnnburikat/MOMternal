@@ -19,7 +19,7 @@ interface OfflineAction {
   id: string; // unique id for dedup
   type: OfflineActionType;
   url: string;
-  method: 'POST' | 'PUT' | 'PATCH';
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body: string; // JSON-serialized body
   timestamp: number;
 }
@@ -53,7 +53,7 @@ function saveQueue(queue: OfflineAction[]): void {
 export function enqueue(
   type: OfflineActionType,
   url: string,
-  method: 'POST' | 'PUT' | 'PATCH',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   body: Record<string, unknown>,
 ): void {
   const queue = loadQueue();
@@ -62,7 +62,7 @@ export function enqueue(
     type,
     url,
     method,
-    body: JSON.stringify(body),
+    body: method === 'DELETE' ? '' : JSON.stringify(body),
     timestamp: Date.now(),
   };
   queue.push(action);
@@ -75,43 +75,57 @@ export function enqueue(
  * remaining failed actions.
  */
 export async function processQueue(): Promise<{ processed: number; failed: number }> {
-  const queue = loadQueue();
-  if (queue.length === 0) return { processed: 0, failed: 0 };
+  // Concurrency guard — prevent duplicate processing if 'online' fires rapidly
+  if (_processing) return { processed: 0, failed: 0 };
+  _processing = true;
+  try {
+    const queue = loadQueue();
+    if (queue.length === 0) return { processed: 0, failed: 0 };
 
-  let processed = 0;
-  let failed = 0;
-  const remaining: OfflineAction[] = [];
+    let processed = 0;
+    let failed = 0;
+    const remaining: OfflineAction[] = [];
 
-  for (let i = 0; i < queue.length; i++) {
-    const action = queue[i];
-    try {
-      const res = await fetch(action.url, {
-        method: action.method,
-        headers: { 'Content-Type': 'application/json' },
-        body: action.body,
-      });
-      if (res.ok) {
-        processed++;
-      } else {
-        // Server error — keep in queue for retry
+    for (let i = 0; i < queue.length; i++) {
+      const action = queue[i];
+      try {
+        const fetchOpts: RequestInit = {
+          method: action.method,
+          headers: { 'Content-Type': 'application/json' },
+        };
+        // Only attach body for methods that support it
+        if (action.body && action.method !== 'DELETE') {
+          fetchOpts.body = action.body;
+        }
+        const res = await fetch(action.url, fetchOpts);
+        if (res.ok) {
+          processed++;
+        } else {
+          // Server error — keep in queue for retry
+          remaining.push(action);
+          failed++;
+        }
+      } catch {
+        // Still offline or network error — keep in queue
         remaining.push(action);
         failed++;
       }
-    } catch {
-      // Still offline or network error — keep in queue
-      remaining.push(action);
-      failed++;
+
+      // Small delay between items to avoid overwhelming the server
+      if (i < queue.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
     }
 
-    // Small delay between items to avoid overwhelming the server
-    if (i < queue.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
+    saveQueue(remaining);
+    return { processed, failed };
+  } finally {
+    _processing = false;
   }
-
-  saveQueue(remaining);
-  return { processed, failed };
 }
+
+// Concurrency lock to prevent duplicate queue processing
+let _processing = false;
 
 /**
  * Get the number of pending actions in the queue.

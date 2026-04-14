@@ -60,9 +60,9 @@ function jsonResponse(data: unknown, status = 200): Response {
 
 /** Check if an error is a network-level error (offline, DNS failure, etc.). */
 function isNetworkError(err: unknown): boolean {
-  if (err instanceof TypeError && err.message === 'Failed to fetch') return true;
-  if (err instanceof TypeError && (err.message.includes('NetworkError') || err.message.includes('network'))) return true;
-  return false;
+  if (!(err instanceof TypeError)) return false;
+  const msg = err.message.toLowerCase();
+  return msg.includes('failed') || msg.includes('network') || msg.includes('load') || msg.includes('abort') || msg.includes('cors');
 }
 
 // ── Public API ───────────────────────────────────────────────────────────
@@ -157,7 +157,7 @@ export async function offlineFetch(
     }
 
     const queueId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH', bodyObj);
+    enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH' | 'DELETE', bodyObj);
 
     // Update Zustand store pending count
     try {
@@ -193,7 +193,7 @@ export async function offlineFetch(
       }
 
       const queueId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH', bodyObj);
+      enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH' | 'DELETE', bodyObj);
 
       try {
         useAppStore.getState().setPendingSyncCount(getQueueLength());

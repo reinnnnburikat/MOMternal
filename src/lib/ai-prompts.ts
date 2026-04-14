@@ -535,7 +535,7 @@ export function buildUserPrompt(data: AssessmentData): string {
 - Body Mass Index (BMI): ${ctx.bmi ?? "Unknown"}
 - Gravidity (G): ${ctx.gravidity ?? "Unknown"}
 - Parity (P): ${ctx.parity ?? "Unknown"}
-- Age of Gestation (AOG): ${ctx.aog ?? "Unknown"} ${ctx.aog ? (parseInt(ctx.aog) <= 13 ? '(1st Trimester)' : parseInt(ctx.aog) <= 27 ? '(2nd Trimester)' : '(3rd Trimester)') : ''}
+- Age of Gestation (AOG): ${ctx.aog ?? "Unknown"} ${ctx.aog ? (() => { const aog = parseInt(ctx.aog); return isNaN(aog) ? '(Unknown Trimester)' : aog <= 13 ? '(1st Trimester)' : aog <= 27 ? '(2nd Trimester)' : '(3rd Trimester)'; })() : ''}
 - Blood Type: ${ctx.bloodType ?? "Unknown"}
 - Current Risk Level Assessment: ${ctx.riskLevel ?? "Not assessed"}
 

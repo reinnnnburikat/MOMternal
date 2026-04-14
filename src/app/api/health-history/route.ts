@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
         row!.id,
         JSON.stringify({ referenceCode }),
       ]
-    ).catch(() => {});
+    ).catch((err) => { console.error('[AuditLog] Failed to write audit entry:', err); });
 
     const result = mapHealthHistoryFromDb(row!);
     return NextResponse.json({ success: true, data: result }, { status: 201 });

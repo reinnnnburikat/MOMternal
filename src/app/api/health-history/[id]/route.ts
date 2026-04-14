@@ -148,7 +148,7 @@ export async function PUT(
           id,
           JSON.stringify(changedFields),
         ]
-      ).catch(() => {});
+      ).catch((err) => { console.error('[AuditLog] Failed to write audit entry:', err); });
     }
 
     // Fetch with relations

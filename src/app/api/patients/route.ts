@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
         `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
          VALUES ($1, $2, $3, $4, $5)`,
         [nurseId, "create", "patient", patientRow.id, JSON.stringify({ patientId: patientRow.patient_id, name: patientRow.name })]
-      ).catch(() => {});
+      ).catch((err) => { console.error('[AuditLog] Failed to write audit entry:', err); });
     }
 
     const patient = mapPatientFromDb(patientRow!);

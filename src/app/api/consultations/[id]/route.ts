@@ -317,7 +317,7 @@ export async function PUT(
           `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
            VALUES ($1, $2, $3, $4, $5)`,
           [nurseId, "update", "consultation", id, JSON.stringify({ stepCompleted: maxStep, fields: Object.keys(body) })]
-        ).catch(() => {});
+        ).catch((err) => { console.error('[AuditLog] Failed to write audit entry:', err); });
       }
     }
 

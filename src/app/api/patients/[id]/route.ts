@@ -142,7 +142,7 @@ export async function PUT(
       `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
        VALUES ($1, $2, $3, $4, $5)`,
       [nurseId, "update", "patient", id, JSON.stringify(updateData)]
-    ).catch(() => {});
+    ).catch((err) => { console.error('[AuditLog] Failed to write audit entry for patient update:', err); });
 
     const patient = mapPatientFromDb(patientRow!);
     return NextResponse.json({ success: true, data: patient });
@@ -215,7 +215,7 @@ export async function DELETE(
         name: patientRow.name,
         consultationsDeleted: count,
       })]
-    ).catch(() => {});
+    ).catch((err) => { console.error('[AuditLog] Failed to write audit entry for patient delete:', err); });
 
     return NextResponse.json({
       success: true,

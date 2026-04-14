@@ -1072,7 +1072,7 @@ export function ConsultationView() {
 
     async function fetchPastDiagnoses() {
       try {
-        console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId, 'current consultation:', consultation.id);
+        console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId, 'current consultation:', consultation!.id);
         const res = await fetch(`/api/patients/${patientId}`, { signal: controller.signal });
         if (!res.ok) {
           console.warn('[PastDiagnoses] Patient API returned non-OK status:', res.status);
@@ -1082,7 +1082,7 @@ export function ConsultationView() {
         console.log('[PastDiagnoses] Patient data success:', data.success, 'consultations:', data.data?.consultations?.length);
 
         if (data.success && data.data?.consultations) {
-          const currentConsultationId = consultation.id;
+          const currentConsultationId = consultation!.id;
           // Include ANY consultation with diagnoses (not just completed — many are in_progress with data)
           const pastConsultations = data.data.consultations
             .filter((c: Record<string, unknown>) =>
@@ -1459,8 +1459,8 @@ export function ConsultationView() {
             clinicalContext: {
               riskLevel: riskLevel || undefined,
               aog: consultationAOG || undefined,
-              age: consultation?.patient?.age || undefined,
-              bmi: calculatedBMI ? parseFloat(calculatedBMI) : undefined,
+              age: consultation?.patient ? Number((consultation.patient as unknown as Record<string, unknown>).age) : undefined,
+              bmi: calculatedBMI ? parseFloat(String(calculatedBMI)) : undefined,
               smoking: smokingValue || undefined,
               alcohol: alcoholValue || undefined,
               drugUse: drugUseValue || undefined,

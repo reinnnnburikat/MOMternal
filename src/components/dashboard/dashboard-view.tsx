@@ -440,7 +440,7 @@ export function DashboardView() {
   // --- derived data ---
 
   const lowRiskPatients = displayStats
-    ? displayStats.totalPatients - displayStats.highRiskPatients - displayStats.moderateRiskPatients
+    ? Math.max(0, displayStats.totalPatients - displayStats.highRiskPatients - displayStats.moderateRiskPatients)
     : 0;
 
   // Risk distribution data for pie chart — uses consultation-based risk counts

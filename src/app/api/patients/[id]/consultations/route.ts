@@ -199,7 +199,7 @@ export async function POST(
         patientId: patient.patient_id,
         patientName: patient.name,
       })]
-    ).catch(() => {});
+    ).catch((err) => { console.error('[AuditLog] Failed to write audit entry:', err); });
 
     // Build response matching original format with nested patient/nurse
     const result = {

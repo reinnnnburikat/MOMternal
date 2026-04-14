@@ -599,12 +599,12 @@ function VitalsTrendCard({
                   color: isDark ? '#f3f4f6' : '#111827',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                formatter={(value: number | null, name: string) => {
+                formatter={(value: any, name: any) => {
                   if (value === null) return ['N/A', name];
                   return [value, name];
                 }}
-                labelFormatter={(_label: string, payload: Array<{ payload: VitalsTrendDataPoint }>) => {
-                  if (payload && payload.length > 0) {
+                labelFormatter={(_label: any, payload: any) => {
+                  if (payload && payload.length > 0 && payload[0]?.payload?.date) {
                     return format(new Date(payload[0].payload.date), 'MMMM d, yyyy');
                   }
                   return _label;
@@ -765,9 +765,13 @@ export function PatientProfileView() {
         if (data.offline) {
           toast.success('Consultation will be created when back online.');
         } else {
-          setSelectedConsultationId(data.data.id);
-          setCurrentView('consultation');
-          toast.success('Consultation created successfully');
+          if (data.data?.id) {
+            setSelectedConsultationId(data.data.id);
+            setCurrentView('consultation');
+            toast.success('Consultation created successfully');
+          } else {
+            toast.error('Server returned unexpected response');
+          }
         }
       } else {
         toast.error(data.error || 'Failed to create consultation');

@@ -190,10 +190,14 @@ export function PatientListView() {
         if (data.offline) {
           toast.success('Consultation will be created when back online.');
         } else {
-          setSelectedConsultationId(data.data.id);
-          setSelectedPatientId(patientDbId);
-          setCurrentView('consultation');
-          toast.success('Consultation created successfully');
+          if (data.data?.id) {
+            setSelectedConsultationId(data.data.id);
+            setSelectedPatientId(patientDbId);
+            setCurrentView('consultation');
+            toast.success('Consultation created successfully');
+          } else {
+            toast.error('Server returned unexpected response');
+          }
         }
       } else {
         toast.error(data.error || 'Failed to create consultation');

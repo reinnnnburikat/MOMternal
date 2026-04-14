@@ -277,7 +277,7 @@ export function MapView() {
     if (BARANGAY_BOUNDARIES.length > 0) {
       import('leaflet').then((L) => {
         const defaultL = L.default;
-        const geoData = { type: 'FeatureCollection', features: BARANGAY_BOUNDARIES };
+        const geoData = { type: 'FeatureCollection' as const, features: BARANGAY_BOUNDARIES };
         const allBounds = defaultL.geoJSON(geoData).getBounds();
         if (allBounds.isValid()) {
           map.flyToBounds(allBounds, { padding: [30, 30], maxZoom: DEFAULT_ZOOM, duration: 0.8 });
