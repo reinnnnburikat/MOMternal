@@ -28,14 +28,15 @@ export async function GET() {
 
     // 3. Upcoming follow-ups: completed consultations from the last 7 days that might need follow-up
     const followUpResult = await query(
-      `SELECT c.id, c.consultation_no AS "consultationNo", c.patient_id, c.completed_at AS "completedAt",
+      `SELECT c.id, c.consultation_no AS "consultationNo", c.patient_id,
               c.risk_level AS "riskLevel",
+              c.updated_at AS "updatedAt",
               p.name AS "patientName", p.patient_id AS "patientPatientId"
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.status = 'completed'
-         AND c.completed_at >= NOW() - INTERVAL '7 days'
-       ORDER BY c.completed_at DESC
+         AND c.updated_at >= NOW() - INTERVAL '7 days'
+       ORDER BY c.updated_at DESC
        LIMIT 10`
     );
 
@@ -74,7 +75,7 @@ export async function GET() {
         title: "Follow-up Needed",
         message: `${r.patientName} (Ref: ${r.consultationNo})`,
         description: `Completed consultation may need follow-up`,
-        timestamp: r.completedAt as string,
+        timestamp: r.updatedAt as string,
         action: {
           type: "view_patient" as const,
           patientId: r.patient_id as string,
@@ -94,6 +95,6 @@ export async function GET() {
     return NextResponse.json({ notifications });
   } catch (error) {
     console.error("Notifications error:", error);
-    return NextResponse.json({ notifications: [] });
+    return NextResponse.json({ notifications: [] }, { status: 500 });
   }
 }

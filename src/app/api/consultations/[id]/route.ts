@@ -99,6 +99,8 @@ const FIELD_MAPPING: Record<string, string> = {
   nandaDiagnosis: "nanda_diagnosis",
   nandaCode: "nanda_code",
   nandaName: "nanda_name",
+  nandaRelatedTo: "nanda_related_to",
+  icd10AdditionalNotes: "icd10_additional_notes",
   riskLevel: "risk_level",
   preventionLevel: "prevention_level",
   aiSuggestions: "ai_suggestions",
@@ -154,7 +156,7 @@ export async function GET(
       },
     };
 
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true, ...result });
   } catch (error) {
     console.error("Error fetching consultation:", error);
     const msg = error instanceof Error ? error.message : "Failed to fetch consultation";
@@ -321,37 +323,43 @@ export async function PUT(
       }
     }
 
-    // Fetch with patient relation
+    // Fetch with patient relation (include OB fields from patient table)
     const fullRow = await queryOne(
       `SELECT c.*,
               p.id AS patient_db_id, p.patient_id, p.name AS patient_name,
               p.date_of_birth AS patient_date_of_birth,
-              p.risk_level AS patient_risk_level
+              p.risk_level AS patient_risk_level,
+              p.gravidity AS patient_gravidity, p.parity AS patient_parity,
+              p.aog AS patient_aog, p.blood_type AS patient_blood_type
        FROM consultation c
        JOIN patient p ON c.patient_id = p.id
        WHERE c.id = $1`,
       [id]
     );
 
+    if (!fullRow) {
+      return NextResponse.json({ error: "Consultation not found after update" }, { status: 404 });
+    }
+
     const result = {
-      ...mapConsultationFromDb(fullRow!),
+      ...mapConsultationFromDb(fullRow),
       patient: {
-        id: fullRow!.patient_db_id,
-        patientId: fullRow!.patient_id,
-        name: fullRow!.patient_name,
-        dateOfBirth: fullRow!.patient_date_of_birth,
-        riskLevel: fullRow!.patient_risk_level,
-        gravidity: fullRow!.gravidity,
-        parity: fullRow!.parity,
-        aog: fullRow!.aog,
-        bloodType: fullRow!.blood_type,
-        height: fullRow!.height,
-        weight: fullRow!.weight,
-        bmi: fullRow!.bmi,
+        id: fullRow.patient_db_id,
+        patientId: fullRow.patient_id,
+        name: fullRow.patient_name,
+        dateOfBirth: fullRow.patient_date_of_birth,
+        riskLevel: fullRow.patient_risk_level,
+        gravidity: fullRow.patient_gravidity,
+        parity: fullRow.patient_parity,
+        aog: fullRow.patient_aog,
+        bloodType: fullRow.patient_blood_type,
+        height: fullRow.height,
+        weight: fullRow.weight,
+        bmi: fullRow.bmi,
       },
     };
 
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true, ...result });
   } catch (error) {
     console.error("Error updating consultation:", error);
     const msg = error instanceof Error ? error.message : "Failed to update consultation";

@@ -2806,9 +2806,9 @@ export function ConsultationView() {
               </div>
               <div className="p-6 space-y-5">
                 <ReferralSection title="Patient Information">
-                  <ReferralRow label="Name" value={consultation.patient.name} />
-                  <ReferralRow label="Patient ID" value={consultation.patient.patientId} />
-                  {consultation.patient.dateOfBirth && <ReferralRow label="Date of Birth" value={consultation.patient.dateOfBirth} />}
+                  <ReferralRow label="Name" value={consultation.patient?.name ?? 'Unknown'} />
+                  <ReferralRow label="Patient ID" value={consultation.patient?.patientId ?? ''} />
+                  {consultation.patient?.dateOfBirth && <ReferralRow label="Date of Birth" value={consultation.patient.dateOfBirth} />}
                   {consultationAOG && <ReferralRow label="Age of Gestation" value={consultationAOG} />}
                   {gravidity && <ReferralRow label="Gravidity" value={gravidity} />}
                   {parity && <ReferralRow label="Parity" value={parity} />}
@@ -2981,9 +2981,9 @@ export function ConsultationView() {
           <Baby className="h-6 w-6 text-rose-700 dark:text-rose-300" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-foreground truncate">{consultation.patient.name}</h2>
+          <h2 className="text-lg font-semibold text-foreground truncate">{consultation.patient?.name ?? 'Unknown Patient'}</h2>
           <p className="text-sm text-muted-foreground">
-            {consultation.patient.patientId}
+            {consultation.patient?.patientId}
             {consultationAOG && <span className="ml-2"><Badge variant="secondary" className="text-[10px] px-1.5 py-0">{consultationAOG}</Badge></span>}
             {riskLevel && (
               <span className="ml-1">
