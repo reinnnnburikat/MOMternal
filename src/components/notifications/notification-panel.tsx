@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/store/app-store';
+import { offlineFetch } from '@/lib/offline-fetch';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { InlineLoader } from '@/components/ui/page-loader';
 import {
   Popover,
   PopoverContent,
@@ -217,7 +219,7 @@ export function NotificationBell() {
     if (!isAuthenticated) return;
     try {
       setIsLoading(true);
-      const res = await fetch('/api/notifications');
+      const res = await offlineFetch('/api/notifications');
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications ?? []);
@@ -355,8 +357,7 @@ export function NotificationBell() {
         {/* Notification list */}
         {isLoading && notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14">
-            <div className="h-7 w-7 rounded-full border-2 border-rose-300/60 dark:border-rose-600/40 border-t-rose-500 animate-spin" />
-            <span className="text-xs text-muted-foreground mt-3">Loading notifications…</span>
+            <InlineLoader message="Loading notifications..." />
           </div>
         ) : allNotifications.length === 0 ? (
           <EmptyState />

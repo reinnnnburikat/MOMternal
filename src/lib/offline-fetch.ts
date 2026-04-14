@@ -1,5 +1,5 @@
 /**
- * MOMternal Offline Fetch Interceptor
+ * MOMternal Offline Fetch Interceptor — Enhanced
  *
  * A drop-in replacement for the native fetch() that transparently handles
  * offline scenarios:
@@ -7,33 +7,46 @@
  * - GET requests when offline → returns cached data from offline-cache
  * - POST/PUT/PATCH when offline → enqueues to offline-queue and returns mock success
  * - POST/PUT/PATCH when online but fails → also enqueues and returns mock success
+ * - Tracks entity IDs and lastKnownUpdatedAt for conflict resolution
  */
 
 import { getCache, setCache } from '@/lib/offline-cache';
-import { enqueue, getQueueLength } from '@/lib/offline-queue';
+import { enqueue, getQueueLength, type OfflineActionType } from '@/lib/offline-queue';
 import { useAppStore } from '@/store/app-store';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-/** Derive a cache key from a URL (strip query params for list endpoints). */
+/** Derive a cache key from a URL. */
 function urlToCacheKey(url: string): string {
-  // Remove query string for caching (we cache full unfiltered lists)
   const idx = url.indexOf('?');
   return idx > 0 ? url.slice(0, idx) : url;
 }
 
+/** Extract entity ID from URL patterns like /api/patients/abc-123 */
+function extractEntityId(url: string): string | undefined {
+  const match = url.match(/\/api\/(?:patients|consultations|health-history)\/([a-zA-Z0-9-]+)/);
+  return match?.[1];
+}
+
+/** Extract entity type from URL */
+function extractEntityType(url: string): string | undefined {
+  if (url.includes('/patients/')) return 'patient';
+  if (url.includes('/consultations/')) return 'consultation';
+  if (url.includes('/health-history/')) return 'health_history';
+  return undefined;
+}
+
 /** Derive an action type from the URL and method. */
-function deriveActionType(
-  method: string,
-  url: string,
-): 'create-patient' | 'update-patient' | 'delete-patient' | 'create-consultation' | 'update-consultation' | 'ai-suggest' {
+function deriveActionType(method: string, url: string): OfflineActionType {
+  if (url.includes('/ai-suggest')) return 'ai-suggest';
+  if (url.includes('/referral')) return 'generate-referral';
   if (url.includes('/consultations') && method === 'POST') return 'create-consultation';
   if (url.includes('/consultations') && (method === 'PUT' || method === 'PATCH')) return 'update-consultation';
   if (url.includes('/patients') && method === 'POST') return 'create-patient';
   if (url.includes('/patients') && method === 'DELETE') return 'delete-patient';
   if (url.includes('/patients') && (method === 'PUT' || method === 'PATCH')) return 'update-patient';
-  if (url.includes('/ai') || url.includes('/suggest')) return 'ai-suggest';
-  // Fallback
+  if (url.includes('/health-history') && method === 'POST') return 'create-consultation';
+  if (url.includes('/health-history') && (method === 'PUT' || method === 'PATCH')) return 'update-consultation';
   return 'update-patient';
 }
 
@@ -42,7 +55,7 @@ function jsonResponse(data: unknown, status = 200): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
-    statusText: status === 200 ? 'OK' : status === 503 ? 'Service Unavailable' : 'Error',
+    statusText: status === 200 ? 'OK' : status === 201 ? 'Created' : status === 503 ? 'Service Unavailable' : 'Error',
     headers: new Headers({ 'Content-Type': 'application/json' }),
     json: async () => data,
     text: async () => JSON.stringify(data),
@@ -60,9 +73,16 @@ function jsonResponse(data: unknown, status = 200): Response {
 
 /** Check if an error is a network-level error (offline, DNS failure, etc.). */
 function isNetworkError(err: unknown): boolean {
-  if (!(err instanceof TypeError)) return false;
-  const msg = err.message.toLowerCase();
-  return msg.includes('failed') || msg.includes('network') || msg.includes('load') || msg.includes('abort') || msg.includes('cors');
+  if (err instanceof TypeError) {
+    const msg = err.message.toLowerCase();
+    return msg.includes('failed') || msg.includes('network') || msg.includes('load') || msg.includes('abort') || msg.includes('cors') || msg.includes('fetch');
+  }
+  return err instanceof DOMException && err.name === 'AbortError';
+}
+
+/** Generate a temporary ID for offline-created entities */
+function generateTempId(): string {
+  return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 // ── Public API ───────────────────────────────────────────────────────────
@@ -73,6 +93,19 @@ function isNetworkError(err: unknown): boolean {
 export function isOffline(): boolean {
   if (typeof navigator === 'undefined') return false;
   return !navigator.onLine;
+}
+
+export interface OfflineFetchOptions extends RequestInit {
+  /** Override the action type for queue classification */
+  actionType?: string;
+  /** Override entity ID for conflict resolution tracking */
+  entityId?: string;
+  /** Override entity type for conflict resolution tracking */
+  entityType?: string;
+  /** Human-readable description for the sync queue UI */
+  description?: string;
+  /** The last known server updatedAt for the entity (for conflict detection) */
+  lastKnownUpdatedAt?: string;
 }
 
 /**
@@ -91,7 +124,7 @@ export function isOffline(): boolean {
  */
 export async function offlineFetch(
   url: string,
-  options: RequestInit = {},
+  options: OfflineFetchOptions = {},
 ): Promise<Response> {
   const method = (options.method || 'GET').toUpperCase();
   const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
@@ -144,7 +177,9 @@ export async function offlineFetch(
   }
 
   // ── Mutation requests (POST / PUT / PATCH / DELETE) ──────────────────
-  if (isOffline()) {
+  const shouldEnqueueOffline = isOffline();
+
+  if (shouldEnqueueOffline) {
     // Offline — enqueue immediately and return mock success
     const actionType = deriveActionType(method, url);
     let bodyObj: Record<string, unknown> = {};
@@ -156,8 +191,18 @@ export async function offlineFetch(
       }
     }
 
-    const queueId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH' | 'DELETE', bodyObj);
+    const queueId = enqueue(
+      actionType,
+      url,
+      method as 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+      bodyObj,
+      {
+        entityId: options.entityId || extractEntityId(url),
+        entityType: options.entityType || extractEntityType(url),
+        lastKnownUpdatedAt: options.lastKnownUpdatedAt,
+        description: options.description,
+      },
+    );
 
     // Update Zustand store pending count
     try {
@@ -166,10 +211,22 @@ export async function offlineFetch(
       // Store may not be available in all contexts
     }
 
+    // For create operations, return a temp ID so the UI can function offline
+    if (method === 'POST' && !extractEntityId(url)) {
+      return jsonResponse({
+        success: true,
+        offline: true,
+        queueId,
+        tempId: generateTempId(),
+        message: 'Saved offline. Will sync when you are back online.',
+      });
+    }
+
     return jsonResponse({
       success: true,
       offline: true,
       queueId,
+      message: 'Saved offline. Will sync when you are back online.',
     });
   }
 
@@ -192,8 +249,18 @@ export async function offlineFetch(
         }
       }
 
-      const queueId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      enqueue(actionType, url, method as 'POST' | 'PUT' | 'PATCH' | 'DELETE', bodyObj);
+      const queueId = enqueue(
+        actionType,
+        url,
+        method as 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+        bodyObj,
+        {
+          entityId: options.entityId || extractEntityId(url),
+          entityType: options.entityType || extractEntityType(url),
+          lastKnownUpdatedAt: options.lastKnownUpdatedAt,
+          description: options.description,
+        },
+      );
 
       try {
         useAppStore.getState().setPendingSyncCount(getQueueLength());
@@ -201,10 +268,21 @@ export async function offlineFetch(
         // Store may not be available in all contexts
       }
 
+      if (method === 'POST' && !extractEntityId(url)) {
+        return jsonResponse({
+          success: true,
+          offline: true,
+          queueId,
+          tempId: generateTempId(),
+          message: 'Connection lost. Saved offline. Will sync when back online.',
+        });
+      }
+
       return jsonResponse({
         success: true,
         offline: true,
         queueId,
+        message: 'Connection lost. Saved offline. Will sync when back online.',
       });
     }
 

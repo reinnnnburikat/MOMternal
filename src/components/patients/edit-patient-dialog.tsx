@@ -41,6 +41,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { MAKATI_BARANGAYS } from '@/data/makati-barangays';
 import { useAppStore } from '@/store/app-store';
+import { offlineFetch } from '@/lib/offline-fetch';
 
 // ─── Constants (same as new-patient-view.tsx) ─────────────────────────────
 
@@ -482,7 +483,7 @@ export function EditPatientDialog({ patient, open, onOpenChange, onSaved }: Edit
         socialHistory: socialHistoryJSON,
       };
 
-      const res = await fetch(`/api/patients/${patient.id}`, {
+      const res = await offlineFetch(`/api/patients/${patient.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -491,14 +492,18 @@ export function EditPatientDialog({ patient, open, onOpenChange, onSaved }: Edit
       const data = await res.json();
 
       if (data.success) {
-        toast.success('Patient updated successfully');
+        if (data.offline) {
+          toast.info('Patient saved offline. Will sync when online.');
+        } else {
+          toast.success('Patient updated successfully');
+        }
         onSaved();
         onOpenChange(false);
       } else {
         toast.error(data.error || 'Failed to update patient');
       }
     } catch {
-      toast.error('Connection error. Please try again.');
+      toast.error('Unable to save. Will retry when online.');
     } finally {
       setIsSaving(false);
     }

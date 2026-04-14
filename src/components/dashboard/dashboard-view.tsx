@@ -3,7 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/app-store';
+import { offlineFetch } from '@/lib/offline-fetch';
 import { setCache, getCache, getCacheTimestamp } from '@/lib/offline-cache';
+import { PageLoader } from '@/components/ui/page-loader';
 import {
   Card,
   CardHeader,
@@ -352,7 +354,7 @@ export function DashboardView() {
   } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/stats', { cache: 'no-store' });
+      const res = await offlineFetch('/api/dashboard/stats', { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to fetch dashboard stats');
       const data: DashboardStats = await res.json();
       // Cache successful response for offline use
@@ -380,7 +382,7 @@ export function DashboardView() {
   } = useQuery<PausedConsultation[]>({
     queryKey: ['paused-consultations'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/resume');
+      const res = await offlineFetch('/api/dashboard/resume');
       if (!res.ok) throw new Error('Failed to fetch paused consultations');
       const data = await res.json();
       return data.consultations ?? [];
@@ -610,7 +612,7 @@ export function DashboardView() {
 
       {/* Stats Cards */}
       {isLoadingStats ? (
-        <StatsCardsSkeleton />
+        <PageLoader message="Loading dashboard..." />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {statsCards.map((card, idx) => {
@@ -649,9 +651,7 @@ export function DashboardView() {
       )}
 
       {/* Charts Row: Risk Pie (left) | Quick Actions + Trends (right) */}
-      {isLoadingStats ? (
-        <ChartsSkeleton />
-      ) : displayStats ? (
+      {displayStats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
           <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
@@ -893,9 +893,7 @@ export function DashboardView() {
       )}
 
       {/* Recent Consultations */}
-      {isLoadingStats ? (
-        <RecentTableSkeleton />
-      ) : displayStats && displayStats.recentConsultations.length > 0 ? (
+      {displayStats && displayStats.recentConsultations.length > 0 ? (
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-purple-50/60 to-transparent dark:from-purple-950/20 dark:to-transparent">
             <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">

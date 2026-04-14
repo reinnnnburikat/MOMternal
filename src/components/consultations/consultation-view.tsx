@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { validateStep } from '@/lib/consultation-validation';
 import { generateReferralPdf } from '@/lib/generate-referral-pdf';
 import { enqueue, getQueueLength } from '@/lib/offline-queue';
+import { offlineFetch } from '@/lib/offline-fetch';
 import { setCache, getCache } from '@/lib/offline-cache';
 import { generateFallbackSuggestions } from '@/lib/ai-fallback';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
@@ -935,9 +936,12 @@ export function ConsultationView() {
     setPastDiagnoses([]);
     async function fetchConsultation() {
       try {
-        const res = await fetch(`/api/consultations/${selectedConsultationId}`);
+        const res = await offlineFetch(`/api/consultations/${selectedConsultationId}`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
+        if (data.fromCache) {
+          console.log('[offlineFetch] Consultation data served from cache');
+        }
         console.log('[PastDiagnoses] Consultation loaded:', data.consultationNo, 'patient:', data.patient?.id);
         setConsultation(data);
         setChiefComplaint(data.chiefComplaint || data.subjectiveSymptoms || '');
@@ -1073,12 +1077,15 @@ export function ConsultationView() {
     async function fetchPastDiagnoses() {
       try {
         console.log('[PastDiagnoses] Fetching past diagnoses for patient:', patientId, 'current consultation:', consultation!.id);
-        const res = await fetch(`/api/patients/${patientId}`, { signal: controller.signal });
+        const res = await offlineFetch(`/api/patients/${patientId}`, { signal: controller.signal });
         if (!res.ok) {
           console.warn('[PastDiagnoses] Patient API returned non-OK status:', res.status);
           return;
         }
         const data = await res.json();
+        if (data.fromCache) {
+          console.log('[offlineFetch] Patient data served from cache');
+        }
         console.log('[PastDiagnoses] Patient data success:', data.success, 'consultations:', data.data?.consultations?.length);
 
         if (data.success && data.data?.consultations) {
@@ -1284,13 +1291,16 @@ export function ConsultationView() {
     if (Object.keys(payload).length === 0) return true;
     setSaving(true);
     try {
-      const res = await fetch(`/api/consultations/${selectedConsultationId}`, {
+      const res = await offlineFetch(`/api/consultations/${selectedConsultationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Save failed');
       const updated = await res.json();
+      if (updated.success && updated.offline) {
+        toast.info('Saved offline. Will sync when you are back online.', { duration: 3000 });
+      }
       setConsultation(updated);
       toast.success('Progress saved');
       updateActivity();
@@ -1309,7 +1319,7 @@ export function ConsultationView() {
     const payload = buildSavePayload(currentStep);
     if (Object.keys(payload).length === 0) return;
     try {
-      await fetch(`/api/consultations/${selectedConsultationId}`, {
+      await offlineFetch(`/api/consultations/${selectedConsultationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1429,7 +1439,7 @@ export function ConsultationView() {
         setReferralType(newType);
         // Save risk level and prevention level
         try {
-          await fetch(`/api/consultations/${selectedConsultationId}`, {
+          const riskRes = await offlineFetch(`/api/consultations/${selectedConsultationId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1437,6 +1447,12 @@ export function ConsultationView() {
               preventionLevel: pl,
             }),
           });
+          if (riskRes.ok) {
+            const riskData = await riskRes.json();
+            if (riskData.success && riskData.offline) {
+              toast.info('Saved offline. Will sync when you are back online.', { duration: 3000 });
+            }
+          }
         } catch { /* non-critical */ }
       }
       toast.success('AI summary generated');

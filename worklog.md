@@ -693,3 +693,59 @@ Stage Summary:
 - Dev server: compiling cleanly
 - Pushed to GitHub as commit d1ae8e7
 - Remaining items noted but not addressed (architectural): server-side auth middleware, DB transactions for cascade deletes, rate limiting on login, credential rotation (these require infrastructure changes beyond code fixes)
+---
+Task ID: 6-a
+Agent: offline-wiring
+Task: Wire offlineFetch into edit-patient-dialog
+
+Work Log:
+- Read edit-patient-dialog.tsx
+- Added `import { offlineFetch } from '@/lib/offline-fetch'` at line 44
+- Replaced raw `fetch` with `offlineFetch` on the PUT `/api/patients/${patient.id}` call
+- Added offline toast feedback: when `data.offline` is true, shows `toast.info('Patient saved offline. Will sync when online.')`
+- Updated catch error toast from `'Connection error. Please try again.'` to `'Unable to save. Will retry when online.'`
+
+Stage Summary:
+- edit-patient-dialog.tsx now uses offlineFetch for patient updates
+- No UI/rendering code was modified — only the fetch call and toast messages changed
+---
+Task ID: 6-c
+Agent: offline-wiring
+Task: Wire offlineFetch into dashboard, audit, notifications, map, patient-profile + PageLoader
+
+Work Log:
+- dashboard-view.tsx: added imports for offlineFetch and PageLoader; replaced fetch('/api/dashboard/stats') and fetch('/api/dashboard/resume') with offlineFetch; replaced StatsCardsSkeleton, ChartsSkeleton, and RecentTableSkeleton with PageLoader
+- audit-view.tsx: added imports for offlineFetch and PageLoader; replaced fetch('/api/audit?...') with offlineFetch; replaced AuditTableSkeleton with PageLoader
+- notification-panel.tsx: added imports for offlineFetch and InlineLoader; replaced fetch('/api/notifications') with offlineFetch; replaced manual spinner+text with InlineLoader
+- map-view.tsx: added imports for offlineFetch, PageLoader, and InlineLoader; replaced fetch('/api/map/data') and fetch('/makati-barangays.geojson') with offlineFetch; replaced Loader2 spinner with InlineLoader in loading pill overlay; removed unused Loader2 import
+- patient-profile-view.tsx: added import for PageLoader; replaced raw fetch DELETE call with offlineFetch; replaced ProfileSkeleton with PageLoader(fullPage) for initial load state
+
+Stage Summary:
+- All components now use offlineFetch for data fetching — zero remaining raw fetch() calls in modified files
+- PageLoader applied: dashboard (full initial load), audit (table loading), patient-profile (initial load)
+- InlineLoader applied: notification-panel (initial load), map-view (data overlay pill)
+- ESLint: 0 errors on all 5 modified files
+- TypeScript: no new errors introduced (all existing errors pre-date this change)
+---
+Task ID: 6-b
+Agent: offline-wiring
+Task: Wire offlineFetch into consultation-view
+
+Work Log:
+- Read consultation-view.tsx (~3000+ lines) and identified all 7 raw fetch() calls
+- Added `import { offlineFetch } from '@/lib/offline-fetch';` at line 10 (after existing offline-queue import)
+- Replaced 2 GET fetch calls with offlineFetch:
+  - `fetch('/api/consultations/${selectedConsultationId}')` → `offlineFetch(...)` with fromCache console log
+  - `fetch('/api/patients/${patientId}', { signal })` → `offlineFetch(...)` with fromCache console log
+- Replaced 3 PUT fetch calls with offlineFetch:
+  - `saveStep()` PUT → offlineFetch with offline toast check (`toast.info('Saved offline...')`)
+  - `saveCurrentStepSilent()` PUT → offlineFetch (no toast, silent save)
+  - Risk level save PUT (inside handleAiSuggest) → offlineFetch with offline toast check
+- Preserved 2 raw fetch() calls that inherently require internet:
+  - `fetch('/api/consultations/${id}/ai-suggest')` — POST for AI suggestions
+  - `fetch('/api/consultations/${id}/referral')` — POST for PDF referral generation
+
+Stage Summary:
+- consultation-view.tsx now supports offline for all operations except AI and referral
+- ESLint: 0 errors
+- TypeScript: no new errors in consultation-view.tsx

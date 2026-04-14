@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { offlineFetch } from '@/lib/offline-fetch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageLoader } from '@/components/ui/page-loader';
 import {
   Table,
   TableHeader,
@@ -217,7 +219,7 @@ export function AuditView() {
         params.set('search', searchQuery.trim());
       }
 
-      const res = await fetch(`/api/audit?${params.toString()}`);
+      const res = await offlineFetch(`/api/audit?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch audit logs');
 
       const data: AuditApiResponse = await res.json();
@@ -381,7 +383,7 @@ export function AuditView() {
             <>
               <div className="max-h-96 overflow-y-auto custom-scrollbar rounded-lg border border-rose-100">
                 {loading ? (
-                  <AuditTableSkeleton />
+                  <PageLoader message="Loading audit logs..." />
                 ) : filteredLogs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     {/* Decorative outer ring */}

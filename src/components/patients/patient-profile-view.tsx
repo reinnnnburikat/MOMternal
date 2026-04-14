@@ -81,6 +81,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { offlineFetch } from '@/lib/offline-fetch';
+import { PageLoader } from '@/components/ui/page-loader';
 
 // ---------------------------------------------------------------------------
 // Data interfaces
@@ -812,7 +813,7 @@ export function PatientProfileView() {
     if (!patient || !currentNurse) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/patients/${patient.id}?nurseId=${encodeURIComponent(currentNurse.id)}`, {
+      const res = await offlineFetch(`/api/patients/${patient.id}?nurseId=${encodeURIComponent(currentNurse.id)}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -845,7 +846,7 @@ export function PatientProfileView() {
   // ------------------------------------------------------------------
 
   if (isLoading && !patient) {
-    return <ProfileSkeleton />;
+    return <PageLoader message="Loading patient profile..." fullPage />;
   }
 
   if (!patient) {

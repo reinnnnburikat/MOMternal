@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BARANGAY_CENTROIDS } from '@/components/map/barangay-centroids';
 import { MAKATI_BARANGAYS } from '@/data/makati-barangays';
+import { offlineFetch } from '@/lib/offline-fetch';
 import { setCache, getCache } from '@/lib/offline-cache';
+import { PageLoader, InlineLoader } from '@/components/ui/page-loader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,7 +37,6 @@ import {
   ShieldAlert,
   Filter,
   Layers,
-  Loader2,
   Search,
   X,
   RefreshCw,
@@ -118,7 +119,7 @@ export function MapView() {
   } = useQuery<MapApiResponse | null>({
     queryKey: ['map-data'],
     queryFn: async () => {
-      const res = await fetch('/api/map/data');
+      const res = await offlineFetch('/api/map/data');
       if (!res.ok) throw new Error('Failed to fetch map data');
       const data: MapApiResponse = await res.json();
       // Cache successful response for offline use
@@ -533,7 +534,7 @@ export function MapView() {
 
       // Load accurate barangay boundaries from GeoJSON file (OSM source)
       try {
-        const geoRes = await fetch('/makati-barangays.geojson');
+        const geoRes = await offlineFetch('/makati-barangays.geojson');
         const geoData = await geoRes.json();
         BARANGAY_BOUNDARIES = geoData.features || [];
 
@@ -804,11 +805,10 @@ export function MapView() {
               style={{ height: '500px', minHeight: '400px' }}
             />
 
-            {/* Loading overlay — small pill, does NOT block the map */}
+            {/* Loading overlay — pill, does NOT block the map */}
             {loading && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur-sm border border-rose-100 rounded-full shadow-md px-4 py-2 flex items-center gap-2">
-                <Loader2 className="h-3.5 w-3.5 text-rose-600 animate-spin" />
-                <span className="text-xs font-medium text-foreground">Loading patient data...</span>
+                <InlineLoader message="Loading patient data..." />
               </div>
             )}
 

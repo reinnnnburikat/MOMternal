@@ -48,7 +48,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/notifications/notification-panel';
-import { processQueue, getQueueLength } from '@/lib/offline-queue';
+import { processQueue, getQueueLength, getConflicts, type SyncResult } from '@/lib/offline-queue';
+import { ConflictResolutionDialog } from '@/components/offline/conflict-resolution-dialog';
 
 const navItems: { view: AppView; label: string; icon: React.ElementType }[] = [
   { view: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -403,6 +404,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const setIsOffline = useAppStore((s) => s.setIsOffline);
   const pendingSyncCount = useAppStore((s) => s.pendingSyncCount);
   const setPendingSyncCount = useAppStore((s) => s.setPendingSyncCount);
+  const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
+  const [conflicts, setConflicts] = useState<ReturnType<typeof getConflicts>>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Sync pendingSyncCount from offline queue on mount and periodically
   useEffect(() => {
@@ -431,14 +435,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             duration: 4000,
           });
           // Process queue in background
-          const result = await processQueue();
+          setIsSyncing(true);
+          const result: SyncResult = await processQueue();
           setPendingSyncCount(getQueueLength());
+          setIsSyncing(false);
           if (result.processed > 0) {
             toast.success(`Synced ${result.processed} action${result.processed > 1 ? 's' : ''} successfully`, {
               duration: 3000,
             });
           }
-          if (result.failed > 0) {
+          if (result.conflicts.length > 0) {
+            setConflicts(result.conflicts);
+            setConflictDialogOpen(true);
+            toast.warning(`${result.conflicts.length} sync conflict${result.conflicts.length > 1 ? 's' : ''} found`, {
+              description: 'Please review and choose which version to keep.',
+              duration: 5000,
+            });
+          } else if (result.failed > 0) {
             toast.error(`${result.failed} action${result.failed > 1 ? 's' : ''} failed to sync`, {
               description: 'Will retry when back online.',
               duration: 4000,
@@ -562,11 +575,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
               {/* Pending Sync Badge */}
               {pendingSyncCount > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/30 shadow-sm shadow-amber-200/40">
-                  <CloudOff className="h-3 w-3" />
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/30 shadow-sm shadow-amber-200/40 hover:bg-amber-100 dark:hover:bg-amber-950/70 transition-colors duration-200 cursor-pointer"
+                  onClick={() => {
+                    const c = getConflicts();
+                    if (c.length > 0) {
+                      setConflicts(c);
+                      setConflictDialogOpen(true);
+                    }
+                  }}
+                >
+                  {isSyncing ? (
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <CloudOff className="h-3 w-3" />
+                  )}
                   <span className="hidden sm:inline">{pendingSyncCount} pending</span>
                   <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">{pendingSyncCount}</span>
-                </div>
+                </button>
               )}
 
               {/* Online/Offline indicator */}
@@ -608,15 +635,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="sticky bottom-0 z-50 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2.5 flex items-center justify-center gap-2 shadow-[0_-2px_10px_rgba(245,158,11,0.3)]">
             <WifiOff className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm font-medium">
-              You're offline — cached data is available. Changes will sync when you're back online.
+              You&apos;re offline — all features are available. Changes will sync automatically.
             </p>
             {pendingSyncCount > 0 && (
               <span className="inline-flex items-center gap-1 ml-2 px-2.5 py-0.5 rounded-full bg-white/20 text-amber-50 text-xs font-bold backdrop-blur-sm border border-white/20">
+                <CloudOff className="h-3 w-3" />
                 {pendingSyncCount} pending
               </span>
             )}
           </div>
         )}
+
+        {/* Syncing Banner — shown while actively syncing */}
+        {!isOffline && isSyncing && (
+          <div className="sticky bottom-0 z-50 bg-gradient-to-r from-sky-500 to-sky-600 text-white px-4 py-2 flex items-center justify-center gap-2 shadow-[0_-2px_10px_rgba(14,165,233,0.3)]">
+            <RefreshCw className="h-4 w-4 animate-spin flex-shrink-0" />
+            <p className="text-sm font-medium">Syncing your changes...</p>
+          </div>
+        )}
+
+        {/* Conflict Resolution Dialog */}
+        <ConflictResolutionDialog
+          conflicts={conflicts}
+          open={conflictDialogOpen}
+          onOpenChange={setConflictDialogOpen}
+          onResolved={() => {
+            setPendingSyncCount(getQueueLength());
+          }}
+        />
 
         {/* Footer */}
         <footer className="border-t border-rose-200/40 dark:border-gray-700/40 bg-white/70 dark:bg-gray-950/70 mt-auto backdrop-blur-sm">
