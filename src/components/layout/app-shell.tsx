@@ -102,8 +102,8 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
                   <Button
                     variant="ghost"
                     className={cn(
-                      'justify-center h-10 w-10 mx-auto transition-all',
-                      isActive && 'bg-rose-100 dark:bg-rose-900/30'
+                      'justify-center h-10 w-10 mx-auto transition-all duration-200',
+                      isActive && 'bg-rose-100 dark:bg-rose-900/30 shadow-sm shadow-rose-200/60 dark:shadow-rose-900/40'
                     )}
                     onClick={() => onNavigate(item.view)}
                   >
@@ -119,14 +119,14 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
               key={item.view}
               variant="ghost"
               className={cn(
-                'w-full justify-start gap-3 h-10 px-3 text-sm font-medium transition-all relative',
+                'w-full justify-start gap-3 h-10 px-3 text-sm font-medium transition-all duration-200 relative group',
                 isActive
-                  ? 'bg-gradient-to-r from-rose-100 to-rose-50 text-rose-800 hover:from-rose-100 hover:to-rose-50 dark:from-rose-900/40 dark:to-rose-900/20 dark:text-rose-200'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-rose-50/80 dark:hover:bg-gray-800'
+                  ? 'bg-gradient-to-r from-rose-100 to-rose-50 text-rose-800 hover:from-rose-100 hover:to-rose-50 dark:from-rose-900/40 dark:to-rose-900/20 dark:text-rose-200 shadow-sm shadow-rose-100/80 dark:shadow-rose-900/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-rose-50/80 dark:hover:bg-gray-800 hover:shadow-sm'
               )}
               onClick={() => onNavigate(item.view)}
             >
-              <item.icon className={cn('h-4.5 w-4.5 transition-colors', isActive && 'text-rose-600')} />
+              <item.icon className={cn('h-4.5 w-4.5 transition-colors duration-200', isActive && 'text-rose-600')} />
               {item.label}
               {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-rose-500 rounded-r-full" />}
             </Button>
@@ -149,7 +149,7 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
               variant="ghost"
               onClick={onToggleCollapse}
               className={cn(
-                "w-full justify-center gap-2 h-9 text-sm text-muted-foreground hover:text-foreground",
+                "w-full justify-center gap-2 h-9 text-sm text-muted-foreground hover:text-foreground transition-all duration-200",
                 collapsed ? "mx-auto w-10" : "px-3"
               )}
             >
@@ -181,7 +181,7 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
               <AlertDialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-9 px-3 text-sm text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  className="w-full justify-start gap-3 h-9 px-3 text-sm text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out
@@ -211,7 +211,7 @@ function SidebarContent({ onNavigate, currentView, collapsed, onToggleCollapse }
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="mt-3 h-9 w-9 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  className="mt-3 h-9 w-9 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200"
                   onClick={() => setShowSignOutDialog(true)}
                 >
                   <LogOut className="h-4 w-4" />
@@ -350,7 +350,7 @@ function BreadcrumbBar() {
   const path = getBreadcrumbPath(currentView);
 
   return (
-    <div className="border-b border-rose-100/80 dark:border-gray-800 px-6 py-2.5 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm">
+    <div className="border-b border-rose-100/60 dark:border-gray-800 px-6 py-2.5 bg-gradient-to-r from-white/70 to-rose-50/30 dark:from-gray-950/70 dark:to-gray-900/30 backdrop-blur-sm">
       <Breadcrumb className="text-sm">
         <BreadcrumbList>
           {path.map((item, idx) => {
@@ -562,7 +562,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
               {/* Pending Sync Badge */}
               {pendingSyncCount > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/30 shadow-sm shadow-amber-200/40">
                   <CloudOff className="h-3 w-3" />
                   <span className="hidden sm:inline">{pendingSyncCount} pending</span>
                   <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold">{pendingSyncCount}</span>
@@ -570,17 +570,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
 
               {/* Online/Offline indicator */}
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
                 isOnline
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400'
-                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 ring-1 ring-emerald-200/60 dark:ring-emerald-800/30'
+                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 ring-1 ring-amber-200/60 dark:ring-amber-800/30'
               }`}>
                 {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                 <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
 
               {/* Session timer icon */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 ring-1 ring-rose-200/60 dark:ring-rose-800/30">
                 <Clock className="h-3 w-3" />
                 <span className="hidden sm:inline">Session Active</span>
               </div>
@@ -605,13 +605,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Offline Banner — persistent bottom bar */}
         {isOffline && (
-          <div className="sticky bottom-0 z-50 bg-amber-500 text-white px-4 py-2.5 flex items-center justify-center gap-2 shadow-[0_-2px_10px_rgba(245,158,11,0.3)]">
+          <div className="sticky bottom-0 z-50 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2.5 flex items-center justify-center gap-2 shadow-[0_-2px_10px_rgba(245,158,11,0.3)]">
             <WifiOff className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm font-medium">
               You're offline — cached data is available. Changes will sync when you're back online.
             </p>
             {pendingSyncCount > 0 && (
-              <span className="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-amber-600 text-amber-50 text-xs font-bold">
+              <span className="inline-flex items-center gap-1 ml-2 px-2.5 py-0.5 rounded-full bg-white/20 text-amber-50 text-xs font-bold backdrop-blur-sm border border-white/20">
                 {pendingSyncCount} pending
               </span>
             )}
@@ -626,14 +626,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Baby className="h-3.5 w-3.5 text-rose-400" />
                 <span>&copy; 2025 MOMternal — Mobilized Outreach Maternal Support</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-medium">ADPIE</span>
-                <span className="text-rose-300 dark:text-gray-700">&middot;</span>
-                <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-medium">SOAP</span>
-                <span className="text-rose-300 dark:text-gray-700">&middot;</span>
-                <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-medium">NNN</span>
-                <span className="text-rose-300 dark:text-gray-700">&middot;</span>
-                <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-medium">ICD-10</span>
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[10px] font-semibold ring-1 ring-rose-200/50 dark:ring-rose-800/30">ADPIE</span>
+                <span className="text-rose-200 dark:text-gray-700">·</span>
+                <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[10px] font-semibold ring-1 ring-rose-200/50 dark:ring-rose-800/30">SOAP</span>
+                <span className="text-rose-200 dark:text-gray-700">·</span>
+                <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[10px] font-semibold ring-1 ring-rose-200/50 dark:ring-rose-800/30">NNN</span>
+                <span className="text-rose-200 dark:text-gray-700">·</span>
+                <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[10px] font-semibold ring-1 ring-rose-200/50 dark:ring-rose-800/30">ICD-10</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-medium text-muted-foreground dark:text-gray-500">Made with R.N.</span>

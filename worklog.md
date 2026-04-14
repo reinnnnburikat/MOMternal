@@ -1,3 +1,95 @@
+# Worklog: Login, Dashboard & Notification Panel UI Polish
+
+## Date: 2025-01-22
+
+## Task
+UI/UX visual polish for Login View, Dashboard View, and Notification Panel. Layout/CSS/className changes only — no functionality, API calls, or state management changes.
+
+## Files Modified
+- `src/components/layout/login-view.tsx`
+- `src/components/dashboard/dashboard-view.tsx`
+- `src/components/notifications/notification-panel.tsx`
+
+### 1. Login View (`login-view.tsx`)
+
+**Branding Panel (Left Side):**
+- **Animated background orbs**: Three decorative floating circles with staggered `animate-[pulse]` animations (8s, 6s, 10s) for visual depth
+- **Logo container**: Replaced flat `<img>` with a `w-20 h-20 rounded-2xl` container featuring `bg-white/10 backdrop-blur-sm ring-1 ring-white/20` and a subtle glow shadow
+- **Tagline**: Upgraded to `text-xs font-semibold uppercase tracking-widest text-white/60` for a refined look
+- **Feature list items**: Added `rounded-lg px-3 py-2 hover:bg-white/[0.08] transition-colors` for interactive hover feedback; icon containers now have `ring-1 ring-white/10` for definition; labels use `font-medium`
+- **Footer text**: Softened to `text-white/50` with `font-semibold` on the "R.N." span, changed to "R.N. care"
+
+**Form Panel (Right Side):**
+- **Background gradient**: Changed from flat `bg-white` to `bg-gradient-to-b from-white to-rose-50/30` with a decorative top-right `rounded-bl-full` rose gradient accent
+- **Mobile logo**: Upgraded to `w-14 h-14 rounded-2xl` with `ring-1 ring-rose-200/60` and added "Maternal Health System" subtitle in `tracking-widest uppercase`
+- **Form heading**: Added a `h-1 w-10 rounded-full bg-gradient-to-r from-rose-500 to-pink-500` accent bar above the title; added `tracking-tight` to heading
+- **Form labels**: Added `text-sm font-medium` for better weight
+- **Input fields**: Added `border-gray-200 dark:border-gray-700 focus-visible:ring-rose-500/20 focus-visible:border-rose-400 transition-all duration-200` for rose-themed focus states
+- **Password toggle button**: Added `hover:text-rose-500 focus-visible:text-rose-500 focus-visible:ring-2 focus-visible:ring-rose-500/20 rounded-sm` with `aria-label` for accessibility
+- **Sign In button**: Gradient `from-rose-600 to-rose-600` with `shadow-md shadow-rose-600/20 hover:shadow-lg hover:shadow-rose-600/30 active:scale-[0.98] transition-all duration-200` for interactive feedback
+
+### 2. Dashboard View (`dashboard-view.tsx`)
+
+**Chart Card Headers — Gradient Backgrounds:**
+- Risk Distribution: `bg-gradient-to-r from-rose-50/60 to-transparent dark:from-rose-950/20`
+- Quick Actions: Same rose gradient
+- Consultation Trends: Same rose gradient
+- Paused Assessments: `from-amber-50/60` (amber accent for warning context)
+- Recent Consultations (both populated & empty): `from-purple-50/60` (purple accent matching Activity stat card)
+
+**Icon Container Upgrades:**
+- All card header icons upgraded from `bg-rose-50` to `bg-rose-100 dark:bg-rose-900/50` for better contrast
+- Quick Actions: Added UserPlus icon in rose container
+- Paused Assessments: Added PlayCircle icon in amber container (`bg-amber-100 text-amber-600`)
+- Recent Consultations: Added Activity icon in purple container (`bg-purple-100 text-purple-600`)
+
+**Quick Actions Buttons:**
+- Primary button: Added `shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200`
+- Outline buttons: Added `hover:border-rose-300 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200`
+
+### 3. Notification Panel (`notification-panel.tsx`)
+
+**Notification Cards:**
+- Changed from `rounded-lg` to `rounded-xl` for softer corners
+- Added `group` class for potential child hover states
+- Added `hover:shadow-sm transition-all duration-200` (upgraded from `transition-colors duration-150`)
+- Icon containers: Added `ring-1 ring-black/5 dark:ring-white/5` for subtle depth; upgraded to `rounded-lg`
+- Timestamp spacing: Increased from `mt-1` to `mt-1.5`
+- Unread dot: Added `opacity-70` for subtlety; repositioned to `mt-2`
+
+**Empty State:**
+- Replaced flat circle with dashed border ring (`border-2 border-dashed border-rose-200/50`)
+- Upgraded container to `w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30`
+- Icon enlarged to `h-7 w-7`
+- Title upgraded to `font-semibold`
+- Description: Added `leading-relaxed` and widened to `max-w-[220px]`
+
+**Header:**
+- Added `bg-gradient-to-r from-rose-50/30 to-transparent dark:from-rose-950/10` subtle gradient
+- Bell icon wrapped in `w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/50` container
+
+**Filter Pills:**
+- Upgraded from `px-1.5 py-0.5` to `px-2 py-1` for better touch targets
+- Added `font-semibold` and `ring-1 ring-{color}-200/60 dark:ring-{color}-800/30` for definition
+
+**Loading State:**
+- Spinner enlarged from `h-5 w-5` to `h-7 w-7` with more visible `border-t-rose-500`
+- Added "Loading notifications…" text below spinner
+
+## Design Principles Applied
+- **Gradient card headers**: `from-X/60 to-transparent` pattern for visual depth without distraction
+- **Icon containers**: `w-8 h-8 rounded-lg bg-{color}-100 dark:bg-{color}-900/50` with matching icon color
+- **Interactive feedback**: `active:scale-[0.97/0.98]`, `hover:shadow-*` transitions, `transition-all duration-200`
+- **Rose/pink theme**: Consistent use throughout with rose-50/100/200/300/400/500/600/700 palette
+- **Dark mode support**: All changes include `dark:` variants for proper dark mode rendering
+
+## Verification
+- ESLint: 0 errors
+- No TypeScript errors
+- No functionality changes — purely CSS/className improvements
+
+---
+
 # Worklog: System UI/UX Visual Polish
 
 ## Date: 2025-01-22
@@ -364,3 +456,204 @@ Implemented 4 features in a single batch: Offline Mode Fix, Delete Patient, Heal
 - ESLint: 0 errors
 - Dev server: Compiled successfully (GET / 200)
 - All pre-existing TS errors remain unchanged (unrelated to changes)
+
+---
+
+# Worklog: Patient Views UI/UX Visual Polish (Task 6b)
+
+## Date: 2025-01-22
+
+## Task
+UI/UX visual polish for Patient List View, Patient Profile View, and New Patient View. Layout/CSS/className changes only — no functionality, API calls, or state management changes.
+
+## Files Modified
+- `src/components/patients/patient-list-view.tsx`
+- `src/components/patients/patient-profile-view.tsx`
+- `src/components/patients/new-patient-view.tsx`
+
+### 1. Patient List View (`patient-list-view.tsx`)
+
+**"Add Patient" Button (Header):**
+- Added `shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200` for interactive depth feedback
+
+**"Add Patient" Button (Empty State):**
+- Same shadow/scale treatment as header button
+
+**Search Input:**
+- Enhanced with `focus-visible:ring-rose-400/20 focus-visible:border-rose-400` for rose-themed focus
+- Added `shadow-sm hover:shadow-md hover:border-rose-300` for elevation on hover
+- All transitions set to `duration-200`
+
+**Risk Filter Buttons (Inactive State):**
+- Upgraded hover to `hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200` for richer color feedback
+
+**Barangay Filter Buttons (Inactive State):**
+- Same enhanced hover treatment as risk filters
+
+**Empty State:**
+- Heading upgraded to `font-semibold`
+- Description widened to `max-w-[280px]` with `leading-relaxed`
+
+**Patient Cards:**
+- Added `overflow-hidden` for clean border-radius clipping
+- Enhanced hover with `hover:border-rose-200 hover:bg-gradient-to-br hover:from-rose-50/30 hover:to-transparent dark:hover:from-rose-950/10 dark:hover:to-transparent` for a subtle warm tint on hover
+
+**Patient ID Badge:**
+- Added `bg-rose-50/50 dark:bg-rose-950/20` background fill for better definition
+
+**"View Profile" Button:**
+- Added `hover:border-rose-300 transition-all duration-200` for smooth border transition
+
+**"New Consultation" Button (per card):**
+- Added `shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200`
+
+**Skeleton Card:**
+- Added `duration-200 overflow-hidden` for consistent timing
+
+### 2. Patient Profile View (`patient-profile-view.tsx`)
+
+**Patient Header:**
+- Added `hover:shadow-xl hover:shadow-rose-500/15 transition-shadow duration-300` for interactive depth on hover
+
+**Header Buttons:**
+- Edit Patient: Added `transition-all duration-200 hover:border-white/50` for glassmorphism hover feedback
+- Delete Patient: Added `transition-all duration-200 hover:border-red-300/50` for red-tinted hover
+
+**Info Cards (Demographics, Consultation Summary):**
+- Upgraded from `transition-shadow` to `transition-all duration-200 hover:border-rose-100/80` for border color transition on hover
+
+**Health History Card:**
+- Upgraded to `hover:border-sky-100/80` (matching sky accent theme)
+
+**Vitals Trend Card (both empty and populated states):**
+- Added `overflow-hidden` and `hover:border-rose-100/80 transition-all duration-200`
+- Card header upgraded to `bg-gradient-to-r from-rose-50/60 to-rose-50/20` gradient
+
+**Consultation History Section Header:**
+- Added icon container: `w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/50` with ClipboardList icon
+
+**"New Consultation" Button:**
+- Added `shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200`
+
+**"Start First Consultation" Button (empty card):**
+- Same shadow/scale treatment
+
+**Consultation History Cards:**
+- Enhanced hover with `hover:border-rose-200/80 hover:bg-gradient-to-r hover:from-rose-50/20 hover:to-transparent dark:hover:from-rose-950/10` for warm tint on hover
+- Added `group` class for child hover states
+
+**Update Evaluation Button:**
+- Added `hover:border-amber-300 transition-all duration-200`
+
+**View Button:**
+- Added `hover:border-rose-300 transition-all duration-200`
+
+**Consultation Detail Dialog:**
+- Bottom border: Changed from `border-t` to `border-t border-gray-100 dark:border-gray-800` for explicit dark mode support
+- Close button: Added `hover:bg-rose-50 hover:border-rose-300 transition-all duration-200`
+- Update Evaluation button: Added `shadow-sm shadow-amber-600/20 hover:shadow-md hover:shadow-amber-600/30 active:scale-[0.97] transition-all duration-200`
+
+### 3. New Patient View (`new-patient-view.tsx`)
+
+**Card 1 — Personal Information:**
+- Upgraded Card from `transition-shadow` to `hover:border-rose-100/80 transition-all duration-200`
+- Card header icon: Wrapped User icon in `w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50` container
+
+**Card 2 — Health History:**
+- Upgraded Card from `transition-shadow` to `hover:border-sky-100/80 transition-all duration-200`
+- Card header icon: Wrapped Heart icon in `w-6 h-6 rounded-md bg-sky-100 dark:bg-sky-900/50` container
+
+**Checkbox Labels (All 3 Checkbox Groups):**
+- Past Medical History, Previous Surgery, Family History
+- Hover background changed from `hover:bg-gray-50` to `hover:bg-rose-50/60 dark:hover:bg-rose-950/20`
+- Padding increased from `px-2 py-1.5` to `px-2.5 py-2` for better touch targets
+- Added `transition-colors duration-150` for smoother hover
+
+**Checkbox Components (All 3 Groups):**
+- Added `data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600` for rose-themed checked state
+
+## Design Principles Applied
+- **Interactive feedback consistency**: All primary buttons now use `shadow-sm shadow-{color}/20 hover:shadow-md hover:shadow-{color}/30 active:scale-[0.97] transition-all duration-200`
+- **Card hover evolution**: Cards upgraded from simple `transition-shadow` to `transition-all duration-200 hover:border-{color}/80` for both shadow and border color transition
+- **Warm hover tints**: Patient cards and consultation history cards now show subtle gradient tints on hover (`from-rose-50/30` / `dark:from-rose-950/10`)
+- **Rose checkbox theme**: All checkboxes use `data-[state=checked]:bg-rose-600` for visual consistency with the maternal rose theme
+- **Icon containers**: Card header icons wrapped in consistent `w-6 h-6 rounded-md bg-{color}-100` containers across all views
+- **Dark mode support**: All hover/tint changes include `dark:` variants
+- **Timing consistency**: All transitions use `duration-200` (200ms) for uniform feel
+
+## Verification
+- ESLint: 0 errors
+- No TypeScript errors
+- No functionality changes — purely CSS/className improvements
+
+---
+
+# Worklog: App Shell & Consultation View UI/UX Polish (Task 6c)
+
+## Date: 2025-01-22
+
+## Task
+UI/UX visual polish for App Shell and Consultation View. Layout/CSS/className changes only — no functionality, API calls, or state management changes.
+
+## Files Modified
+- `src/components/layout/app-shell.tsx`
+- `src/components/consultations/consultation-view.tsx`
+
+### 1. App Shell (`app-shell.tsx`)
+
+**Sidebar Active Item:**
+- Added `shadow-sm shadow-rose-200/60 dark:shadow-rose-900/40` glow effect to active collapsed icon button
+- Expanded active item: `shadow-sm shadow-rose-100/80 dark:shadow-rose-900/30` + `hover:shadow-sm` on inactive items
+- Added `duration-200` to all sidebar transitions and `group` class
+
+**Breadcrumb Bar:**
+- Gradient sweep: `bg-gradient-to-r from-white/70 to-rose-50/30 dark:from-gray-950/70 dark:to-gray-900/30`
+
+**Header Badges (Online/Offline, Session, Pending Sync):**
+- All badges: `ring-1 ring-{color}-200/60 dark:ring-{color}-800/30` for definition
+- Pending sync: Added `shadow-sm shadow-amber-200/40`
+- Online/Offline: Added `transition-colors duration-200`
+
+**Footer Badges (ADPIE/SOAP/NNN/ICD-10):**
+- Upgraded to `rounded-md bg-rose-100 dark:bg-rose-950/40` with `ring-1 ring-rose-200/50` and `font-semibold`
+
+**Offline Banner:**
+- Gradient: `from-amber-500 to-amber-600`; pending badge: glass-style `bg-white/20 backdrop-blur-sm`
+
+### 2. Consultation View (`consultation-view.tsx`)
+
+**Step Progress Bar:** Glassmorphism (`bg-white/95 backdrop-blur-sm`)
+
+**Step Card:** `hover:shadow-md transition-shadow duration-200`; header icon in gradient container with ring
+
+**Navigation:** Back button: `transition-all duration-200`; Next/Complete: shadow + scale + transition
+
+**Section Headers (Steps 0-3):** All use `bg-gradient-to-r from-X-50/60 to-X-50/20` pattern with `w-6 h-6 rounded-md` icon containers; color-coded: Rose (Assessment/Findings), Teal (Health History), Pink (OB History), Purple (Diagnosis)
+
+**AI Summary (Step 4):**
+- Empty/Loading/Error states: `rounded-2xl` gradient icon containers with dashed borders
+- Generate AI button: shadow/scale/transition; Reassess button: shadow/transition
+- All result cards: `shadow-sm hover:shadow-md transition-shadow duration-200` with icon containers
+
+**Care Plan (Step 5):** Section header with icon container; polished empty state
+
+**Referral (Step 6):** Gradient empty state icon; shadow/scale on buttons; Complete button with emerald shadow
+
+**Patient Header:** Avatar ring + dark mode gradient; Resume banner gradient with icon container
+
+**RiskBadgeCard:** Icon in `w-10 h-10 rounded-lg` container, hover shadow
+
+**VitalInput:** `transition-colors duration-200`
+
+**Loading/Empty States:** Consistent `rounded-2xl` gradient + dashed border pattern
+
+## Design Principles Applied
+- Gradient section headers with icon containers across all 7 steps
+- Button feedback: `shadow-sm → hover:shadow-md + active:scale-[0.97] + transition-all duration-200`
+- Empty states: `rounded-2xl bg-gradient-to-br` + `border-2 border-dashed` pattern
+- Dark mode support on all changes
+
+## Verification
+- ESLint: 0 errors
+- No TypeScript errors
+- No functionality changes — purely CSS/className improvements

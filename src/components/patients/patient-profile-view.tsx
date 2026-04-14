@@ -501,8 +501,8 @@ function VitalsTrendCard({
   // Show info message if not enough data
   if (chartData.length < 2) {
     return (
-      <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <CardHeader className="pb-3 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+      <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-100/80 transition-all duration-200 overflow-hidden">
+        <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
               <TrendingUp className="h-3.5 w-3.5 text-rose-500" />
@@ -526,8 +526,8 @@ function VitalsTrendCard({
   }
 
   return (
-    <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="pb-2 pt-4 px-4 bg-rose-50/40 dark:bg-rose-950/20 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
+    <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-100/80 transition-all duration-200 overflow-hidden">
+      <CardHeader className="pb-2 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
             <TrendingUp className="h-3.5 w-3.5 text-rose-500" />
@@ -907,7 +907,7 @@ export function PatientProfileView() {
       )}
 
       {/* Patient Header */}
-      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-r from-rose-600 via-rose-600/95 to-pink-600/90 dark:from-rose-800/80 dark:via-rose-800/70 dark:to-pink-800/60 px-6 py-5 shadow-lg shadow-rose-500/10 dark:shadow-rose-900/20 relative overflow-hidden hover:shadow-xl hover:shadow-rose-500/15 transition-shadow duration-300">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
         <div className="relative flex flex-col sm:flex-row items-start justify-between gap-3">
           <div>
@@ -943,7 +943,7 @@ export function PatientProfileView() {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/30 hover:bg-white/15 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm"
+              className="border-white/30 hover:bg-white/15 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm transition-all duration-200 hover:border-white/50"
               onClick={() => setIsEditDialogOpen(true)}
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -952,7 +952,7 @@ export function PatientProfileView() {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/30 hover:bg-red-500/30 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm"
+              className="border-white/30 hover:bg-red-500/30 text-white gap-1.5 flex-shrink-0 backdrop-blur-sm transition-all duration-200 hover:border-red-300/50"
               onClick={handleOpenDeleteDialog}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -969,7 +969,7 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 1: Demographics                                         */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-100/80 transition-all duration-200 overflow-hidden">
           <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
@@ -1057,7 +1057,7 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 2: Consultation Summary                                  */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-100/80 transition-all duration-200 overflow-hidden">
           <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10 rounded-t-xl border-b border-rose-100/50 dark:border-rose-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
@@ -1249,7 +1249,7 @@ export function PatientProfileView() {
         {/* ----------------------------------------------------------- */}
         {/* Card 3: Health History                                        */}
         {/* ----------------------------------------------------------- */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-sky-100/80 transition-all duration-200 overflow-hidden">
           <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-sky-50/60 to-sky-50/20 dark:from-sky-950/30 dark:to-sky-950/10 rounded-t-xl border-b border-sky-100/50 dark:border-sky-900/20">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <div className="w-6 h-6 rounded-md bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center">
@@ -1356,12 +1356,15 @@ export function PatientProfileView() {
       {/* ============================================================= */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+              <ClipboardList className="h-3.5 w-3.5 text-rose-500" />
+            </div>
             Consultation History ({patient.consultations.length})
           </h3>
           <Button
             size="sm"
-            className="bg-rose-600 hover:bg-rose-700 text-white gap-1.5"
+            className="bg-rose-600 hover:bg-rose-700 text-white gap-1.5 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
             disabled={isCreatingConsultation}
             onClick={handleNewConsultation}
           >
@@ -1390,7 +1393,7 @@ export function PatientProfileView() {
               </p>
               <Button
                 size="sm"
-                className="mt-3 bg-rose-600 hover:bg-rose-700 text-white gap-1.5"
+                className="mt-3 bg-rose-600 hover:bg-rose-700 text-white gap-1.5 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
                 onClick={handleNewConsultation}
                 disabled={isCreatingConsultation}
               >
@@ -1404,7 +1407,7 @@ export function PatientProfileView() {
             {patient.consultations.map((consultation) => (
               <Card
                 key={consultation.id}
-                className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 hover:shadow-md hover:border-rose-100 transition-all duration-200 overflow-hidden"
+                className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 hover:shadow-md hover:border-rose-200/80 hover:bg-gradient-to-r hover:from-rose-50/20 hover:to-transparent dark:hover:from-rose-950/10 dark:hover:to-transparent transition-all duration-200 overflow-hidden group"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -1466,7 +1469,7 @@ export function PatientProfileView() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-xs border-amber-200 hover:bg-amber-50 text-amber-700 gap-1"
+                          className="text-xs border-amber-200 hover:bg-amber-50 hover:border-amber-300 text-amber-700 gap-1 transition-all duration-200"
                           onClick={(e) => { e.stopPropagation(); handleUpdateEvaluation(consultation); }}
                         >
                           <PenLine className="h-3 w-3" />
@@ -1476,7 +1479,7 @@ export function PatientProfileView() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs border-rose-200 hover:bg-rose-50 gap-1"
+                        className="text-xs border-rose-200 hover:bg-rose-50 hover:border-rose-300 gap-1 transition-all duration-200"
                         onClick={() => handleViewConsultation(consultation)}
                       >
                         View
@@ -1845,18 +1848,18 @@ export function PatientProfileView() {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-2 border-t">
+          <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-rose-200"
+                  className="border-rose-200 hover:bg-rose-50 hover:border-rose-300 transition-all duration-200"
                   onClick={() => setViewingConsultation(null)}
                 >
                   Close
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-amber-600 hover:bg-amber-700 text-white gap-1.5"
+                  className="bg-amber-600 hover:bg-amber-700 text-white gap-1.5 shadow-sm shadow-amber-600/20 hover:shadow-md hover:shadow-amber-600/30 active:scale-[0.97] transition-all duration-200"
                   onClick={() => {
                     if (viewingConsultation) {
                       handleUpdateEvaluation(viewingConsultation);

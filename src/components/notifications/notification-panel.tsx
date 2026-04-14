@@ -124,13 +124,13 @@ function NotificationItem({
     <button
       onClick={() => onClick(notification)}
       className={cn(
-        'w-full flex items-start gap-3 p-3 rounded-lg border-l-[3px]',
+        'w-full flex items-start gap-3 p-3 rounded-xl border-l-[3px] group',
         config.borderColor,
-        'hover:bg-accent/50 transition-colors duration-150 text-left cursor-pointer'
+        'hover:bg-accent/50 hover:shadow-sm transition-all duration-200 text-left cursor-pointer'
       )}
     >
       {/* Icon */}
-      <div className={cn('flex-shrink-0 mt-0.5 p-1.5 rounded-md', config.bgColor)}>
+      <div className={cn('flex-shrink-0 mt-0.5 p-1.5 rounded-lg ring-1 ring-black/5 dark:ring-white/5', config.bgColor)}>
         <Icon className={cn('h-4 w-4', config.color)} />
       </div>
 
@@ -145,13 +145,13 @@ function NotificationItem({
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
           {notification.description}
         </p>
-        <span className="text-[11px] text-muted-foreground/70 mt-1 inline-block">
+        <span className="text-[11px] text-muted-foreground/70 mt-1.5 inline-block">
           {formatTimeAgo(notification.timestamp)}
         </span>
       </div>
 
       {/* Unread dot */}
-      <div className={cn('flex-shrink-0 w-2 h-2 rounded-full mt-1.5', config.dotColor)} />
+      <div className={cn('flex-shrink-0 w-2 h-2 rounded-full mt-2 opacity-70', config.dotColor)} />
     </button>
   );
 }
@@ -160,12 +160,15 @@ function NotificationItem({
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-      <div className="w-14 h-14 rounded-full bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center mb-3">
-        <Inbox className="h-6 w-6 text-rose-300 dark:text-rose-500" />
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <div className="relative mb-4">
+        <div className="absolute -inset-2 rounded-full border-2 border-dashed border-rose-200/50 dark:border-rose-800/30" />
+        <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 flex items-center justify-center">
+          <Inbox className="h-7 w-7 text-rose-300 dark:text-rose-500" />
+        </div>
       </div>
-      <p className="text-sm font-medium text-foreground">All caught up!</p>
-      <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
+      <p className="text-sm font-semibold text-foreground">All caught up!</p>
+      <p className="text-xs text-muted-foreground mt-1.5 max-w-[220px] leading-relaxed">
         No new notifications right now. We&apos;ll let you know when something needs your attention.
       </p>
     </div>
@@ -293,9 +296,11 @@ export function NotificationBell() {
         className="w-[380px] max-w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-rose-50/30 to-transparent dark:from-rose-950/10 dark:to-transparent">
           <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4 text-rose-500" />
+            <div className="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+              <Bell className="h-3.5 w-3.5 text-rose-600" />
+            </div>
             <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
             {unreadCount > 0 && (
               <Badge
@@ -309,17 +314,17 @@ export function NotificationBell() {
           <div className="flex items-center gap-1.5">
             {/* Type filter pills */}
             {pausedCount > 0 && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 ring-1 ring-amber-200/60 dark:ring-amber-800/30">
                 <Clock className="h-2.5 w-2.5" /> {pausedCount}
               </span>
             )}
             {highRiskCount > 0 && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300 ring-1 ring-rose-200/60 dark:ring-rose-800/30">
                 <AlertTriangle className="h-2.5 w-2.5" /> {highRiskCount}
               </span>
             )}
             {followUpCount > 0 && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300 ring-1 ring-sky-200/60 dark:ring-sky-800/30">
                 <CalendarClock className="h-2.5 w-2.5" /> {followUpCount}
               </span>
             )}
@@ -349,8 +354,9 @@ export function NotificationBell() {
 
         {/* Notification list */}
         {isLoading && notifications.length === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-5 w-5 rounded-full border-2 border-rose-300 border-t-transparent animate-spin" />
+          <div className="flex flex-col items-center justify-center py-14">
+            <div className="h-7 w-7 rounded-full border-2 border-rose-300/60 dark:border-rose-600/40 border-t-rose-500 animate-spin" />
+            <span className="text-xs text-muted-foreground mt-3">Loading notifications…</span>
           </div>
         ) : allNotifications.length === 0 ? (
           <EmptyState />

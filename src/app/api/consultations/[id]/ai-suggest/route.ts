@@ -136,7 +136,7 @@ export async function POST(
       query(
         `INSERT INTO audit_log (nurse_id, action, entity, entity_id, details)
          VALUES ($1, $2, $3, $4, $5)`,
-        [updated.nurse_id, "ai_suggest", "consultation", id, JSON.stringify({ usedFallback, preventionLevel: aiSuggestions.preventionLevel })]
+        [updated.nurse_id, "ai_suggest", "consultation", id, JSON.stringify({ aiMode: usedFallback ? "Offline Fallback" : "AI Engine", preventionLevel: aiSuggestions.preventionLevel })]
       ).catch(() => {});
     }
 

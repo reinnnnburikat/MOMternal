@@ -326,10 +326,12 @@ export function NewPatientView() {
         {/* ═══════════════════════════════════════════════════════════════════
             CARD 1: Personal Information
         ═══════════════════════════════════════════════════════════════════ */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-100/80 transition-all duration-200 overflow-hidden">
           <CardHeader className="pb-3 pt-5 px-5 lg:px-6 border-b border-rose-100/60 dark:border-rose-900/30 border-l-4 border-l-rose-500 bg-gradient-to-r from-rose-50/50 to-transparent dark:from-rose-950/20 dark:to-transparent">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <User className="h-4 w-4 text-rose-500" />
+              <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                <User className="h-3.5 w-3.5 text-rose-500" />
+              </div>
               Personal Information
             </CardTitle>
             <CardDescription className="text-xs">
@@ -626,10 +628,12 @@ export function NewPatientView() {
         {/* ═══════════════════════════════════════════════════════════════════
             CARD 2: Health History
         ═══════════════════════════════════════════════════════════════════ */}
-        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <Card className="border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-sky-100/80 transition-all duration-200 overflow-hidden">
           <CardHeader className="pb-3 pt-5 px-5 lg:px-6 border-b border-sky-100/60 dark:border-sky-900/30 border-l-4 border-l-sky-500 bg-gradient-to-r from-sky-50/50 to-transparent dark:from-sky-950/20 dark:to-transparent">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Heart className="h-4 w-4 text-sky-500" />
+              <div className="w-6 h-6 rounded-md bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center">
+                <Heart className="h-3.5 w-3.5 text-sky-500" />
+              </div>
               Health History
             </CardTitle>
             <CardDescription className="text-xs">
@@ -670,13 +674,14 @@ export function NewPatientView() {
                 {PAST_MEDICAL_OPTIONS.map((option) => (
                   <label
                     key={option}
-                    className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2.5 py-2 hover:bg-rose-50/60 dark:hover:bg-rose-950/20 transition-colors duration-150"
                   >
                     <Checkbox
                       checked={pastMedicalSelected.includes(option)}
                       onCheckedChange={() =>
                         setPastMedicalSelected((prev) => toggleItem(prev, option))
                       }
+                      className="data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600"
                     />
                     <span>{option}</span>
                   </label>
@@ -703,13 +708,14 @@ export function NewPatientView() {
                 {PREVIOUS_SURGERY_OPTIONS.map((option) => (
                   <label
                     key={option}
-                    className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2.5 py-2 hover:bg-rose-50/60 dark:hover:bg-rose-950/20 transition-colors duration-150"
                   >
                     <Checkbox
                       checked={previousSurgerySelected.includes(option)}
                       onCheckedChange={() =>
                         setPreviousSurgerySelected((prev) => toggleItem(prev, option))
                       }
+                      className="data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600"
                     />
                     <span>{option}</span>
                   </label>
@@ -812,13 +818,14 @@ export function NewPatientView() {
                     {FAMILY_HISTORY_OPTIONS.map((option) => (
                       <label
                         key={option}
-                        className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        className="flex items-center gap-2 text-sm cursor-pointer rounded-md px-2.5 py-2 hover:bg-rose-50/60 dark:hover:bg-rose-950/20 transition-colors duration-150"
                       >
                         <Checkbox
                           checked={familyHistorySelected.includes(option)}
                           onCheckedChange={() =>
                             setFamilyHistorySelected((prev) => toggleItem(prev, option))
                           }
+                          className="data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600"
                         />
                         <span>{option}</span>
                       </label>

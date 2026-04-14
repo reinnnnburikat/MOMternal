@@ -48,7 +48,7 @@ const RISK_CLASSES: Record<string, string> = {
 
 function PatientCardSkeleton() {
   return (
-    <div className="bg-card rounded-xl border border-rose-100/60 p-4 space-y-3 shadow-sm hover:shadow-md transition-all">
+    <div className="bg-card rounded-xl border border-rose-100/60 p-4 space-y-3 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-5 w-24" />
@@ -229,7 +229,7 @@ export function PatientListView() {
         </div>
         <Button
           onClick={() => setCurrentView('patient-new')}
-          className="bg-rose-600 hover:bg-rose-700 text-white gap-2"
+          className="bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
         >
           <Plus className="h-4 w-4" />
           Add Patient
@@ -243,7 +243,7 @@ export function PatientListView() {
           placeholder="Search by name, patient ID, barangay, address, consultation #, or diagnosis..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 h-11 border-rose-200/60 focus:border-rose-400 focus:ring-rose-400/20 transition-all bg-white dark:bg-gray-900"
+          className="pl-9 h-11 border-rose-200/60 focus:border-rose-400 focus-visible:ring-rose-400/20 focus-visible:border-rose-400 transition-all duration-200 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md hover:border-rose-300"
         />
       </div>
 
@@ -267,7 +267,7 @@ export function PatientListView() {
                   : level === 'moderate'
                   ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20'
                   : 'bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-600/20'
-                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
+                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200'
             }
             onClick={() => setRiskFilter(level)}
           >
@@ -289,7 +289,7 @@ export function PatientListView() {
             className={
               barangayFilter === 'all'
                 ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
-                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
+                : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200'
             }
             onClick={() => setBarangayFilter('all')}
           >
@@ -303,7 +303,7 @@ export function PatientListView() {
               className={
                 barangayFilter === b
                   ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20'
-                  : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50 hover:border-rose-300 transition-all'
+                  : 'border-rose-200/60 text-muted-foreground hover:bg-rose-50/80 hover:border-rose-300 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200'
               }
               onClick={() => setBarangayFilter(b)}
             >
@@ -325,8 +325,8 @@ export function PatientListView() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/20 flex items-center justify-center mb-4 border-2 border-dashed border-rose-200 dark:border-rose-800/40">
             <User className="h-7 w-7 text-rose-300" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-1">No patients found</h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-1">No patients found</h3>
+          <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed">
             {searchQuery || riskFilter !== 'all' || barangayFilter !== 'all'
               ? 'Try adjusting your search or filters.'
               : 'Get started by adding a new patient to the system.'}
@@ -334,7 +334,7 @@ export function PatientListView() {
           {!searchQuery && riskFilter === 'all' && barangayFilter === 'all' && (
             <Button
               onClick={() => setCurrentView('patient-new')}
-              className="mt-4 bg-rose-600 hover:bg-rose-700 text-white gap-2"
+              className="mt-4 bg-rose-600 hover:bg-rose-700 text-white gap-2 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
               Add Patient
@@ -346,13 +346,13 @@ export function PatientListView() {
           {filteredPatients.map((patient) => (
             <div
               key={patient.id}
-              className="bg-card rounded-xl border border-rose-100/60 p-4 hover:shadow-md hover:border-rose-200/80 transition-all duration-200 hover:-translate-y-px group"
+              className="bg-card rounded-xl border border-rose-100/60 p-4 hover:shadow-md hover:border-rose-200 hover:bg-gradient-to-br hover:from-rose-50/30 hover:to-transparent dark:hover:from-rose-950/10 dark:hover:to-transparent transition-all duration-200 hover:-translate-y-px group overflow-hidden"
             >
               {/* Top row: ID badge, Name, Risk */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-rose-200 text-rose-600">
+                    <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-rose-200 text-rose-600 bg-rose-50/50 dark:bg-rose-950/20">
                       {patient.patientId}
                     </Badge>
                   </div>
@@ -391,7 +391,7 @@ export function PatientListView() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs border-rose-200 hover:bg-rose-50 gap-1"
+                  className="text-xs border-rose-200 hover:bg-rose-50 hover:border-rose-300 gap-1 transition-all duration-200"
                   onClick={() => handleViewProfile(patient.patientId, patient.id)}
                 >
                   <User className="h-3 w-3" />
@@ -399,7 +399,7 @@ export function PatientListView() {
                 </Button>
                 <Button
                   size="sm"
-                  className="text-xs bg-rose-600 hover:bg-rose-700 text-white gap-1"
+                  className="text-xs bg-rose-600 hover:bg-rose-700 text-white gap-1 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
                   disabled={isCreatingConsultation === patient.id}
                   onClick={() => handleNewConsultation(patient.id)}
                 >

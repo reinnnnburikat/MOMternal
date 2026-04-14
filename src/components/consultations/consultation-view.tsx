@@ -405,7 +405,7 @@ const VitalInput = memo(function VitalInput({ id, label, icon, placeholder, valu
     <div className="space-y-1.5">
       <Label htmlFor={id} className="flex items-center gap-1.5">{icon} {label}</Label>
       <Input id={id} type={type} min={min} max={max} placeholder={placeholder} value={localValue}
-        className={colorClass || ''}
+        className={`${colorClass || ''} transition-colors duration-200`}
         onChange={handleChange}
         onBlur={handleBlur} />
     </div>
@@ -482,8 +482,10 @@ function RiskBadgeCard({ label, value, colors }: {
 }) {
   const Icon = colors.icon;
   return (
-    <div className={`rounded-xl border-2 p-4 ${colors.border} ${colors.bg} flex items-center gap-3`}>
-      <Icon className={`h-6 w-6 ${colors.text} flex-shrink-0`} />
+    <div className={`rounded-xl border-2 p-4 ${colors.border} ${colors.bg} flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-200`}>
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${colors.bg}`}>
+        <Icon className={`h-5 w-5 ${colors.text}`} />
+      </div>
       <div>
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className={`font-semibold text-sm ${colors.text}`}>{value}</p>
@@ -1763,8 +1765,10 @@ export function ConsultationView() {
 
       {/* Vital Signs */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Stethoscope className="h-4.5 w-4.5 text-rose-500" />
+        <div className="flex items-center gap-2 mb-3 p-3 rounded-lg bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/20 dark:to-rose-950/10 border border-rose-100/60 dark:border-rose-800/30">
+          <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+            <Stethoscope className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+          </div>
           <h3 className="font-semibold text-foreground dark:text-gray-100">Vital Signs</h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1809,8 +1813,10 @@ export function ConsultationView() {
 
       {/* OB History */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Baby className="h-4.5 w-4.5 text-rose-500" />
+        <div className="flex items-center gap-2 mb-3 p-3 rounded-lg bg-gradient-to-r from-pink-50/60 to-pink-50/20 dark:from-pink-950/20 dark:to-pink-950/10 border border-pink-100/60 dark:border-pink-800/30">
+          <div className="w-6 h-6 rounded-md bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center">
+            <Baby className="h-3.5 w-3.5 text-pink-600 dark:text-pink-400" />
+          </div>
           <h3 className="font-semibold text-foreground dark:text-gray-100">OB History</h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -1876,9 +1882,14 @@ export function ConsultationView() {
   const renderHealthHistory = () => (
     <div className="space-y-6">
       {/* Section header */}
-      <div className="bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-teal-800 dark:text-teal-300">HEALTH HISTORY</h3>
-        <p className="text-xs text-teal-600 dark:text-teal-400 mt-0.5">Record current health status and medical background</p>
+      <div className="bg-gradient-to-r from-teal-50/70 to-teal-50/20 dark:from-teal-950/30 dark:to-teal-950/10 border border-teal-200 dark:border-teal-800 rounded-xl p-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
+            <FileHeart className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h3 className="text-sm font-semibold text-teal-800 dark:text-teal-300">HEALTH HISTORY</h3>
+        </div>
+        <p className="text-xs text-teal-600 dark:text-teal-400 mt-0.5 ml-8">Record current health status and medical background</p>
       </div>
 
       {/* Past Diagnoses from Previous Consultations */}
@@ -2228,6 +2239,12 @@ export function ConsultationView() {
   // ─── Step 2: Additional Findings ──────────────────────────────────
   const renderFindings = () => (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-2 p-3 rounded-lg bg-gradient-to-r from-rose-50/60 to-rose-50/20 dark:from-rose-950/20 dark:to-rose-950/10 border border-rose-100/60 dark:border-rose-800/30">
+        <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+          <Search className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+        </div>
+        <h3 className="font-semibold text-sm text-foreground dark:text-gray-100">Additional Findings</h3>
+      </div>
       <div className="space-y-2">
         <Label htmlFor="physicalExam">Physical Examination Findings</Label>
         <Textarea id="physicalExam" placeholder="General appearance, fundal assessment, edema, etc." className="min-h-[100px] resize-y"
@@ -2249,6 +2266,12 @@ export function ConsultationView() {
   // ─── Step 3: Diagnosis ─────────────────────────────────────────────
   const renderDiagnosis = () => (
     <div className="space-y-6">
+      <div className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-purple-50/60 to-purple-50/20 dark:from-purple-950/20 dark:to-purple-950/10 border border-purple-100/60 dark:border-purple-800/30">
+        <div className="w-6 h-6 rounded-md bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+          <Stethoscope className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+        </div>
+        <h3 className="font-semibold text-sm text-foreground dark:text-gray-100">Diagnosis</h3>
+      </div>
       {/* Past Diagnoses Reference */}
       {pastDiagnoses.length > 0 && (
         <div className="space-y-2">
@@ -2400,7 +2423,9 @@ export function ConsultationView() {
         {/* Loading */}
         {aiLoading && (
           <div className="text-center py-12">
-            <Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/30 dark:to-pink-900/30 flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-rose-200/50 dark:border-rose-700/30">
+              <Loader2 className="h-8 w-8 text-rose-500 animate-spin" />
+            </div>
             <p className="text-sm text-muted-foreground font-medium">AI is analyzing assessment data...</p>
             <p className="text-xs text-muted-foreground mt-1">This may take a few moments</p>
           </div>
@@ -2409,26 +2434,26 @@ export function ConsultationView() {
         {/* Error */}
         {aiError && !aiLoading && !aiSuggestions && (
           <div className="text-center py-8">
-            <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-amber-500" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-amber-200/50 dark:border-amber-700/30">
+              <AlertCircle className="h-7 w-7 text-amber-500" />
             </div>
             <h3 className="font-semibold text-base mb-2">Unable to Generate AI Summary</h3>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">{aiError}</p>
-            <Button onClick={handleAiSuggest} variant="outline" className="gap-2"><RefreshCw className="h-4 w-4" /> Try Again</Button>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4 leading-relaxed">{aiError}</p>
+            <Button onClick={handleAiSuggest} variant="outline" className="gap-2 shadow-sm shadow-amber-200/40 hover:shadow-md transition-all duration-200"><RefreshCw className="h-4 w-4" /> Try Again</Button>
           </div>
         )}
 
         {/* Empty State — no AI data yet and not loading */}
         {!aiLoading && !aiError && !aiSuggestions && (
           <div className="text-center py-10">
-            <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="h-8 w-8 text-rose-500" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-rose-200/50 dark:border-rose-700/30">
+              <Sparkles className="h-7 w-7 text-rose-500" />
             </div>
             <h3 className="font-semibold text-base mb-2">AI Risk Assessment</h3>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-5">
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-5 leading-relaxed">
               Generate an AI-powered risk classification, nursing interventions, and care recommendations based on the assessment data.
             </p>
-            <Button onClick={handleAiSuggest} size="lg" className="gap-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-md">
+            <Button onClick={handleAiSuggest} size="lg" className="gap-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-md shadow-rose-600/20 hover:shadow-lg hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200">
               <Sparkles className="h-4.5 w-4.5" /> Generate AI Summary
             </Button>
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground mt-4">
@@ -2454,8 +2479,13 @@ export function ConsultationView() {
 
             {/* Risk Indicators */}
             {aiSuggestions.riskIndicators && aiSuggestions.riskIndicators.length > 0 && (
-              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
-                <h4 className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500" /> Risk Indicators</h4>
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  Risk Indicators
+                </h4>
                 <ul className="space-y-1">
                   {aiSuggestions.riskIndicators.map((ind, i) => (
                     <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
@@ -2467,15 +2497,25 @@ export function ConsultationView() {
             )}
 
             {/* Rationale */}
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
-              <h4 className="text-sm font-semibold flex items-center gap-2"><Brain className="h-4 w-4 text-rose-500" /> Rationale</h4>
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                  <Brain className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                </div>
+                Rationale
+              </h4>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{aiSuggestions.rationale}</p>
             </div>
 
             {/* Suggested Interventions */}
             {aiSuggestions.interventions && aiSuggestions.interventions.length > 0 && (
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2"><ClipboardList className="h-4 w-4 text-rose-500" /> Suggested Interventions ({aiSuggestions.interventions.length})</h4>
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                    <ClipboardList className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  Suggested Interventions ({aiSuggestions.interventions.length})
+                </h4>
                 <div className="space-y-2 max-h-[320px] overflow-y-auto">
                   {aiSuggestions.interventions.map((intervention, idx) => (
                     <div key={idx} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-1">
@@ -2503,30 +2543,40 @@ export function ConsultationView() {
 
             {/* Priority Intervention */}
             {aiSuggestions.priorityIntervention && (
-              <div className="rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 p-4">
-                <div className="flex items-center gap-2 mb-1"><ShieldAlert className="h-4 w-4 text-rose-600" /><span className="font-semibold text-sm text-rose-800 dark:text-rose-200">Priority Intervention</span></div>
+              <div className="rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/10 border border-rose-200 dark:border-rose-800 p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                    <ShieldAlert className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  <span className="font-semibold text-sm text-rose-800 dark:text-rose-200">Priority Intervention</span>
+                </div>
                 <p className="font-medium text-rose-900 dark:text-rose-100">{aiSuggestions.priorityIntervention}</p>
               </div>
             )}
 
             {/* Nursing Considerations */}
             {aiSuggestions.nursingConsiderations && aiSuggestions.nursingConsiderations.length > 0 && (
-              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
-                <h4 className="text-sm font-semibold">Nursing Considerations</h4>
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
+                    <UserCheck className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  Nursing Considerations
+                </h4>
                 <ul className="space-y-1">{aiSuggestions.nursingConsiderations.map((c, i) => <li key={i} className="text-sm text-muted-foreground flex items-start gap-2"><span className="text-teal-500 mt-0.5">•</span>{c}</li>)}</ul>
               </div>
             )}
 
             {/* Follow-up Schedule */}
             {aiSuggestions.followUpSchedule && (
-              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Follow-up: <span className="text-foreground">{aiSuggestions.followUpSchedule}</span></p>
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-3 shadow-sm">
+                <p className="text-xs font-medium text-muted-foreground">Follow-up: <span className="text-foreground font-semibold">{aiSuggestions.followUpSchedule}</span></p>
               </div>
             )}
 
             {/* Reassess Button */}
             <div className="flex justify-center pt-2">
-              <Button onClick={handleAiSuggest} disabled={aiLoading} size="lg" variant="outline" className="gap-2 border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/20">
+              <Button onClick={handleAiSuggest} disabled={aiLoading} size="lg" variant="outline" className="gap-2 border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/20 shadow-sm shadow-rose-200/40 hover:shadow-md transition-all duration-200">
                 <RefreshCw className={`h-4.5 w-4.5 ${aiLoading ? 'animate-spin' : ''}`} /> Reassess
               </Button>
             </div>
@@ -2547,8 +2597,13 @@ export function ConsultationView() {
   const renderCarePlan = () => (
     <div className="space-y-4">
       <div>
-        <h3 className="font-semibold mb-1">Nursing Care Plan</h3>
-        <p className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-6 h-6 rounded-md bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+            <UserCheck className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+          </div>
+          <h3 className="font-semibold">Nursing Care Plan</h3>
+        </div>
+        <p className="text-sm text-muted-foreground ml-8">
           Select NIC interventions for the patient. {selectedNandaDomain && <span className="text-rose-600">Filtered by NANDA domain {selectedNandaDomain}.</span>}
         </p>
       </div>
@@ -2660,7 +2715,12 @@ export function ConsultationView() {
       )}
 
       {selectedInterventions.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">No interventions selected yet. Select from AI suggestions or add custom ones above.</p>
+        <div className="text-sm text-muted-foreground text-center py-6">
+          <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
+            <ClipboardList className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+          </div>
+          <p>No interventions selected yet. Select from AI suggestions or add custom ones above.</p>
+        </div>
       )}
 
       {/* Free-text Outcome Panel */}
@@ -2680,7 +2740,7 @@ export function ConsultationView() {
       <div><h5 className="text-sm font-semibold text-rose-700 dark:text-rose-300 border-b border-rose-100 dark:border-rose-800 pb-1 mb-2">{title}</h5><div className="space-y-1.5 pl-1">{children}</div></div>
     );
     const ReferralRow = ({ label, value }: { label: string; value: string }) => (
-      <div><span className="text-xs font-medium text-muted-foreground">{label}</span><p className="text-sm whitespace-pre-wrap">{value}</p></div>
+      <div><span className="text-xs font-medium text-muted-foreground">{label}</span><p className="text-sm font-medium whitespace-pre-wrap">{value}</p></div>
     );
 
     return (
@@ -2688,9 +2748,11 @@ export function ConsultationView() {
         {!referralSummary && !referralLoading && (
           <div className="space-y-6">
             <div className="text-center py-4">
-              <FileText className="h-12 w-12 text-rose-300 mx-auto mb-4" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/30 dark:to-pink-900/30 flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-rose-200/50 dark:border-rose-700/30">
+                <FileText className="h-7 w-7 text-rose-400" />
+              </div>
               <h3 className="font-semibold text-lg mb-1">Referral Details</h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">Configure the referral details before generating the referral summary document.</p>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">Configure the referral details before generating the referral summary document.</p>
             </div>
             <div className="space-y-4 max-w-xl mx-auto">
               {/* Referral Type */}
@@ -2740,7 +2802,7 @@ export function ConsultationView() {
                   </div>
                 </div>
               )}
-              <Button onClick={handleGenerateReferral} size="lg" className="w-full gap-2 bg-rose-600 hover:bg-rose-700">
+              <Button onClick={handleGenerateReferral} size="lg" className="w-full gap-2 bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200">
                 <FileText className="h-4.5 w-4.5" /> Generate Referral Summary
               </Button>
             </div>
@@ -2748,15 +2810,20 @@ export function ConsultationView() {
         )}
 
         {referralLoading && (
-          <div className="text-center py-12"><Loader2 className="h-10 w-10 text-rose-500 animate-spin mx-auto mb-4" /><p className="text-sm text-muted-foreground font-medium">Generating referral summary...</p></div>
+          <div className="text-center py-12">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/30 dark:to-pink-900/30 flex items-center justify-center mx-auto mb-4">
+              <Loader2 className="h-7 w-7 text-rose-500 animate-spin" />
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">Generating referral summary...</p>
+          </div>
         )}
 
         {referralSummary && !referralLoading && (
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 justify-center">
-              <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2"><Copy className="h-3.5 w-3.5" /> Copy to Clipboard</Button>
-              <Button variant="outline" onClick={handleDownloadPdf} className="gap-2"><FileOutput className="h-3.5 w-3.5" /> Download PDF</Button>
-              <Button variant="outline" onClick={handleGenerateReferral} className="gap-2"><RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} /> Regenerate</Button>
+              <Button variant="outline" onClick={handleCopyToClipboard} className="gap-2 hover:border-rose-300 transition-all duration-200"><Copy className="h-3.5 w-3.5" /> Copy to Clipboard</Button>
+              <Button variant="outline" onClick={handleDownloadPdf} className="gap-2 hover:border-rose-300 transition-all duration-200"><FileOutput className="h-3.5 w-3.5" /> Download PDF</Button>
+              <Button variant="outline" onClick={handleGenerateReferral} className="gap-2 hover:border-rose-300 transition-all duration-200"><RefreshCw className={`h-3.5 w-3.5 ${referralLoading ? 'animate-spin' : ''}`} /> Regenerate</Button>
             </div>
 
             {/* Formatted Referral Card */}
@@ -2863,7 +2930,7 @@ export function ConsultationView() {
 
             {/* Complete button */}
             <div className="flex justify-center pt-4">
-              <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8" onClick={handleComplete}>
+              <Button size="lg" className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 shadow-sm shadow-emerald-600/20 hover:shadow-md hover:shadow-emerald-600/30 active:scale-[0.97] transition-all duration-200" onClick={handleComplete}>
                 <CheckCircle2 className="h-4.5 w-4.5" /> Complete Consultation
               </Button>
             </div>
@@ -2906,19 +2973,21 @@ export function ConsultationView() {
       <div className="space-y-6">
         <div className="flex items-center gap-3"><Skeleton className="h-10 w-10 rounded-full" /><div className="space-y-2"><Skeleton className="h-5 w-48" /><Skeleton className="h-4 w-72" /></div></div>
         <Skeleton className="h-16 w-full rounded-xl" />
-        <Card><CardHeader><Skeleton className="h-6 w-40" /><Skeleton className="h-4 w-60" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-24 w-full" /></CardContent></Card>
+        <Card className="shadow-sm"><CardHeader><Skeleton className="h-6 w-40" /><Skeleton className="h-4 w-60" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-24 w-full" /></CardContent></Card>
       </div>
     );
   }
 
   if (!consultation) {
     return (
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 shadow-sm">
         <CardContent className="py-12 text-center">
-          <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-950/30 dark:to-orange-950/30 flex items-center justify-center mx-auto mb-3 border-2 border-dashed border-amber-200/50 dark:border-amber-700/30">
+            <AlertTriangle className="h-7 w-7 text-amber-500" />
+          </div>
           <p className="text-amber-800 dark:text-amber-200 font-medium">No consultation selected</p>
-          <p className="text-amber-600 text-sm mt-1">Please select a consultation to continue.</p>
-          <Button variant="outline" className="mt-4" onClick={goBack}>Go Back</Button>
+          <p className="text-amber-600 text-sm mt-1 leading-relaxed">Please select a consultation to continue.</p>
+          <Button variant="outline" className="mt-4 hover:border-amber-300 transition-all duration-200" onClick={goBack}>Go Back</Button>
         </CardContent>
       </Card>
     );
@@ -2935,8 +3004,8 @@ export function ConsultationView() {
     <div className="space-y-0">
       {/* Patient Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-200 to-pink-200 flex items-center justify-center flex-shrink-0">
-          <Baby className="h-6 w-6 text-rose-700" />
+        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-200 to-pink-200 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center flex-shrink-0 ring-2 ring-rose-200/60 dark:ring-rose-700/40 shadow-sm">
+          <Baby className="h-6 w-6 text-rose-700 dark:text-rose-300" />
         </div>
         <div className="min-w-0">
           <h2 className="text-lg font-semibold text-foreground truncate">{consultation.patient.name}</h2>
@@ -2969,14 +3038,16 @@ export function ConsultationView() {
 
       {/* Resume Banner */}
       {consultation.stepCompleted > 0 && consultation.stepCompleted < 6 && (
-        <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">
-          <Info className="h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 mb-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-50/60 dark:from-amber-950/20 dark:to-amber-950/10 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+            <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
           <p className="text-sm"><span className="font-semibold">Assessment Paused</span> — Last Activity: Step {consultation.stepCompleted} ({STEP_META[consultation.stepCompleted]?.label})</p>
         </div>
       )}
 
       {/* Step Progress Bar — Sticky */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm p-3 sm:p-4 mb-4">
+      <div className="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-xl border border-gray-200/80 dark:border-gray-700/60 shadow-sm p-3 sm:p-4 mb-4">
         <div className="flex items-center">
           {STEP_META.map((step, idx) => {
             const Icon = step.icon;
@@ -3051,10 +3122,10 @@ export function ConsultationView() {
       </AlertDialog>
 
       {/* Step Card */}
-      <Card className="overflow-hidden border-gray-200/80 dark:border-gray-700/60 shadow-sm">
+      <Card className="overflow-hidden border-gray-200/80 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-shadow duration-200">
         <CardHeader className="pb-0">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center flex-shrink-0 ring-1 ring-rose-200/60 dark:ring-rose-700/30">
               <StepIcon className="h-4.5 w-4.5 text-rose-600 dark:text-rose-400" />
             </div>
             <div>
@@ -3068,9 +3139,9 @@ export function ConsultationView() {
         </CardContent>
 
         {/* Navigation Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/80">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50/80 to-gray-50/40 dark:from-gray-900/80 dark:to-gray-900/60">
           <Button variant="ghost" onClick={handleBackClick} disabled={saving}
-            className="gap-2 text-muted-foreground hover:text-foreground">
+            className="gap-2 text-muted-foreground hover:text-foreground transition-all duration-200">
             <ChevronLeft className="h-4 w-4" /> Back
           </Button>
           <div className="flex items-center gap-2">
@@ -3078,11 +3149,11 @@ export function ConsultationView() {
             {!saving && isInitialized.current && <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Save className="h-3 w-3" /><span>Auto-saved</span></div>}
           </div>
           {currentStep < TOTAL_STEPS - 1 ? (
-            <Button onClick={handleNext} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700">
+            <Button onClick={handleNext} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200">
               Next <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleComplete} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700">
+            <Button onClick={handleComplete} disabled={saving || !canProceed()} className="gap-2 bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200">
               <CheckCircle2 className="h-4 w-4" /> Complete
             </Button>
           )}

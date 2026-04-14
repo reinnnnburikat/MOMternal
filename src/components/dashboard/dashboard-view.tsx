@@ -655,9 +655,9 @@ export function DashboardView() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Risk Distribution Pie Chart */}
           <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 bg-gradient-to-r from-rose-50/60 to-transparent dark:from-rose-950/20 dark:to-transparent">
               <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
                   <PieChartIcon className="h-4 w-4 text-rose-600" />
                 </div>
                 Risk Distribution
@@ -719,13 +719,18 @@ export function DashboardView() {
           <div className="space-y-6">
             {/* Quick Actions */}
             <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Quick Actions</CardTitle>
+              <CardHeader className="pb-2 bg-gradient-to-r from-rose-50/60 to-transparent dark:from-rose-950/20 dark:to-transparent">
+                <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+                    <UserPlus className="h-4 w-4 text-rose-600" />
+                  </div>
+                  Quick Actions
+                </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-3">
                 <Button
                   onClick={() => setCurrentView('patient-new')}
-                  className="bg-rose-600 hover:bg-rose-700 text-white"
+                  className="bg-rose-600 hover:bg-rose-700 text-white shadow-sm shadow-rose-600/20 hover:shadow-md hover:shadow-rose-600/30 active:scale-[0.97] transition-all duration-200"
                 >
                   <UserPlus className="h-4 w-4" />
                   Add New Patient
@@ -733,6 +738,7 @@ export function DashboardView() {
                 <Button
                   variant="outline"
                   onClick={() => setCurrentView('map')}
+                  className="hover:border-rose-300 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200"
                 >
                   <Map className="h-4 w-4" />
                   View Risk Map
@@ -740,6 +746,7 @@ export function DashboardView() {
                 <Button
                   variant="outline"
                   onClick={() => setCurrentView('patients')}
+                  className="hover:border-rose-300 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 hover:text-rose-700 dark:hover:text-rose-300 transition-all duration-200"
                 >
                   <List className="h-4 w-4" />
                   View All Patients
@@ -749,9 +756,9 @@ export function DashboardView() {
 
             {/* Consultation Trends Line Chart */}
             <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 bg-gradient-to-r from-rose-50/60 to-transparent dark:from-rose-950/20 dark:to-transparent">
                 <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
-                  <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
                     <TrendingUp className="h-4 w-4 text-rose-600" />
                   </div>
                   Consultation Trends
@@ -810,8 +817,13 @@ export function DashboardView() {
         <PausedSkeleton />
       ) : (
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Paused Assessments</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-amber-50/60 to-transparent dark:from-amber-950/20 dark:to-transparent">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                <PlayCircle className="h-4 w-4 text-amber-600" />
+              </div>
+              Paused Assessments
+            </CardTitle>
             <CardDescription className="dark:text-gray-400">
               Resume in-progress consultations
             </CardDescription>
@@ -885,8 +897,13 @@ export function DashboardView() {
         <RecentTableSkeleton />
       ) : displayStats && displayStats.recentConsultations.length > 0 ? (
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-purple-50/60 to-transparent dark:from-purple-950/20 dark:to-transparent">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-purple-600" />
+              </div>
+              Recent Consultations
+            </CardTitle>
             <CardDescription className="dark:text-gray-400">
               Last {displayStats.recentConsultations.length} consultations
             </CardDescription>
@@ -936,8 +953,13 @@ export function DashboardView() {
         </Card>
       ) : displayStats ? (
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200/80 dark:border-gray-700/60 bg-white dark:bg-gray-900 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-bold">Recent Consultations</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-purple-50/60 to-transparent dark:from-purple-950/20 dark:to-transparent">
+            <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-gray-100 font-bold">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-purple-600" />
+              </div>
+              Recent Consultations
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center py-12">
