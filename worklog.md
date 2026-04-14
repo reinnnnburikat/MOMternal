@@ -774,3 +774,24 @@ Stage Summary:
 - Conflict resolution system detects server-side changes and lets nurses choose which version to keep
 - Heartbeat loading animation applied globally (replaced all spin animations)
 - Pushed to GitHub as commit 7c875e5
+
+---
+Task ID: 10
+Agent: Main Agent
+Task: Change loading animation from heartbeat to spin
+
+Work Log:
+- Identified all animate-heartbeat usages for loading indicators (not branding)
+- Updated PageLoader (src/components/ui/page-loader.tsx): replaced heartbeat img with SVG spinner + animate-spin
+- Updated InlineLoader (same file): replaced heartbeat img with small SVG spinner + animate-spin
+- Updated ViewFallback (src/app/page.tsx): replaced heartbeat img with SVG spinner
+- Updated hydration screen (src/app/page.tsx): replaced heartbeat img with SVG spinner
+- Kept splash-screen.tsx heartbeat — that's a branding animation for the MOMternal logo, not a loading indicator
+- All spinners use rose-500 color theme matching the app design
+- Zero references to loading-icon.png remaining in src/
+
+Stage Summary:
+- 2 files modified: page-loader.tsx, page.tsx
+- All loading indicators now use consistent spin animation (SVG + animate-spin)
+- Splash screen branding heartbeat preserved
+- ESLint: 0 errors, dev server: compiling cleanly
