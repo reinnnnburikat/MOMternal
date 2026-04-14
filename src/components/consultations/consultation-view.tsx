@@ -1039,36 +1039,64 @@ export function ConsultationView() {
               const pastData = await pastRes.json();
               if (pastData.success && pastData.data?.consultations) {
                 const currentConsultationId = data.id;
+                // Include ANY consultation with diagnoses (not just completed — many are in_progress with data)
                 const pastConsultations = pastData.data.consultations
                   .filter((c: any) =>
-                    c.status === 'completed' &&
                     c.id !== currentConsultationId &&
-                    (c.icd10Diagnosis || c.nandaDiagnosis)
+                    (c.icd10Diagnosis || c.nandaDiagnosis || c.nandaCode || c.nandaName)
                   );
 
                 const diagnoses: typeof pastDiagnoses = pastConsultations.map((c: any) => {
                   let icd10Parsed: Array<{ code: string; name: string }> = [];
                   let nandaParsed: Array<{ code: string; name: string }> = [];
 
+                  // Try JSON array format first: [{"code":"O14.1","name":"..."}]
                   try {
                     const icd10 = JSON.parse(c.icd10Diagnosis);
                     if (Array.isArray(icd10) && icd10[0]?.code) {
                       icd10Parsed = icd10;
                     }
-                  } catch { /* ignore */ }
+                  } catch { /* not JSON array — try old string format */ }
 
+                  // Fallback: old string format "O14.0 (Mild to moderate pre-eclampsia)"
+                  if (icd10Parsed.length === 0 && c.icd10Diagnosis) {
+                    const match = String(c.icd10Diagnosis).match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+                    if (match) {
+                      icd10Parsed = [{ code: match[1], name: match[2].trim() }];
+                    }
+                  }
+
+                  // Try JSON array format first: [{"code":"00026","name":"..."}]
                   try {
                     const nanda = JSON.parse(c.nandaDiagnosis);
                     if (Array.isArray(nanda) && nanda[0]?.code) {
                       nandaParsed = nanda;
                     }
-                  } catch { /* ignore */ }
+                  } catch { /* not JSON array — try old formats */ }
+
+                  // Fallback: old string format "00276 — Ineffective Health Self-Management"
+                  if (nandaParsed.length === 0 && c.nandaDiagnosis) {
+                    const match = String(c.nandaDiagnosis).match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+                    if (match) {
+                      nandaParsed = [{ code: match[1], name: match[2].trim() }];
+                    }
+                  }
+
+                  // Last fallback: use nandaCode + nandaName fields (comma-separated codes, semicolon-separated names)
+                  if (nandaParsed.length === 0 && (c.nandaCode || c.nandaName)) {
+                    const codes = (c.nandaCode || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+                    const names = (c.nandaName || '').split(';').map((s: string) => s.trim()).filter(Boolean);
+                    nandaParsed = codes.map((code: string, i: number) => ({
+                      code,
+                      name: names[i] || 'Unknown',
+                    }));
+                  }
 
                   return {
                     consultationNo: c.consultationNo || 'N/A',
                     consultationDate: c.consultationDate || c.createdAt,
                     status: c.status,
-                    nurseName: c.nurseName || 'Unknown',
+                    nurseName: c.nurseName || 'Recorded',
                     icd10Diagnoses: icd10Parsed,
                     nandaDiagnoses: nandaParsed,
                   };
@@ -1078,8 +1106,8 @@ export function ConsultationView() {
               }
             }
           }
-        } catch {
-          // Silently fail - past diagnoses are non-critical
+        } catch (err) {
+          console.error('[PastDiagnoses] Failed to load past diagnoses:', err);
         }
         const startStep = resolveStartStep(data.stepCompleted);
         setCurrentStep(startStep);

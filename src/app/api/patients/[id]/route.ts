@@ -22,9 +22,13 @@ export async function GET(
       );
     }
 
-    // Fetch consultations for this patient
+    // Fetch consultations for this patient with nurse name
     const consultations = await query(
-      `SELECT * FROM consultation WHERE patient_id = $1 ORDER BY consultation_date DESC`,
+      `SELECT c.*, n.name AS nurse_name
+       FROM consultation c
+       LEFT JOIN nurse n ON n.id = c.nurse_id
+       WHERE c.patient_id = $1
+       ORDER BY c.consultation_date DESC`,
       [id]
     );
 
@@ -33,7 +37,10 @@ export async function GET(
       success: true,
       data: {
         ...patient,
-        consultations: consultations.rows.map((c) => mapConsultationFromDb(c as Record<string, unknown>)),
+        consultations: consultations.rows.map((c) => ({
+          ...mapConsultationFromDb(c as Record<string, unknown>),
+          nurseName: (c as Record<string, unknown>).nurse_name || null,
+        })),
       },
     });
   } catch (error) {
