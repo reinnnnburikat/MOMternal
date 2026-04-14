@@ -1,3 +1,59 @@
+# Worklog: Past Diagnoses Fix & Status Indicator
+
+## Date: 2025-01-21
+
+## Task
+Fix Past Diagnoses (ICD-10 & NANDA) not showing in Health History section, add Completed/In Progress status indicator, and perform whole system check.
+
+## Investigation
+- Verified database has consultation records with `icd10_diagnosis` and `nanda_diagnosis` populated (JSON array format)
+- Verified `/api/patients/[id]` returns consultations with correct camelCase field mapping (`icd10Diagnosis`, `nandaDiagnosis`)
+- Verified `/api/consultations/[id]` returns `patient.id` for fetching related consultations
+- Simulated full data flow: consultation load → patient fetch → filter → parse → display
+- All API endpoints return correct data format
+
+## Root Cause
+The code logic was fundamentally correct. The issue was likely:
+1. State not being reset when switching between consultations (stale `pastDiagnoses`)
+2. No error visibility if the fetch silently failed
+3. Past diagnoses only shown on Health History step (step 1), not on Diagnosis step (step 3)
+
+## Changes Made
+
+### Files Modified
+- `src/components/consultations/consultation-view.tsx`
+
+### 1. State Reset (Line ~932)
+- Added `setPastDiagnoses([])` at the start of `fetchConsultation` to clear stale data when switching consultations
+
+### 2. Comprehensive Console Logging (Lines ~1038-1128)
+- Added detailed `[PastDiagnoses]` prefixed console logs throughout the fetch flow
+- Logs: consultation loaded, patient ID, API response status, consultation count, filtered count, parsed results
+- Warning logs for: non-OK response, missing format, no patientId
+
+### 3. Completed/In Progress Status Indicator (Lines ~1877-1883, 2243-2248)
+- Added colored Badge next to each past consultation showing its status
+- **Completed**: Emerald green badge with "✓ Completed"
+- **In Progress**: Amber badge with "◷ In Progress"
+
+### 4. Past Diagnoses on Diagnosis Step (Lines ~2226-2269)
+- Added compact past diagnoses reference section at the top of the Diagnosis step (step 3)
+- Shows consultation number, status badge, date, and diagnosis code pills
+- More compact than the Health History version (max-h-48, condensed pills)
+
+### 5. Improved Error Handling
+- Added detailed warning messages for each failure point in the fetch chain
+- Non-blocking: past diagnoses fetch failure doesn't prevent consultation loading
+
+## Verification
+- ESLint: 0 errors
+- API tested: `/api/patients/[id]` returns correct consultations with diagnoses
+- API tested: `/api/consultations/[id]` returns correct patient.id
+- Dev server: Compiled successfully (GET / 200)
+- Git push: d15e610
+
+---
+
 # Worklog: Optimize Add Patient Form Layout
 
 ## Date: 2025-01-20
