@@ -749,3 +749,28 @@ Stage Summary:
 - consultation-view.tsx now supports offline for all operations except AI and referral
 - ESLint: 0 errors
 - TypeScript: no new errors in consultation-view.tsx
+---
+Task ID: 1
+Agent: Main Agent
+Task: Full offline mode for ALL operations + conflict resolution + global heartbeat loading animation
+
+Work Log:
+- Read and analyzed entire offline infrastructure (offline-cache.ts, offline-queue.ts, offline-fetch.ts, use-offline-data.ts)
+- Mapped all 16 API routes and identified offline coverage gaps
+- Enhanced offline-queue.ts with: conflict resolution fields (entityId, entityType, lastKnownUpdatedAt), SyncStatus enum, max retry limit (10), resolveConflict/removeAction/getConflicts/getQueueSummary APIs
+- Enhanced offline-fetch.ts with: entity tracking, OfflineFetchOptions interface, better action type derivation, temp ID generation for offline creates
+- Created conflict-resolution-dialog.tsx with: side-by-side local vs server comparison, Keep Mine/Keep Server's/Discard buttons, SyncStatusPanel component
+- Created page-loader.tsx with: PageLoader (heartbeat animation), InlineLoader (small inline version)
+- Wired offlineFetch into: edit-patient-dialog.tsx (PUT patient), consultation-view.tsx (GET+PUT consultation, GET past diagnoses — kept AI/referral as raw fetch), dashboard-view.tsx (TanStack Query fetch for stats+resume), audit-view.tsx (GET audit logs), notification-panel.tsx (GET notifications), map-view.tsx (GET map data + GeoJSON), patient-profile-view.tsx (DELETE patient)
+- Applied PageLoader to: dashboard-view.tsx, audit-view.tsx, map-view.tsx, patient-profile-view.tsx
+- Applied InlineLoader to: notification-panel.tsx
+- Updated app-shell.tsx with: conflict detection on sync, ConflictResolutionDialog integration, clickable pending badge, syncing animation banner, enhanced offline banner message
+- Updated page.tsx: ViewFallback uses heartbeat instead of spin, hydration screen uses heartbeat instead of spin
+- Fixed TypeScript errors in offline-fetch.ts (deriveActionType return type)
+- ESLint: 0 errors, TypeScript (src/): 0 errors
+
+Stage Summary:
+- All nurse operations now work offline: patient CRUD, consultation save/step, dashboard stats, audit logs, notifications, map data
+- Conflict resolution system detects server-side changes and lets nurses choose which version to keep
+- Heartbeat loading animation applied globally (replaced all spin animations)
+- Pushed to GitHub as commit 7c875e5
