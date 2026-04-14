@@ -197,7 +197,7 @@ const STEP_META = [
   { label: 'Assessment', shortLabel: 'Assess', icon: ClipboardList },
   { label: 'Health History', shortLabel: 'History', icon: FileHeart },
   { label: 'Findings', shortLabel: 'Findings', icon: Search },
-  { label: 'Diagnosis', shortLabel: 'Dx', icon: Stethoscope },
+  { label: 'Nursing Diagnosis', shortLabel: 'Nx', icon: Stethoscope },
   { label: 'AI Summary', shortLabel: 'AI', icon: Sparkles },
   { label: 'Care Plan', shortLabel: 'Plan', icon: UserCheck },
   { label: 'Referral', shortLabel: 'Refer', icon: FileOutput },
@@ -2249,6 +2249,53 @@ export function ConsultationView() {
           </SelectContent>
         </Select>
       </div>
+
+      <Separator />
+
+      {/* ── ICD-10 Diagnoses ─────────────────────────────────────────── */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5 text-sm font-medium">
+          <Activity className="h-3.5 w-3.5 text-rose-500" />
+          ICD-10 Diagnoses
+        </Label>
+        <p className="text-xs text-muted-foreground">Search and select one or more ICD-10 codes.</p>
+
+        <CodeCombobox
+          label="Search ICD-10"
+          value=""
+          onSelect={opt => {
+            if (opt && !selectedIcd10Codes.some(c => c.code === opt.code)) {
+              setSelectedIcd10Codes(prev => [...prev, { code: opt.code, name: opt.name }]);
+              markDirty();
+            }
+          }}
+          options={icd10Options}
+          searchFn={(q) => searchIcd10Codes(q).map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }))}
+          placeholder="Type ICD-10 code or keyword..."
+          emptyMessage="No ICD-10 codes found."
+          categoryColors={ICD10_CATEGORY_COLORS}
+          id="icd10-search"
+          prominentCode
+        />
+
+        {selectedIcd10Codes.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+            {selectedIcd10Codes.map((code) => (
+              <Badge key={code.code} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800">
+                <span className="font-mono text-xs font-semibold">{code.code}</span>
+                <span className="text-xs">{code.name}</span>
+                <button onClick={() => { setSelectedIcd10Codes(prev => prev.filter(c => c.code !== code.code)); markDirty(); }} className="ml-1 hover:text-red-500">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <Textarea id="icd10AdditionalNotes" placeholder="Additional notes or multiple codes..."
+          className="min-h-[60px] resize-y mt-2" value={icd10AdditionalNotes}
+          onChange={handleIcd10AdditionalNotesChange} />
+      </div>
     </div>
   );
 
@@ -2286,52 +2333,8 @@ export function ConsultationView() {
         <div className="w-6 h-6 rounded-md bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
           <Stethoscope className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
         </div>
-        <h3 className="font-semibold text-sm text-foreground dark:text-gray-100">Diagnosis</h3>
+        <h3 className="font-semibold text-sm text-foreground dark:text-gray-100">NANDA-I Nursing Diagnosis</h3>
       </div>
-      {/* Past Diagnoses Reference */}
-      {pastDiagnoses.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-rose-500" />
-            <h3 className="text-sm font-semibold text-foreground">Previous Diagnoses</h3>
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-rose-50 text-rose-600 border-rose-200">
-              {pastDiagnoses.length} prior
-            </Badge>
-          </div>
-          <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-            {pastDiagnoses.map((past, idx) => (
-              <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50/50 dark:bg-gray-900/30">
-                <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                  <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0 border-gray-300 text-gray-600">
-                    {past.consultationNo}
-                  </Badge>
-                  <Badge className={`text-[10px] px-1.5 py-0 border-0 ${
-                    past.status === 'completed'
-                      ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
-                      : 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
-                  }`}>
-                    {past.status === 'completed' ? '✓ Completed' : '◷ In Progress'}
-                  </Badge>
-                  <span className="text-[10px] text-muted-foreground">{format(new Date(past.consultationDate), 'MMM d, yyyy')}</span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {past.icd10Diagnoses.map((d, di) => (
-                    <span key={`icd-${di}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-[10px] font-medium border border-blue-200 dark:border-blue-800">
-                      <span className="font-mono">{d.code}</span>
-                    </span>
-                  ))}
-                  {past.nandaDiagnoses.map((d, di) => (
-                    <span key={`nanda-${di}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[10px] font-medium border border-amber-200 dark:border-amber-800">
-                      <span className="font-mono">{d.code}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <Separator />
-        </div>
-      )}
 
       {/* NANDA Section */}
       <div className="space-y-2">
@@ -2376,52 +2379,6 @@ export function ConsultationView() {
         <Textarea id="nandaRelatedTo" placeholder="Related to: (e.g., preeclampsia, pregnancy-induced hypertension)..."
           className="min-h-[60px] resize-y mt-2" value={nandaRelatedTo}
           onChange={handleNandaRelatedToChange} />
-      </div>
-      <Separator />
-
-      {/* ICD-10 Section */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-1.5 text-sm font-medium">
-          <Activity className="h-3.5 w-3.5 text-rose-500" />
-          ICD-10 Diagnoses
-        </Label>
-        <p className="text-xs text-muted-foreground">Search and select one or more ICD-10 codes.</p>
-
-        <CodeCombobox
-          label="Search ICD-10"
-          value=""
-          onSelect={opt => {
-            if (opt && !selectedIcd10Codes.some(c => c.code === opt.code)) {
-              setSelectedIcd10Codes(prev => [...prev, { code: opt.code, name: opt.name }]);
-              markDirty();
-            }
-          }}
-          options={icd10Options}
-          searchFn={(q) => searchIcd10Codes(q).map(c => ({ code: c.code, name: c.name, description: c.description, category: c.category }))}
-          placeholder="Type ICD-10 code or keyword..."
-          emptyMessage="No ICD-10 codes found."
-          categoryColors={ICD10_CATEGORY_COLORS}
-          id="icd10-search"
-          prominentCode
-        />
-
-        {selectedIcd10Codes.length > 0 && (
-          <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-            {selectedIcd10Codes.map((code) => (
-              <Badge key={code.code} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800">
-                <span className="font-mono text-xs font-semibold">{code.code}</span>
-                <span className="text-xs">{code.name}</span>
-                <button onClick={() => { setSelectedIcd10Codes(prev => prev.filter(c => c.code !== code.code)); markDirty(); }} className="ml-1 hover:text-red-500">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        <Textarea id="icd10AdditionalNotes" placeholder="Additional notes or multiple codes..."
-          className="min-h-[60px] resize-y mt-2" value={icd10AdditionalNotes}
-          onChange={handleIcd10AdditionalNotesChange} />
       </div>
     </div>
   );
@@ -2972,9 +2929,9 @@ export function ConsultationView() {
 
   const stepDescriptions: Record<number, string> = {
     0: 'Document the type of visit, chief complaint, vitals, OB history, and anthropometric measurements.',
-    1: "Document the patient's past medical, surgical, family, and social history.",
+    1: "Document the patient's medical history, lifestyle factors, and ICD-10 diagnoses.",
     2: 'Record physical examination findings, laboratory results, and additional notes.',
-    3: 'Enter NANDA-I nursing diagnosis and ICD-10 medical diagnosis codes.',
+    3: 'Select NANDA-I nursing diagnosis codes for the current consultation.',
     4: 'AI-generated risk classification, prevention level, rationale, and suggested interventions.',
     5: 'Select NIC interventions, evaluate outcomes, and document the care plan.',
     6: 'Generate and finalize the referral summary document.',
