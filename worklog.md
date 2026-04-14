@@ -795,3 +795,35 @@ Stage Summary:
 - All loading indicators now use consistent spin animation (SVG + animate-spin)
 - Splash screen branding heartbeat preserved
 - ESLint: 0 errors, dev server: compiling cleanly
+
+---
+Task ID: 11
+Agent: Main Agent
+Task: Full system audit — frontend, backend, database — fix all issues
+
+Work Log:
+- Verified loading icon: all loading instances use animate-spin ✅ (only splash-screen branding uses animate-heartbeat intentionally)
+- Launched backend audit agent: audited all 16 API route files
+- Launched frontend-backend integration audit agent: checked data flow, field mapping, API matching
+- Fixed 7 issues across 4 files:
+
+Backend fixes:
+1. CRITICAL: notifications/route.ts — replaced non-existent `completed_at` column with `updated_at` in follow-up query + changed silent 200 error to 500
+2. MEDIUM: consultations/[id]/route.ts GET — added `{ success: true }` wrapper to enable offline caching
+3. MEDIUM: consultations/[id]/route.ts PUT — added `{ success: true }` wrapper + fixed OB fields to read from patient table (p.gravidity, p.parity, p.aog, p.blood_type) instead of consultation table + added null guard on fullRow
+4. MEDIUM: consultations/[id]/route.ts — added `nandaRelatedTo` and `icd10AdditionalNotes` to FIELD_MAPPING
+
+Database changes:
+5. Added `nanda_related_to TEXT` column to consultation table via ALTER TABLE
+6. Added `icd10_additional_notes TEXT` column to consultation table via ALTER TABLE
+
+Frontend/data mapping fixes:
+7. case.ts — added `nandaRelatedTo`/`icd10AdditionalNotes` to CONSULTATION_FIELDS and mapConsultationFromDb
+8. consultation-view.tsx — added optional chaining to patient.name and patient.patientId in referral section and patient header
+
+Stage Summary:
+- 4 files modified: notifications/route.ts, consultations/[id]/route.ts, case.ts, consultation-view.tsx
+- 2 DB columns added: nanda_related_to, icd10_additional_notes
+- TypeScript: 0 errors, ESLint: 0 errors
+- Dev server: compiling cleanly
+- Pushed to GitHub as commit 1b50713
