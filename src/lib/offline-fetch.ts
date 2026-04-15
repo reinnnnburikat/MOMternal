@@ -16,10 +16,9 @@ import { useAppStore } from '@/store/app-store';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-/** Derive a cache key from a URL. */
+/** Derive a cache key from a URL. Includes query params so different searches don't collide. */
 function urlToCacheKey(url: string): string {
-  const idx = url.indexOf('?');
-  return idx > 0 ? url.slice(0, idx) : url;
+  return url; // Use full URL including query params
 }
 
 /** Extract entity ID from URL patterns like /api/patients/abc-123 */
@@ -47,7 +46,7 @@ function deriveActionType(method: string, url: string): OfflineActionType {
   if (url.includes('/patients') && (method === 'PUT' || method === 'PATCH')) return 'update-patient';
   if (url.includes('/health-history') && method === 'POST') return 'create-consultation';
   if (url.includes('/health-history') && (method === 'PUT' || method === 'PATCH')) return 'update-consultation';
-  return 'update-patient';
+  return 'update-consultation'; // safer default
 }
 
 /** Small helper to create a Response-like object from JSON data. */
@@ -75,9 +74,9 @@ function jsonResponse(data: unknown, status = 200): Response {
 function isNetworkError(err: unknown): boolean {
   if (err instanceof TypeError) {
     const msg = err.message.toLowerCase();
-    return msg.includes('failed') || msg.includes('network') || msg.includes('load') || msg.includes('abort') || msg.includes('cors') || msg.includes('fetch');
+    return msg.includes('failed') || msg.includes('network') || msg.includes('load') || msg.includes('abort') || msg.includes('cors') || msg.includes('fetch') || msg.includes('cancelled') || msg.includes('timeout') || msg.includes('timed out');
   }
-  return err instanceof DOMException && err.name === 'AbortError';
+  return err instanceof DOMException && (err.name === 'AbortError' || err.name === 'TimeoutError');
 }
 
 /** Generate a temporary ID for offline-created entities */
@@ -156,6 +155,10 @@ export async function offlineFetch(
           if (data?.success) {
             const cacheKey = urlToCacheKey(url);
             setCache(cacheKey, data.data);
+          } else if (data && typeof data === 'object') {
+            // Some endpoints return data directly without {success, data} wrapper
+            const cacheKey = urlToCacheKey(url);
+            setCache(cacheKey, data);
           }
         } catch {
           // Not JSON or parseable — skip caching

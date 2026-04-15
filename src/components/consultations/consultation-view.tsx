@@ -1566,10 +1566,17 @@ export function ConsultationView() {
     setShowCompleteDialog(false);
     const success = await saveStep(currentStep);
     if (success) {
+      // Mark offline consultation as completed
+      if (selectedConsultationId && isOfflineId(selectedConsultationId)) {
+        updateOfflineConsultation(selectedConsultationId, {
+          status: 'completed',
+          updatedAt: new Date().toISOString(),
+        });
+      }
       toast.success('Consultation completed!');
     }
     goBack();
-  }, [currentStep, saveStep, goBack]);
+  }, [currentStep, saveStep, goBack, selectedConsultationId]);
 
   // ── AI Suggest ──
   const handleAiSuggest = useCallback(async () => {
@@ -1577,10 +1584,79 @@ export function ConsultationView() {
     if (!selectedConsultationId) return;
     setAiLoading(true);
     setAiError(null);
+
+    // For offline consultations, go straight to fallback engine — skip API call
+    if (isOfflineId(selectedConsultationId)) {
+      try {
+        const assessmentData = {
+          subjectiveSymptoms: chiefComplaint,
+          objectiveVitals: stringifyVitals(vitals),
+          fetalHeartRate: fetalHeartRate || undefined,
+          labResults: labResults || undefined,
+          physicalExam: physicalExam || undefined,
+          icd10Diagnosis: icd10SelectedCode || undefined,
+          nandaDiagnosis: nandaSelectedCode || undefined,
+          clinicalContext: {
+            riskLevel: riskLevel || undefined,
+            aog: consultationAOG || undefined,
+            age: consultation?.patient ? Number((consultation.patient as unknown as Record<string, unknown>).age) : undefined,
+            bmi: calculatedBMI ? parseFloat(String(calculatedBMI)) : undefined,
+            smoking: smokingValue || undefined,
+            alcohol: alcoholValue || undefined,
+            drugUse: drugUseValue || undefined,
+          },
+        };
+        const fallbackResult = generateFallbackSuggestions(assessmentData);
+        const mappedSuggestions: AISuggestion = {
+          interventions: fallbackResult.interventions.map(i => ({
+            code: i.code, name: i.name, description: i.description,
+            category: i.category, relatedNanda: i.relatedNanda,
+            relatedNoc: i.relatedNoc, priority: i.priority,
+          })),
+          priorityIntervention: fallbackResult.priorityIntervention,
+          priorityCode: fallbackResult.priorityCode,
+          rationale: fallbackResult.rationale,
+          preventionLevel: fallbackResult.preventionLevel,
+          riskIndicators: fallbackResult.riskIndicators,
+          nursingConsiderations: fallbackResult.nursingConsiderations,
+          referralNeeded: fallbackResult.referralNeeded,
+          referralReason: fallbackResult.referralReason,
+          followUpSchedule: fallbackResult.followUpSchedule,
+          rawResponse: '[Generated in offline mode using evidence-based nursing guidelines]',
+        };
+        setAiSuggestions(mappedSuggestions);
+        if (fallbackResult.preventionLevel) {
+          const pl = fallbackResult.preventionLevel;
+          const newRisk = preventionToRisk(pl);
+          setPreventionLevel(pl);
+          setRiskLevel(newRisk);
+          const newUrgency = riskToReferralUrgency(newRisk);
+          const newType = riskToReferralType(newRisk);
+          setReferralPriority(prev => prev || newUrgency);
+          setReferralType(newType);
+        }
+        // Persist AI results to offline store
+        updateOfflineConsultation(selectedConsultationId, {
+          riskLevel: riskLevel || (fallbackResult.preventionLevel ? preventionToRisk(fallbackResult.preventionLevel) : undefined),
+          preventionLevel: fallbackResult.preventionLevel,
+          aiSuggestions: JSON.stringify(mappedSuggestions),
+          updatedAt: new Date().toISOString(),
+        });
+        toast.success('AI summary generated (offline mode)', {
+          description: 'Suggestions generated using local clinical guidelines.',
+          duration: 5000,
+        });
+      } catch {
+        setAiError('Offline AI generation failed.');
+        toast.error('Unable to generate suggestions offline', { duration: 5000 });
+      } finally { setAiLoading(false); }
+      return;
+    }
+
     try {
       // Save assessment data first so AI has latest data
       await saveStep(currentStep);
-      const res = await fetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, { method: 'POST' });
+      const res = await offlineFetch(`/api/consultations/${selectedConsultationId}/ai-suggest`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) {
         setAiError(data.error || data.details || 'AI suggestion failed');
@@ -1688,6 +1764,16 @@ export function ConsultationView() {
           });
           // Cache the fallback suggestions
           setCache(`consultation-ai-${selectedConsultationId}`, mappedSuggestions);
+          // Persist AI results to offline store if applicable
+          if (isOfflineId(selectedConsultationId)) {
+            const derivedRisk = fallbackResult.preventionLevel ? preventionToRisk(fallbackResult.preventionLevel) : undefined;
+            updateOfflineConsultation(selectedConsultationId, {
+              riskLevel: derivedRisk || riskLevel,
+              preventionLevel: fallbackResult.preventionLevel,
+              aiSuggestions: JSON.stringify(mappedSuggestions),
+              updatedAt: new Date().toISOString(),
+            });
+          }
         } catch {
           setAiError('Offline AI generation failed. Please try again when online.');
           toast.error('Unable to generate suggestions offline', { duration: 5000 });
@@ -1702,6 +1788,15 @@ export function ConsultationView() {
   // ── Generate Referral ──
   const handleGenerateReferral = useCallback(async () => {
     if (!selectedConsultationId) return;
+
+    // Referral generation requires server-side PDF generation — not available offline
+    if (isOfflineId(selectedConsultationId) || !navigator.onLine) {
+      toast.warning('Referral generation requires an internet connection. Your consultation data will sync when back online, and you can generate the referral then.', {
+        duration: 6000,
+      });
+      return;
+    }
+
     setReferralLoading(true);
     try {
       await saveStep(currentStep);

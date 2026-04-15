@@ -101,7 +101,7 @@ function deriveEntityInfo(
     case 'create-consultation':
       return {
         entityType: 'consultation',
-        entityId: body.patientId as string,
+        entityId: undefined, // No entity ID yet — it hasn't been created
         description: 'Create new consultation',
       };
     case 'update-consultation':
@@ -197,25 +197,35 @@ export async function processQueue(): Promise<SyncResult> {
   _processing = true;
   try {
     const queue = loadQueue();
-    const pending = queue.filter(a => a.status === 'pending' || a.status === 'failed');
-    if (pending.length === 0) return { processed: 0, failed: 0, conflicts: [], errors: [] };
+    const pending = queue.filter(a => {
+      if (a.status === 'syncing') {
+        // Reset orphaned syncing items back to pending
+        return true; // will be processed
+      }
+      return a.status === 'pending' || a.status === 'failed';
+    });
+    // Also reset syncing items in the queue
+    const queueToProcess = pending.map(a =>
+      a.status === 'syncing' ? { ...a, status: 'pending' as SyncStatus } : a
+    );
+    if (queueToProcess.length === 0) return { processed: 0, failed: 0, conflicts: [], errors: [] };
 
     let processed = 0;
     let failed = 0;
     const conflicts: OfflineAction[] = [];
     const errors: SyncResult['errors'] = [];
-    const remaining: OfflineAction[] = queue.filter(a => a.status === 'conflict' || a.status === 'syncing');
+    const remaining: OfflineAction[] = queue.filter(a => a.status === 'conflict');
 
-    for (let i = 0; i < pending.length; i++) {
-      const action = { ...pending[i], status: 'syncing' as SyncStatus };
+    for (let i = 0; i < queueToProcess.length; i++) {
+      const action = { ...queueToProcess[i], status: 'syncing' as SyncStatus };
 
       // Max retry check — skip items that have been retried too many times
       if (action.retryCount >= MAX_RETRIES) {
         action.status = 'failed';
         action.error = `Max retries (${MAX_RETRIES}) exceeded`;
-        remaining.push(action);
         failed++;
         errors.push({ action, error: action.error });
+        // Don't add to remaining — remove permanently
         continue;
       }
 
@@ -248,35 +258,23 @@ export async function processQueue(): Promise<SyncResult> {
               const respBody = await res.json();
               const realId = respBody?.data?.id;
               if (realId) {
-                // Map temp ID to real ID in the offline consultation store
                 try {
-                  const { mapTempToRealId } = await import('@/lib/offline-consultation-store');
-                  // Extract tempId from the URL or body
-                  const tempId = action.entityId || extractTempIdFromBody(action.body);
-                  if (tempId) {
-                    mapTempToRealId(tempId, realId);
-                    saveTempIdMap(tempId, realId);
-                    console.log(`[Sync] Mapped offline consultation ${tempId} → ${realId}`);
+                  const { getAllOfflineConsultations, mapTempToRealId } = await import('@/lib/offline-consultation-store');
+                  // Extract patientId from URL pattern /api/patients/{patientId}/consultations
+                  const patientIdFromUrl = action.url.match(/\/api\/patients\/([a-zA-Z0-9-]+)\/consultations/)?.[1];
+                  if (patientIdFromUrl) {
+                    // Find the offline consultation for this patient that hasn't been synced yet
+                    const offlineConsultations = getAllOfflineConsultations();
+                    const match = offlineConsultations.find(c => c.patientId === patientIdFromUrl && !c.realId);
+                    if (match) {
+                      mapTempToRealId(match.tempId, realId);
+                      saveTempIdMap(match.tempId, realId);
+                      console.log(`[Sync] Mapped offline consultation ${match.tempId} → ${realId}`);
+                    }
                   }
                 } catch { /* offline store not available */ }
               }
             } catch { /* response not JSON */ }
-          }
-
-          // For update-consultation, re-map URL if it contains an offline- ID
-          if (action.type === 'update-consultation' && action.url.includes('/consultations/offline-')) {
-            const tempIdMatch = action.url.match(/\/consultations\/(offline-[a-zA-Z0-9-]+)/);
-            if (tempIdMatch) {
-              const realId = getTempIdMap(tempIdMatch[1]);
-              if (realId) {
-                // Re-enqueue with the real ID so the update targets the correct resource
-                console.log(`[Sync] Re-mapping update URL from ${tempIdMatch[1]} → ${realId}`);
-                const remappedAction = { ...action, status: 'pending' as SyncStatus, retryCount: 0, id: `${Date.now()}-remapped-${Math.random().toString(36).slice(2, 7)}` };
-                remappedAction.url = action.url.replace(tempIdMatch[1], realId);
-                remaining.push(remappedAction);
-                continue; // Don't mark as fully done — the remapped version replaces it
-              }
-            }
           }
 
           // Don't add to remaining — successfully synced
@@ -331,11 +329,21 @@ export async function processQueue(): Promise<SyncResult> {
       }
 
       // Small delay between items to avoid overwhelming the server
-      if (i < pending.length - 1) {
+      if (i < queueToProcess.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 200));
       }
     }
 
+    // Merge any items that were enqueued during processing
+    const freshQueue = loadQueue();
+    const freshPending = freshQueue.filter(
+      a => a.status === 'pending' || a.status === 'failed'
+    ).filter(
+      a => !queue.some(original => original.id === a.id)
+    );
+    if (freshPending.length > 0) {
+      remaining.push(...freshPending);
+    }
     saveQueue(remaining);
     return { processed, failed, conflicts, errors };
   } finally {

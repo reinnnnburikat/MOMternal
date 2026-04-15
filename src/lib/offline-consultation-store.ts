@@ -107,35 +107,48 @@ export function saveOfflineConsultation(
   tempId: string,
   data: Partial<OfflineConsultation>,
 ): OfflineConsultation {
-  const now = new Date().toISOString();
+  const key = `${STORAGE_PREFIX}${tempId}`;
+  let consultation: OfflineConsultation;
 
-  let existing: OfflineConsultation | null = null;
   try {
-    const raw = localStorage.getItem(storageKey(tempId));
+    const raw = localStorage.getItem(key);
     if (raw) {
-      existing = JSON.parse(raw) as OfflineConsultation;
+      // Merge with existing
+      consultation = JSON.parse(raw) as OfflineConsultation;
+      const updates = { ...data, updatedAt: new Date().toISOString() };
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v !== undefined) (consultation as unknown as Record<string, unknown>)[k] = v;
+      });
+    } else {
+      // Create new with defaults
+      consultation = {
+        patientId: data.patientId || '',
+        nurseId: data.nurseId || '',
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        consultationNo: data.consultationNo || 'OFFLINE-TEMP',
+        consultationDate: data.consultationDate || new Date().toISOString().slice(0, 10),
+        stepCompleted: data.stepCompleted ?? 0,
+        status: data.status || 'in_progress',
+        ...data,
+        tempId, // Prevent accidental override from spread
+      } as OfflineConsultation;
     }
-  } catch {
-    // If we can't read, treat as new
-  }
 
-  const consultation = {
-    ...(existing ?? {
+    localStorage.setItem(key, JSON.stringify(consultation));
+  } catch {
+    // Storage full or unavailable — return a default object so the caller doesn't crash
+    consultation = {
       tempId,
+      patientId: data.patientId || '',
+      nurseId: data.nurseId || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       consultationNo: 'OFFLINE-TEMP',
-      status: 'in_progress',
+      consultationDate: new Date().toISOString().slice(0, 10),
       stepCompleted: 0,
-      createdAt: now,
-    }),
-    ...data,
-    tempId,        // always preserve the tempId
-    updatedAt: now, // always bump the timestamp
-  } as OfflineConsultation;
-
-  try {
-    localStorage.setItem(storageKey(tempId), JSON.stringify(consultation));
-  } catch {
-    // Storage full or unavailable — silently fail
+      status: 'in_progress',
+    };
   }
 
   return consultation;
@@ -209,26 +222,25 @@ export function getAllOfflineConsultations(): OfflineConsultation[] {
  * After a successful sync, map the tempId to the real server-assigned ID.
  *
  * - Sets `realId` on the consultation record.
- * - Removes the old storage key and re-saves under a new key that includes
- *   the realId so it can still be found via `getOfflineConsultationByRealId`.
+ * - Keeps the original storage key so existing lookups still work.
  *
  * Returns `true` on success, `false` if the consultation was not found.
  */
 export function mapTempToRealId(tempId: string, realId: string): boolean {
-  const consultation = getOfflineConsultation(tempId);
-  if (!consultation) return false;
-
-  consultation.realId = realId;
-  consultation.updatedAt = new Date().toISOString();
-
   try {
-    // Remove old key
-    localStorage.removeItem(storageKey(tempId));
-
-    // Save under a composite key: prefix + tempId + "::mapped::" + realId
-    // This keeps the original key namespace but makes lookup by realId easy.
-    const mappedKey = `${STORAGE_PREFIX}${tempId}::mapped::${realId}`;
-    localStorage.setItem(mappedKey, JSON.stringify(consultation));
+    const key = `${STORAGE_PREFIX}${tempId}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      // Try the mapped key format (for backward compat during transition)
+      const mappedKey = `${STORAGE_PREFIX}${tempId}::mapped::${realId}`;
+      const mappedRaw = localStorage.getItem(mappedKey);
+      if (mappedRaw) return true; // Already mapped
+      return false;
+    }
+    const consultation: OfflineConsultation = JSON.parse(raw);
+    consultation.realId = realId;
+    consultation.updatedAt = new Date().toISOString();
+    localStorage.setItem(key, JSON.stringify(consultation));
     return true;
   } catch {
     return false;
@@ -239,25 +251,12 @@ export function mapTempToRealId(tempId: string, realId: string): boolean {
  * Find an offline consultation that has been synced and has a matching realId.
  */
 export function getOfflineConsultationByRealId(realId: string): OfflineConsultation | null {
-  const keys = getStoreKeys();
-
-  for (const key of keys) {
-    // Only check mapped keys (they contain "::mapped::")
-    if (!key.includes('::mapped::')) continue;
-
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      const consultation = JSON.parse(raw) as OfflineConsultation;
-      if (consultation.realId === realId) {
-        return consultation;
-      }
-    } catch {
-      // Skip corrupted entries
-    }
+  try {
+    const all = getAllOfflineConsultations();
+    return all.find(c => c.realId === realId) || null;
+  } catch {
+    return null;
   }
-
-  return null;
 }
 
 /**
@@ -284,22 +283,18 @@ export function getOfflineConsultationCount(): number {
  * Returns the number of cleaned-up records.
  */
 export function cleanupSyncedConsultations(): number {
-  const keys = getStoreKeys();
-  let cleaned = 0;
-
-  for (const key of keys) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      const consultation = JSON.parse(raw) as OfflineConsultation;
+  try {
+    const all = getAllOfflineConsultations();
+    let cleaned = 0;
+    for (const consultation of all) {
       if (consultation.realId) {
+        const key = `${STORAGE_PREFIX}${consultation.tempId}`;
         localStorage.removeItem(key);
         cleaned++;
       }
-    } catch {
-      // Skip corrupted entries
     }
+    return cleaned;
+  } catch {
+    return 0;
   }
-
-  return cleaned;
 }

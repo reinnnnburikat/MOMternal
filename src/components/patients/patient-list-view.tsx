@@ -189,8 +189,11 @@ export function PatientListView() {
 
       if (data.offline && data.tempId) {
         // Save local consultation record for offline use
+        const patient = patients.find(p => p.id === patientDbId);
         saveOfflineConsultation(data.tempId, {
           patientId: patientDbId,
+          patientName: patient?.name || patient?.patientId || 'Unknown',
+          patientPatientId: patient?.patientId,
           nurseId: currentNurse?.id || '',
           nurseName: currentNurse?.name,
         });
