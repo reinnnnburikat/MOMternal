@@ -81,6 +81,7 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { offlineFetch } from '@/lib/offline-fetch';
+import { saveOfflineConsultation } from '@/lib/offline-consultation-store';
 import { PageLoader } from '@/components/ui/page-loader';
 
 // ---------------------------------------------------------------------------
@@ -762,18 +763,24 @@ export function PatientProfileView() {
 
       const data = await res.json();
 
-      if (data.success || data.offline) {
-        if (data.offline) {
-          toast.success('Consultation will be created when back online.');
-        } else {
-          if (data.data?.id) {
-            setSelectedConsultationId(data.data.id);
-            setCurrentView('consultation');
-            toast.success('Consultation created successfully');
-          } else {
-            toast.error('Server returned unexpected response');
-          }
-        }
+      if (data.offline && data.tempId) {
+        // Save local consultation record for offline use
+        saveOfflineConsultation(data.tempId, {
+          patientId: patient.id,
+          patientName: patient.name,
+          patientPatientId: patient.patientId,
+          nurseId: currentNurse.id,
+          nurseName: currentNurse.name,
+        });
+        setSelectedConsultationId(data.tempId);
+        setCurrentView('consultation');
+        toast.success('Consultation created offline. You can fill it out now — it will sync when back online.', {
+          duration: 5000,
+        });
+      } else if (data.data?.id) {
+        setSelectedConsultationId(data.data.id);
+        setCurrentView('consultation');
+        toast.success('Consultation created successfully');
       } else {
         toast.error(data.error || 'Failed to create consultation');
       }

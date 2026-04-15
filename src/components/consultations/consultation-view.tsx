@@ -9,6 +9,14 @@ import { generateReferralPdf } from '@/lib/generate-referral-pdf';
 import { enqueue, getQueueLength } from '@/lib/offline-queue';
 import { offlineFetch } from '@/lib/offline-fetch';
 import { setCache, getCache } from '@/lib/offline-cache';
+import {
+  isOfflineId,
+  getOfflineConsultation,
+  updateOfflineConsultation,
+  deleteOfflineConsultation,
+  saveOfflineConsultation,
+  type OfflineConsultation
+} from '@/lib/offline-consultation-store';
 import { generateFallbackSuggestions } from '@/lib/ai-fallback';
 import { CodeCombobox, type CodeOption } from '@/components/ui/code-combobox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -525,6 +533,7 @@ export function ConsultationView() {
   const [currentStep, setCurrentStep] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [isOfflineConsultation, setIsOfflineConsultation] = useState(false);
 
   // ── AI auto-trigger ref (defined early, used in both fetchConsultation and useEffect) ──
   const aiAutoTriggerRef = useRef(false);
@@ -934,6 +943,134 @@ export function ConsultationView() {
     if (!selectedConsultationId) { setLoading(false); return; }
     // Reset past diagnoses when switching consultations to avoid stale data
     setPastDiagnoses([]);
+    
+    // Check if this is an offline-created consultation
+    if (isOfflineId(selectedConsultationId)) {
+      setIsOfflineConsultation(true);
+      const offlineData = getOfflineConsultation(selectedConsultationId);
+      if (offlineData) {
+        // Build a compatible data object from the offline store
+        const data = {
+          ...offlineData,
+          id: offlineData.tempId,
+          consultationNo: offlineData.consultationNo,
+          consultationDate: offlineData.consultationDate,
+          stepCompleted: offlineData.stepCompleted,
+          status: offlineData.status,
+          patient: {
+            id: offlineData.patientId,
+            patientId: offlineData.patientPatientId || '',
+            name: offlineData.patientName || 'Unknown Patient',
+          },
+          nurse: {
+            id: offlineData.nurseId,
+            name: offlineData.nurseName || '',
+          },
+        };
+        setConsultation(data);
+        // Populate all form fields from offline data
+        setChiefComplaint(data.chiefComplaint || data.subjectiveSymptoms || '');
+        setVitals(parseVitals(data.objectiveVitals));
+        setFetalHeartRate(data.fetalHeartRate || '');
+        setFundalHeight(data.fundalHeight || '');
+        setAllergies(data.allergies || '');
+        setMedications(data.medications || '');
+        setPhysicalExam(data.physicalExam || '');
+        setLabResults(data.labResults || '');
+        setNotes(data.notes || '');
+        // Parse NANDA codes
+        if (data.nandaDiagnosis) {
+          try {
+            const parsed = JSON.parse(data.nandaDiagnosis);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].code) {
+              setSelectedNandaCodes(parsed.map((c: {code: string, name: string}) => ({ code: c.code, name: c.name })));
+            } else {
+              const match = data.nandaDiagnosis.match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+              if (match) setSelectedNandaCodes([{ code: match[1], name: match[2].trim() }]);
+            }
+          } catch {
+            const match = data.nandaDiagnosis.match(/^(\d{5})\s*[—\-]\s*(.+)$/);
+            if (match) setSelectedNandaCodes([{ code: match[1], name: match[2].trim() }]);
+          }
+        }
+        // Parse ICD-10 codes
+        if (data.icd10Diagnosis) {
+          try {
+            const parsed = JSON.parse(data.icd10Diagnosis);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].code) {
+              setSelectedIcd10Codes(parsed.map((c: {code: string, name: string}) => ({ code: c.code, name: c.name })));
+            } else {
+              const match = data.icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+              if (match) setSelectedIcd10Codes([{ code: match[1], name: match[2].trim() }]);
+            }
+          } catch {
+            const match = data.icd10Diagnosis.match(/^([A-Z]\d{2}(?:\.\d+)?)\s*\((.+)\)$/);
+            if (match) setSelectedIcd10Codes([{ code: match[1], name: match[2].trim() }]);
+          }
+        }
+        setNandaRelatedTo(data.nandaRelatedTo || data.nandaName || '');
+        setIcd10AdditionalNotes(data.icd10AdditionalNotes || '');
+        setRiskLevel(data.riskLevel || '');
+        setAiSuggestions(parseAI(data.aiSuggestions));
+        setSelectedInterventions(parseSelectedInterventions(data.selectedInterventions));
+        setEvaluationNotes(data.evaluationNotes || '');
+        setReferralSummary(data.referralSummary || '');
+        setTypeOfVisit(data.typeOfVisit || '');
+        setGravidity(data.gravidity != null ? String(data.gravidity) : '');
+        setParity(data.parity != null ? String(data.parity) : '');
+        setLmp(data.lmp ? (typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
+        setLmpDisplay(data.lmp ? lmpStorageToDisplay(typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
+        if (data.height) setVitals(v => ({ ...v, height: data.height as string }));
+        if (data.weight) setVitals(v => ({ ...v, weight: data.weight as string }));
+        setPreventionLevel(data.preventionLevel || '');
+        setReferralPriority(data.referralPriority || '');
+        setReferralType(data.referralType || 'Refer to Doctor');
+        setReferralFacility(data.referralFacility || '');
+        if (data.interventionEvaluations) {
+          try { setInterventionEvals(JSON.parse(data.interventionEvaluations)); } catch { setInterventionEvals([]); }
+        }
+        // Parse health history
+        if (data.healthHistory) {
+          const parsed = parseHealthHistory(data.healthHistory);
+          if (parsed) {
+            setPastMedicalSelected(parsed.pastMedicalHistory.selected);
+            setPastMedicalOthersText(parsed.pastMedicalHistory.othersText);
+            setPreviousSurgerySelected(parsed.previousSurgery.selected);
+            setPreviousSurgeryOthersText(parsed.previousSurgery.othersText);
+            setTraumaValue(parsed.historyOfTrauma.value);
+            setTraumaSpecify(parsed.historyOfTrauma.specify);
+            setBloodTransfusionValue(parsed.historyOfBloodTransfusion.value);
+            setBloodTransfusionSpecify(parsed.historyOfBloodTransfusion.specify);
+            setFamilyHistoryDropdown(parsed.familyHistory.value);
+            setFamilyHistorySelected(parsed.familyHistory.selected);
+            setFamilyHistoryOthersText(parsed.familyHistory.othersText);
+            setSmokingValue(parsed.smoking.value);
+            setSmokingPackYears(parsed.smoking.packYears);
+            setAlcoholValue(parsed.alcoholIntake.value);
+            setAlcoholDrinksPerDay(parsed.alcoholIntake.drinksPerDay);
+            setDrugUseValue(parsed.drugUse.value);
+            setDrugUseSubstance(parsed.drugUse.substance);
+            setDietaryPatternValue(parsed.dietaryPattern.value);
+            setDietaryPatternSpecify(parsed.dietaryPattern.specify);
+            setHhPhysicalActivity(parsed.physicalActivity);
+            setHhSleepPattern(parsed.sleepPattern);
+          }
+        }
+        setHealthHistoryRefCode(data.healthHistoryRefCode || '');
+        const startStep = resolveStartStep(data.stepCompleted);
+        setCurrentStep(startStep);
+        isInitialized.current = true;
+      } else {
+        toast.error('Offline consultation data not found. It may have been synced already.');
+        setIsOfflineConsultation(false);
+        goBack();
+      }
+      setLoading(false);
+      return;
+    }
+    
+    setIsOfflineConsultation(false);
+    
     async function fetchConsultation() {
       try {
         const res = await offlineFetch(`/api/consultations/${selectedConsultationId}`);
@@ -999,8 +1136,8 @@ export function ConsultationView() {
         setParity(data.parity != null ? String(data.parity) : '');
         setLmp(data.lmp ? (typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
         setLmpDisplay(data.lmp ? lmpStorageToDisplay(typeof data.lmp === 'string' ? data.lmp.slice(0, 10) : new Date(data.lmp).toISOString().slice(0, 10)) : '');
-        if (data.height) setVitals(v => ({ ...v, height: data.height }));
-        if (data.weight) setVitals(v => ({ ...v, weight: data.weight }));
+        if (data.height) setVitals(v => ({ ...v, height: data.height as string }));
+        if (data.weight) setVitals(v => ({ ...v, weight: data.weight as string }));
         setPreventionLevel(data.preventionLevel || '');
         setReferralPriority(data.referralPriority || '');
         setReferralType(data.referralType || 'Refer to Doctor');
@@ -1290,6 +1427,19 @@ export function ConsultationView() {
     const payload = buildSavePayload(step);
     if (Object.keys(payload).length === 0) return true;
     setSaving(true);
+    
+    // If this is an offline consultation, always save locally
+    if (isOfflineId(selectedConsultationId)) {
+      updateOfflineConsultation(selectedConsultationId, {
+        ...payload,
+        stepCompleted: Math.max(step, currentStep),
+        updatedAt: new Date().toISOString(),
+      });
+      toast.info('Saved offline. Will sync when you are back online.', { duration: 3000 });
+      setSaving(false);
+      return true;
+    }
+    
     try {
       const res = await offlineFetch(`/api/consultations/${selectedConsultationId}`, {
         method: 'PUT',
@@ -1311,13 +1461,24 @@ export function ConsultationView() {
       toast.warning('Saved locally — will sync when online');
       return true; // Return true so navigation isn't blocked
     } finally { setSaving(false); }
-  }, [selectedConsultationId, buildSavePayload, updateActivity]);
+  }, [selectedConsultationId, buildSavePayload, updateActivity, currentStep]);
 
   // ── Silent save (no toast) for auto-save ──
   const saveCurrentStepSilent = useCallback(async () => {
     if (!selectedConsultationId) return;
     const payload = buildSavePayload(currentStep);
     if (Object.keys(payload).length === 0) return;
+    
+    // Silent save to offline store for offline consultations
+    if (isOfflineId(selectedConsultationId)) {
+      updateOfflineConsultation(selectedConsultationId, {
+        ...payload,
+        stepCompleted: currentStep,
+        updatedAt: new Date().toISOString(),
+      });
+      return;
+    }
+    
     try {
       await offlineFetch(`/api/consultations/${selectedConsultationId}`, {
         method: 'PUT',
@@ -3016,6 +3177,17 @@ export function ConsultationView() {
             <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           </div>
           <p className="text-sm"><span className="font-semibold">Assessment Paused</span> — Last Activity: Step {consultation.stepCompleted} ({STEP_META[consultation.stepCompleted]?.label})</p>
+        </div>
+      )}
+
+      {/* Offline consultation indicator */}
+      {isOfflineConsultation && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 mb-4">
+          <CloudOff className="h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Offline Consultation</p>
+            <p className="text-xs mt-0.5">This consultation is saved locally. It will be synced to the server when you reconnect.</p>
+          </div>
         </div>
       )}
 

@@ -827,3 +827,39 @@ Stage Summary:
 - TypeScript: 0 errors, ESLint: 0 errors
 - Dev server: compiling cleanly
 - Pushed to GitHub as commit 1b50713
+
+---
+Task ID: 8
+Agent: system-audit
+Task: Full system check audit
+
+Work Log:
+- Read worklog.md to understand prior work context (multiple UI polish, bug fixes, offline wiring tasks)
+- Ran `bun run lint`: 0 errors, 0 warnings — clean
+- Ran `npx tsc --noEmit`: 0 errors in `src/` directory; 4 pre-existing errors only in `examples/` and `skills/` (ignored per scope)
+- Listed all 16 API routes under `src/app/api/` and verified each exports proper HTTP handler functions (GET/POST/PUT/DELETE)
+- Checked database files:
+  - `prisma/schema.prisma`: EXISTS, valid (passes `prisma validate` and `prisma format` when `.config` is moved aside)
+  - `src/lib/supabase.ts`: EXISTS — uses direct `pg` Pool to Supabase PostgreSQL (exports `query`, `queryOne`, `count`, `pool`)
+  - `src/lib/db.ts`: EXISTS — PrismaClient singleton with dev hot-reload guard (exports `db`)
+- Verified `src/lib/offline-consultation-store.ts` EXISTS with 11 exported functions + 1 type (OfflineConsultation)
+- Verified `src/lib/offline-queue.ts` EXISTS with 13 exported functions + 2 types (OfflineActionType, SyncStatus) + 2 interfaces (OfflineAction, SyncResult)
+- Validated import chains:
+  - `offline-queue.ts` uses dynamic import `await import('@/lib/offline-consultation-store')` in processQueue — correct
+  - 3 components import from `@/lib/offline-consultation-store`: consultation-view.tsx, patient-list-view.tsx, patient-profile-view.tsx — all valid exports
+  - 5 files import from `@/lib/offline-queue`: consultation-view.tsx, app-shell.tsx, conflict-resolution-dialog.tsx, offline-fetch.ts — all valid exports
+  - 9 components import from `@/lib/offline-fetch` — full offline coverage
+- Verified key component files all exist and have `'use client'` directive on line 1:
+  - `src/components/consultations/consultation-view.tsx` ✅
+  - `src/components/patients/patient-profile-view.tsx` ✅
+  - `src/components/patients/patient-list-view.tsx` ✅
+
+Stage Summary:
+- ESLint: 0 errors
+- TypeScript (src/): 0 errors
+- API Routes: 16 routes, all with proper HTTP handler exports
+- Database: All 3 files present (prisma schema, supabase/pg pool, prisma client)
+- Import validation: All offline-consultation-store and offline-queue imports resolve correctly
+- Component health: All 3 key components exist with proper 'use client' directives
+- 1 NON-BLOCKING FINDING: A JuiceFS config file exists at `.config` (project root) which is a JSON file (not a directory). This causes `prisma validate` and `prisma format` to fail with ENOTDIR error. The schema itself is valid — the error only occurs because Prisma CLI tries to load `.config/prisma` as a directory. Renaming or deleting this file would fix the CLI. No runtime impact since the app uses `pg` directly rather than Prisma Client at runtime.
+- No code changes made (audit only)

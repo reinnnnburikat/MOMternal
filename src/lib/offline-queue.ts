@@ -12,6 +12,9 @@
 const QUEUE_KEY = 'momternal-offline-queue';
 const MAX_RETRIES = 10;
 
+// Temp-to-real ID mapping storage (survives sync for re-mapping queued updates)
+const TEMP_ID_MAP_KEY = 'momternal-temp-id-map';
+
 export type OfflineActionType =
   | 'create-patient'
   | 'update-patient'
@@ -238,6 +241,44 @@ export async function processQueue(): Promise<SyncResult> {
         if (res.ok) {
           action.status = 'success';
           processed++;
+
+          // After a create-consultation succeeds, extract real ID and map temp→real
+          if (action.type === 'create-consultation') {
+            try {
+              const respBody = await res.json();
+              const realId = respBody?.data?.id;
+              if (realId) {
+                // Map temp ID to real ID in the offline consultation store
+                try {
+                  const { mapTempToRealId } = await import('@/lib/offline-consultation-store');
+                  // Extract tempId from the URL or body
+                  const tempId = action.entityId || extractTempIdFromBody(action.body);
+                  if (tempId) {
+                    mapTempToRealId(tempId, realId);
+                    saveTempIdMap(tempId, realId);
+                    console.log(`[Sync] Mapped offline consultation ${tempId} → ${realId}`);
+                  }
+                } catch { /* offline store not available */ }
+              }
+            } catch { /* response not JSON */ }
+          }
+
+          // For update-consultation, re-map URL if it contains an offline- ID
+          if (action.type === 'update-consultation' && action.url.includes('/consultations/offline-')) {
+            const tempIdMatch = action.url.match(/\/consultations\/(offline-[a-zA-Z0-9-]+)/);
+            if (tempIdMatch) {
+              const realId = getTempIdMap(tempIdMatch[1]);
+              if (realId) {
+                // Re-enqueue with the real ID so the update targets the correct resource
+                console.log(`[Sync] Re-mapping update URL from ${tempIdMatch[1]} → ${realId}`);
+                const remappedAction = { ...action, status: 'pending' as SyncStatus, retryCount: 0, id: `${Date.now()}-remapped-${Math.random().toString(36).slice(2, 7)}` };
+                remappedAction.url = action.url.replace(tempIdMatch[1], realId);
+                remaining.push(remappedAction);
+                continue; // Don't mark as fully done — the remapped version replaces it
+              }
+            }
+          }
+
           // Don't add to remaining — successfully synced
         } else if (res.status === 409) {
           // 409 Conflict — server indicates the resource was modified
@@ -421,4 +462,45 @@ function formatActionType(type: OfflineActionType): string {
     case 'delete-consultation': return 'Consultation Deletion';
     default: return type;
   }
+}
+
+// ── Temp ID Mapping Helpers ─────────────────────────────────────────────────
+
+/** Extract tempId from a JSON body string (looks for offline- prefix in any value) */
+function extractTempIdFromBody(body: string): string | undefined {
+  try {
+    const parsed = JSON.parse(body) as Record<string, unknown>;
+    for (const value of Object.values(parsed)) {
+      if (typeof value === 'string' && value.startsWith('offline-')) return value;
+    }
+  } catch { /* not JSON */ }
+  return undefined;
+}
+
+/** Persist a temp→real ID mapping to localStorage */
+function saveTempIdMap(tempId: string, realId: string): void {
+  try {
+    const raw = localStorage.getItem(TEMP_ID_MAP_KEY);
+    const map: Record<string, string> = raw ? JSON.parse(raw) : {};
+    map[tempId] = realId;
+    localStorage.setItem(TEMP_ID_MAP_KEY, JSON.stringify(map));
+  } catch { /* storage error */ }
+}
+
+/** Look up a real ID from a temp ID */
+function getTempIdMap(tempId: string): string | undefined {
+  try {
+    const raw = localStorage.getItem(TEMP_ID_MAP_KEY);
+    if (!raw) return undefined;
+    const map: Record<string, string> = JSON.parse(raw);
+    return map[tempId];
+  } catch { return undefined; }
+}
+
+/**
+ * Get the real consultation ID for an offline ID.
+ * Useful for components that need to know if a consultation has been synced.
+ */
+export function getRealIdForTemp(tempId: string): string | undefined {
+  return getTempIdMap(tempId);
 }

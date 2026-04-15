@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { setCache, getCache, getCacheTimestamp } from '@/lib/offline-cache';
 import { offlineFetch } from '@/lib/offline-fetch';
+import { saveOfflineConsultation } from '@/lib/offline-consultation-store';
 
 interface PatientListItem {
   id: string;
@@ -186,19 +187,24 @@ export function PatientListView() {
 
       const data = await res.json();
 
-      if (data.success || data.offline) {
-        if (data.offline) {
-          toast.success('Consultation will be created when back online.');
-        } else {
-          if (data.data?.id) {
-            setSelectedConsultationId(data.data.id);
-            setSelectedPatientId(patientDbId);
-            setCurrentView('consultation');
-            toast.success('Consultation created successfully');
-          } else {
-            toast.error('Server returned unexpected response');
-          }
-        }
+      if (data.offline && data.tempId) {
+        // Save local consultation record for offline use
+        saveOfflineConsultation(data.tempId, {
+          patientId: patientDbId,
+          nurseId: currentNurse?.id || '',
+          nurseName: currentNurse?.name,
+        });
+        setSelectedConsultationId(data.tempId);
+        setSelectedPatientId(patientDbId);
+        setCurrentView('consultation');
+        toast.success('Consultation created offline. You can fill it out now — it will sync when back online.', {
+          duration: 5000,
+        });
+      } else if (data.data?.id) {
+        setSelectedConsultationId(data.data.id);
+        setSelectedPatientId(patientDbId);
+        setCurrentView('consultation');
+        toast.success('Consultation created successfully');
       } else {
         toast.error(data.error || 'Failed to create consultation');
       }
